@@ -74,9 +74,9 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
   }, [api]);
 
   return (
-    <div className="bg-card/70 backdrop-blur-md border border-border/40 rounded-[2.2rem] p-6 sm:p-8 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300 relative overflow-hidden">
+    <div className="bg-transparent sm:bg-card/70 backdrop-blur-none sm:backdrop-blur-md border-0 sm:border border-border/40 rounded-none sm:rounded-[2.2rem] p-0 sm:p-8 shadow-none sm:shadow-[var(--shadow-card)] hover:shadow-none sm:hover:shadow-[var(--shadow-hover)] transition-all duration-300 relative overflow-visible sm:overflow-hidden">
       {/* Subtle top decoration */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10" />
+      <div className="hidden sm:block absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10" />
 
       <Carousel
         setApi={setApi}
@@ -89,7 +89,7 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
         className="w-full"
       >
         {/* Section header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-border/5 relative">
+        <div className="px-4 sm:px-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-border/5 relative">
           {/* Spacer for desktop to keep title perfectly centered */}
           <div className="hidden sm:block w-32" />
 
@@ -131,15 +131,21 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
         </div>
 
         {/* Flash sale extra banner */}
-        {sectionName === "Flash Sale" && <FlashSaleTimer />}
+        {sectionName === "Flash Sale" && (
+          <div className="px-4 sm:px-0">
+            <FlashSaleTimer />
+          </div>
+        )}
 
-        <CarouselContent className="-ml-4">
-          {products.map((product) => (
-            <CarouselItem key={product.id} className="pl-4 basis-[68%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
-              <ProductCard product={product} onAddToCart={onAddToCart} onBuyNow={onBuyNow} />
-            </CarouselItem>
-          ))}
-        </CarouselContent>
+        <div className="-mx-4 sm:mx-0">
+          <CarouselContent className="px-4 sm:px-0">
+            {products.map((product) => (
+              <CarouselItem key={product.id} className="pl-4 basis-[68%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
+                <ProductCard product={product} onAddToCart={onAddToCart} onBuyNow={onBuyNow} />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </div>
       </Carousel>
     </div>
   );
