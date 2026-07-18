@@ -402,7 +402,7 @@ export const ProductFeed: React.FC<ProductFeedProps> = ({
             <ProductSectionCarousel
               key={sectionName}
               sectionName={sectionName}
-              products={products}
+              products={products.slice(0, 10)}
               onAddToCart={handleAddToCart}
               onBuyNow={handleBuyNow}
               onViewAll={handleViewAll}

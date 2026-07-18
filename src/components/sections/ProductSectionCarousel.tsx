@@ -26,6 +26,9 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
   useEffect(() => {
     if (!api) return;
     
+    // Force Embla to recalculate slides/snaps when products load/change
+    api.reInit();
+    
     const updateSnaps = () => {
       setScrollSnaps(api.scrollSnapList());
       setSelectedIndex(api.selectedScrollSnap());
