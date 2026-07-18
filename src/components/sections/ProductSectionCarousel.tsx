@@ -74,7 +74,7 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
   }, [api]);
 
   return (
-    <div className="bg-transparent sm:bg-card/70 backdrop-blur-none sm:backdrop-blur-md border-0 sm:border border-border/40 rounded-none sm:rounded-[2.2rem] p-0 sm:p-8 shadow-none sm:shadow-[var(--shadow-card)] hover:shadow-none sm:hover:shadow-[var(--shadow-hover)] transition-all duration-300 relative overflow-visible sm:overflow-hidden">
+    <div className="bg-transparent sm:bg-card/70 backdrop-blur-none sm:backdrop-blur-md border-none sm:border sm:border-border/40 rounded-none sm:rounded-[2.2rem] p-0 sm:p-8 shadow-none sm:shadow-[var(--shadow-card)] hover:shadow-none sm:hover:shadow-[var(--shadow-hover)] transition-all duration-300 relative overflow-visible sm:overflow-hidden">
       {/* Subtle top decoration */}
       <div className="hidden sm:block absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10" />
 
