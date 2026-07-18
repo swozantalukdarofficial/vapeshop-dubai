@@ -35,26 +35,7 @@ export default function RootLayout({
       lang="en"
       className={`${playfair.variable} ${inter.variable} h-full antialiased`}
     >
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  const savedTheme = localStorage.getItem("vapeshope_theme");
-                  if (savedTheme === "dark") {
-                    document.documentElement.classList.add("dark");
-                  } else if (savedTheme === "light") {
-                    document.documentElement.classList.remove("dark");
-                  } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-                    document.documentElement.classList.add("dark");
-                  }
-                } catch (e) {}
-              })();
-            `,
-          }}
-        />
-      </head>
+      <head />
       <body className="min-h-full flex flex-col bg-background text-foreground transition-colors duration-300">
         <ThemeProvider>
           <CartProvider>

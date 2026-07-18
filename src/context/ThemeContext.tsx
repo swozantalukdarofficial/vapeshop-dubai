@@ -12,25 +12,17 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>("light"); // Default is light mode to prevent layout flashes
+  const [theme] = useState<Theme>("light"); // Force light mode always
 
   useEffect(() => {
-    const isDark = document.documentElement.classList.contains("dark");
-    setTheme(isDark ? "dark" : "light");
+    // Ensure dark mode class is not present on document
+    const root = window.document.documentElement;
+    root.classList.remove("dark");
+    localStorage.setItem("vapeshope_theme", "light");
   }, []);
 
-  useEffect(() => {
-    const root = window.document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-    localStorage.setItem("vapeshope_theme", theme);
-  }, [theme]);
-
   const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+    // Keep it light, toggle is disabled
   };
 
   return (
