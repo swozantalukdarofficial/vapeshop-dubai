@@ -243,12 +243,12 @@ export default function ProductPage() {
             
             {/* Left: Image Gallery */}
             <div className="lg:col-span-5 flex flex-col gap-4 w-full max-w-[480px] mx-auto lg:mx-0">
-              <div className="relative bg-muted/20 border border-border/40 rounded-[2.2rem] p-6 sm:p-8 flex items-center justify-center aspect-square overflow-hidden shadow-sm">
+              <div className="relative bg-muted/20 border border-border/40 rounded-[2.2rem] p-4 sm:p-6 flex items-center justify-center aspect-square overflow-hidden shadow-sm">
                 <div className="absolute w-64 h-64 rounded-full bg-primary/5 filter blur-3xl pointer-events-none" />
                 <img
                   src={activeImage}
                   alt={product.name}
-                  className="max-h-[260px] sm:max-h-[320px] lg:max-h-[360px] w-auto object-contain drop-shadow-xl transition-transform duration-500 hover:scale-105"
+                  className="w-[90%] h-[90%] object-contain drop-shadow-xl transition-transform duration-500 hover:scale-105"
                   onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
                 />
                 {product.tag && (
