@@ -20,6 +20,23 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
   onViewAll,
 }) => {
   const [api, setApi] = useState<CarouselApi>();
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+
+  useEffect(() => {
+    if (!api) return;
+    setScrollSnaps(api.scrollSnapList());
+    setSelectedIndex(api.selectedScrollSnap());
+    const onSelect = () => {
+      setSelectedIndex(api.selectedScrollSnap());
+    };
+    api.on("select", onSelect);
+    api.on("reInit", onSelect);
+    return () => {
+      api.off("select", onSelect);
+      api.off("reInit", onSelect);
+    };
+  }, [api]);
 
   useEffect(() => {
     if (!api) return;
@@ -143,12 +160,28 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
         <div className="-mx-4 sm:mx-0">
           <CarouselContent className="px-4 sm:px-0">
             {products.map((product) => (
-              <CarouselItem key={product.id} className="pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 flex">
+              <CarouselItem key={product.id} className="pl-4 basis-[92%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4 flex">
                 <ProductCard product={product} onAddToCart={onAddToCart} onBuyNow={onBuyNow} />
               </CarouselItem>
             ))}
           </CarouselContent>
         </div>
+
+        {/* Pagination Dots (Mobile Only) */}
+        {scrollSnaps.length > 1 && (
+          <div className="flex sm:hidden justify-center gap-1.5 mt-4 pb-2">
+            {scrollSnaps.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => api?.scrollTo(index)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  index === selectedIndex ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30"
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
       </Carousel>
     </div>
   );
