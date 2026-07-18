@@ -219,7 +219,7 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
         </div>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-2 mt-0.5">
+        <div className="flex flex-row gap-2 mt-0.5">
           <button
             onClick={() => !product.isSoldOut && onAddToCart(product)}
             disabled={product.isSoldOut}
