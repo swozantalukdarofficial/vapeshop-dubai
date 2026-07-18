@@ -26,7 +26,7 @@ const SLIDES = [
     title: "Disposable Vapes",
     accent: "Premium Disposables",
     desc: "Lost Mary, Al Fakher Crown Bar, Tugboat, BECO, and more. Up to 15,000 puffs. From 40 AED. Cash on delivery available with instant delivery across Dubai.",
-    image: "/lost_mary.png",
+    image: "/vape_kit.png",
     tag: "💰 From 40 AED Only",
     buttonText: "Shop Disposables",
     stat1: { value: "15K", label: "Max Puffs" },
@@ -48,7 +48,7 @@ const SLIDES = [
     title: "Premium E-Liquids & Salts",
     accent: "Nicotine Salts & Freebase",
     desc: "Nasty Juice, Pod Salt, Tokyo, RufPuf, and more. 0mg to 50mg nicotine options. Over 80 premium flavors in stock with same-day 2-hour delivery.",
-    image: "/premium_liquid.png",
+    image: "/vape_kit.png",
     tag: "⭐ 80+ Flavors Available",
     buttonText: "Shop E-Liquids",
     stat1: { value: "80+", label: "Flavors" },
@@ -226,13 +226,13 @@ export const HeroSection: React.FC = () => {
                       </div>
 
                       {/* Product image */}
-                      <div className="md:w-[45%] flex items-center justify-center relative min-h-[180px] py-4 select-none pointer-events-none">
+                      <div className="md:w-[45%] flex items-center justify-center relative min-h-[220px] py-4 select-none pointer-events-none">
                         <div className="absolute w-44 h-44 rounded-full bg-primary/7 filter blur-[50px] pointer-events-none" />
                         <img
                           src={slide.image}
                           alt={slide.title}
                           draggable="false"
-                          className="animate-float relative z-10 h-[180px] sm:h-[220px] w-auto object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.1)] pointer-events-none"
+                          className="animate-float relative z-10 h-[220px] sm:h-[280px] lg:h-[340px] w-auto object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.1)] pointer-events-none"
                         />
                       </div>
                     </div>
@@ -293,12 +293,12 @@ export const HeroSection: React.FC = () => {
               </div>
 
               {/* Right Product Image */}
-              <div className="w-[90px] sm:w-[100px] flex-shrink-0 relative flex items-center justify-center z-10">
+              <div className="w-[110px] sm:w-[120px] flex-shrink-0 relative flex items-center justify-center z-10">
                 <div className="absolute w-20 h-20 rounded-full bg-primary/5 filter blur-[25px]" />
                 <img 
-                  src="/juul_device.png" 
+                  src="/vape_kit.png" 
                   alt="JUUL 1" 
-                  className="relative h-[120px] sm:h-[140px] w-auto object-contain drop-shadow-[0_8px_20px_rgba(0,0,0,0.12)] group-hover:scale-110 group-hover:rotate-2 transition-all duration-500" 
+                  className="relative h-[130px] sm:h-[150px] w-auto object-contain drop-shadow-[0_8px_20px_rgba(0,0,0,0.12)] group-hover:scale-110 group-hover:rotate-2 transition-all duration-500" 
                   onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
                 />
               </div>
@@ -324,12 +324,12 @@ export const HeroSection: React.FC = () => {
               </div>
 
               {/* Right Product Image */}
-              <div className="w-[90px] sm:w-[100px] flex-shrink-0 relative flex items-center justify-center z-10">
+              <div className="w-[110px] sm:w-[120px] flex-shrink-0 relative flex items-center justify-center z-10">
                 <div className="absolute w-20 h-20 rounded-full bg-white/10 filter blur-[25px]" />
                 <img 
-                  src="/juul_device.png" 
+                  src="/vape_kit.png" 
                   alt="JUUL 2" 
-                  className="relative h-[120px] sm:h-[140px] w-auto object-contain drop-shadow-[0_8px_20px_rgba(0,0,0,0.2)] group-hover:scale-110 group-hover:-rotate-2 transition-all duration-500" 
+                  className="relative h-[130px] sm:h-[150px] w-auto object-contain drop-shadow-[0_8px_20px_rgba(0,0,0,0.2)] group-hover:scale-110 group-hover:-rotate-2 transition-all duration-500" 
                   onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
                 />
               </div>
