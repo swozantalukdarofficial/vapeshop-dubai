@@ -384,7 +384,7 @@ export const ProductFeed: React.FC<ProductFeedProps> = ({
       {/* ── Loading state or product displays ── */}
       {loading ? (
         <div className="bg-card/70 backdrop-blur-md border border-border/40 rounded-[2.2rem] p-6 sm:p-8 shadow-[var(--shadow-card)]">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="animate-pulse bg-card border border-border/40 rounded-[2rem] p-5 flex flex-col gap-4 min-h-[350px]">
                 <div className="bg-muted rounded-[1.5rem] h-48 w-full animate-pulse" />
@@ -425,7 +425,7 @@ export const ProductFeed: React.FC<ProductFeedProps> = ({
         </div>
       ) : (
         <div className="bg-card/70 backdrop-blur-md border border-border/40 rounded-[2.2rem] p-6 sm:p-8 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} onAddToCart={handleAddToCart} onBuyNow={handleBuyNow} />
             ))}

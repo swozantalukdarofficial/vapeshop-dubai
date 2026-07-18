@@ -561,7 +561,7 @@ function CollectionPageContent() {
 
               {/* Grid content */}
               {loading ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
                   {[1, 2, 3, 4, 5, 6].map((i) => (
                     <div key={i} className="animate-pulse bg-card border border-border/40 rounded-[2rem] p-5 flex flex-col gap-4 min-h-[350px]">
                       <div className="bg-muted rounded-[1.5rem] h-48 w-full animate-pulse" />
@@ -585,7 +585,7 @@ function CollectionPageContent() {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
                   {filteredProducts.map((product) => {
                     const isSale = product.tagColor === "sale";
                     return (
