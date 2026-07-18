@@ -25,18 +25,21 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
 
   useEffect(() => {
     if (!api) return;
-    setScrollSnaps(api.scrollSnapList());
-    setSelectedIndex(api.selectedScrollSnap());
-    const onSelect = () => {
+    
+    const updateSnaps = () => {
+      setScrollSnaps(api.scrollSnapList());
       setSelectedIndex(api.selectedScrollSnap());
     };
-    api.on("select", onSelect);
-    api.on("reInit", onSelect);
+
+    updateSnaps();
+
+    api.on("select", updateSnaps);
+    api.on("reInit", updateSnaps);
     return () => {
-      api.off("select", onSelect);
-      api.off("reInit", onSelect);
+      api.off("select", updateSnaps);
+      api.off("reInit", updateSnaps);
     };
-  }, [api]);
+  }, [api, products]);
 
   useEffect(() => {
     if (!api) return;
