@@ -239,16 +239,16 @@ export default function ProductPage() {
 
         {/* Product Details Section */}
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
             
             {/* Left: Image Gallery */}
-            <div className="lg:col-span-6 flex flex-col gap-4">
-              <div className="relative bg-muted/20 border border-border/40 rounded-[2.5rem] p-6 sm:p-10 flex items-center justify-center aspect-square overflow-hidden shadow-sm">
+            <div className="lg:col-span-5 flex flex-col gap-4 w-full max-w-[480px] mx-auto lg:mx-0">
+              <div className="relative bg-muted/20 border border-border/40 rounded-[2.2rem] p-6 sm:p-8 flex items-center justify-center aspect-square overflow-hidden shadow-sm">
                 <div className="absolute w-64 h-64 rounded-full bg-primary/5 filter blur-3xl pointer-events-none" />
                 <img
                   src={activeImage}
                   alt={product.name}
-                  className="max-h-[350px] sm:max-h-[450px] w-auto object-contain drop-shadow-xl transition-transform duration-500 hover:scale-105"
+                  className="max-h-[260px] sm:max-h-[320px] lg:max-h-[360px] w-auto object-contain drop-shadow-xl transition-transform duration-500 hover:scale-105"
                   onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
                 />
                 {product.tag && (
@@ -265,7 +265,7 @@ export default function ProductPage() {
                     <button
                       key={idx}
                       onClick={() => setActiveImage(img)}
-                      className={`h-20 w-20 rounded-2xl border-2 overflow-hidden bg-card p-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 cursor-pointer ${
+                      className={`h-16 w-16 rounded-xl border-2 overflow-hidden bg-card p-1.5 flex items-center justify-center flex-shrink-0 transition-all duration-200 cursor-pointer ${
                         activeImage === img ? "border-primary shadow" : "border-border/40 hover:border-primary/50"
                       }`}
                     >
@@ -280,9 +280,9 @@ export default function ProductPage() {
                 </div>
               )}
             </div>
-
-            {/* Right: Product Info */}
-            <div className="lg:col-span-6 flex flex-col gap-6">
+ 
+             {/* Right: Product Info */}
+             <div className="lg:col-span-7 flex flex-col gap-6">
               <div>
                 <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.2em] text-primary uppercase bg-primary/5 border border-primary/20 px-3.5 py-1 rounded-full">
                   {product.section || product.category}
