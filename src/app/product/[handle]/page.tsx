@@ -392,42 +392,42 @@ export default function ProductPage() {
               </div>
 
               {/* CTAs */}
-              <div className="grid grid-cols-2 gap-4 mt-2">
+              <div className="grid grid-cols-2 gap-3 mt-2">
                 <button
                   onClick={handleAddToCart}
                   disabled={!!product.isSoldOut || !!(selectedVariant && !selectedVariant.availableForSale)}
-                  className="bg-card hover:bg-muted/40 border border-border text-foreground font-bold tracking-wider py-4 rounded-2xl text-xs uppercase flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-card hover:bg-muted/40 border border-border text-foreground font-bold tracking-wider py-3.5 sm:py-4 px-2 rounded-2xl text-[10px] sm:text-xs uppercase flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <ShoppingCart className="h-4 w-4" /> Add to Cart
+                  <ShoppingCart className="h-3.5 w-3.5" /> Add to Cart
                 </button>
                 <button
                   onClick={handleBuyNow}
                   disabled={!!product.isSoldOut || !!(selectedVariant && !selectedVariant.availableForSale)}
-                  className="bg-gradient-to-r from-primary to-orange-500 text-white font-bold tracking-wider py-4 rounded-2xl text-xs uppercase flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98 hover:brightness-105 shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-gradient-to-r from-primary to-orange-500 text-white font-bold tracking-wider py-3.5 sm:py-4 px-2 rounded-2xl text-[10px] sm:text-xs uppercase flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98 hover:brightness-105 shadow disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Sparkles className="h-4 w-4" /> Buy Now
+                  <Sparkles className="h-3.5 w-3.5" /> Buy Now
                 </button>
               </div>
 
               {/* Trust Badges */}
-              <div className="grid grid-cols-3 gap-3 pt-6 border-t border-border/40 text-center">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-6 border-t border-border/40 text-center">
                 <div className="flex flex-col items-center gap-1.5">
                   <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center border border-primary/20">
                     <Truck className="h-4 w-4 text-primary" />
                   </div>
-                  <p className="text-[10px] font-bold text-foreground">2hr Dubai Delivery</p>
+                  <p className="text-[9px] sm:text-[10px] leading-tight font-bold text-foreground px-1">2hr Dubai Delivery</p>
                 </div>
                 <div className="flex flex-col items-center gap-1.5">
                   <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center border border-primary/20">
                     <ShieldCheck className="h-4 w-4 text-primary" />
                   </div>
-                  <p className="text-[10px] font-bold text-foreground">100% Authentic</p>
+                  <p className="text-[9px] sm:text-[10px] leading-tight font-bold text-foreground px-1">100% Authentic</p>
                 </div>
                 <div className="flex flex-col items-center gap-1.5">
                   <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center border border-primary/20">
                     <RotateCcw className="h-4 w-4 text-primary" />
                   </div>
-                  <p className="text-[10px] font-bold text-foreground">COD Available</p>
+                  <p className="text-[9px] sm:text-[10px] leading-tight font-bold text-foreground px-1">COD Available</p>
                 </div>
               </div>
 
@@ -584,7 +584,7 @@ export default function ProductPage() {
               </div>
             </div>
             
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
               {similarProducts.map((p) => {
                 const isSaleItem = p.originalPrice && p.originalPrice > p.price;
                 return (

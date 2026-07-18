@@ -517,16 +517,16 @@ function CollectionPageContent() {
             <div className="lg:col-span-3 space-y-6">
               
               {/* Toolbar */}
-              <div className="flex flex-row items-center justify-between gap-4 bg-card border border-border/40 px-6 py-4 rounded-3xl shadow-sm">
-                <p className="text-xs font-bold text-foreground">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card border border-border/40 px-4 sm:px-6 py-4 rounded-3xl shadow-sm">
+                <p className="text-xs font-bold text-foreground text-center sm:text-left">
                   Showing <span className="text-primary">{filteredProducts.length}</span> premium products
                 </p>
                 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
                   {/* Mobile Filters Trigger */}
                   <button
                     onClick={() => setIsMobileFiltersOpen(true)}
-                    className="lg:hidden flex items-center gap-1.5 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 px-3.5 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all active:scale-95"
+                    className="lg:hidden flex items-center justify-center gap-1.5 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 px-3.5 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all active:scale-95 flex-grow sm:flex-grow-0"
                   >
                     <SlidersHorizontal className="h-3.5 w-3.5" /> Filters
                     {(selectedNicotines.length > 0 ||
@@ -540,13 +540,13 @@ function CollectionPageContent() {
                   </button>
 
                   {/* Sort selector */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-grow sm:flex-grow-0 justify-end">
                     <span className="text-xs text-muted-foreground font-semibold hidden sm:inline">Sort By:</span>
-                    <div className="relative">
+                    <div className="relative w-full sm:w-auto">
                       <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
-                        className="bg-background border border-border rounded-xl text-xs font-bold px-3.5 py-2 pr-8 appearance-none cursor-pointer hover:border-primary focus:outline-none text-foreground"
+                        className="w-full bg-background border border-border rounded-xl text-xs font-bold px-3.5 py-2 pr-8 appearance-none cursor-pointer hover:border-primary focus:outline-none text-foreground"
                       >
                         <option value="popular">Popularity</option>
                         <option value="price-low">Price: Low to High</option>
@@ -561,7 +561,7 @@ function CollectionPageContent() {
 
               {/* Grid content */}
               {loading ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
                   {[1, 2, 3, 4, 5, 6].map((i) => (
                     <div key={i} className="animate-pulse bg-card border border-border/40 rounded-[2rem] p-5 flex flex-col gap-4 min-h-[350px]">
                       <div className="bg-muted rounded-[1.5rem] h-48 w-full animate-pulse" />
@@ -585,7 +585,7 @@ function CollectionPageContent() {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
                   {filteredProducts.map((product) => {
                     const isSale = product.tagColor === "sale";
                     return (
