@@ -334,7 +334,7 @@ function CollectionPageContent() {
 
       <main className="flex-grow pb-24">
         {/* Breadcrumb */}
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10">
           <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
             <Link href="/" className="hover:text-primary transition-colors">Home</Link>
             <ChevronRight className="h-3 w-3" />
@@ -343,7 +343,7 @@ function CollectionPageContent() {
         </div>
 
         {/* Collection Intro Banner */}
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6">
           <div className="bg-card border border-border/40 rounded-[2.5rem] p-8 sm:p-12 relative overflow-hidden shadow-sm">
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10" />
             <div className="relative z-10 max-w-2xl">
@@ -364,7 +364,7 @@ function CollectionPageContent() {
         </div>
 
         {/* Catalog Section */}
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             
             {/* Filter Sidebar (Desktop) */}

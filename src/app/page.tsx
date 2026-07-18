@@ -31,11 +31,11 @@ export default function Home() {
       <main className="flex-grow space-y-8 sm:space-y-12 pb-20">
         <HeroSection />
         
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <Categories onCategorySelect={setActiveCategory} activeCategory={activeCategory} />
         </div>
 
-        <div id="products-section" className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div id="products-section" className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <ProductFeed
             searchQuery={searchQuery}
             activeCategory={activeCategory}
@@ -43,15 +43,15 @@ export default function Home() {
           />
         </div>
 
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <AuthorizedDealers />
         </div>
 
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <FAQSection />
         </div>
 
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <Highlights />
         </div>
       </main>

@@ -140,7 +140,7 @@ export const HeroSection: React.FC = () => {
 
   return (
     <section className="relative pt-28 sm:pt-32 lg:pt-40 pb-0 overflow-hidden bg-transparent">
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* ── Main Hero Grid ──────────────────────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">

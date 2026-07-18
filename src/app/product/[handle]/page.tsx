@@ -153,7 +153,7 @@ export default function ProductPage() {
     return (
       <div className="relative flex flex-col min-h-screen bg-background text-foreground">
         <Navbar onSearchChange={setSearchQuery} onCategorySelect={setActiveCategory} activeCategory={activeCategory} />
-        <main className="flex-grow max-w-[1440px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-12">
+        <main className="flex-grow max-w-[1600px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
             <div className="animate-pulse flex flex-col gap-4">
               <div className="bg-muted rounded-[2rem] aspect-square w-full" />
@@ -220,7 +220,7 @@ export default function ProductPage() {
 
       <main className="flex-grow pb-24">
         {/* Breadcrumb */}
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10">
           <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
             <Link href="/" className="hover:text-primary transition-colors">Home</Link>
             <ChevronRight className="h-3 w-3" />
@@ -231,7 +231,7 @@ export default function ProductPage() {
         </div>
 
         {/* Product Details Section */}
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
             
             {/* Left: Image Gallery */}
@@ -436,7 +436,7 @@ export default function ProductPage() {
         </div>
 
         {/* Dynamic description & Specs Tabs */}
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-24">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-24">
           <div className="bg-card border border-border/40 rounded-[2rem] p-6 sm:p-10 shadow-sm">
             
             {/* Tab Headers */}
@@ -573,7 +573,7 @@ export default function ProductPage() {
 
         {/* Similar Products Recommendation Slider */}
         {similarProducts.length > 0 && (
-          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 mt-20 sm:mt-28">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-20 sm:mt-28">
             <div className="flex items-end justify-between mb-8">
               <div>
                 <p className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase mb-1.5 flex items-center gap-1.5">
