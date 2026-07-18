@@ -92,9 +92,14 @@ export default function ProductPage() {
         setProduct(data);
         setActiveImage(data.image);
         
-        // Select first available variant
-        const firstAvailable = data.variants.find((v: Variant) => v.availableForSale) || data.variants[0] || null;
-        setSelectedVariant(firstAvailable);
+        // Select first available variant only if there is 1 option.
+        // If there are multiple options/flavors, default to null so user must select.
+        if (data.variants && data.variants.length > 1) {
+          setSelectedVariant(null);
+        } else {
+          const firstAvailable = data.variants.find((v: Variant) => v.availableForSale) || data.variants[0] || null;
+          setSelectedVariant(firstAvailable);
+        }
 
         // Fetch similar products
         const allRes = await fetch("/api/products");
@@ -359,8 +364,8 @@ export default function ProductPage() {
                       className="w-full flex items-center justify-between bg-card hover:bg-muted/30 border border-border px-4 py-3.5 rounded-2xl text-xs font-bold text-foreground transition-all duration-300 shadow-sm cursor-pointer hover:border-primary/50 focus:border-primary focus:ring-1 focus:ring-primary/20"
                     >
                       <span className="flex items-center gap-2">
-                        <span className={`w-2 h-2 rounded-full ${selectedVariant?.availableForSale ? "bg-emerald-500 animate-pulse" : "bg-zinc-500"}`} />
-                        {selectedVariant ? selectedVariant.title : "Choose option"}
+                        <span className={`w-2 h-2 rounded-full ${selectedVariant ? (selectedVariant.availableForSale ? "bg-emerald-500 animate-pulse" : "bg-zinc-500") : "bg-primary animate-pulse"}`} />
+                        {selectedVariant ? selectedVariant.title : "Select Flavor"}
                       </span>
                       <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-300 ${isDropdownOpen ? "rotate-180 text-primary" : ""}`} />
                     </button>
@@ -440,17 +445,17 @@ export default function ProductPage() {
               <div className="grid grid-cols-2 gap-3 mt-2">
                 <button
                   onClick={handleAddToCart}
-                  disabled={!!product.isSoldOut || !!(selectedVariant && !selectedVariant.availableForSale)}
+                  disabled={!!product.isSoldOut || !selectedVariant || !selectedVariant.availableForSale}
                   className="bg-card hover:bg-muted/40 border border-border text-foreground font-bold tracking-wider py-3.5 sm:py-4 px-2 rounded-2xl text-[10px] sm:text-xs uppercase flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <ShoppingCart className="h-3.5 w-3.5" /> Add to Cart
+                  <ShoppingCart className="h-3.5 w-3.5" /> {!selectedVariant ? "Select Flavor" : "Add to Cart"}
                 </button>
                 <button
                   onClick={handleBuyNow}
-                  disabled={!!product.isSoldOut || !!(selectedVariant && !selectedVariant.availableForSale)}
+                  disabled={!!product.isSoldOut || !selectedVariant || !selectedVariant.availableForSale}
                   className="bg-gradient-to-r from-primary to-orange-500 text-white font-bold tracking-wider py-3.5 sm:py-4 px-2 rounded-2xl text-[10px] sm:text-xs uppercase flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98 hover:brightness-105 shadow disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Sparkles className="h-3.5 w-3.5" /> Buy Now
+                  <Sparkles className="h-3.5 w-3.5" /> {!selectedVariant ? "Select Flavor" : "Buy Now"}
                 </button>
               </div>
 
