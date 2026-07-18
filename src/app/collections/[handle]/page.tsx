@@ -680,7 +680,7 @@ function CollectionPageContent() {
                           </div>
 
                           {/* CTA Buttons */}
-                          <div className="flex gap-2 mt-0.5">
+                          <div className="flex flex-col sm:flex-row gap-2 mt-0.5">
                             <button
                               onClick={() => !product.isSoldOut && handleAddToCart(product)}
                               disabled={product.isSoldOut}
