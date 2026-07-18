@@ -17,6 +17,7 @@ import {
   Minus,
   Check,
   ChevronRight,
+  ChevronDown,
   ArrowLeft,
   Sparkles
 } from "lucide-react";
@@ -67,6 +68,7 @@ export default function ProductPage() {
   const [error, setError] = useState("");
   const [activeImage, setActiveImage] = useState("");
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<"description" | "specs" | "faq">("description");
   const [similarProducts, setSimilarProducts] = useState<any[]>([]);
@@ -344,29 +346,72 @@ export default function ProductPage() {
                 )}
               </div>
 
-              {/* Variant Selector */}
+              {/* Variant Selector (Dropdown) */}
               {product.variants && product.variants.length > 1 && (
-                <div className="space-y-3">
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Select Option:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {product.variants.map((v) => (
-                      <button
-                        key={v.id}
-                        onClick={() => {
-                          if (v.availableForSale) setSelectedVariant(v);
-                        }}
-                        disabled={!v.availableForSale}
-                        className={`px-4 py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                          !v.availableForSale
-                            ? "bg-muted/50 text-muted-foreground/40 border-border/20 cursor-not-allowed line-through"
-                            : selectedVariant?.id === v.id
-                            ? "bg-foreground dark:bg-primary text-background dark:text-white border-primary shadow"
-                            : "bg-card hover:bg-muted/40 text-foreground border-border"
-                        }`}
-                      >
-                        {v.title}
-                      </button>
-                    ))}
+                <div className="space-y-3 relative">
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Select Flavor / Option:</p>
+                  
+                  <div className="relative">
+                    {/* Trigger Button */}
+                    <button
+                      type="button"
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      className="w-full flex items-center justify-between bg-card hover:bg-muted/30 border border-border px-4 py-3.5 rounded-2xl text-xs font-bold text-foreground transition-all duration-300 shadow-sm cursor-pointer hover:border-primary/50 focus:border-primary focus:ring-1 focus:ring-primary/20"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full ${selectedVariant?.availableForSale ? "bg-emerald-500 animate-pulse" : "bg-zinc-500"}`} />
+                        {selectedVariant ? selectedVariant.title : "Choose option"}
+                      </span>
+                      <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-300 ${isDropdownOpen ? "rotate-180 text-primary" : ""}`} />
+                    </button>
+
+                    {/* Backdrop for click-away */}
+                    {isDropdownOpen && (
+                      <div 
+                        className="fixed inset-0 z-40 bg-transparent" 
+                        onClick={() => setIsDropdownOpen(false)}
+                      />
+                    )}
+
+                    {/* Options Dropdown Menu */}
+                    {isDropdownOpen && (
+                      <div className="absolute left-0 right-0 mt-2 z-50 bg-card/95 backdrop-blur-md border border-border rounded-2xl shadow-xl max-h-60 overflow-y-auto divide-y divide-border/40 scrollbar-thin animate-in fade-in slide-in-from-top-2 duration-200">
+                        {product.variants.map((v) => {
+                          const isSelected = selectedVariant?.id === v.id;
+                          return (
+                            <button
+                              key={v.id}
+                              type="button"
+                              onClick={() => {
+                                if (v.availableForSale) {
+                                  setSelectedVariant(v);
+                                  setIsDropdownOpen(false);
+                                }
+                              }}
+                              disabled={!v.availableForSale}
+                              className={`w-full flex items-center justify-between px-4 py-3 text-xs font-bold text-left transition-all cursor-pointer ${
+                                !v.availableForSale
+                                  ? "opacity-40 cursor-not-allowed bg-muted/20 line-through text-muted-foreground/60"
+                                  : isSelected
+                                  ? "bg-primary/10 text-primary hover:bg-primary/15"
+                                  : "hover:bg-muted/40 text-foreground"
+                              }`}
+                            >
+                              <span className="flex items-center gap-2">
+                                <span className={`w-1.5 h-1.5 rounded-full ${v.availableForSale ? "bg-emerald-500" : "bg-zinc-400"}`} />
+                                {v.title}
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] text-muted-foreground">
+                                  {v.availableForSale ? `Dhs. ${v.price}` : "Out of Stock"}
+                                </span>
+                                {isSelected && <Check className="h-3.5 w-3.5 text-primary" />}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
