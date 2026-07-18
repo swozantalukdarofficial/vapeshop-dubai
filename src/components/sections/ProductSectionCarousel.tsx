@@ -81,10 +81,13 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
       <Carousel
         setApi={setApi}
         opts={{
-          align: "start",
+          align: "center",
           loop: false,
           dragFree: true,
           containScroll: "trimSnaps",
+          breakpoints: {
+            "(min-width: 640px)": { align: "start" }
+          }
         }}
         className="w-full"
       >
@@ -140,7 +143,7 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
         <div className="-mx-4 sm:mx-0">
           <CarouselContent className="px-4 sm:px-0">
             {products.map((product) => (
-              <CarouselItem key={product.id} className="pl-4 basis-[68%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
+              <CarouselItem key={product.id} className="pl-4 basis-[82%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
                 <ProductCard product={product} onAddToCart={onAddToCart} onBuyNow={onBuyNow} />
               </CarouselItem>
             ))}
