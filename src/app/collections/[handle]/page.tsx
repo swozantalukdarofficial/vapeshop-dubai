@@ -332,7 +332,7 @@ function CollectionPageContent() {
         activeCategory={activeCategory}
       />
 
-      <main className="flex-grow pb-24">
+      <main className="flex-grow pb-24 pt-20 sm:pt-28">
         {/* Breadcrumb */}
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10">
           <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">

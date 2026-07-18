@@ -142,7 +142,7 @@ export default function CheckoutPage() {
     <div className="relative flex flex-col min-h-screen bg-background text-foreground">
       <Navbar />
 
-      <main className="flex-grow max-w-[1600px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
+      <main className="flex-grow max-w-[1600px] mx-auto w-full px-4 sm:px-6 lg:px-8 pb-10 pt-24 sm:pt-32">
         {/* Back Link */}
         <div className="mb-6">
           <Link
