@@ -1,0 +1,212 @@
+import { NextResponse } from "next/server";
+
+const SHOPIFY_STORE = process.env.SHOPIFY_STORE!;
+const ADMIN_API_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN!;
+
+const query = `
+query {
+  products(first: 250) {
+    edges {
+      node {
+        id
+        title
+        handle
+        productType
+        vendor
+        tags
+        status
+
+        puffs: metafield(namespace: "custom", key: "puffs") { value }
+        nicotine: metafield(namespace: "custom", key: "nicotine") { value }
+        badge: metafield(namespace: "custom", key: "badge_text") { value }
+        rating: metafield(namespace: "custom", key: "rating_value") { value }
+        reviews: metafield(namespace: "custom", key: "reviews_count") { value }
+        battery: metafield(namespace: "custom", key: "spec_battery") { value }
+        images(first: 5) {
+          edges {
+            node {
+              url
+            }
+          }
+        }
+        variants(first: 10) {
+          edges {
+            node {
+              id
+              title
+              price
+              compareAtPrice
+              availableForSale
+              inventoryQuantity
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`;
+
+async function fetchShopifyProducts() {
+  const url = `https://${SHOPIFY_STORE}/admin/api/2024-10/graphql.json`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "X-Shopify-Access-Token": ADMIN_API_TOKEN,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ query }),
+    next: { revalidate: 10 }, // Cache for 10 seconds
+  });
+
+  if (!response.ok) {
+    throw new Error(`Shopify API error: ${response.statusText}`);
+  }
+
+  const json = await response.json();
+  if (json.errors) {
+    throw new Error(`Shopify GraphQL errors: ${JSON.stringify(json.errors)}`);
+  }
+
+  return json.data.products.edges.map((edge: any) => edge.node);
+}
+
+function detectBrand(title: string, vendor: string): string {
+  const titleLower = title.toLowerCase();
+  
+  const brands = [
+    { name: "Al Fakher", keywords: ["al fakher", "alfakher", "crown bar"] },
+    { name: "JUUL", keywords: ["juul"] },
+    { name: "BECO", keywords: ["beco"] },
+    { name: "MYLE", keywords: ["myle"] },
+    { name: "Pod Salt", keywords: ["pod salt", "podsalt"] },
+    { name: "Vaporesso", keywords: ["vaporesso"] },
+    { name: "Tugboat", keywords: ["tugboat"] },
+    { name: "Yuoto", keywords: ["yuoto"] },
+    { name: "Nasty", keywords: ["nasty"] },
+    { name: "Waka", keywords: ["waka"] },
+    { name: "Elf Bar", keywords: ["elf bar", "elfbar"] },
+    { name: "Lost Mary", keywords: ["lost mary"] },
+    { name: "ISGO", keywords: ["isgo"] },
+    { name: "Terea", keywords: ["terea"] },
+    { name: "Heets", keywords: ["heets"] },
+    { name: "Dr Vapes", keywords: ["dr vapes", "dr. vapes", "dr.vapes"] },
+    { name: "Vozol", keywords: ["vozol"] },
+    { name: "Oxva", keywords: ["oxva"] },
+    { name: "Geekvape", keywords: ["geekvape", "geek vape"] },
+    { name: "Voopoo", keywords: ["voopoo"] },
+    { name: "Uwell", keywords: ["uwell"] },
+    { name: "Smok", keywords: ["smok"] },
+    { name: "Tokyo", keywords: ["tokyo"] },
+    { name: "Ruthless", keywords: ["ruthless"] },
+    { name: "Vapetasia", keywords: ["vapetasia"] },
+    { name: "Grand Vapes", keywords: ["grand vapes", "grand e-liquids"] },
+  ];
+
+  for (const b of brands) {
+    if (b.keywords.some(kw => titleLower.includes(kw))) {
+      return b.name;
+    }
+  }
+
+  if (vendor && vendor.toLowerCase() !== "vapshop" && vendor.toLowerCase() !== "vape shop") {
+    return vendor;
+  }
+
+  // Fallback: extract the first word of the title as brand
+  const firstWord = title.trim().split(/\s+/)[0];
+  if (firstWord && firstWord.length > 2) {
+    const cleaned = firstWord.replace(/[^a-zA-Z0-9]/g, "");
+    if (cleaned) return cleaned;
+  }
+
+  return "Vape Shop";
+}
+
+function cleanProductTitle(title: string): string {
+  let cleaned = title;
+  if (cleaned.startsWith("Buy ") || cleaned.startsWith("buy ")) {
+    cleaned = cleaned.substring(4);
+  }
+  cleaned = cleaned.replace(/Get\s+(.+?)\s+Free/gi, "+ $1 Bundle");
+  cleaned = cleaned.replace(/Get\s+(.+?)\s+FREE/gi, "+ $1 Bundle");
+  cleaned = cleaned.replace(/\s+Free\s*/gi, " ");
+  return cleaned.trim();
+}
+
+export async function GET() {
+  try {
+    const rawProducts = await fetchShopifyProducts();
+
+    // Map Shopify products to frontend Product interface
+    const mappedProducts = rawProducts.map((node: any) => {
+      const firstVariant = node.variants.edges[0]?.node;
+      const price = parseFloat(firstVariant?.price || "0");
+      const comparePriceStr = firstVariant?.compareAtPrice;
+      const comparePrice = comparePriceStr ? parseFloat(comparePriceStr) : 0;
+      
+      const isSoldOut = !node.variants.edges.some((v: any) => v.node.availableForSale);
+
+      // Determine category based on productType or tags
+      const typeLower = (node.productType || "").toLowerCase();
+      const titleLower = (node.title || "").toLowerCase();
+      const tagsLower = node.tags.map((t: string) => t.toLowerCase());
+
+      let category = "accessories"; // default
+      if (typeLower.includes("juul") || tagsLower.includes("juul") || titleLower.includes("juul")) {
+        category = "juul";
+      } else if (typeLower.includes("disposable") || tagsLower.includes("disposable") || titleLower.includes("disposable")) {
+        category = "disposables";
+      } else if (typeLower.includes("e-juice") || typeLower.includes("e-liquid") || tagsLower.includes("e-juice") || tagsLower.includes("saltnic") || titleLower.includes("salt") || titleLower.includes("liquid")) {
+        category = "e-liquids";
+      } else if (typeLower.includes("kit") || typeLower.includes("pod system") || tagsLower.includes("pod system") || titleLower.includes("kit") || titleLower.includes("device")) {
+        category = "accessories";
+      }
+
+      // Determine Section (for grouped displays)
+      let section = "Pod Systems";
+      if (category === "juul") {
+        section = titleLower.includes("juul 2") || titleLower.includes("juul2") ? "JUUL 2 Series" : "JUUL 1 Series";
+      } else if (category === "disposables") {
+        section = "Disposables";
+      } else if (category === "e-liquids") {
+        section = "E-Liquids";
+      }
+
+      // If comparison price is higher, put it in Flash Sales
+      if (comparePrice > price) {
+        section = "Flash Sale";
+      }
+
+      // Format images
+      const image = node.images.edges[0]?.node?.url || "/hero_vape.png";
+
+      return {
+        id: node.id,
+        name: cleanProductTitle(node.title),
+        handle: node.handle,
+        variantId: firstVariant?.id || "",
+        category,
+        price,
+        originalPrice: comparePrice > price ? comparePrice : undefined,
+        rating: parseFloat(node.rating?.value || "4.8"),
+        reviews: parseInt(node.reviews?.value || "125"),
+        image,
+        tag: node.badge?.value || (isSoldOut ? "Sold Out" : comparePrice > price ? "Sale" : undefined),
+        tagColor: comparePrice > price ? "sale" : undefined,
+        isPopular: node.tags.includes("Popular") || node.tags.includes("popular"),
+        isSoldOut,
+        puffs: node.puffs?.value || undefined,
+        nicotine: node.nicotine?.value || undefined,
+        battery: node.battery?.value || undefined,
+        section,
+        brand: detectBrand(node.title, node.vendor),
+      };
+    });
+
+    return NextResponse.json(mappedProducts);
+  } catch (error: any) {
+    console.error("API error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

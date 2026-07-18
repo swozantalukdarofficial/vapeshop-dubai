@@ -1,0 +1,159 @@
+"use client";
+
+import React from "react";
+import { useRouter } from "next/navigation";
+
+interface CategoriesProps {
+  onCategorySelect?: (id: string) => void;
+  activeCategory?: string;
+}
+
+const DIRECTORY_SECTIONS = [
+  {
+    label: "JUUL 1 Series",
+    image: "/juul_device.png",
+    path: "/collections/juul?sub=JUUL%201%20Series",
+  },
+  {
+    label: "JUUL 2 Series",
+    image: "/juul_device.png",
+    path: "/collections/juul?sub=JUUL%202%20Series",
+  },
+  {
+    label: "JUUL Pods",
+    image: "/juul_device.png",
+    path: "/collections/juul?sub=JUUL%20Pods",
+  },
+  {
+    label: "Myle v5 Pods",
+    image: "/vape_kit.png",
+    path: "/collections/all?brand=MYLE&sub=Myle%20v5%20Pods",
+  },
+  {
+    label: "Myle v5 Kits",
+    image: "/vape_kit.png",
+    path: "/collections/all?brand=MYLE&sub=Myle%20v5%20Device",
+  },
+  {
+    label: "Myle Disposables",
+    image: "/vape_kit.png",
+    path: "/collections/all?brand=MYLE&sub=Myle%20Disposable",
+  },
+  {
+    label: "Disposables",
+    image: "/lost_mary.png",
+    path: "/collections/disposables",
+  },
+  {
+    label: "Salt Nicotine",
+    image: "/premium_liquid.png",
+    path: "/collections/e-liquids?sub=Salt%20Nicotine",
+  },
+  {
+    label: "Freebase Nic",
+    image: "/premium_liquid.png",
+    path: "/collections/e-liquids?sub=Freebase",
+  },
+  {
+    label: "Pod Kits",
+    image: "/vape_kit.png",
+    path: "/collections/accessories?sub=Pod%20Kit",
+  },
+  {
+    label: "Cartridges",
+    image: "/vape_kit.png",
+    path: "/collections/accessories?sub=Pod%20Cartridge",
+  },
+  {
+    label: "Vape Coils",
+    image: "/vape_kit.png",
+    path: "/collections/accessories?sub=Vape%20Coils",
+  },
+  {
+    label: "Uwell",
+    image: "/vape_kit.png",
+    path: "/collections/all?brand=Uwell",
+  },
+  {
+    label: "Vaporesso",
+    image: "/vape_kit.png",
+    path: "/collections/all?brand=Vaporesso",
+  },
+  {
+    label: "Geekvape",
+    image: "/vape_kit.png",
+    path: "/collections/all?brand=GeekVape",
+  },
+  {
+    label: "OXVA",
+    image: "/vape_kit.png",
+    path: "/collections/all?brand=Oxva",
+  },
+];
+
+export const Categories: React.FC<CategoriesProps> = ({ onCategorySelect, activeCategory }) => {
+  const router = useRouter();
+
+  return (
+    <div className="py-4 sm:py-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-border/5 relative">
+        {/* Spacer for desktop to keep title perfectly centered */}
+        <div className="hidden sm:block w-32" />
+
+        {/* Centered Title */}
+        <div className="text-center flex flex-col items-center flex-1">
+          <span className="text-[9px] font-bold tracking-[0.25em] text-primary uppercase mb-1">
+            Browse Directory
+          </span>
+          <h2 className="text-xl sm:text-2xl font-serif font-bold text-foreground tracking-wide">
+            Shop by Categories
+          </h2>
+          {/* Premium Divider */}
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <div className="h-[1px] w-10 bg-gradient-to-r from-transparent to-primary/65" />
+            <div className="w-1.5 h-1.5 rotate-45 border border-primary/40 bg-primary/10" />
+            <div className="h-[1px] w-10 bg-gradient-to-l from-transparent to-primary/65" />
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center justify-center sm:justify-end gap-2.5 w-full sm:w-32">
+          <button 
+            onClick={() => router.push("/shop")}
+            className="text-[10px] sm:text-xs font-bold text-muted-foreground hover:text-primary border border-border px-3 py-1.5 rounded-md hover:border-primary/30 transition-all cursor-pointer uppercase tracking-wider"
+          >
+            SEE ALL
+          </button>
+        </div>
+      </div>
+
+      {/* Directory Grid */}
+      <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 sm:gap-3">
+        {DIRECTORY_SECTIONS.map((section) => (
+          <div
+            key={section.label}
+            onClick={() => {
+              router.push(section.path);
+            }}
+            className="bg-card hover:bg-muted/40 border border-border/45 rounded-xl p-2.5 sm:p-4 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 hover:-translate-y-0.5 active:scale-95 shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-sm"
+          >
+            {/* Image Container */}
+            <div className="relative w-10 h-10 sm:w-16 sm:h-16 flex items-center justify-center bg-muted/10 rounded-lg p-1 sm:p-2 mb-2">
+              <img
+                src={section.image}
+                alt={section.label}
+                className="w-full h-full object-contain"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
+              />
+            </div>
+            {/* Label */}
+            <span className="text-[9px] sm:text-xs font-semibold text-foreground leading-tight line-clamp-2">
+              {section.label}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
