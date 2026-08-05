@@ -19,8 +19,23 @@ import {
   ChevronRight,
   ChevronDown,
   ArrowLeft,
-  Sparkles
+  Sparkles,
+  Heart,
+  Share2,
+  Copy,
+  MessageCircle,
+  CreditCard,
+  PackageCheck,
+  Zap
 } from "lucide-react";
+import { WhatsAppContactSection } from "@/components/sections/WhatsAppContactSection";
+import { ProductCard } from "@/components/sections/ProductFeed";
+import { ProductSectionCarousel } from "@/components/sections/ProductSectionCarousel";
+import {
+  getProductSchema,
+  getBreadcrumbSchema,
+  getFAQSchema,
+} from "@/lib/seo-schemas";
 
 interface Variant {
   id: string;
@@ -55,6 +70,7 @@ interface ProductDetails {
   faqAccordion?: any;
   variants: Variant[];
   section?: string;
+  brand?: string;
 }
 
 export default function ProductPage() {
@@ -70,8 +86,18 @@ export default function ProductPage() {
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState<"description" | "specs" | "faq">("description");
+  const [activeTab, setActiveTab] = useState<"description" | "shipping" | "returns">("description");
   const [similarProducts, setSimilarProducts] = useState<any[]>([]);
+  const [isWishlist, setIsWishlist] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = () => {
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   // For Navbar states
   const [searchQuery, setSearchQuery] = useState("");
@@ -91,6 +117,18 @@ export default function ProductPage() {
         const data = await res.json();
         setProduct(data);
         setActiveImage(data.image);
+
+        if (typeof window !== "undefined") {
+          const pageTitle = data.seoTitle ? `${data.seoTitle} | Vape Shop Dubai` : `${data.name} | Vape Shop Dubai`;
+          document.title = pageTitle;
+
+          if (data.seoDescription) {
+            let metaDesc = document.querySelector('meta[name="description"]');
+            if (metaDesc) {
+              metaDesc.setAttribute("content", data.seoDescription);
+            }
+          }
+        }
         
         // Select first available variant only if there is 1 option.
         // If there are multiple options/flavors, default to null so user must select.
@@ -212,6 +250,58 @@ export default function ProductPage() {
 
   return (
     <div className="relative flex flex-col min-h-screen bg-background text-foreground">
+      {/* Product JSON-LD Schemas */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            getProductSchema({
+              id: product.id,
+              name: product.name,
+              handle: product.handle,
+              descriptionHtml: product.descriptionHtml,
+              price: selectedVariant?.price || product.price,
+              originalPrice: product.originalPrice,
+              rating: product.rating,
+              reviews: product.reviews,
+              image: product.image,
+              images: product.images,
+              brand: product.brand,
+              category: product.category,
+              isSoldOut: product.isSoldOut,
+            })
+          ),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            getBreadcrumbSchema([
+              { name: "Home", item: "/" },
+              { name: product.category, item: `/collections/${product.category}` },
+              { name: product.name, item: `/product/${product.handle}` },
+            ])
+          ),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            getFAQSchema([
+              {
+                question: `Is ${product.name} original and authentic?`,
+                answer: `Yes, 100% authentic imported ${product.brand || product.category} product delivered across Dubai & UAE.`,
+              },
+              {
+                question: `How fast is delivery for ${product.name} in Dubai?`,
+                answer: "We offer express 2-hour delivery across all Dubai areas and same-day delivery across UAE.",
+              },
+            ])
+          ),
+        }}
+      />
       {/* Navbar */}
       <Navbar
         onSearchChange={(q) => {
@@ -225,9 +315,9 @@ export default function ProductPage() {
         activeCategory={activeCategory}
       />
 
-      <main className="flex-grow pb-24 pt-20 sm:pt-28">
+      <main className="flex-grow pb-16 pt-28 sm:pt-32">
         {/* Breadcrumb */}
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
             <Link href="/" className="hover:text-primary transition-colors">Home</Link>
             <ChevronRight className="h-3 w-3" />
@@ -238,21 +328,21 @@ export default function ProductPage() {
         </div>
 
         {/* Product Details Section */}
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mt-3 sm:mt-4">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
             
-            {/* Left: Image Gallery */}
-            <div className="lg:col-span-5 flex flex-col gap-4 w-full max-w-[480px] mx-auto lg:mx-0">
-              <div className="relative bg-muted/20 border border-border/40 rounded-[2.2rem] p-4 sm:p-6 flex items-center justify-center aspect-square overflow-hidden shadow-sm">
-                <div className="absolute w-64 h-64 rounded-full bg-primary/5 filter blur-3xl pointer-events-none" />
+            {/* Left: Image Gallery (Sticky & Balanced) */}
+            <div className="lg:col-span-5 flex flex-col gap-4 w-full lg:sticky lg:top-28">
+              <div className="relative bg-card border border-border/50 rounded-3xl p-6 sm:p-8 flex items-center justify-center aspect-square overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                <div className="absolute w-72 h-72 rounded-full bg-primary/5 filter blur-3xl pointer-events-none" />
                 <img
                   src={activeImage}
                   alt={product.name}
-                  className="w-[90%] h-[90%] object-contain drop-shadow-xl transition-transform duration-500 hover:scale-105"
+                  className="w-full h-full object-contain drop-shadow-xl transition-transform duration-500 hover:scale-105"
                   onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
                 />
                 {product.tag && (
-                  <div className="absolute top-6 left-6 bg-primary text-white text-[10px] font-bold tracking-widest uppercase px-3 py-1.5 rounded-full shadow">
+                  <div className="absolute top-4 left-4 bg-primary text-white text-[10px] font-extrabold tracking-widest uppercase px-3 py-1.5 rounded-xl shadow-md">
                     {product.tag}
                   </div>
                 )}
@@ -260,12 +350,12 @@ export default function ProductPage() {
               
               {/* Thumbnails */}
               {product.images && product.images.length > 1 && (
-                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+                <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-thin">
                   {product.images.map((img, idx) => (
                     <button
                       key={idx}
                       onClick={() => setActiveImage(img)}
-                      className={`h-16 w-16 rounded-xl border-2 overflow-hidden bg-card p-1.5 flex items-center justify-center flex-shrink-0 transition-all duration-200 cursor-pointer ${
+                      className={`h-16 w-16 rounded-2xl border-2 overflow-hidden bg-card p-1.5 flex items-center justify-center flex-shrink-0 transition-all duration-200 cursor-pointer ${
                         activeImage === img ? "border-primary shadow" : "border-border/40 hover:border-primary/50"
                       }`}
                     >
@@ -279,76 +369,147 @@ export default function ProductPage() {
                   ))}
                 </div>
               )}
+
             </div>
  
              {/* Right: Product Info */}
-             <div className="lg:col-span-7 flex flex-col gap-6">
+             <div className="lg:col-span-7 flex flex-col gap-3.5">
               <div>
-                <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.2em] text-primary uppercase bg-primary/5 border border-primary/20 px-3.5 py-1 rounded-full">
+                <span className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase bg-primary/5 border border-primary/20 px-3 py-0.5 rounded-full">
                   {product.section || product.category}
                 </span>
-                <h1 className="text-2xl sm:text-3xl font-serif font-bold text-foreground mt-4 leading-tight">
+                <h1 className="text-xl sm:text-2xl font-serif font-bold text-foreground mt-2 leading-tight">
                   {product.name}
                 </h1>
                 
-                {/* Rating & Reviews */}
-                <div className="flex items-center gap-1.5 mt-3">
-                  <div className="flex items-center">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-4 w-4 ${
-                          i < Math.floor(product.rating)
-                            ? "fill-amber-400 text-amber-400"
-                            : "text-muted-foreground/30"
-                        }`}
-                      />
-                    ))}
+                {/* Rating & In-Stock & Social Share Bar */}
+                <div className="flex flex-wrap items-center justify-between gap-4 mt-3 pb-4 border-b border-border/40">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-4 w-4 ${
+                            i < Math.floor(product.rating)
+                              ? "fill-amber-400 text-amber-400"
+                              : "text-muted-foreground/30"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-xs font-bold text-foreground">{product.rating}</span>
+                    <span className="text-xs text-muted-foreground">({product.reviews} authentic reviews)</span>
+                    <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full ml-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      In Stock
+                    </span>
                   </div>
-                  <span className="text-xs font-bold text-foreground">{product.rating}</span>
-                  <span className="text-xs text-muted-foreground">({product.reviews} authentic reviews)</span>
+
+                  {/* Social Share buttons (Facebook, Twitter/X, WhatsApp, Copy Link) */}
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase mr-1">SHARE:</span>
+                    
+                    {/* Facebook */}
+                    <a
+                      href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof window !== "undefined" ? window.location.href : "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1.5 rounded-xl bg-card border border-border/50 text-foreground hover:text-blue-600 hover:border-blue-600/40 transition-all cursor-pointer flex items-center gap-1 text-[11px] font-semibold"
+                      title="Share on Facebook"
+                    >
+                      <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                      </svg>
+                      <span>Facebook</span>
+                    </a>
+
+                    {/* Twitter / X */}
+                    <a
+                      href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(typeof window !== "undefined" ? window.location.href : "")}&text=${encodeURIComponent(product.name)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1.5 rounded-xl bg-card border border-border/50 text-foreground hover:text-sky-500 hover:border-sky-500/40 transition-all cursor-pointer flex items-center gap-1 text-[11px] font-semibold"
+                      title="Share on Twitter"
+                    >
+                      <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                      </svg>
+                      <span>Twitter</span>
+                    </a>
+
+                    {/* WhatsApp */}
+                    <a
+                      href={`https://api.whatsapp.com/send?text=${encodeURIComponent(product.name + " " + (typeof window !== "undefined" ? window.location.href : ""))}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1.5 rounded-xl bg-card border border-border/50 text-foreground hover:text-emerald-500 hover:border-emerald-500/40 transition-all cursor-pointer flex items-center gap-1 text-[11px] font-semibold"
+                      title="Share on WhatsApp"
+                    >
+                      <MessageCircle className="h-3.5 w-3.5 text-emerald-500" />
+                      <span>WhatsApp</span>
+                    </a>
+
+                    {/* Copy Link */}
+                    <button
+                      onClick={handleCopyLink}
+                      className="px-2.5 py-1.5 rounded-xl bg-card border border-border/50 text-foreground hover:text-primary hover:border-primary/40 transition-all cursor-pointer flex items-center gap-1 text-[11px] font-semibold"
+                      title="Copy Product Link"
+                    >
+                      {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+                      <span>{copied ? "Copied!" : "Copy Link"}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* Specs Badge Bar */}
-              {(product.puffs || product.nicotine || product.battery) && (
-                <div className="flex flex-wrap gap-2.5 py-2 border-y border-border/40">
-                  {product.puffs && (
-                    <div className="flex items-center gap-1.5 bg-card border border-border px-3 py-1.5 rounded-xl text-xs">
-                      <span className="font-semibold text-muted-foreground">Puffs:</span>
-                      <span className="font-bold text-foreground">{product.puffs}</span>
-                    </div>
-                  )}
-                  {product.nicotine && (
-                    <div className="flex items-center gap-1.5 bg-card border border-border px-3 py-1.5 rounded-xl text-xs">
-                      <span className="font-semibold text-muted-foreground">Nicotine:</span>
-                      <span className="font-bold text-foreground">{product.nicotine}</span>
-                    </div>
-                  )}
-                  {product.battery && (
-                    <div className="flex items-center gap-1.5 bg-card border border-border px-3 py-1.5 rounded-xl text-xs">
-                      <span className="font-semibold text-muted-foreground">Battery:</span>
-                      <span className="font-bold text-foreground">{product.battery}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Pricing Section */}
-              <div className="flex items-center gap-4 bg-muted/10 border border-border/30 p-5 rounded-[1.5rem]">
-                <div>
-                  {isSale && selectedVariant && (
-                    <p className="text-xs sm:text-sm text-muted-foreground line-through">Dhs. {selectedVariant.compareAtPrice?.toLocaleString()}</p>
-                  )}
-                  <p className="text-2xl sm:text-3xl font-serif font-black text-foreground">
+              {/* Pricing Section — NOW ABOVE SHORT DESCRIPTION / SPECS CARD */}
+              <div className="flex items-center justify-between bg-muted/10 border border-border/30 p-5 rounded-[1.5rem]">
+                <div className="flex items-baseline gap-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Price:</span>
+                  <p className="text-3xl font-serif font-black text-primary">
                     Dhs. {selectedVariant ? selectedVariant.price.toLocaleString() : product.price.toLocaleString()}
                   </p>
+                  {isSale && selectedVariant && selectedVariant.compareAtPrice && (
+                    <p className="text-sm text-muted-foreground line-through">Dhs. {selectedVariant.compareAtPrice.toLocaleString()}</p>
+                  )}
                 </div>
                 {isSale && discountPercent > 0 && (
-                  <span className="bg-primary text-white text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-xl shadow animate-pulse">
+                  <span className="bg-primary text-white text-[10px] font-black uppercase tracking-wider px-3.5 py-1.5 rounded-xl shadow animate-pulse">
                     Save {discountPercent}%
                   </span>
                 )}
+              </div>
+
+              {/* Two-Column Key Specifications Card (Matches Screenshot 1) */}
+              <div className="bg-card border border-border/60 rounded-2xl p-5 shadow-xs relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10" />
+                <h3 className="text-xs font-black uppercase tracking-wider text-primary mb-3">Key Product Specifications</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5 text-xs">
+                  <div className="flex items-center justify-between border-b border-border/30 pb-2">
+                    <span className="text-muted-foreground font-semibold">Brand:</span>
+                    <span className="font-extrabold text-foreground">{product.brand || product.category || "Vape Shop Dubai"}</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-border/30 pb-2">
+                    <span className="text-muted-foreground font-semibold">Battery Spec:</span>
+                    <span className="font-extrabold text-foreground">{product.battery || "Rechargeable Built-in"}</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-border/30 pb-2">
+                    <span className="text-muted-foreground font-semibold">Puff Capacity:</span>
+                    <span className="font-extrabold text-foreground">{product.puffs || "High Capacity"}</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-border/30 pb-2">
+                    <span className="text-muted-foreground font-semibold">Nicotine Level:</span>
+                    <span className="font-extrabold text-foreground">{product.nicotine || "5% (50mg)"}</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-border/30 pb-2">
+                    <span className="text-muted-foreground font-semibold">Activation:</span>
+                    <span className="font-extrabold text-foreground">Draw-Activated</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-border/30 pb-2">
+                    <span className="text-muted-foreground font-semibold">Charging:</span>
+                    <span className="font-extrabold text-foreground">Type-C Fast Charge</span>
+                  </div>
+                </div>
               </div>
 
               {/* Variant Selector (Dropdown) */}
@@ -421,41 +582,68 @@ export default function ProductPage() {
                 </div>
               )}
 
-              {/* Quantity selector */}
-              <div className="flex items-center gap-4">
-                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Quantity:</span>
-                <div className="flex items-center border border-border rounded-xl bg-card overflow-hidden h-10">
-                  <button
-                    onClick={() => handleQuantityChange(quantity - 1)}
-                    className="px-3 h-full hover:bg-muted/50 transition-colors flex items-center justify-center cursor-pointer text-foreground"
-                  >
-                    <Minus className="h-3.5 w-3.5" />
-                  </button>
-                  <span className="w-10 text-center text-xs font-bold text-foreground">{quantity}</span>
-                  <button
-                    onClick={() => handleQuantityChange(quantity + 1)}
-                    className="px-3 h-full hover:bg-muted/50 transition-colors flex items-center justify-center cursor-pointer text-foreground"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                  </button>
+              {/* Total Price & Quantity Calculation Card (Matches Screenshot 1) */}
+              <div className="bg-card border border-border/60 rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Total Price:</span>
+                  <p className="text-2xl font-serif font-black text-primary">
+                    Dhs. {((selectedVariant ? selectedVariant.price : product.price) * quantity).toLocaleString()}
+                  </p>
+                </div>
+                
+                {/* Quantity selector */}
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Qty:</span>
+                  <div className="flex items-center border border-border rounded-xl bg-muted/20 overflow-hidden h-10">
+                    <button
+                      onClick={() => handleQuantityChange(quantity - 1)}
+                      className="px-3.5 h-full hover:bg-muted transition-colors flex items-center justify-center cursor-pointer text-foreground font-bold"
+                    >
+                      <Minus className="h-3.5 w-3.5" />
+                    </button>
+                    <span className="w-10 text-center text-xs font-black text-foreground">{quantity}</span>
+                    <button
+                      onClick={() => handleQuantityChange(quantity + 1)}
+                      className="px-3.5 h-full hover:bg-muted transition-colors flex items-center justify-center cursor-pointer text-foreground font-bold"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* CTAs */}
-              <div className="grid grid-cols-2 gap-3 mt-2">
+              {/* Action Buttons Grid (Matches Screenshot 1: Wishlist, Add to Cart, Buy It Now) */}
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={!!product.isSoldOut || !selectedVariant || !selectedVariant.availableForSale}
+                    className="bg-card hover:bg-muted/40 border border-primary/40 text-foreground font-extrabold tracking-wider py-4 px-4 rounded-2xl text-xs uppercase flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
+                  >
+                    <ShoppingCart className="h-4 w-4 text-primary" /> {!selectedVariant ? "Select Flavor" : "Add to Cart"}
+                  </button>
+                  
+                  <button
+                    onClick={handleBuyNow}
+                    disabled={!!product.isSoldOut || !selectedVariant || !selectedVariant.availableForSale}
+                    className="bg-primary hover:bg-gold-shimmer text-white font-extrabold tracking-wider py-4 px-4 rounded-2xl text-xs uppercase flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98 shadow-md shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Sparkles className="h-4 w-4" /> {!selectedVariant ? "Select Flavor" : "Buy It Now"}
+                  </button>
+                </div>
+
+                {/* Wishlist Toggle Button */}
                 <button
-                  onClick={handleAddToCart}
-                  disabled={!!product.isSoldOut || !selectedVariant || !selectedVariant.availableForSale}
-                  className="bg-card hover:bg-muted/40 border border-border text-foreground font-bold tracking-wider py-3.5 sm:py-4 px-2 rounded-2xl text-[10px] sm:text-xs uppercase flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
+                  type="button"
+                  onClick={() => setIsWishlist(!isWishlist)}
+                  className={`w-full py-3 px-4 rounded-2xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                    isWishlist
+                      ? "bg-rose-500/10 border-rose-500/30 text-rose-500"
+                      : "bg-card border-border/50 text-muted-foreground hover:text-foreground hover:border-border"
+                  }`}
                 >
-                  <ShoppingCart className="h-3.5 w-3.5" /> {!selectedVariant ? "Select Flavor" : "Add to Cart"}
-                </button>
-                <button
-                  onClick={handleBuyNow}
-                  disabled={!!product.isSoldOut || !selectedVariant || !selectedVariant.availableForSale}
-                  className="bg-gradient-to-r from-primary to-orange-500 text-white font-bold tracking-wider py-3.5 sm:py-4 px-2 rounded-2xl text-[10px] sm:text-xs uppercase flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98 hover:brightness-105 shadow disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Sparkles className="h-3.5 w-3.5" /> {!selectedVariant ? "Select Flavor" : "Buy Now"}
+                  <Heart className={`h-4 w-4 ${isWishlist ? "fill-rose-500 text-rose-500" : ""}`} />
+                  <span>{isWishlist ? "Saved in Wishlist" : "Add to Wishlist"}</span>
                 </button>
               </div>
 
@@ -485,38 +673,83 @@ export default function ProductPage() {
           </div>
         </div>
 
-        {/* Dynamic description & Specs Tabs */}
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-24">
-          <div className="bg-card border border-border/40 rounded-[2rem] p-6 sm:p-10 shadow-sm">
+        {/* 4 Service Feature Cards Grid (Matches Screenshot 2) */}
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-xs flex items-center gap-4 hover:border-primary/40 transition-all">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                <Truck className="h-6 w-6" />
+              </div>
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-foreground">Free Shipping</h4>
+                <p className="text-[11px] text-muted-foreground font-semibold mt-0.5 uppercase">ON ORDERS ABOVE 300 AED</p>
+              </div>
+            </div>
+
+            <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-xs flex items-center gap-4 hover:border-primary/40 transition-all">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                <CreditCard className="h-6 w-6" />
+              </div>
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-foreground">Payment Methods</h4>
+                <p className="text-[11px] text-muted-foreground font-semibold mt-0.5 uppercase">CASH, CARD &amp; APPLE PAY ON DELIVERY</p>
+              </div>
+            </div>
+
+            <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-xs flex items-center gap-4 hover:border-primary/40 transition-all">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                <Zap className="h-6 w-6" />
+              </div>
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-foreground">Fast Delivery</h4>
+                <p className="text-[11px] text-muted-foreground font-semibold mt-0.5 uppercase">DUBAI EXPRESS WITHIN 2 HOURS</p>
+              </div>
+            </div>
+
+            <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-xs flex items-center gap-4 hover:border-primary/40 transition-all">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                <PackageCheck className="h-6 w-6" />
+              </div>
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-foreground">Same Day Delivery</h4>
+                <p className="text-[11px] text-muted-foreground font-semibold mt-0.5 uppercase">ORDER BEFORE 6PM ALL EMIRATES</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Dynamic Product Tabs Section (Matches Screenshot 2: Product Description | Shipping and Delivery | Refund and Returns Policy) */}
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:mt-14">
+          <div className="bg-card border border-border/50 rounded-[2.5rem] p-6 sm:p-12 shadow-sm">
             
             {/* Tab Headers */}
-            <div className="flex border-b border-border/40 gap-6 sm:gap-10 pb-4 overflow-x-auto">
+            <div className="flex border-b border-border/40 gap-8 sm:gap-12 pb-4 overflow-x-auto">
               <button
                 onClick={() => setActiveTab("description")}
-                className={`text-xs sm:text-sm font-bold uppercase tracking-wider pb-1 transition-all cursor-pointer relative ${
+                className={`text-xs sm:text-sm font-bold uppercase tracking-wider pb-2 transition-all cursor-pointer relative whitespace-nowrap ${
                   activeTab === "description" ? "text-primary font-black" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Description
+                Product Description
                 {activeTab === "description" && <div className="absolute -bottom-[17px] left-0 right-0 h-0.5 bg-primary" />}
               </button>
               <button
-                onClick={() => setActiveTab("specs")}
-                className={`text-xs sm:text-sm font-bold uppercase tracking-wider pb-1 transition-all cursor-pointer relative ${
-                  activeTab === "specs" ? "text-primary font-black" : "text-muted-foreground hover:text-foreground"
+                onClick={() => setActiveTab("shipping")}
+                className={`text-xs sm:text-sm font-bold uppercase tracking-wider pb-2 transition-all cursor-pointer relative whitespace-nowrap ${
+                  activeTab === "shipping" ? "text-primary font-black" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Specifications
-                {activeTab === "specs" && <div className="absolute -bottom-[17px] left-0 right-0 h-0.5 bg-primary" />}
+                Shipping and Delivery
+                {activeTab === "shipping" && <div className="absolute -bottom-[17px] left-0 right-0 h-0.5 bg-primary" />}
               </button>
               <button
-                onClick={() => setActiveTab("faq")}
-                className={`text-xs sm:text-sm font-bold uppercase tracking-wider pb-1 transition-all cursor-pointer relative ${
-                  activeTab === "faq" ? "text-primary font-black" : "text-muted-foreground hover:text-foreground"
+                onClick={() => setActiveTab("returns")}
+                className={`text-xs sm:text-sm font-bold uppercase tracking-wider pb-2 transition-all cursor-pointer relative whitespace-nowrap ${
+                  activeTab === "returns" ? "text-primary font-black" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                FAQs
-                {activeTab === "faq" && <div className="absolute -bottom-[17px] left-0 right-0 h-0.5 bg-primary" />}
+                Refund and Returns Policy
+                {activeTab === "returns" && <div className="absolute -bottom-[17px] left-0 right-0 h-0.5 bg-primary" />}
               </button>
             </div>
 
@@ -524,96 +757,65 @@ export default function ProductPage() {
             <div className="mt-8">
               
               {activeTab === "description" && (
-                <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground leading-relaxed">
+                <div className="product-description-content">
                   {product.shortDescription && (
                     <div
-                      className="mb-6 font-medium text-foreground/90 text-sm border-l-2 border-primary pl-4"
+                      className="mb-8 font-medium text-foreground/90 text-sm border-l-2 border-primary pl-4 py-1"
                       dangerouslySetInnerHTML={{ __html: product.shortDescription }}
                     />
                   )}
-                  {product.descriptionHtml ? (
-                    <div dangerouslySetInnerHTML={{ __html: product.descriptionHtml }} />
-                  ) : (
-                    <p>No details description is available for this product. Feel free to contact our customer support for details specifications.</p>
+                  {product.descriptionHtml && (
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: product.descriptionHtml
+                          .replace(/<h1/gi, "<h2")
+                          .replace(/<\/h1>/gi, "</h2>"),
+                      }}
+                    />
                   )}
                 </div>
               )}
 
-              {activeTab === "specs" && (
-                <div className="max-w-2xl">
-                  {product.specsTable && Array.isArray(product.specsTable) ? (
-                    <div className="border border-border/40 rounded-xl overflow-hidden divide-y divide-border/40">
-                      {product.specsTable.map((spec: any, idx: number) => (
-                        <div key={idx} className="grid grid-cols-2 p-4 text-xs sm:text-sm bg-card hover:bg-muted/10 transition-colors">
-                          <span className="font-bold text-muted-foreground uppercase tracking-wider">{spec.name}</span>
-                          <span className="text-foreground font-semibold">{spec.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="border border-border/40 rounded-xl overflow-hidden divide-y divide-border/40">
-                      {product.puffs && (
-                        <div className="grid grid-cols-2 p-4 text-xs sm:text-sm bg-card hover:bg-muted/10 transition-colors">
-                          <span className="font-bold text-muted-foreground uppercase tracking-wider">Puffs Count</span>
-                          <span className="text-foreground font-semibold">{product.puffs}</span>
-                        </div>
-                      )}
-                      {product.nicotine && (
-                        <div className="grid grid-cols-2 p-4 text-xs sm:text-sm bg-card hover:bg-muted/10 transition-colors">
-                          <span className="font-bold text-muted-foreground uppercase tracking-wider">Nicotine Level</span>
-                          <span className="text-foreground font-semibold">{product.nicotine}</span>
-                        </div>
-                      )}
-                      {product.battery && (
-                        <div className="grid grid-cols-2 p-4 text-xs sm:text-sm bg-card hover:bg-muted/10 transition-colors">
-                          <span className="font-bold text-muted-foreground uppercase tracking-wider">Battery Spec</span>
-                          <span className="text-foreground font-semibold">{product.battery}</span>
-                        </div>
-                      )}
-                      <div className="grid grid-cols-2 p-4 text-xs sm:text-sm bg-card hover:bg-muted/10 transition-colors">
-                        <span className="font-bold text-muted-foreground uppercase tracking-wider">Origin</span>
-                        <span className="text-foreground font-semibold">100% Authentic / Original Brand</span>
-                      </div>
-                      <div className="grid grid-cols-2 p-4 text-xs sm:text-sm bg-card hover:bg-muted/10 transition-colors">
-                        <span className="font-bold text-muted-foreground uppercase tracking-wider">Delivery Time</span>
-                        <span className="text-foreground font-semibold">Within 2 Hours in Dubai</span>
-                      </div>
-                    </div>
-                  )}
+              {activeTab === "shipping" && (
+                <div className="max-w-3xl space-y-6 text-sm text-foreground/90 leading-relaxed">
+                  <div className="border border-border/40 rounded-2xl p-6 bg-card space-y-3">
+                    <h4 className="font-bold text-primary text-base uppercase tracking-wider">⚡ Express 2-Hour Delivery in Dubai</h4>
+                    <p className="text-muted-foreground">
+                      Place your order before 10:00 PM for rapid express delivery directly to your door anywhere in Dubai (Downtown, Marina, JBR, Deira, Al Barsha, JLT &amp; surrounding areas).
+                    </p>
+                  </div>
+
+                  <div className="border border-border/40 rounded-2xl p-6 bg-card space-y-3">
+                    <h4 className="font-bold text-foreground text-base uppercase tracking-wider">🚚 Same-Day UAE Shipping</h4>
+                    <p className="text-muted-foreground">
+                      Orders placed for Abu Dhabi, Sharjah, Ajman, Ras Al Khaimah, Fujairah &amp; Umm Al Quwain are delivered same-day or next-day morning.
+                    </p>
+                  </div>
+
+                  <div className="border border-border/40 rounded-2xl p-6 bg-card space-y-3">
+                    <h4 className="font-bold text-foreground text-base uppercase tracking-wider">💵 Payment Options</h4>
+                    <p className="text-muted-foreground">
+                      We support Cash on Delivery (COD) and Card on Delivery for 100% risk-free shopping.
+                    </p>
+                  </div>
                 </div>
               )}
 
-              {activeTab === "faq" && (
-                <div className="max-w-3xl space-y-4">
-                  {product.faqAccordion && Array.isArray(product.faqAccordion) ? (
-                    product.faqAccordion.map((faq: any, idx: number) => (
-                      <div key={idx} className="border border-border/40 rounded-2xl p-5 bg-card">
-                        <h4 className="font-bold text-foreground text-sm sm:text-base mb-2">{faq.question}</h4>
-                        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{faq.answer}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <>
-                      <div className="border border-border/40 rounded-2xl p-5 bg-card">
-                        <h4 className="font-bold text-foreground text-sm sm:text-base mb-2">Is this product original?</h4>
-                        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                          Yes, 100%. We source our products directly from manufacturers or authorized regional dealers. Each pack contains a verification code that you can authenticate on the brand's official website.
-                        </p>
-                      </div>
-                      <div className="border border-border/40 rounded-2xl p-5 bg-card">
-                        <h4 className="font-bold text-foreground text-sm sm:text-base mb-2">How fast is delivery?</h4>
-                        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                          We deliver within 2 hours across Dubai and offer same-day delivery across Abu Dhabi, Sharjah, and other emirates in the UAE.
-                        </p>
-                      </div>
-                      <div className="border border-border/40 rounded-2xl p-5 bg-card">
-                        <h4 className="font-bold text-foreground text-sm sm:text-base mb-2">Can I pay on delivery?</h4>
-                        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                          Absolutely. We support Cash on Delivery (COD) as well as Card on Delivery options to make your shopping experience convenient and secure.
-                        </p>
-                      </div>
-                    </>
-                  )}
+              {activeTab === "returns" && (
+                <div className="max-w-3xl space-y-6 text-sm text-foreground/90 leading-relaxed">
+                  <div className="border border-border/40 rounded-2xl p-6 bg-card space-y-3">
+                    <h4 className="font-bold text-primary text-base uppercase tracking-wider">🛡️ 7-Day Exchange &amp; Replacement Policy</h4>
+                    <p className="text-muted-foreground">
+                      If your device arrives damaged or non-functional (Dead-On-Arrival), contact our customer support team within 24 hours for instant exchange or replacement.
+                    </p>
+                  </div>
+
+                  <div className="border border-border/40 rounded-2xl p-6 bg-card space-y-3">
+                    <h4 className="font-bold text-foreground text-base uppercase tracking-wider">📦 Product Return Eligibility</h4>
+                    <p className="text-muted-foreground">
+                      Due to health and hygiene safety regulations, consumable items (opened e-liquid bottles, unsealed pod packs, and used disposable vapes) cannot be returned once opened unless verified defective.
+                    </p>
+                  </div>
                 </div>
               )}
 
@@ -621,49 +823,93 @@ export default function ProductPage() {
           </div>
         </div>
 
-        {/* Similar Products Recommendation Slider */}
-        {similarProducts.length > 0 && (
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-20 sm:mt-28">
-            <div className="flex items-end justify-between mb-8">
-              <div>
-                <p className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase mb-1.5 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                  Recommendations
-                </p>
-                <h3 className="text-xl sm:text-2xl font-serif font-bold text-foreground">You May Also Like</h3>
-              </div>
-            </div>
+        {/* Product & Delivery FAQ Section (Matches Screenshot 4) */}
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+          <div className="bg-card border border-border/40 rounded-[2.5rem] p-8 sm:p-14 shadow-sm text-center">
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-              {similarProducts.map((p) => {
-                const isSaleItem = p.originalPrice && p.originalPrice > p.price;
-                return (
-                  <div key={p.id} className="group bg-card border border-border/40 rounded-[2rem] overflow-hidden flex flex-col p-3 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-                    <Link href={`/product/${p.handle}`} className="relative bg-muted/10 rounded-[1.5rem] aspect-square flex items-center justify-center overflow-hidden">
-                      <img
-                        src={p.image}
-                        alt={p.name}
-                        className="h-32 sm:h-40 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-                        onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
-                      />
-                    </Link>
-                    <div className="p-3 flex flex-col gap-2 flex-grow mt-2">
-                      <span className="text-[9px] font-bold text-primary uppercase tracking-wider">{p.category}</span>
-                      <Link href={`/product/${p.handle}`} className="hover:text-primary transition-colors block">
-                        <h4 className="text-xs sm:text-sm font-bold text-foreground leading-tight line-clamp-2 min-h-[32px]">{p.name}</h4>
-                      </Link>
-                      <div className="flex items-center justify-between mt-auto">
-                        <div className="flex items-center gap-1">
-                          <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                          <span className="text-[10px] font-bold text-foreground">{p.rating}</span>
-                        </div>
-                        <p className="text-xs sm:text-sm font-serif font-bold text-foreground">Dhs. {p.price}</p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+            {/* Header */}
+            <div className="max-w-xl mx-auto flex flex-col items-center mb-10">
+              <span className="text-xs font-extrabold tracking-[0.25em] text-primary uppercase mb-1.5">F.A.Q.</span>
+              <h3 className="text-2xl sm:text-4xl lg:text-5xl font-serif font-black text-foreground tracking-tight leading-tight">Product &amp; Delivery FAQ</h3>
+              <div className="w-8 h-0.5 bg-primary/40 my-3" />
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Everything you need to know about authenticity, UAE shipping, and warranty.
+              </p>
             </div>
+
+            {/* FAQ Items */}
+            <div className="max-w-4xl mx-auto text-left space-y-4">
+              <details className="group border border-border/40 rounded-2xl p-5 bg-card/60 transition-all [&_summary::-webkit-details-marker]:hidden open:bg-card">
+                <summary className="flex items-center justify-between font-bold text-foreground text-sm sm:text-base cursor-pointer">
+                  <span>What is {product.name}?</span>
+                  <ChevronDown className="h-4 w-4 text-primary transition-transform duration-300 group-open:rotate-180" />
+                </summary>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mt-3 pt-3 border-t border-border/30">
+                  {product.name} is a premium vape product available in Dubai &amp; across the UAE. We guarantee 100% authentic devices and pods sourced directly from authorized brand distributors.
+                </p>
+              </details>
+
+              <details className="group border border-border/40 rounded-2xl p-5 bg-card/60 transition-all [&_summary::-webkit-details-marker]:hidden open:bg-card">
+                <summary className="flex items-center justify-between font-bold text-foreground text-sm sm:text-base cursor-pointer">
+                  <span>Where Can I Buy {product.name} in UAE?</span>
+                  <ChevronDown className="h-4 w-4 text-primary transition-transform duration-300 group-open:rotate-180" />
+                </summary>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mt-3 pt-3 border-t border-border/30">
+                  You can order online directly from Vape Shop Dubai with fast 2-hour delivery in Dubai and same-day delivery across Abu Dhabi, Sharjah, Ajman, and all UAE emirates.
+                </p>
+              </details>
+
+              <details className="group border border-border/40 rounded-2xl p-5 bg-card/60 transition-all [&_summary::-webkit-details-marker]:hidden open:bg-card">
+                <summary className="flex items-center justify-between font-bold text-foreground text-sm sm:text-base cursor-pointer">
+                  <span>Is this product original &amp; authentic?</span>
+                  <ChevronDown className="h-4 w-4 text-primary transition-transform duration-300 group-open:rotate-180" />
+                </summary>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mt-3 pt-3 border-t border-border/30">
+                  Yes, 100% original. Each product contains an authentic QR code / serial code that can be verified directly on the manufacturer website.
+                </p>
+              </details>
+            </div>
+          </div>
+        </div>
+
+        {/* Direct WhatsApp Contact Section */}
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+          <WhatsAppContactSection />
+        </div>
+
+        {/* Similar Products Recommendation Carousel (Same as Home Page) */}
+        {similarProducts.length > 0 && (
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-24">
+            <ProductSectionCarousel
+              sectionName="You May Also Like"
+              products={similarProducts}
+              onAddToCart={(item) => {
+                addToCart({
+                  id: `${item.id}-${item.variantId || 'default'}`,
+                  name: item.name,
+                  price: item.price,
+                  image: item.image,
+                  category: item.category,
+                  variantId: item.variantId || 'default',
+                  handle: item.handle,
+                }, 1);
+              }}
+              onBuyNow={(item) => {
+                addToCart({
+                  id: `${item.id}-${item.variantId || 'default'}`,
+                  name: item.name,
+                  price: item.price,
+                  image: item.image,
+                  category: item.category,
+                  variantId: item.variantId || 'default',
+                  handle: item.handle,
+                }, 1);
+                router.push("/checkout");
+              }}
+              onViewAll={() => {
+                router.push(`/collections/${product.category}`);
+              }}
+            />
           </div>
         )}
 

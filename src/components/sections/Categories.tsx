@@ -12,82 +12,82 @@ const DIRECTORY_SECTIONS = [
   {
     label: "JUUL 1 Series",
     image: "/juul_device.png",
-    path: "/collections/juul?sub=JUUL%201%20Series",
+    path: "/collections/juul-1-series",
   },
   {
     label: "JUUL 2 Series",
     image: "/juul_device.png",
-    path: "/collections/juul?sub=JUUL%202%20Series",
+    path: "/collections/juul-2-series",
   },
   {
     label: "JUUL Pods",
     image: "/juul_device.png",
-    path: "/collections/juul?sub=JUUL%20Pods",
+    path: "/collections/juul-pods-offers",
   },
   {
     label: "Myle v5 Pods",
     image: "/vape_kit.png",
-    path: "/collections/all?brand=MYLE&sub=Myle%20v5%20Pods",
+    path: "/collections/myle-v5-pods",
   },
   {
     label: "Myle v5 Kits",
     image: "/vape_kit.png",
-    path: "/collections/all?brand=MYLE&sub=Myle%20v5%20Device",
+    path: "/collections/myle-v5-device",
   },
   {
     label: "Myle Disposables",
     image: "/vape_kit.png",
-    path: "/collections/all?brand=MYLE&sub=Myle%20Disposable",
+    path: "/collections/myle-disposable",
   },
   {
     label: "Disposables",
     image: "/lost_mary.png",
-    path: "/collections/disposables",
+    path: "/collections/disposable-vape",
   },
   {
     label: "Salt Nicotine",
     image: "/premium_liquid.png",
-    path: "/collections/e-liquids?sub=Salt%20Nicotine",
+    path: "/collections/salt-nicotine",
   },
   {
     label: "Freebase Nic",
     image: "/premium_liquid.png",
-    path: "/collections/e-liquids?sub=Freebase",
+    path: "/collections/freebase-e-liquid",
   },
   {
     label: "Pod Kits",
     image: "/vape_kit.png",
-    path: "/collections/accessories?sub=Pod%20Kit",
+    path: "/collections/pod-kit",
   },
   {
     label: "Cartridges",
     image: "/vape_kit.png",
-    path: "/collections/accessories?sub=Pod%20Cartridge",
+    path: "/collections/pod-cartridge",
   },
   {
     label: "Vape Coils",
     image: "/vape_kit.png",
-    path: "/collections/accessories?sub=Vape%20Coils",
+    path: "/collections/vape-coils",
   },
   {
     label: "Uwell",
     image: "/vape_kit.png",
-    path: "/collections/all?brand=Uwell",
+    path: "/collections/uwell-vape",
   },
   {
     label: "Vaporesso",
     image: "/vape_kit.png",
-    path: "/collections/all?brand=Vaporesso",
+    path: "/collections/vaporesso-vape",
   },
   {
     label: "Geekvape",
     image: "/vape_kit.png",
-    path: "/collections/all?brand=GeekVape",
+    path: "/collections/geek-vape",
   },
   {
     label: "OXVA",
     image: "/vape_kit.png",
-    path: "/collections/all?brand=Oxva",
+    path: "/collections/oxva-vape",
   },
 ];
 
@@ -103,10 +103,10 @@ export const Categories: React.FC<CategoriesProps> = ({ onCategorySelect, active
 
         {/* Centered Title */}
         <div className="text-center flex flex-col items-center flex-1">
-          <span className="text-[9px] font-bold tracking-[0.25em] text-primary uppercase mb-1">
+          <span className="text-xs font-extrabold tracking-[0.25em] text-primary uppercase mb-1.5">
             Browse Directory
           </span>
-          <h2 className="text-xl sm:text-2xl font-serif font-bold text-foreground tracking-wide">
+          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-serif font-black text-foreground tracking-tight leading-tight">
             Shop by Categories
           </h2>
           {/* Premium Divider */}

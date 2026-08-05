@@ -10,22 +10,22 @@ interface AuthorizedDealersProps {
 }
 
 const BRANDS_DATA = [
-  { name: "JUUL", image: "/juul_device.png" },
-  { name: "MYLE", image: "/vape_kit.png" },
-  { name: "GeekVape", image: "/vape_kit.png" },
-  { name: "Uwell", image: "/vape_kit.png" },
-  { name: "Vaporesso", image: "/vape_kit.png" },
-  { name: "VooPoo", image: "/vape_kit.png" },
-  { name: "Smok", image: "/vape_kit.png" },
-  { name: "Oxva", image: "/vape_kit.png" },
-  { name: "Elf Bar", image: "/lost_mary.png" },
-  { name: "Lost Mary", image: "/lost_mary.png" },
-  { name: "Tugboat", image: "/lost_mary.png" },
-  { name: "SKE Crystal", image: "/lost_mary.png" },
-  { name: "Pod Salt", image: "/premium_liquid.png" },
-  { name: "Nasty Juice", image: "/premium_liquid.png" },
-  { name: "IVG", image: "/premium_liquid.png" },
-  { name: "Al Fakher", image: "/premium_liquid.png" },
+  { name: "JUUL", image: "/juul_device.png", path: "/collections/juul-vape-dubai" },
+  { name: "MYLE", image: "/vape_kit.png", path: "/collections/myle-vape-dubai" },
+  { name: "GeekVape", image: "/vape_kit.png", path: "/collections/geek-vape" },
+  { name: "Uwell", image: "/vape_kit.png", path: "/collections/uwell-vape" },
+  { name: "Vaporesso", image: "/vape_kit.png", path: "/collections/vaporesso-vape" },
+  { name: "VooPoo", image: "/vape_kit.png", path: "/collections/voopoo-vape" },
+  { name: "Smok", image: "/vape_kit.png", path: "/collections/smok-vape" },
+  { name: "Oxva", image: "/vape_kit.png", path: "/collections/oxva-vape" },
+  { name: "Elf Bar", image: "/lost_mary.png", path: "/collections/elf-bar-vape" },
+  { name: "Lost Mary", image: "/lost_mary.png", path: "/collections/lost-mary-disposable" },
+  { name: "Tugboat", image: "/lost_mary.png", path: "/collections/tugboat-vape" },
+  { name: "SKE Crystal", image: "/lost_mary.png", path: "/collections/disposable-vape" },
+  { name: "Pod Salt", image: "/premium_liquid.png", path: "/collections/pod-salt-vape" },
+  { name: "Nasty Juice", image: "/premium_liquid.png", path: "/collections/salt-nicotine" },
+  { name: "IVG", image: "/premium_liquid.png", path: "/collections/salt-nicotine" },
+  { name: "Al Fakher", image: "/premium_liquid.png", path: "/collections/al-fakher-vape" },
 ];
 
 const FLAVORS = [
@@ -116,11 +116,11 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
 }) => {
   const router = useRouter();
 
-  const handleBrandClick = (brand: string) => {
+  const handleBrandClick = (brand: typeof BRANDS_DATA[number]) => {
     if (onBrandSelect) {
-      onBrandSelect(brand);
+      onBrandSelect(brand.name);
     } else {
-      router.push(`/collections/all?brand=${encodeURIComponent(brand)}`);
+      router.push(brand.path);
     }
   };
 
@@ -138,7 +138,7 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
       else if (flavorLabel.includes("Bakery")) query = "Dessert";
       else if (flavorLabel.includes("Energy")) query = "Energy";
       
-      router.push(`/collections/all?search=${encodeURIComponent(query)}`);
+      router.push(`/collections/disposable-vape?search=${encodeURIComponent(query)}`);
     }
   };
 
@@ -156,10 +156,10 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
 
           {/* Centered Title */}
           <div className="text-center flex flex-col items-center flex-1">
-            <span className="text-[9px] font-bold tracking-[0.25em] text-primary uppercase mb-1">
+            <span className="text-xs font-extrabold tracking-[0.25em] text-primary uppercase mb-1.5">
               Trusted Brands
             </span>
-            <h2 className="text-xl sm:text-2xl font-serif font-bold text-foreground tracking-wide">
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-serif font-black text-foreground tracking-tight leading-tight">
               Shop by Brands
             </h2>
             {/* Premium Divider */}
@@ -186,7 +186,7 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
           {BRANDS_DATA.map((brand) => (
             <div
               key={brand.name}
-              onClick={() => handleBrandClick(brand.name)}
+              onClick={() => handleBrandClick(brand)}
               className="bg-background hover:bg-muted/40 border border-border/45 rounded-xl p-2.5 sm:p-4 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 hover:-translate-y-0.5 active:scale-95 shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-sm"
             >
               {/* Image Container */}
@@ -217,10 +217,10 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
 
           {/* Centered Title */}
           <div className="text-center flex flex-col items-center flex-1">
-            <span className="text-[9px] font-bold tracking-[0.25em] text-primary uppercase mb-1">
+            <span className="text-xs font-extrabold tracking-[0.25em] text-primary uppercase mb-1.5">
               Browse by Flavour
             </span>
-            <h2 className="text-xl sm:text-2xl font-serif font-bold text-foreground tracking-wide">
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-serif font-black text-foreground tracking-tight leading-tight">
               Shop by Flavor
             </h2>
             {/* Premium Divider */}
@@ -267,9 +267,9 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-4 space-y-4">
-            <p className="text-[11px] font-bold tracking-[0.2em] text-primary uppercase">Why Trust Us</p>
-            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-foreground leading-tight">
-              Trusted JUUL<br/>Seller in UAE
+            <p className="text-xs font-extrabold tracking-[0.25em] text-primary uppercase">Why Trust Us</p>
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-serif font-black text-foreground tracking-tight leading-tight">
+              Trusted JUUL &amp; MYLE Vape Store Dubai
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
               In the ever-evolving world of vaping, finding a reliable JUUL seller is essential. Vape Shop Dubai provides authentic products sourced directly from official distributors — no grey-market stock, no compromised build quality.

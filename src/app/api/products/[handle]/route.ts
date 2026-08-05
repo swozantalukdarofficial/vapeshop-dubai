@@ -1,9 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const SHOPIFY_STORE = process.env.SHOPIFY_STORE!;
-const ADMIN_API_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN!;
+const ADMIN_API_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN;
+const STOREFRONT_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || process.env.SHOPIFY_API_KEY;
 
-const query = `
+const storefrontQuery = `
+query getProductByHandle($handle: String!) {
+  productByHandle(handle: $handle) {
+    id
+    title
+    handle
+    vendor
+    descriptionHtml
+    productType
+    tags
+    seo {
+      title
+      description
+    }
+    images(first: 10) {
+      edges {
+        node {
+          url
+        }
+      }
+    }
+    variants(first: 50) {
+      edges {
+        node {
+          id
+          title
+          price {
+            amount
+          }
+          compareAtPrice {
+            amount
+          }
+          availableForSale
+        }
+      }
+    }
+  }
+}
+`;
+
+const adminQuery = `
 query getProductByHandle($handle: String!) {
   productByHandle(handle: $handle) {
     id
@@ -14,6 +55,10 @@ query getProductByHandle($handle: String!) {
     productType
     tags
     status
+    seo {
+      title
+      description
+    }
     puffs: metafield(namespace: "custom", key: "puffs") { value }
     nicotine: metafield(namespace: "custom", key: "nicotine") { value }
     badge: metafield(namespace: "custom", key: "badge_text") { value }
@@ -45,103 +90,6 @@ query getProductByHandle($handle: String!) {
   }
 }
 `;
-
-export async function GET(
-  request: NextRequest,
-  props: { params: Promise<{ handle: string }> }
-) {
-  const { handle } = await props.params;
-
-  try {
-    const url = `https://${SHOPIFY_STORE}/admin/api/2024-10/graphql.json`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Shopify-Access-Token": ADMIN_API_TOKEN,
-      },
-      body: JSON.stringify({
-        query,
-        variables: { handle },
-      }),
-    });
-
-    if (!response.ok) {
-      return NextResponse.json(
-        { error: `Shopify request failed: ${response.statusText}` },
-        { status: 500 }
-      );
-    }
-
-    const json = await response.json();
-    const node = json?.data?.productByHandle;
-
-    if (!node) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
-    }
-
-    // Determine category based on tags or productType
-    let category = "vape";
-    const tagsLower = node.tags.map((t: string) => t.toLowerCase());
-    if (tagsLower.includes("juul")) {
-      category = "juul";
-    } else if (tagsLower.includes("disposable") || tagsLower.includes("disposables")) {
-      category = "disposables";
-    } else if (tagsLower.includes("e-juice") || tagsLower.includes("liquid") || tagsLower.includes("liquids") || tagsLower.includes("e-liquids")) {
-      category = "e-liquids";
-    } else if (tagsLower.includes("accessory") || tagsLower.includes("accessories") || tagsLower.includes("pod-system") || tagsLower.includes("pod system")) {
-      category = "accessories";
-    } else {
-      const typeLower = node.productType?.toLowerCase();
-      if (typeLower?.includes("juul")) category = "juul";
-      else if (typeLower?.includes("disposable")) category = "disposables";
-      else if (typeLower?.includes("liquid") || typeLower?.includes("juice")) category = "e-liquids";
-      else if (typeLower?.includes("accessory") || typeLower?.includes("pod")) category = "accessories";
-    }
-
-    // Pricing & Availability
-    const variants = node.variants?.edges?.map((edge: any) => edge.node) || [];
-    const firstVariant = variants[0];
-    const price = firstVariant ? parseFloat(firstVariant.price) : 0;
-    const comparePrice = firstVariant && firstVariant.compareAtPrice ? parseFloat(firstVariant.compareAtPrice) : 0;
-    const isSoldOut = variants.every((v: any) => !v.availableForSale || v.inventoryQuantity <= 0);
-
-    // Section grouping
-    let section = undefined;
-    if (node.tags.includes("JUUL 2 Series") || node.tags.includes("juul2")) {
-      section = "JUUL 2 Series";
-    } else if (node.tags.includes("Disposables") || category === "disposables") {
-      section = "Disposables";
-    } else if (node.tags.includes("E-Liquids") || category === "e-liquids") {
-      section = "E-Liquids";
-    } else if (node.tags.includes("Pod Systems") || node.tags.includes("Pod System")) {
-      section = "Pod Systems";
-    } else if (node.tags.includes("Flash Sale") || node.tags.includes("sale")) {
-      section = "Flash Sale";
-    }
-
-    // Image assets
-    const images = node.images?.edges?.map((edge: any) => edge.node.url) || [];
-    const image = images[0] || "/hero_vape.png";
-
-    // Metafields parsing
-    let specsTable = null;
-    if (node.specsTable?.value) {
-      try {
-        specsTable = JSON.parse(node.specsTable.value);
-      } catch (e) {
-        specsTable = node.specsTable.value;
-      }
-    }
-
-    let faqAccordion = null;
-    if (node.faqAccordion?.value) {
-      try {
-        faqAccordion = JSON.parse(node.faqAccordion.value);
-      } catch (e) {
-        faqAccordion = node.faqAccordion.value;
-      }
-    }
 
 function detectBrand(title: string, vendor: string): string {
   const titleLower = title.toLowerCase();
@@ -205,9 +153,137 @@ function cleanProductTitle(title: string): string {
   return cleaned.trim();
 }
 
+export async function GET(
+  request: NextRequest,
+  props: { params: Promise<{ handle: string }> }
+) {
+  const { handle } = await props.params;
+
+  try {
+    let node: any = null;
+
+    // Try Storefront API first
+    if (STOREFRONT_TOKEN) {
+      try {
+        const url = `https://${SHOPIFY_STORE}/api/2024-10/graphql.json`;
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Storefront-Access-Token": STOREFRONT_TOKEN,
+          },
+          body: JSON.stringify({
+            query: storefrontQuery,
+            variables: { handle },
+          }),
+        });
+
+        if (response.ok) {
+          const json = await response.json();
+          node = json?.data?.productByHandle;
+        }
+      } catch (err) {
+        console.warn("Storefront fetch failed for handle, trying admin API:", err);
+      }
+    }
+
+    // Fallback to Admin API if node not fetched
+    if (!node && ADMIN_API_TOKEN) {
+      const url = `https://${SHOPIFY_STORE}/admin/api/2024-10/graphql.json`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Shopify-Access-Token": ADMIN_API_TOKEN,
+        },
+        body: JSON.stringify({
+          query: adminQuery,
+          variables: { handle },
+        }),
+      });
+
+      if (response.ok) {
+        const json = await response.json();
+        node = json?.data?.productByHandle;
+      }
+    }
+
+    if (!node) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
+    let category = "vape";
+    const tagsLower = (node.tags || []).map((t: string) => t.toLowerCase());
+    if (tagsLower.includes("juul")) {
+      category = "juul";
+    } else if (tagsLower.includes("disposable") || tagsLower.includes("disposables")) {
+      category = "disposables";
+    } else if (tagsLower.includes("e-juice") || tagsLower.includes("liquid") || tagsLower.includes("liquids") || tagsLower.includes("e-liquids")) {
+      category = "e-liquids";
+    } else if (tagsLower.includes("accessory") || tagsLower.includes("accessories") || tagsLower.includes("pod-system") || tagsLower.includes("pod system")) {
+      category = "accessories";
+    } else {
+      const typeLower = node.productType?.toLowerCase();
+      if (typeLower?.includes("juul")) category = "juul";
+      else if (typeLower?.includes("disposable")) category = "disposables";
+      else if (typeLower?.includes("liquid") || typeLower?.includes("juice")) category = "e-liquids";
+      else if (typeLower?.includes("accessory") || typeLower?.includes("pod")) category = "accessories";
+    }
+
+    const variants = node.variants?.edges?.map((edge: any) => edge.node) || [];
+    const firstVariant = variants[0];
+    
+    const priceVal = typeof firstVariant?.price === 'object' ? firstVariant?.price?.amount : firstVariant?.price;
+    const price = priceVal ? parseFloat(priceVal) : 0;
+
+    const comparePriceVal = typeof firstVariant?.compareAtPrice === 'object' ? firstVariant?.compareAtPrice?.amount : firstVariant?.compareAtPrice;
+    const comparePrice = comparePriceVal ? parseFloat(comparePriceVal) : 0;
+
+    const isSoldOut = variants.length > 0 && variants.every((v: any) => !v.availableForSale);
+
+    let section = undefined;
+    if (node.tags?.includes("JUUL 2 Series") || node.tags?.includes("juul2")) {
+      section = "JUUL 2 Series";
+    } else if (node.tags?.includes("Disposables") || category === "disposables") {
+      section = "Disposables";
+    } else if (node.tags?.includes("E-Liquids") || category === "e-liquids") {
+      section = "E-Liquids";
+    } else if (node.tags?.includes("Pod Systems") || node.tags?.includes("Pod System")) {
+      section = "Pod Systems";
+    } else if (node.tags?.includes("Flash Sale") || node.tags?.includes("sale")) {
+      section = "Flash Sale";
+    }
+
+    const images = node.images?.edges?.map((edge: any) => edge.node.url) || [];
+    const image = images[0] || "/hero_vape.png";
+
+    let specsTable = null;
+    if (node.specsTable?.value) {
+      try {
+        specsTable = JSON.parse(node.specsTable.value);
+      } catch (e) {
+        specsTable = node.specsTable.value;
+      }
+    }
+
+    let faqAccordion = null;
+    if (node.faqAccordion?.value) {
+      try {
+        faqAccordion = JSON.parse(node.faqAccordion.value);
+      } catch (e) {
+        faqAccordion = node.faqAccordion.value;
+      }
+    }
+
+    const cleanDesc = (node.descriptionHtml || "").replace(/<[^>]*>?/gm, "").trim();
+    const seoTitle = node.seo?.title || node.title;
+    const seoDescription = node.seo?.description || cleanDesc.slice(0, 160);
+
     return NextResponse.json({
       id: node.id,
-      name: cleanProductTitle(node.title),
+      name: node.title,
+      seoTitle,
+      seoDescription,
       handle: node.handle,
       descriptionHtml: node.descriptionHtml,
       category,
@@ -219,7 +295,7 @@ function cleanProductTitle(title: string): string {
       images,
       tag: node.badge?.value || (isSoldOut ? "Sold Out" : comparePrice > price ? "Sale" : undefined),
       tagColor: comparePrice > price ? "sale" : undefined,
-      isPopular: node.tags.includes("Popular") || node.tags.includes("popular"),
+      isPopular: node.tags?.includes("Popular") || node.tags?.includes("popular"),
       isSoldOut,
       puffs: node.puffs?.value || undefined,
       nicotine: node.nicotine?.value || undefined,
@@ -227,14 +303,18 @@ function cleanProductTitle(title: string): string {
       shortDescription: node.shortDescription?.value || undefined,
       specsTable,
       faqAccordion,
-      variants: variants.map((v: any) => ({
-        id: v.id,
-        title: v.title,
-        price: parseFloat(v.price),
-        compareAtPrice: v.compareAtPrice ? parseFloat(v.compareAtPrice) : undefined,
-        availableForSale: v.availableForSale,
-        inventoryQuantity: v.inventoryQuantity,
-      })),
+      variants: variants.map((v: any) => {
+        const vPrice = typeof v.price === 'object' ? v.price?.amount : v.price;
+        const vCompare = typeof v.compareAtPrice === 'object' ? v.compareAtPrice?.amount : v.compareAtPrice;
+        return {
+          id: v.id,
+          title: v.title,
+          price: vPrice ? parseFloat(vPrice) : 0,
+          compareAtPrice: vCompare ? parseFloat(vCompare) : undefined,
+          availableForSale: v.availableForSale,
+          inventoryQuantity: v.inventoryQuantity ?? 10,
+        };
+      }),
       section,
       brand: detectBrand(node.title, node.vendor),
     });

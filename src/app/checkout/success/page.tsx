@@ -77,9 +77,17 @@ function SuccessContent() {
           </div>
 
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href={`https://wa.me/971582839787?text=${encodeURIComponent(`Hello Vape Shop Dubai! I just placed order ${orderName} on the website. Please confirm delivery.`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 bg-[#25D366] text-white font-bold px-8 py-3.5 rounded-full hover:opacity-90 transition-all text-xs uppercase tracking-wider shadow cursor-pointer"
+            >
+              <PhoneCall className="h-4 w-4" /> Send Order to WhatsApp (+971 58 283 9787)
+            </a>
             <Link
               href="/"
-              className="flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-orange-500 text-white font-bold px-8 py-3.5 rounded-full hover:brightness-105 transition-all text-xs uppercase tracking-wider shadow animate-pulse"
+              className="flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-orange-500 text-white font-bold px-8 py-3.5 rounded-full hover:brightness-105 transition-all text-xs uppercase tracking-wider shadow"
             >
               <ShoppingBag className="h-4 w-4" /> Return to Shop
             </Link>

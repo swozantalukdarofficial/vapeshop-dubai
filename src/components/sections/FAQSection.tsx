@@ -84,8 +84,8 @@ export const FAQSection: React.FC = () => {
 
       {/* Header */}
       <div className="text-center mb-10">
-        <p className="text-[9px] font-bold tracking-[0.25em] text-primary uppercase mb-1">F.A.Q.</p>
-        <h2 className="text-xl sm:text-2xl font-serif font-bold text-foreground tracking-wide">JUUL & MYLE Guide</h2>
+        <p className="text-xs font-extrabold tracking-[0.25em] text-primary uppercase mb-1.5">F.A.Q.</p>
+        <h2 className="text-2xl sm:text-4xl lg:text-5xl font-serif font-black text-foreground tracking-tight leading-tight">JUUL &amp; MYLE Guide</h2>
         {/* Premium Divider */}
         <div className="flex items-center justify-center gap-2 mt-2 mb-3">
           <div className="h-[1px] w-10 bg-gradient-to-r from-transparent to-primary/65" />

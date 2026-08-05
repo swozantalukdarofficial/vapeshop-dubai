@@ -121,17 +121,17 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
 
           {/* Centered Title */}
           <div className="text-center flex flex-col items-center flex-1">
-            <span className="text-[9px] font-bold tracking-[0.25em] text-primary uppercase mb-1 flex items-center gap-1.5 justify-center">
+            <span className="text-xs font-extrabold tracking-[0.25em] text-primary uppercase mb-1.5 flex items-center gap-2 justify-center">
               {sectionName === "Flash Sale" && (
-                <span className="relative flex h-1.5 w-1.5 mr-0.5">
+                <span className="relative flex h-2 w-2 mr-0.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                 </span>
               )}
               {sectionName === "Flash Sale" ? "Limited Offers" : "Curated Selection"}
             </span>
             
-            <h3 className="text-xl sm:text-2xl font-serif font-bold text-foreground tracking-wide">
+            <h3 className="text-2xl sm:text-4xl lg:text-5xl font-serif font-black text-foreground tracking-tight leading-tight">
               {sectionName}
             </h3>
 

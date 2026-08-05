@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ArrowRight, ArrowUpRight, Truck, CreditCard, Package } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   Carousel,
@@ -20,7 +20,7 @@ const SLIDES = [
     buttonText: "Shop MYLE Collection",
     stat1: { value: "5%", label: "Nicotine Strength" },
     stat2: { value: "V5", label: "Latest Series" },
-    ctaCategory: "all?brand=MYLE",
+    ctaCategory: "myle-vape-dubai",
   },
   {
     title: "Disposable Vapes",
@@ -31,7 +31,7 @@ const SLIDES = [
     buttonText: "Shop Disposables",
     stat1: { value: "15K", label: "Max Puffs" },
     stat2: { value: "40", label: "AED Starting" },
-    ctaCategory: "disposables",
+    ctaCategory: "disposable-vape",
   },
   {
     title: "Pod Systems & Kits",
@@ -42,7 +42,7 @@ const SLIDES = [
     buttonText: "Shop Pod Systems",
     stat1: { value: "100%", label: "Authentic" },
     stat2: { value: "Top", label: "Global Brands" },
-    ctaCategory: "accessories",
+    ctaCategory: "pod-system",
   },
   {
     title: "Premium E-Liquids & Salts",
@@ -53,23 +53,8 @@ const SLIDES = [
     buttonText: "Shop E-Liquids",
     stat1: { value: "80+", label: "Flavors" },
     stat2: { value: "0-50mg", label: "Nicotine Range" },
-    ctaCategory: "e-liquids",
+    ctaCategory: "vape-e-juice",
   },
-];
-
-const TRUST_ITEMS = [
-  "🚀 FREE DELIVERY ON ORDERS 300 AED+",
-  "⚡ SAME DAY DELIVERY IN DUBAI",
-  "💳 COD & CREDIT CARD ON DELIVERY",
-  "✅ 100% AUTHENTIC PRODUCTS",
-  "🔄 24H WARRANTY EXCHANGE",
-  "📦 NEXT-DAY ABU DHABI & SHARJAH",
-  "🚀 FREE DELIVERY ON ORDERS 300 AED+",
-  "⚡ SAME DAY DELIVERY IN DUBAI",
-  "💳 COD & CREDIT CARD ON DELIVERY",
-  "✅ 100% AUTHENTIC PRODUCTS",
-  "🔄 24H WARRANTY EXCHANGE",
-  "📦 NEXT-DAY ABU DHABI & SHARJAH",
 ];
 
 export const HeroSection: React.FC = () => {
@@ -78,7 +63,6 @@ export const HeroSection: React.FC = () => {
   const [activeSlide, setActiveSlide] = useState(0);
   const [progress, setProgress] = useState(0);
 
-  // Sync active slide state with Embla scroll snaps
   useEffect(() => {
     if (!api) return;
     const handleSelect = () => {
@@ -90,12 +74,11 @@ export const HeroSection: React.FC = () => {
     };
   }, [api]);
 
-  // Synchronized Autoplay & Progress effect
   useEffect(() => {
     if (!api) return;
 
     setProgress(0);
-    const total = 6000; // 6 seconds per slide
+    const total = 6000;
     const step = 50;
     let elapsed = 0;
     let isHovered = false;
@@ -139,16 +122,16 @@ export const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="relative pt-28 sm:pt-32 lg:pt-40 pb-0 overflow-hidden bg-transparent">
+    <section className="relative pt-24 sm:pt-28 lg:pt-36 pb-4 overflow-hidden bg-transparent">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* ── Main Hero Grid ──────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
 
           {/* ── Left: Main Slide Panel ──────────── col 1-8 */}
-          <div className="lg:col-span-8 relative bg-card border border-border rounded-[2rem] overflow-hidden card-shadow min-h-[440px] sm:min-h-[500px] lg:min-h-[560px] flex flex-col justify-between">
+          <div className="lg:col-span-8 relative bg-card border border-border/60 rounded-[2.5rem] overflow-hidden card-shadow min-h-[500px] sm:min-h-[580px] lg:min-h-[640px] flex flex-col justify-between">
             {/* BG glow */}
-            <div className="absolute top-[-10%] right-[-5%] w-[350px] h-[350px] rounded-full bg-primary/5 filter blur-[80px] pointer-events-none" />
+            <div className="absolute top-[-10%] right-[-5%] w-[450px] h-[450px] rounded-full bg-primary/8 filter blur-[100px] pointer-events-none" />
 
             <Carousel
               setApi={setApi}
@@ -162,78 +145,97 @@ export const HeroSection: React.FC = () => {
                 {SLIDES.map((slide, idx) => (
                   <CarouselItem
                     key={idx}
-                    className="basis-full p-6 sm:p-9 min-h-[380px] sm:min-h-[440px] lg:min-h-[480px] flex flex-col justify-between"
+                    className="basis-full p-6 sm:p-10 lg:p-12 min-h-[440px] sm:min-h-[520px] lg:min-h-[560px] flex flex-col justify-between"
                   >
                     {/* Tag badge */}
                     <div className="mb-4">
-                      <span className="inline-flex items-center gap-2 bg-primary/8 border border-primary/15 text-primary text-[10px] font-semibold tracking-widest uppercase px-3.5 py-1.5 rounded-full">
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary badge-live flex-shrink-0" />
+                      <span className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-widest uppercase px-4 py-2 rounded-full">
+                        <span className="w-2 h-2 rounded-full bg-primary badge-live flex-shrink-0" />
                         {slide.tag}
                       </span>
                     </div>
 
                     {/* Center grid */}
-                    <div className="flex flex-col-reverse md:flex-row md:items-center gap-6 flex-grow py-2">
-                      {/* Text */}
-                      <div className="md:w-[55%] space-y-4">
+                    <div className="flex flex-col md:flex-row md:items-center gap-6 sm:gap-8 flex-grow py-2">
+                      {/* Product image (Placed TOP on mobile, RIGHT on desktop) */}
+                      <div className="md:w-[45%] md:order-2 flex items-center justify-center relative min-h-[200px] sm:min-h-[320px] py-2 sm:py-4 select-none pointer-events-none">
+                        <div className="absolute w-44 sm:w-56 h-44 sm:h-56 rounded-full bg-primary/8 filter blur-[60px] pointer-events-none" />
+                        <img
+                          src={slide.image}
+                          alt={slide.title}
+                          draggable="false"
+                          loading={idx === 0 ? "eager" : "lazy"}
+                          decoding="async"
+                          className="animate-float relative z-10 h-[200px] sm:h-[360px] lg:h-[420px] w-auto object-contain drop-shadow-[0_25px_50px_rgba(0,0,0,0.12)] pointer-events-none"
+                        />
+                      </div>
+
+                      {/* Text content (Placed BELOW image on mobile, LEFT on desktop) */}
+                      <div className="md:w-[55%] md:order-1 space-y-4 sm:space-y-5">
                         <div>
-                          <p className="text-[11px] font-bold tracking-[0.2em] text-primary uppercase mb-2">
+                          <p className="text-[10px] sm:text-xs font-extrabold tracking-[0.25em] text-primary uppercase mb-1.5 sm:mb-2">
                             {slide.accent}
                           </p>
-                          <h1 className="text-3xl sm:text-4xl lg:text-[2.8rem] font-serif font-bold text-foreground leading-[1.1] tracking-tight">
-                            {slide.title.includes("&") ? (
-                              <>
-                                {slide.title.split("&")[0]}
-                                <span className="text-primary">&</span>
-                                {slide.title.split("&")[1]}
-                              </>
-                            ) : (
-                              slide.title
-                            )}
-                          </h1>
+                          {idx === 0 ? (
+                            <h1 className="text-3xl sm:text-5xl lg:text-[3.3rem] font-serif font-black text-foreground leading-[1.08] tracking-tight">
+                              {slide.title.includes("&") ? (
+                                <>
+                                  {slide.title.split("&")[0]}
+                                  <span className="text-primary">&</span>
+                                  {slide.title.split("&")[1]}
+                                </>
+                              ) : (
+                                slide.title
+                              )}
+                            </h1>
+                          ) : (
+                            <h2 className="text-3xl sm:text-5xl lg:text-[3.3rem] font-serif font-black text-foreground leading-[1.08] tracking-tight">
+                              {slide.title.includes("&") ? (
+                                <>
+                                  {slide.title.split("&")[0]}
+                                  <span className="text-primary">&</span>
+                                  {slide.title.split("&")[1]}
+                                </>
+                              ) : (
+                                slide.title
+                              )}
+                            </h2>
+                          )}
                         </div>
-                        <p className="text-sm text-muted-foreground leading-relaxed min-h-[48px] sm:min-h-[60px]">
+                        <p className="text-xs sm:text-base text-muted-foreground leading-relaxed font-normal min-h-[40px] sm:min-h-[64px]">
                           {slide.desc}
                         </p>
 
                         {/* Stats */}
-                        <div className="flex gap-6 pt-1">
+                        <div className="flex gap-6 sm:gap-8 pt-1 sm:pt-2">
                           <div>
-                            <p className="text-2xl font-serif font-bold text-foreground">
+                            <p className="text-2xl sm:text-4xl font-serif font-extrabold text-foreground">
                               {slide.stat1.value}
                             </p>
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider font-semibold mt-0.5 sm:mt-1">
                               {slide.stat1.label}
                             </p>
                           </div>
-                          <div className="w-px bg-border" />
+                          <div className="w-px bg-border/60" />
                           <div>
-                            <p className="text-2xl font-serif font-bold text-foreground">
+                            <p className="text-2xl sm:text-4xl font-serif font-extrabold text-foreground">
                               {slide.stat2.value}
                             </p>
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider font-semibold mt-0.5 sm:mt-1">
                               {slide.stat2.label}
                             </p>
                           </div>
                         </div>
 
-                        <button
-                          onClick={() => router.push(`/collections/${slide.ctaCategory}`)}
-                          className="inline-flex items-center gap-2.5 bg-primary text-white px-7 py-3.5 rounded-full text-sm font-bold tracking-wide hover:bg-gold-shimmer transition-all duration-300 primary-glow hover:scale-[1.02] cursor-pointer"
-                        >
-                          {slide.buttonText} <ArrowRight className="h-4 w-4" />
-                        </button>
-                      </div>
-
-                      {/* Product image */}
-                      <div className="md:w-[45%] flex items-center justify-center relative min-h-[220px] py-4 select-none pointer-events-none">
-                        <div className="absolute w-44 h-44 rounded-full bg-primary/7 filter blur-[50px] pointer-events-none" />
-                        <img
-                          src={slide.image}
-                          alt={slide.title}
-                          draggable="false"
-                          className="animate-float relative z-10 h-[220px] sm:h-[280px] lg:h-[340px] w-auto object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.1)] pointer-events-none"
-                        />
+                        {/* Button */}
+                        <div className="pt-2">
+                          <button
+                            onClick={() => router.push(`/collections/${slide.ctaCategory}`)}
+                            className="inline-flex items-center gap-2.5 bg-primary text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded-full text-xs sm:text-base font-extrabold tracking-wide hover:bg-gold-shimmer transition-all duration-300 primary-glow hover:scale-[1.03] active:scale-95 cursor-pointer shadow-md"
+                          >
+                            {slide.buttonText} <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </CarouselItem>
@@ -242,17 +244,17 @@ export const HeroSection: React.FC = () => {
             </Carousel>
 
             {/* Progress dots */}
-            <div className="relative z-20 px-6 sm:px-9 pb-6 sm:pb-9 border-t border-border/60 pt-4 bg-card rounded-b-[2rem]">
-              <div className="flex items-center gap-3">
+            <div className="relative z-20 px-8 sm:px-12 pb-6 sm:pb-8 border-t border-border/60 pt-4 bg-card rounded-b-[2.5rem]">
+              <div className="flex items-center gap-4">
                 {SLIDES.map((_, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleDotClick(idx)}
-                    className="group flex items-center gap-2 cursor-pointer"
+                    className="group flex items-center gap-2 cursor-pointer py-1"
                   >
                     <div
-                      className="relative h-[3px] rounded-full bg-border overflow-hidden transition-all duration-300"
-                      style={{ width: idx === activeSlide ? "48px" : "16px" }}
+                      className="relative h-[4px] rounded-full bg-border/80 overflow-hidden transition-all duration-300"
+                      style={{ width: idx === activeSlide ? "56px" : "20px" }}
                     >
                       {idx === activeSlide && (
                         <div
@@ -261,7 +263,7 @@ export const HeroSection: React.FC = () => {
                         />
                       )}
                     </div>
-                    <span className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${idx === activeSlide ? "text-primary" : "text-muted-foreground"}`}>
+                    <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${idx === activeSlide ? "text-primary font-black" : "text-muted-foreground"}`}>
                       {String(idx + 1).padStart(2, "0")}
                     </span>
                   </button>
@@ -271,34 +273,34 @@ export const HeroSection: React.FC = () => {
           </div>
 
           {/* ── Right: Promo Cards ──────────── col 9-12 */}
-          <div className="lg:col-span-4 flex flex-col gap-4">
+          <div className="lg:col-span-4 flex flex-col gap-5">
 
             {/* JUUL 1 Series Promo */}
             <div
-              className="flex-1 bg-card border border-border rounded-[2rem] p-4 flex gap-4 items-center justify-between relative overflow-hidden group card-shadow hover:card-shadow-hover transition-all duration-300 hover:-translate-y-1 cursor-pointer"
-              onClick={() => router.push("/collections/juul?sub=JUUL%201%20Series")}
+              className="flex-1 bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-8 flex gap-5 items-center justify-between relative overflow-hidden group card-shadow hover:card-shadow-hover transition-all duration-300 hover:-translate-y-1.5 cursor-pointer min-h-[260px] sm:min-h-[290px]"
+              onClick={() => router.push("/collections/juul-1-series")}
             >
-              <div className="absolute bottom-0 right-0 w-36 h-36 rounded-full bg-orange-50 dark:bg-primary/5 filter blur-2xl pointer-events-none" />
+              <div className="absolute bottom-0 right-0 w-44 h-44 rounded-full bg-orange-50 dark:bg-primary/5 filter blur-3xl pointer-events-none" />
               
               {/* Left content */}
-              <div className="flex flex-col justify-center flex-grow min-w-0 z-10 gap-3 py-1">
+              <div className="flex flex-col justify-center flex-grow min-w-0 z-10 gap-4 py-1">
                 <div>
-                  <span className="text-[9px] font-bold tracking-[0.2em] text-primary uppercase block mb-1">JUUL 1 Series</span>
-                  <h3 className="text-base font-serif font-bold text-foreground leading-snug">JUUL 1 Devices & Pods</h3>
-                  <p className="text-[11px] text-muted-foreground mt-1 leading-normal">Original USA Stock · 3% & 5% Nic</p>
+                  <span className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase block mb-1.5">JUUL 1 Series</span>
+                  <h3 className="text-lg sm:text-xl font-serif font-bold text-foreground leading-snug">JUUL 1 Devices & Pods</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 leading-relaxed">Original USA Stock · 3% & 5% Nic</p>
                 </div>
-                <div className="inline-flex items-center gap-2 bg-primary text-white text-[10px] font-bold uppercase tracking-wider px-4 py-2 rounded-full group-hover:bg-gold-shimmer transition-all duration-300 primary-glow hover:scale-[1.03] active:scale-95 w-fit">
-                  Shop JUUL 1 <ArrowRight className="h-3.5 w-3.5" />
+                <div className="inline-flex items-center gap-2.5 bg-primary text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full group-hover:bg-gold-shimmer transition-all duration-300 primary-glow hover:scale-[1.04] active:scale-95 w-fit shadow-xs">
+                  Shop JUUL 1 <ArrowRight className="h-4 w-4" />
                 </div>
               </div>
 
               {/* Right Product Image */}
-              <div className="w-[110px] sm:w-[120px] flex-shrink-0 relative flex items-center justify-center z-10">
-                <div className="absolute w-20 h-20 rounded-full bg-primary/5 filter blur-[25px]" />
+              <div className="w-[125px] sm:w-[145px] flex-shrink-0 relative flex items-center justify-center z-10">
+                <div className="absolute w-24 h-24 rounded-full bg-primary/5 filter blur-[30px]" />
                 <img 
                   src="/vape_kit.png" 
                   alt="JUUL 1" 
-                  className="relative h-[130px] sm:h-[150px] w-auto object-contain drop-shadow-[0_8px_20px_rgba(0,0,0,0.12)] group-hover:scale-110 group-hover:rotate-2 transition-all duration-500" 
+                  className="relative h-[150px] sm:h-[180px] w-auto object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.15)] group-hover:scale-110 group-hover:rotate-2 transition-all duration-500" 
                   onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
                 />
               </div>
@@ -306,34 +308,35 @@ export const HeroSection: React.FC = () => {
 
             {/* JUUL 2 Series Promo */}
             <div
-              className="flex-1 bg-primary border border-primary rounded-[2rem] p-4 flex gap-4 items-center justify-between relative overflow-hidden group card-shadow hover:card-shadow-hover transition-all duration-300 hover:-translate-y-1 cursor-pointer"
-              onClick={() => router.push("/collections/juul?sub=JUUL%202%20Series")}
+              className="flex-1 bg-primary border border-primary rounded-[2.5rem] p-6 sm:p-8 flex gap-5 items-center justify-between relative overflow-hidden group card-shadow hover:card-shadow-hover transition-all duration-300 hover:-translate-y-1.5 cursor-pointer min-h-[260px] sm:min-h-[290px]"
+              onClick={() => router.push("/collections/juul-2-series")}
             >
-              <div className="absolute top-0 right-0 w-36 h-36 rounded-full bg-white/10 filter blur-2xl pointer-events-none" />
+              <div className="absolute top-0 right-0 w-44 h-44 rounded-full bg-white/10 filter blur-3xl pointer-events-none" />
               
               {/* Left content */}
-              <div className="flex flex-col justify-center flex-grow min-w-0 z-10 gap-3 py-1">
+              <div className="flex flex-col justify-center flex-grow min-w-0 z-10 gap-4 py-1">
                 <div>
-                  <span className="text-[9px] font-bold tracking-[0.2em] text-white/70 uppercase block mb-1">JUUL 2 Series</span>
-                  <h3 className="text-base font-serif font-bold text-white leading-snug">JUUL 2 Devices & Pods</h3>
-                  <p className="text-[11px] text-white/80 mt-1 leading-normal">Authentic UK Stock · 18mg Nic</p>
+                  <span className="text-[10px] font-bold tracking-[0.2em] text-white/80 uppercase block mb-1.5">JUUL 2 Series</span>
+                  <h3 className="text-lg sm:text-xl font-serif font-bold text-white leading-snug">JUUL 2 Devices & Pods</h3>
+                  <p className="text-xs sm:text-sm text-white/85 mt-1.5 leading-relaxed">Authentic UK Stock · 18mg Nic</p>
                 </div>
-                <div className="inline-flex items-center gap-2 bg-white text-primary text-[10px] font-bold uppercase tracking-wider px-4 py-2 rounded-full group-hover:opacity-90 transition-all duration-300 shadow-sm hover:scale-[1.03] active:scale-95 w-fit">
-                  Shop JUUL 2 <ArrowRight className="h-3.5 w-3.5" />
+                <div className="inline-flex items-center gap-2.5 bg-white text-primary text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full group-hover:opacity-95 transition-all duration-300 shadow-md hover:scale-[1.04] active:scale-95 w-fit">
+                  Shop JUUL 2 <ArrowRight className="h-4 w-4" />
                 </div>
               </div>
 
               {/* Right Product Image */}
-              <div className="w-[110px] sm:w-[120px] flex-shrink-0 relative flex items-center justify-center z-10">
-                <div className="absolute w-20 h-20 rounded-full bg-white/10 filter blur-[25px]" />
+              <div className="w-[125px] sm:w-[145px] flex-shrink-0 relative flex items-center justify-center z-10">
+                <div className="absolute w-24 h-24 rounded-full bg-white/10 filter blur-[30px]" />
                 <img 
                   src="/vape_kit.png" 
                   alt="JUUL 2" 
-                  className="relative h-[130px] sm:h-[150px] w-auto object-contain drop-shadow-[0_8px_20px_rgba(0,0,0,0.2)] group-hover:scale-110 group-hover:-rotate-2 transition-all duration-500" 
+                  className="relative h-[150px] sm:h-[180px] w-auto object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.25)] group-hover:scale-110 group-hover:-rotate-2 transition-all duration-500" 
                   onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
                 />
               </div>
             </div>
+
           </div>
         </div>
       </div>

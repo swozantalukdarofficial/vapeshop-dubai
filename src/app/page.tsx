@@ -10,14 +10,44 @@ import { Categories } from "@/components/sections/Categories";
 import { ProductFeed } from "@/components/sections/ProductFeed";
 import { AuthorizedDealers } from "@/components/sections/AuthorizedDealers";
 import { FAQSection } from "@/components/sections/FAQSection";
+import { WhatsAppContactSection } from "@/components/sections/WhatsAppContactSection";
 import { AgeGate } from "@/components/sections/AgeGate";
+import { getFAQSchema, getBreadcrumbSchema } from "@/lib/seo-schemas";
+
+const HOME_FAQS = [
+  {
+    question: "Do you offer same-day vape delivery in Dubai?",
+    answer: "Yes! We offer express 2-hour delivery across all Dubai areas including Marina, Downtown, Deira, and JLT, as well as same-day delivery across Abu Dhabi, Sharjah, Ajman, and UAE."
+  },
+  {
+    question: "Are your vape devices and pods 100% authentic?",
+    answer: "Yes, 100% authentic. All products come directly from authorized regional distributors with genuine verification codes on the packaging."
+  },
+  {
+    question: "What payment methods are available?",
+    answer: "We support Cash on Delivery (COD) and Card on Delivery for maximum convenience."
+  }
+];
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
 
+  const faqSchema = getFAQSchema(HOME_FAQS);
+  const breadcrumbSchema = getBreadcrumbSchema([{ name: "Home", item: "/" }]);
+
   return (
     <div className="relative flex flex-col min-h-screen bg-background text-foreground">
+      {/* Home JSON-LD Schemas */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
       {/* Age Gate */}
       <AgeGate />
 
@@ -45,6 +75,10 @@ export default function Home() {
 
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <AuthorizedDealers />
+        </div>
+
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+          <WhatsAppContactSection />
         </div>
 
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, Suspense, useMemo } from "react";
+import Link from "next/link";
 import {
   ShoppingBag,
   Menu,
@@ -80,6 +81,66 @@ const NAV_LINKS = [
   { label: "BLOG", id: "blog" },
 ];
 
+const SUB_HANDLE_MAP: Record<string, string> = {
+  // JUUL
+  "JUUL 1 Series": "juul-1-series",
+  "JUUL 2 Series": "juul-2-series",
+  "JUUL Pods": "juul-pods-offers",
+  "JUUL Pods Offers": "juul-pods-offers",
+
+  // MYLE
+  "Myle v5 Pods": "myle-v5-pods",
+  "Myle v5 Device": "myle-v5-device",
+  "Myle Disposable": "myle-disposable",
+
+  // DISPOSABLE
+  "Al Fakher Vape": "al-fakher-vape",
+  "Elf Bar Vape": "elf-bar-vape",
+  "Fummo Vape": "fummo-vape",
+  "Pod Salt Vape": "pod-salt-vape",
+  "Vapes Bars": "vapes-bars",
+  "Vozol Vape": "vozol-vape",
+  "Tugboat Vape": "tugboat-vape",
+  "HQD Vape": "hqd-vape",
+  "Lost Mary": "lost-mary-disposable",
+  "Maskking Vape": "maskking-vape",
+  "Geek Bar": "geek-bar-disposable",
+  "Yuoto Vape": "yuoto-vape",
+  "Relx Vape": "relx-vape",
+  "Nerd Vape": "nerd-vape",
+  "Vgod Stig": "vgod-stig",
+  "Silvaper Vape": "silvaper-vape",
+
+  // E-JUICE
+  "Salt Nicotine": "salt-nicotine",
+  "Freebase e-liquid": "freebase-e-liquid",
+
+  // POD SYSTEM
+  "Pod Kit": "pod-kit",
+  "Pod Cartridge": "pod-cartridge",
+  "Vape Coils": "vape-coils",
+
+  // BRAND
+  "Oxva Vape": "oxva-vape",
+  "Uwell Vape": "uwell-vape",
+  "Vaporesso Vape": "vaporesso-vape",
+  "Smok Vape": "smok-vape",
+  "Geek Vape": "geek-vape",
+  "Voopoo Vape": "voopoo-vape",
+};
+
+const MAIN_HANDLE_MAP: Record<string, string> = {
+  home: "/",
+  all: "all",
+  juul: "juul-vape-dubai",
+  myle: "myle-vape-dubai",
+  disposables: "disposable-vape",
+  "e-liquids": "vape-e-juice",
+  accessories: "pod-system",
+  brand: "all",
+  blog: "blog",
+};
+
 const NavbarContent: React.FC<NavbarProps> = ({
   onSearchChange,
   onCategorySelect,
@@ -96,6 +157,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isDevModalOpen, setIsDevModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const mobileNavRef = useRef<HTMLDivElement>(null);
 
   // Suggestions states & refs
   const [products, setProducts] = useState<any[]>([]);
@@ -120,7 +182,10 @@ const NavbarContent: React.FC<NavbarProps> = ({
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const insideDesktopNav = dropdownRef.current?.contains(target);
+      const insideMobileNav = mobileNavRef.current?.contains(target);
+      if (!insideDesktopNav && !insideMobileNav) {
         setOpenDropdown(null);
       }
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
@@ -152,7 +217,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
     const query = searchQuery.trim().toLowerCase();
     if (query.length < 2) return [];
     return products
-      .filter((p) => p.name.toLowerCase().includes(query) || (p.brand && p.brand.toLowerCase().includes(query)))
+      .filter((p: any) => p.name.toLowerCase().includes(query) || (p.brand && p.brand.toLowerCase().includes(query)))
       .slice(0, 5);
   }, [products, searchQuery]);
 
@@ -180,24 +245,60 @@ const NavbarContent: React.FC<NavbarProps> = ({
     const normalizedPath = currentPath === "/" ? "/" : currentPath.replace(/\/$/, "");
 
     if (normalizedPath === "/") {
-      if (activeCategory === "all" || activeCategory === "home") {
-        return linkId === "home";
-      }
-      return activeCategory === linkId;
+      return linkId === "home";
     }
-    if (normalizedPath === "/shop") {
+    if (normalizedPath === "/shop" || normalizedPath === "/collections/all") {
       return linkId === "all";
     }
     if (normalizedPath.startsWith("/collections/")) {
       const collectionHandle = normalizedPath.replace("/collections/", "");
+      if (linkId === "juul" && (collectionHandle.includes("juul") || collectionHandle.includes("juul-vape-dubai"))) return true;
+      if (linkId === "myle" && (collectionHandle.includes("myle") || collectionHandle.includes("myle-vape-dubai"))) return true;
+      if (linkId === "disposables" && (collectionHandle.includes("disposable") || collectionHandle.includes("disposable-vape"))) return true;
+      if (linkId === "e-liquids" && (collectionHandle.includes("e-juice") || collectionHandle.includes("e-liquid") || collectionHandle.includes("vape-e-juice"))) return true;
+      if (linkId === "accessories" && (collectionHandle.includes("pod-system") || collectionHandle.includes("accessories") || collectionHandle.includes("pod-kit"))) return true;
       return linkId === collectionHandle;
     }
     return activeCategory === linkId;
   };
 
+  const getNavLinkHref = (id: string, subItem?: string): string => {
+    if (id === "home") return "/";
+    if (id === "all") return "/shop";
+    if (id === "blog") return "#";
+
+    if (subItem) {
+      if (SUB_HANDLE_MAP[subItem]) {
+        return `/collections/${SUB_HANDLE_MAP[subItem]}`;
+      }
+      return `/collections/${id}`;
+    }
+
+    if (MAIN_HANDLE_MAP[id]) {
+      return `/collections/${MAIN_HANDLE_MAP[id]}`;
+    }
+
+    return `/collections/${id}`;
+  };
+
+  const handleSubNavigate = (targetHref: string) => {
+    setIsMobileMenuOpen(false);
+    setOpenDropdown(null);
+    if (targetHref === "/" && pathname === "/") {
+      onCategorySelect?.("all");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      router.push(targetHref);
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+  };
+
   const handleNavClick = (id: string, subItem?: string) => {
     if (id === "home") {
       if (pathname === "/") {
+        onCategorySelect?.("all");
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
         router.push("/");
@@ -205,24 +306,15 @@ const NavbarContent: React.FC<NavbarProps> = ({
     } else if (id === "blog") {
       setIsDevModalOpen(true);
     } else if (id === "all") {
-      router.push("/shop");
-    } else {
-      if (subItem) {
-        if (id === "brand") {
-          let brandName = subItem.replace(" Vape", "").trim();
-          if (brandName.toLowerCase() === "geek") brandName = "GeekVape";
-          if (brandName.toLowerCase() === "voopoo") brandName = "VooPoo";
-          router.push(`/collections/all?brand=${encodeURIComponent(brandName)}`);
-        } else {
-          router.push(`/collections/${id}?sub=${encodeURIComponent(subItem)}`);
-        }
+      if (pathname === "/") {
+        onCategorySelect?.("all");
+        document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" });
       } else {
-        if (id === "brand") {
-          router.push("/collections/all");
-        } else {
-          router.push(`/collections/${id}`);
-        }
+        router.push("/shop");
       }
+    } else {
+      const href = getNavLinkHref(id, subItem);
+      router.push(href);
     }
     setIsMobileMenuOpen(false);
     setOpenDropdown(null);
@@ -266,43 +358,83 @@ const NavbarContent: React.FC<NavbarProps> = ({
             </div>
 
             {/* Desktop Nav Links */}
-            <nav className="hidden lg:flex items-center gap-0.5" ref={dropdownRef}>
-              {NAV_LINKS.map((link) => (
-                <div key={link.id} className="relative">
-                  <button
-                    onClick={() => {
-                      if (link.sub) {
-                        setOpenDropdown(openDropdown === link.id ? null : link.id);
-                      } else {
-                        handleNavClick(link.id);
-                      }
-                    }}
-                    className={`flex items-center gap-0.5 xl:gap-1 px-1.5 xl:px-3 py-2 rounded-lg text-[10px] xl:text-[11px] font-bold tracking-wider whitespace-nowrap transition-all duration-200 cursor-pointer ${
-                      getActiveState(link.id)
-                        ? "text-primary bg-primary/6"
-                        : "text-foreground/70 hover:text-foreground hover:bg-muted/60"
-                    }`}
-                  >
-                    {link.label}
-                    {link.sub && <ChevronDown className={`h-3 w-3 transition-transform ${openDropdown === link.id ? "rotate-180" : ""}`} />}
-                  </button>
+            <nav className="hidden lg:flex items-center gap-1 xl:gap-2" ref={dropdownRef}>
+              {NAV_LINKS.map((link) => {
+                const mainHref = getNavLinkHref(link.id);
 
-                  {/* Dropdown */}
-                  {link.sub && openDropdown === link.id && (
-                    <div className="absolute top-full left-0 mt-1 bg-card border border-border rounded-xl shadow-lg py-2 min-w-[180px] max-h-80 overflow-y-auto z-50">
-                      {link.sub.map((s) => (
+                return (
+                  <div 
+                    key={link.id} 
+                    className="relative group"
+                    onMouseEnter={() => link.sub && setOpenDropdown(link.id)}
+                    onMouseLeave={() => link.sub && setOpenDropdown(null)}
+                  >
+                    <div
+                      className={`flex items-center rounded-xl text-xs xl:text-[13px] font-extrabold tracking-wider whitespace-nowrap transition-all duration-200 ${
+                        getActiveState(link.id) || openDropdown === link.id
+                          ? "text-primary bg-primary/10 font-black shadow-xs"
+                          : "text-foreground/85 hover:text-primary hover:bg-muted/70"
+                      }`}
+                    >
+                      <Link
+                        href={mainHref}
+                        onClick={(e) => {
+                          if (link.id === "blog") {
+                            e.preventDefault();
+                            setIsDevModalOpen(true);
+                          } else if (link.id === "home" && pathname === "/") {
+                            onCategorySelect?.("all");
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          } else if (link.id === "all" && pathname === "/") {
+                            onCategorySelect?.("all");
+                            document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" });
+                          }
+                          setOpenDropdown(null);
+                        }}
+                        className="px-2.5 xl:px-3 py-2 text-left hover:text-primary transition-colors cursor-pointer"
+                      >
+                        {link.label}
+                      </Link>
+
+                      {link.sub && (
                         <button
-                          key={s}
-                          onClick={() => { handleNavClick(link.id, s); setOpenDropdown(null); }}
-                          className="w-full text-left px-4 py-2 text-xs font-semibold text-foreground/80 hover:text-primary hover:bg-muted/50 transition-colors cursor-pointer"
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenDropdown(openDropdown === link.id ? null : link.id);
+                          }}
+                          className="pr-2.5 xl:pr-3 py-2 pl-0.5 hover:text-primary transition-all cursor-pointer flex items-center justify-center"
+                          aria-label={`Toggle ${link.label} menu`}
                         >
-                          {s}
+                          <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${openDropdown === link.id ? "rotate-180 text-primary" : ""}`} />
                         </button>
-                      ))}
+                      )}
                     </div>
-                  )}
-                </div>
-              ))}
+
+                    {/* Dropdown (Shows on Hover & Click) */}
+                    {link.sub && openDropdown === link.id && (
+                      <div className="absolute top-full left-0 mt-1 bg-card/98 backdrop-blur-md border border-border/70 rounded-2xl shadow-xl p-2 min-w-[220px] max-h-96 overflow-y-auto z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                        {link.sub.map((s) => {
+                          const subHref = getNavLinkHref(link.id, s);
+                          return (
+                            <Link
+                              key={s}
+                              href={subHref}
+                              onClick={() => {
+                                setOpenDropdown(null);
+                              }}
+                              className="w-full text-left px-4 py-3 text-sm font-extrabold text-foreground hover:text-primary hover:bg-primary/10 rounded-xl transition-all cursor-pointer flex items-center justify-between group/sub"
+                            >
+                              <span>{s}</span>
+                              <span className="opacity-0 group-hover/sub:opacity-100 text-primary transition-opacity font-bold">→</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </nav>
 
             {/* Right Actions */}
@@ -456,7 +588,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
 
       {/* ── Mobile Menu ───────────────────────────────── */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden glass-strong border-b border-border shadow-xl">
+        <div ref={mobileNavRef} className="lg:hidden glass-strong border-b border-border shadow-2xl max-h-[calc(100vh-75px)] overflow-y-auto pb-8">
           {/* Mobile search */}
           <div className="px-4 pt-4 pb-2 relative">
             <form 
@@ -509,6 +641,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
                           onClick={() => {
                             router.push(`/product/${product.handle}`);
                             setShowSuggestions(false);
+                            setIsMobileMenuOpen(false);
                           }}
                           className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted/60 transition-colors cursor-pointer text-left"
                         >
@@ -546,51 +679,94 @@ const NavbarContent: React.FC<NavbarProps> = ({
           </div>
 
           {/* Nav items */}
-          <nav className="px-4 py-2 space-y-0.5">
+          <nav className="px-4 py-2 space-y-1">
             {NAV_LINKS.map((link) => {
               const hasSub = !!link.sub;
               const isSubOpen = openDropdown === link.id;
-              
+              const mainHref = getNavLinkHref(link.id);
+
               return (
                 <div key={link.id} className="space-y-1">
                   <div className="flex items-center justify-between w-full">
-                    <button
-                      onClick={() => {
-                        if (hasSub) {
-                          setOpenDropdown(isSubOpen ? null : link.id);
-                        } else {
-                          handleNavClick(link.id);
-                        }
-                      }}
-                      className={`flex-grow text-left px-4 py-2.5 rounded-xl text-sm font-bold tracking-wider transition-colors cursor-pointer ${
-                        getActiveState(link.id)
-                          ? "bg-primary/8 text-primary"
-                          : "text-foreground/70 hover:text-foreground hover:bg-muted/50"
-                      }`}
-                    >
-                      {link.label}
-                    </button>
-                    {hasSub && (
+                    {hasSub ? (
                       <button
+                        type="button"
                         onClick={() => setOpenDropdown(isSubOpen ? null : link.id)}
-                        className="p-2.5 text-foreground/50 hover:text-primary transition-colors cursor-pointer"
+                        className={`w-full text-left px-4 py-3 rounded-xl text-sm font-extrabold tracking-wider transition-all cursor-pointer flex items-center justify-between ${
+                          getActiveState(link.id) || isSubOpen
+                            ? "bg-primary/10 text-primary font-black"
+                            : "text-foreground/80 hover:text-foreground hover:bg-muted/50"
+                        }`}
                       >
-                        <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isSubOpen ? "rotate-180 text-primary" : ""}`} />
+                        <span>{link.label}</span>
+                        <ChevronDown className={`h-4.5 w-4.5 transition-transform duration-200 ${isSubOpen ? "rotate-180 text-primary" : "text-muted-foreground"}`} />
                       </button>
+                    ) : link.id === "blog" ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsDevModalOpen(true);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-3 rounded-xl text-sm font-extrabold tracking-wider transition-all cursor-pointer text-foreground/80 hover:text-foreground hover:bg-muted/50"
+                      >
+                        {link.label}
+                      </button>
+                    ) : (
+                      <Link
+                        href={mainHref}
+                        onClick={() => {
+                          if (link.id === "home" && pathname === "/") {
+                            onCategorySelect?.("all");
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          } else if (link.id === "all" && pathname === "/") {
+                            onCategorySelect?.("all");
+                            document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" });
+                          }
+                          setIsMobileMenuOpen(false);
+                          setOpenDropdown(null);
+                        }}
+                        className={`w-full text-left px-4 py-3 rounded-xl text-sm font-extrabold tracking-wider transition-all ${
+                          getActiveState(link.id)
+                            ? "bg-primary/10 text-primary font-black"
+                            : "text-foreground/80 hover:text-foreground hover:bg-muted/50"
+                        }`}
+                      >
+                        {link.label}
+                      </Link>
                     )}
                   </div>
                   
                   {hasSub && isSubOpen && (
-                    <div className="pl-6 pr-2 py-1 space-y-1 border-l-2 border-primary/20 ml-4 max-h-60 overflow-y-auto">
-                      {link.sub.map((s) => (
-                        <button
-                          key={s}
-                          onClick={() => handleNavClick(link.id, s)}
-                          className="w-full text-left px-3 py-2 text-xs font-semibold text-foreground/75 hover:text-primary rounded-lg hover:bg-muted/40 transition-all cursor-pointer"
-                        >
-                          {s}
-                        </button>
-                      ))}
+                    <div className="pl-4 pr-2 py-2 space-y-1 border-l-2 border-primary ml-3 bg-muted/20 rounded-r-2xl my-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+                      <Link
+                        href={mainHref}
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          setOpenDropdown(null);
+                        }}
+                        className="w-full text-left px-3.5 py-2.5 text-xs font-black tracking-wider text-primary uppercase hover:bg-primary/10 rounded-xl transition-all flex items-center justify-between cursor-pointer"
+                      >
+                        <span>View All {link.label}</span>
+                        <span>→</span>
+                      </Link>
+                      {link.sub.map((s) => {
+                        const subHref = getNavLinkHref(link.id, s);
+                        return (
+                          <Link
+                            key={s}
+                            href={subHref}
+                            onClick={() => {
+                              setIsMobileMenuOpen(false);
+                              setOpenDropdown(null);
+                            }}
+                            className="w-full text-left px-3.5 py-2.5 text-xs sm:text-sm font-bold text-foreground hover:text-primary rounded-xl hover:bg-primary/10 transition-all flex items-center justify-between cursor-pointer"
+                          >
+                            <span>{s}</span>
+                            <span className="text-primary/60 text-xs font-bold">→</span>
+                          </Link>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

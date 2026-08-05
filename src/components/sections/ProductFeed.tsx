@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Star, ShoppingCart, Package, Zap, Tag } from "lucide-react";
+import { Star, ShoppingCart, Package, Zap, Tag, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { ProductSectionCarousel } from "./ProductSectionCarousel";
@@ -28,6 +28,7 @@ export interface Product {
   battery?: string;
   section?: string;
   brand?: string;
+  collections?: string[];
 }
 
 
@@ -141,39 +142,42 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="group relative bg-card border border-border rounded-[1.5rem] overflow-hidden card-shadow hover:card-shadow-hover transition-all duration-300 hover:-translate-y-1.5 flex flex-col w-full"
+      className="group relative bg-card border border-border/50 rounded-[2rem] p-4 sm:p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1.5 flex flex-col w-full h-full"
     >
-      {/* Image area */}
-      <div className="relative bg-muted/30 mx-3 mt-3 rounded-[1.1rem] h-44 sm:h-56 flex items-center justify-center overflow-hidden">
-        <div className="absolute w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-primary/5 filter blur-2xl pointer-events-none" />
+      {/* Large Image Area */}
+      <div className="relative bg-[#F9F6F0] dark:bg-[#1A1612] rounded-[1.6rem] h-72 sm:h-80 p-2 sm:p-4 flex items-center justify-center overflow-hidden border border-border/30">
+        <div className="absolute w-56 h-56 rounded-full bg-primary/5 filter blur-2xl pointer-events-none" />
+        
         <Link href={`/product/${product.handle}`} className="block relative z-10 w-full h-full flex items-center justify-center">
           <img
             src={product.image}
             alt={product.name}
-            className="h-32 sm:h-44 w-auto object-contain drop-shadow-md transition-transform duration-500"
+            loading="lazy"
+            decoding="async"
+            className="h-[230px] sm:h-[260px] max-h-full w-auto object-contain drop-shadow-md transition-transform duration-500"
             style={{ transform: hovered ? "scale(1.08)" : "scale(1)" }}
             onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
           />
         </Link>
 
-        {/* Tag badge */}
-        {product.tag && (
-          <div className={`absolute top-2.5 left-2.5 text-[8px] sm:text-[9px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full pointer-events-none z-20 ${
+        {/* Top-Left Tag / Sold Out Badge */}
+        {(product.isSoldOut || product.tag) && (
+          <div className={`absolute top-3 left-3 text-[9px] sm:text-[10px] font-extrabold tracking-wider uppercase px-3 py-1.5 rounded-full pointer-events-none z-20 shadow-xs ${
             product.isSoldOut
-              ? "bg-foreground/80 text-background"
+              ? "bg-[#2D2A26] text-white"
               : isSale
               ? "bg-primary text-white"
-              : "bg-white/90 dark:bg-card/90 text-primary border border-primary/20"
+              : "bg-white/95 dark:bg-card/95 text-primary border border-primary/20"
           }`}>
-            {product.isSoldOut ? "Sold Out" : product.tag}
+            {product.isSoldOut ? "SOLD OUT" : product.tag}
           </div>
         )}
 
-        {/* Hover quick-add */}
+        {/* Hover Quick Add Icon */}
         {!product.isSoldOut && (
           <button
             onClick={() => onAddToCart(product)}
-            className={`absolute bottom-2.5 right-2.5 w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center shadow-md transition-all duration-300 cursor-pointer hover:bg-gold-shimmer z-20 ${hovered ? "opacity-100 scale-100" : "opacity-0 scale-75"}`}
+            className={`absolute bottom-3 right-3 w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-md transition-all duration-300 cursor-pointer hover:bg-gold-shimmer z-20 ${hovered ? "opacity-100 scale-100" : "opacity-0 scale-75"}`}
             aria-label="Quick add"
           >
             <ShoppingCart className="h-4 w-4" />
@@ -181,69 +185,74 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
         )}
       </div>
 
-      {/* Info */}
-      <div className="p-4 sm:p-5 flex flex-col gap-3 flex-grow">
-        {/* Category label */}
-        <span className="text-[9px] sm:text-[10px] font-bold tracking-widest text-primary uppercase">
+      {/* Info Section */}
+      <div className="flex flex-col gap-2.5 flex-grow pt-4 px-1">
+        {/* Section / Category tag */}
+        <span className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">
           {product.section || product.category}
         </span>
 
-        {/* Name */}
+        {/* Product Title */}
         <Link href={`/product/${product.handle}`} className="hover:text-primary transition-colors block">
-          <h3 className="text-[13px] sm:text-sm font-semibold text-foreground leading-snug line-clamp-2 min-h-[40px]">{product.name}</h3>
+          <h3 className="text-sm sm:text-base font-serif font-bold text-foreground leading-snug line-clamp-2 min-h-[44px]">
+            {product.name}
+          </h3>
         </Link>
 
-        {/* Specs */}
-        <div className="flex flex-wrap gap-1">
-          {product.puffs && product.puffs !== "Refillable" && (
-            <span className="text-[8px] sm:text-[9px] bg-muted text-muted-foreground px-2.5 py-0.5 rounded-full font-medium">{product.puffs}</span>
-          )}
-          {product.nicotine && product.nicotine !== "Universal" && (
-            <span className="text-[8px] sm:text-[9px] bg-muted text-muted-foreground px-2.5 py-0.5 rounded-full font-medium">{product.nicotine}</span>
-          )}
-        </div>
-
-        {/* Rating + Price */}
-        <div className="flex items-end justify-between mt-auto pt-1">
-          <div className="flex items-center gap-1">
-            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 flex-shrink-0" />
-            <span className="text-[11px] sm:text-xs font-bold text-foreground">{product.rating}</span>
-            <span className="text-[9px] sm:text-[10px] text-muted-foreground">({product.reviews})</span>
+        {/* Specs Badges */}
+        {(product.puffs || product.nicotine) && (
+          <div className="flex flex-wrap gap-1.5 my-0.5">
+            {product.puffs && product.puffs !== "Refillable" && (
+              <span className="text-[9px] bg-muted/70 text-muted-foreground px-2.5 py-0.5 rounded-full font-semibold">{product.puffs}</span>
+            )}
+            {product.nicotine && product.nicotine !== "Universal" && (
+              <span className="text-[9px] bg-muted/70 text-muted-foreground px-2.5 py-0.5 rounded-full font-semibold">{product.nicotine}</span>
+            )}
           </div>
+        )}
+
+        {/* Rating & Price Row */}
+        <div className="flex items-end justify-between mt-auto pt-2">
+          <div className="flex items-center gap-1">
+            <Star className="h-4 w-4 fill-amber-400 text-amber-400 flex-shrink-0" />
+            <span className="text-xs font-bold text-foreground">{product.rating}</span>
+            <span className="text-[10px] text-muted-foreground">({product.reviews})</span>
+          </div>
+
           <div className="text-right">
             {product.originalPrice && (
-              <p className="text-[10px] sm:text-[11px] text-muted-foreground line-through">Dhs. {product.originalPrice.toLocaleString()}</p>
+              <p className="text-[11px] text-muted-foreground line-through">Dhs. {product.originalPrice.toFixed(2)}</p>
             )}
-            <p className="text-sm sm:text-base font-serif font-bold text-foreground">Dhs. {product.price.toLocaleString()}</p>
+            <p className="text-base sm:text-lg font-serif font-bold text-foreground">
+              Dhs. {product.price.toFixed(2)}
+            </p>
           </div>
         </div>
 
-        {/* CTA Buttons */}
-        <div className="flex flex-row gap-2 mt-0.5">
-          <button
-            onClick={() => !product.isSoldOut && onAddToCart(product)}
-            disabled={product.isSoldOut}
-            className={`flex-1 flex items-center justify-center gap-1 py-2.5 rounded-xl text-[10px] sm:text-[11px] font-bold tracking-wide transition-all duration-200 cursor-pointer ${
-              product.isSoldOut
-                ? "bg-muted text-muted-foreground cursor-not-allowed"
-                : "bg-card hover:bg-muted/40 border border-border text-foreground hover:border-primary hover:text-primary"
-            }`}
-          >
-            {product.isSoldOut ? (
-              "Sold Out"
-            ) : (
-              <><ShoppingCart className="h-3.5 w-3.5" /> Cart</>
-            )}
-          </button>
-          {!product.isSoldOut && (
-            <button
-              onClick={() => onBuyNow(product)}
-              className="flex-1 flex items-center justify-center gap-1 py-2.5 rounded-xl text-[10px] sm:text-[11px] font-bold tracking-wide bg-gradient-to-r from-primary to-orange-500 text-white hover:brightness-110 transition-all duration-200 cursor-pointer active:scale-[0.98] shadow-sm"
-            >
-              <Zap className="h-3.5 w-3.5" /> Buy Now
-            </button>
+        {/* Full-width Action Pill Button (Matches Screenshot) */}
+        <div className="pt-3 mt-1">
+          {product.isSoldOut ? (
+            <div className="w-full py-3 rounded-full bg-[#E5DFD5] dark:bg-[#2A241E] text-muted-foreground text-xs font-bold uppercase tracking-wider text-center cursor-not-allowed border border-border/30">
+              Sold out
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => onAddToCart(product)}
+                className="py-3 rounded-full bg-card hover:bg-muted/40 border border-border/80 text-foreground text-xs font-bold uppercase tracking-wider text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 active:scale-98"
+              >
+                <ShoppingCart className="h-3.5 w-3.5" /> Cart
+              </button>
+              <button
+                onClick={() => onBuyNow(product)}
+                className="py-3 rounded-full bg-gradient-to-r from-primary to-orange-500 hover:brightness-105 text-white text-xs font-bold uppercase tracking-wider text-center shadow cursor-pointer transition-all flex items-center justify-center gap-1.5 active:scale-98"
+              >
+                <Zap className="h-3.5 w-3.5" /> Buy Now
+              </button>
+            </div>
           )}
         </div>
+
       </div>
     </div>
   );
@@ -288,6 +297,20 @@ export const ProductFeed: React.FC<ProductFeedProps> = ({
       return matchCat && matchSearch;
     });
   }, [activeProductsList, activeCategory, searchQuery]);
+
+  const ITEMS_PER_PAGE = 12;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory, searchQuery]);
+
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+
+  const paginatedProducts = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredProducts.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredProducts, currentPage]);
 
   // Group products by section for "all" view
   const sections = useMemo(() => {
@@ -346,18 +369,15 @@ export const ProductFeed: React.FC<ProductFeedProps> = ({
   };
 
   return (
-    <div className="space-y-8 sm:space-y-10 relative">
+<div className="space-y-8 sm:space-y-10 relative">
       {/* Section header - clean and standalone */}
       <div className="text-center flex flex-col items-center justify-center px-4 sm:px-6 mb-8">
-        <span className="text-[9px] font-bold tracking-[0.25em] text-primary uppercase mb-1 flex items-center gap-1.5 justify-center">
-          <span className="relative flex h-1.5 w-1.5 mr-0.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary"></span>
-          </span>
+        <span className="text-xs font-extrabold tracking-[0.25em] text-primary uppercase mb-1.5 flex items-center gap-2 justify-center">
+          <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
           Live Catalog
         </span>
         
-        <h2 className="text-xl sm:text-2xl font-serif font-bold text-foreground tracking-wide">
+        <h2 className="text-2xl sm:text-4xl lg:text-5xl font-serif font-black text-foreground tracking-tight leading-tight">
           Explore Our Collection
         </h2>
 
@@ -424,12 +444,83 @@ export const ProductFeed: React.FC<ProductFeedProps> = ({
           </button>
         </div>
       ) : (
-        <div className="bg-card/70 backdrop-blur-md border border-border/40 rounded-[2.2rem] p-6 sm:p-8 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} onAddToCart={handleAddToCart} onBuyNow={handleBuyNow} />
-            ))}
+        <div className="space-y-6">
+          <div className="bg-card/70 backdrop-blur-md border border-border/40 rounded-[2.2rem] p-6 sm:p-8 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {paginatedProducts.map((product) => (
+                <ProductCard key={product.id} product={product} onAddToCart={handleAddToCart} onBuyNow={handleBuyNow} />
+              ))}
+            </div>
           </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-6 pb-2">
+              <button
+                onClick={() => {
+                  if (currentPage > 1) {
+                    setCurrentPage((prev) => prev - 1);
+                    document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+                disabled={currentPage === 1}
+                className="p-2 sm:p-2.5 rounded-xl border border-border bg-card text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary hover:text-white transition-colors cursor-pointer"
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+
+              {(() => {
+                const pages: (number | string)[] = [];
+                if (totalPages <= 5) {
+                  for (let i = 1; i <= totalPages; i++) pages.push(i);
+                } else if (currentPage <= 3) {
+                  pages.push(1, 2, 3, 4, "...", totalPages);
+                } else if (currentPage >= totalPages - 2) {
+                  pages.push(1, "...", totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+                } else {
+                  pages.push(1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages);
+                }
+
+                return pages.map((item, idx) =>
+                  typeof item === "number" ? (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setCurrentPage(item);
+                        document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" });
+                      }}
+                      className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        item === currentPage
+                          ? "bg-primary text-white shadow-md scale-105 font-black"
+                          : "bg-card border border-border text-foreground hover:bg-primary/10 hover:text-primary"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ) : (
+                    <span key={idx} className="px-1 text-xs text-muted-foreground font-bold select-none">
+                      ...
+                    </span>
+                  )
+                );
+              })()}
+
+              <button
+                onClick={() => {
+                  if (currentPage < totalPages) {
+                    setCurrentPage((prev) => prev + 1);
+                    document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+                disabled={currentPage === totalPages}
+                className="p-2 sm:p-2.5 rounded-xl border border-border bg-card text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary hover:text-white transition-colors cursor-pointer"
+                aria-label="Next page"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -2,40 +2,32 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-
-
 @custom-variant dark (&:is(.dark *));
 
 :root {
   /* ─── Luxury Pearl Ivory × Ember Orange ─────────────── */
-  /* Background: warm pearl linen — rich, editorial, premium */
   --background: #F9F4EC;
   --foreground: #1E150A;
-  /* Cards: bright ivory with warm undertone */
   --card: #FEFAF4;
   --card-foreground: #1E150A;
   --popover: #FEFAF4;
   --popover-foreground: #1E150A;
 
-  /* Primary: refined ember orange — warm, bold, luxurious */
   --primary: #E8521A;
   --primary-foreground: #FFFFFF;
   --primary-subtle: rgba(232, 82, 26, 0.08);
 
-  /* Surfaces: warm linen progression */
   --secondary: #EFE8DA;
   --secondary-foreground: #1E150A;
   --muted: #E9E0CF;
   --muted-foreground: #8C7B6B;
 
-  /* Accent tint */
   --accent: #F6EBD9;
   --accent-foreground: #E8521A;
 
   --destructive: #C0392B;
   --destructive-foreground: #ffffff;
 
-  /* Borders: warm sepia tone */
   --border: rgba(110, 80, 45, 0.14);
   --input: rgba(110, 80, 45, 0.09);
   --ring: #E8521A;
@@ -46,14 +38,12 @@
   --border-color: rgba(110, 80, 45, 0.14);
   --radius: 0.75rem;
 
-  /* Warm sepia shadows for depth */
   --shadow-card: 0 1px 4px rgba(110,80,45,0.09), 0 6px 20px rgba(110,80,45,0.06);
   --shadow-hover: 0 6px 16px rgba(110,80,45,0.12), 0 20px 56px rgba(110,80,45,0.08);
   --shadow-primary: 0 8px 28px rgba(232,82,26,0.28);
 }
 
 .dark {
-  /* Dark: deep warm obsidian — not cold grey, but warm charcoal */
   --background: #120E0A;
   --foreground: #F4EFE6;
   --card: #1C1712;
@@ -124,11 +114,14 @@
 }
 
 /* ─── Base ───────────────────────────────────────────── */
-html { scroll-behavior: smooth; }
+html { 
+  scroll-behavior: smooth;
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+}
 
 body {
   background-color: var(--background);
-  /* Rich warm pearl: pearl white → warm linen → antique ivory */
   background-image:
     radial-gradient(ellipse 80% 60% at 20% 10%, rgba(245, 210, 160, 0.18) 0%, transparent 60%),
     radial-gradient(ellipse 70% 50% at 80% 80%, rgba(232, 150, 80, 0.10) 0%, transparent 55%),
@@ -149,6 +142,32 @@ body {
   background-color: #120E0A;
 }
 
+/* ─── GPU Hardware Acceleration ─── */
+.animate-float,
+.animate-float-slow,
+.card-shadow,
+.card-shadow-hover {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* ─── Offscreen Content Optimization for 60/120 FPS ─── */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 500px;
+}
+
+/* Mobile Blur Optimization for 100/100 Mobile Speed */
+@media (max-width: 768px) {
+  .backdrop-blur-md,
+  .backdrop-blur-lg,
+  .backdrop-blur-xl {
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
+}
+
 h1, h2, h3, .font-serif { font-family: var(--font-playfair), Georgia, serif; }
 
 ::selection { background-color: rgba(255,79,24,0.15); color: var(--foreground); }
@@ -157,6 +176,78 @@ h1, h2, h3, .font-serif { font-family: var(--font-playfair), Georgia, serif; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+/* ─── Product Description HTML Styling ─── */
+.product-description-content h1,
+.product-description-content h2,
+.product-description-content h3,
+.product-description-content h4,
+.product-description-content h5 {
+  color: #cf3e1b;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 1.05rem;
+  margin-top: 2rem;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(207, 62, 27, 0.18);
+  display: block;
+}
+
+.product-description-content h1:first-child,
+.product-description-content h2:first-child,
+.product-description-content h3:first-child {
+  margin-top: 0.5rem;
+}
+
+.product-description-content p {
+  color: var(--foreground);
+  font-size: 0.925rem;
+  line-height: 1.85;
+  margin-bottom: 1.25rem;
+  opacity: 0.9;
+}
+
+.product-description-content strong,
+.product-description-content b {
+  color: #cf3e1b;
+  font-weight: 700;
+}
+
+.product-description-content ul,
+.product-description-content ol {
+  margin-top: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+  list-style-type: disc;
+}
+
+.product-description-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.7;
+}
+
+.product-description-content img {
+  display: block;
+  max-width: 550px;
+  width: 100%;
+  height: auto;
+  margin: 1.5rem auto;
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border);
+  object-fit: contain;
+}
+
+.product-description-content a {
+  color: #cf3e1b;
+  text-decoration: underline;
+  font-weight: 600;
+}
+.product-description-content a:hover {
+  opacity: 0.8;
+}
 
 /* ─── Animations ─────────────────────────────────────── */
 @keyframes float-slow {
@@ -241,7 +332,6 @@ h1, h2, h3, .font-serif { font-family: var(--font-playfair), Georgia, serif; }
   border-bottom: 1px solid rgba(255, 200, 140, 0.07);
 }
 
-/* Decorative section divider line */
 .section-divider {
   height: 1px;
   background: linear-gradient(

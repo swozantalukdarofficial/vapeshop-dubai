@@ -7,10 +7,13 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/layout/CartDrawer";
 import { useCart } from "@/context/CartContext";
-import { Product } from "@/components/sections/ProductFeed";
+import { Product, ProductCard } from "@/components/sections/ProductFeed";
+import { AuthorizedDealers } from "@/components/sections/AuthorizedDealers";
+import { WhatsAppContactSection } from "@/components/sections/WhatsAppContactSection";
 import {
   Star,
   ShoppingCart,
+  ChevronLeft,
   ChevronRight,
   ArrowLeft,
   SlidersHorizontal,
@@ -20,6 +23,29 @@ import {
   Check,
   Zap
 } from "lucide-react";
+import { getItemListSchema, getBreadcrumbSchema } from "@/lib/seo-schemas";
+
+function cleanDescriptionHtml(html: string): string {
+  if (!html) return "";
+  let cleaned = html;
+
+  // Process tables: promote first <tr> to <thead><th> if table lacks <thead>
+  cleaned = cleaned.replace(/<table[\s\S]*?<\/table>/gi, (tableHtml) => {
+    let updatedTable = tableHtml;
+    if (!/<thead/i.test(updatedTable)) {
+      updatedTable = updatedTable.replace(/<tr[\s\S]*?>([\s\S]*?)<\/tr>/i, (_match, innerTr) => {
+        const ths = innerTr.replace(/<td([\s\S]*?)>([\s\S]*?)<\/td>/gi, '<th$1>$2</th>');
+        return `<thead><tr>${ths}</tr></thead>`;
+      });
+    }
+    return `<div class="overflow-x-auto my-8 rounded-2xl border border-primary/30 shadow-md bg-card">${updatedTable}</div>`;
+  });
+
+  cleaned = cleaned.replace(/href="https?:\/\/(www\.)?(vapeuae\.shop|vapshopdubai\.ae|vapshop\.ae)\/collections\/([^"]+)"/gi, 'href="/collections/$3"');
+  cleaned = cleaned.replace(/href="https?:\/\/(www\.)?(vapeuae\.shop|vapshopdubai\.ae|vapshop\.ae)\/brand\/([^"]+)"/gi, 'href="/collections/$3"');
+  cleaned = cleaned.replace(/href="https?:\/\/(www\.)?(vapeuae\.shop|vapshopdubai\.ae|vapshop\.ae)\/product\/([^"]+)"/gi, 'href="/product/$3"');
+  return cleaned;
+}
 
 function CollectionPageContent() {
   const params = useParams();
@@ -42,6 +68,16 @@ function CollectionPageContent() {
   const [maxPrice, setMaxPrice] = useState<number>(2000);
   const [sortBy, setSortBy] = useState<string>("popular");
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const [isGuideExpanded, setIsGuideExpanded] = useState(false);
+
+  // Shopify collection metadata
+  const [collectionMeta, setCollectionMeta] = useState<{
+    title: string;
+    description: string;
+    descriptionHtml: string;
+    image: { url: string; altText: string; width: number; height: number } | null;
+    seo: { title: string; description: string } | null;
+  } | null>(null);
 
   // Global search & navbar states
   const [searchQuery, setSearchQuery] = useState("");
@@ -64,7 +100,31 @@ function CollectionPageContent() {
       }
     }
     loadProducts();
-  }, []);
+    setCurrentPage(1);
+    setSelectedNicotines([]);
+    setSelectedPuffs([]);
+    setSelectedBrands([]);
+    setIsGuideExpanded(false);
+  }, [handle]);
+
+  // Fetch Shopify collection metadata
+  useEffect(() => {
+    if (!handle) return;
+    async function loadCollectionMeta() {
+      try {
+        const res = await fetch(`/api/collections/${encodeURIComponent(handle)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setCollectionMeta(data);
+        } else {
+          setCollectionMeta(null);
+        }
+      } catch {
+        setCollectionMeta(null);
+      }
+    }
+    loadCollectionMeta();
+  }, [handle]);
 
   // Synchronize brand filter from query params
   useEffect(() => {
@@ -86,45 +146,65 @@ function CollectionPageContent() {
     }
   }, [searchParams]);
 
-  // Collection Title Mapping
+  // Collection info — use Shopify data if available, otherwise fallback
   const collectionInfo = useMemo(() => {
-    const defaultInfo = {
-      title: "Premium Vape Collections",
-      description: "Explore our dynamic range of authentic, premium vape devices, pod kits, and e-liquids.",
-      categoryKey: "all"
-    };
+    const defaultTitle = handle
+      ? handle.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
+      : "Premium Vape Collections";
 
-    if (!handle) return defaultInfo;
+    // Determine categoryKey from handle
+    let categoryKey = (handle || "all").toLowerCase();
+    const hLower = (handle || "").toLowerCase();
+    if (hLower.includes("juul")) categoryKey = "juul";
+    else if (hLower.includes("myle")) categoryKey = "myle";
+    else if (hLower.includes("disposable") || hLower.includes("fakher") || hLower.includes("elf-bar") || hLower.includes("tugboat") || hLower.includes("lost-mary") || hLower.includes("fummo") || hLower.includes("pod-salt") || hLower.includes("vapes-bars") || hLower.includes("vozol") || hLower.includes("hqd") || hLower.includes("geek-bar") || hLower.includes("yuoto") || hLower.includes("relx") || hLower.includes("nerd") || hLower.includes("vgod") || hLower.includes("silvaper") || hLower.includes("maskking")) categoryKey = "disposables";
+    else if (hLower.includes("e-juice") || hLower.includes("e-liquid") || hLower.includes("salt-nicotine") || hLower.includes("freebase")) categoryKey = "e-liquids";
+    else if (hLower.includes("pod-system") || hLower.includes("pod-kit") || hLower.includes("pod-cartridge") || hLower.includes("vape-coils")) categoryKey = "accessories";
 
-    switch (handle.toLowerCase()) {
-      case "juul":
-        return {
-          title: "Authentic JUUL Series",
-          description: "Shop official JUUL Devices, JUUL 2 Pods, and accessories. Premium quality, imported directly for authentic satisfaction.",
-          categoryKey: "juul"
-        };
-      case "disposables":
-        return {
-          title: "Premium Disposable Vapes",
-          description: "Discover long-lasting disposable vapes from top brands: Pod Salt, AL Fakher, BECO, and more. 6,000 to 15,000 puffs available.",
-          categoryKey: "disposables"
-        };
-      case "e-liquids":
-        return {
-          title: "Premium E-Liquids & Juices",
-          description: "Indulge in rich nicotine salts and freebase e-liquids. Curated premium brands featuring mango, blue raspberry, tobacco, and mint flavors.",
-          categoryKey: "e-liquids"
-        };
-      case "accessories":
-        return {
-          title: "Pod Systems & Accessories",
-          description: "Upgrade your hardware with Vaporesso XROS 4, Luxe XR, coils, and replacement pods. Authentic components for a refined draw.",
-          categoryKey: "accessories"
-        };
-      default:
-        return defaultInfo;
+    // If Shopify data loaded, use it
+    if (collectionMeta && collectionMeta.title) {
+      let shortDesc = `Shop authentic ${collectionMeta.title} devices, pods, and e-liquids at Vape Shop Dubai. 2-Hour fast delivery in Dubai.`;
+      if (collectionMeta.description) {
+        const firstSentence = collectionMeta.description.split(". ")[0];
+        if (firstSentence && firstSentence.length > 15 && firstSentence.length < 180) {
+          shortDesc = firstSentence.endsWith(".") ? firstSentence : `${firstSentence}.`;
+        } else {
+          shortDesc = collectionMeta.description.slice(0, 150).trim() + "...";
+        }
+      }
+
+      return {
+        title: collectionMeta.title,
+        description: shortDesc,
+        descriptionHtml: collectionMeta.descriptionHtml || "",
+        image: collectionMeta.image,
+        seo: collectionMeta.seo,
+        categoryKey,
+      };
     }
-  }, [handle]);
+
+    // Fallback: hardcoded defaults
+    return {
+      title: defaultTitle,
+      description: `Shop authentic ${defaultTitle} devices, pods, and e-liquids at Vape Shop Dubai. 2-Hour fast delivery in Dubai.`,
+      descriptionHtml: "",
+      image: null as { url: string; altText: string; width: number; height: number } | null,
+      seo: null as { title: string; description: string } | null,
+      categoryKey,
+    };
+  }, [handle, collectionMeta]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && collectionInfo) {
+      const seoTitle = collectionInfo.seo?.title || collectionInfo.title;
+      const seoDesc = collectionInfo.seo?.description || collectionInfo.description;
+      document.title = `${seoTitle} | Vape Shop Dubai`;
+      let metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute("content", seoDesc);
+      }
+    }
+  }, [collectionInfo]);
 
   // Filter lists based on matching products
   const filterOptions = useMemo(() => {
@@ -135,9 +215,6 @@ function CollectionPageContent() {
     let maxP = 0;
 
     products.forEach((p) => {
-      // Check if product belongs to current collection
-      if (collectionInfo.categoryKey !== "all" && p.category !== collectionInfo.categoryKey) return;
-      
       if (p.nicotine) nics.add(p.nicotine);
       if (p.puffs) puffsSet.add(p.puffs);
       if (p.brand) brandsSet.add(p.brand);
@@ -152,7 +229,7 @@ function CollectionPageContent() {
       categories: Array.from(categoriesSet).filter(Boolean),
       maxFoundPrice: maxP || 2000
     };
-  }, [products, collectionInfo]);
+  }, [products]);
 
   // Initialize maxPrice slider default
   useEffect(() => {
@@ -163,12 +240,102 @@ function CollectionPageContent() {
 
   // Filter and Sort logic
   const filteredProducts = useMemo(() => {
+    const hLower = (handle || "").toLowerCase();
+
     let result = products.filter((p) => {
-      // Collection category filter
-      const matchCollection = collectionInfo.categoryKey === "all"
-        ? (selectedCategories.length === 0 || selectedCategories.includes(p.category))
-        : p.category === collectionInfo.categoryKey;
-      
+      const prodNameLower = p.name.toLowerCase();
+      const prodBrandLower = (p.brand || "").toLowerCase();
+      const prodSectionLower = (p.section || "").toLowerCase();
+      const prodCatLower = (p.category || "").toLowerCase();
+
+      let matchCollection = true;
+
+      if (hLower && hLower !== "all" && hLower !== "shop") {
+        // Priority 1: Direct Shopify Collection Handle Match (exact match)
+        const hasDirectCollectionMatch = p.collections && p.collections.length > 0 && p.collections.some((c) => {
+          const cLower = c.toLowerCase();
+          return cLower === hLower;
+        });
+
+        if (hasDirectCollectionMatch) {
+          matchCollection = true;
+        } else {
+          // Priority 2: Strict Brand & Category Submenu Matcher
+          const KNOWN_BRANDS: Record<string, string[]> = {
+            "al-fakher": ["al fakher", "fakher", "crown bar"],
+            "elf-bar": ["elf bar", "elfbar"],
+            "myle": ["myle"],
+            "juul": ["juul"],
+            "tugboat": ["tugboat"],
+            "fummo": ["fummo"],
+            "pod-salt": ["pod salt", "podsalt"],
+            "vapes-bars": ["vapes bars", "vapesbars"],
+            "vozol": ["vozol"],
+            "hqd": ["hqd"],
+            "lost-mary": ["lost mary", "lostmary"],
+            "maskking": ["maskking"],
+            "geek-bar": ["geek bar", "geekbar"],
+            "yuoto": ["yuoto"],
+            "relx": ["relx"],
+            "nerd": ["nerd"],
+            "vgod": ["vgod"],
+            "silvaper": ["silvaper"],
+            "oxva": ["oxva"],
+            "uwell": ["uwell"],
+            "vaporesso": ["vaporesso"],
+            "smok": ["smok"],
+            "geek-vape": ["geek vape", "geekvape"],
+            "geekvape": ["geek vape", "geekvape"],
+            "voopoo": ["voopoo"],
+          };
+
+          let matchedBrandSlug = "";
+          for (const key of Object.keys(KNOWN_BRANDS)) {
+            if (hLower.includes(key)) {
+              matchedBrandSlug = key;
+              break;
+            }
+          }
+
+          if (matchedBrandSlug) {
+            // Strictly match target brand!
+            const brandTokens = KNOWN_BRANDS[matchedBrandSlug];
+            matchCollection = brandTokens.some(
+              (token) => prodBrandLower.includes(token) || prodNameLower.includes(token)
+            );
+          } else if (hLower === "disposables" || hLower === "disposable" || hLower.includes("disposable")) {
+            matchCollection = prodCatLower === "disposables" || prodSectionLower.includes("disposable") || prodNameLower.includes("disposable");
+          } else if (hLower === "juul" || hLower.includes("juul")) {
+            matchCollection = prodCatLower === "juul" || prodBrandLower.includes("juul") || prodNameLower.includes("juul");
+          } else if (hLower === "myle" || hLower.includes("myle")) {
+            matchCollection = prodCatLower === "myle" || prodBrandLower.includes("myle") || prodNameLower.includes("myle");
+          } else if (hLower === "e-liquids" || hLower === "e-juice" || hLower.includes("e-liquid") || hLower.includes("e-juice") || hLower.includes("salt-nicotine")) {
+            matchCollection = prodCatLower === "e-liquids" || prodSectionLower.includes("liquid") || prodNameLower.includes("salt");
+          } else if (hLower === "accessories" || hLower.includes("pod-system") || hLower.includes("pod-kit")) {
+            matchCollection = prodCatLower === "accessories" || prodSectionLower.includes("pod") || prodNameLower.includes("pod");
+          } else {
+            // Require ALL clean non-generic keywords to match product
+            const GENERIC_WORDS = new Set(["vape", "dubai", "disposable", "pods", "pod", "device", "kit", "series", "shop", "online", "uae", "offers", "offer"]);
+            const cleanKeywords = hLower
+              .split("-")
+              .filter((w) => w.length > 2 && !GENERIC_WORDS.has(w));
+
+            if (cleanKeywords.length > 0) {
+              matchCollection = cleanKeywords.every((kw) =>
+                prodNameLower.includes(kw) ||
+                prodBrandLower.includes(kw) ||
+                prodSectionLower.includes(kw) ||
+                prodCatLower.includes(kw)
+              );
+            } else {
+              matchCollection = true;
+            }
+          }
+        }
+      } else {
+        matchCollection = selectedCategories.length === 0 || selectedCategories.includes(p.category);
+      }
+
       // Nicotine filter
       const matchNic = selectedNicotines.length === 0 || (p.nicotine && selectedNicotines.includes(p.nicotine));
       
@@ -184,62 +351,18 @@ function CollectionPageContent() {
       // Price filter
       const matchPrice = p.price <= maxPrice;
 
-      // Sub-item filter from URL (e.g. JUUL 1, JUUL 2, JUUL Pods)
+      // Sub-item filter from URL
       let matchSub = true;
       if (subFilter) {
         const subLower = subFilter.toLowerCase();
-        const prodNameLower = p.name.toLowerCase();
-        const prodBrandLower = (p.brand || "").toLowerCase();
-        const prodSectionLower = (p.section || "").toLowerCase();
-        
-        if (collectionInfo.categoryKey === "juul") {
-          if (subLower.includes("1")) {
-            // JUUL 1 Series
-            matchSub = prodSectionLower.includes("juul 1") || prodNameLower.includes("juul 1") || (!prodNameLower.includes("juul 2") && !prodNameLower.includes("juul2"));
-          } else if (subLower.includes("2")) {
-            // JUUL 2 Series
-            matchSub = prodSectionLower.includes("juul 2") || prodNameLower.includes("juul 2") || prodNameLower.includes("juul2");
-          } else if (subLower.includes("pod")) {
-            // JUUL Pods
-            matchSub = prodNameLower.includes("pod");
-          }
-        } else if (collectionInfo.categoryKey === "myle") {
-          if (subLower.includes("v5") && subLower.includes("pod")) {
-            matchSub = prodNameLower.includes("v5") && (prodNameLower.includes("pod") || prodNameLower.includes("cartridge"));
-          } else if (subLower.includes("v5") && (subLower.includes("device") || subLower.includes("kit"))) {
-            matchSub = prodNameLower.includes("v5") && (prodNameLower.includes("device") || prodNameLower.includes("kit"));
-          } else if (subLower.includes("disposable")) {
-            matchSub = prodNameLower.includes("disposable") || prodNameLower.includes("drip");
-          } else {
-            matchSub = prodNameLower.includes(subLower) || prodSectionLower.includes(subLower);
-          }
-        } else if (collectionInfo.categoryKey === "e-liquids") {
-          if (subLower.includes("salt")) {
-            matchSub = prodNameLower.includes("salt") || prodNameLower.includes("salts");
-          } else if (subLower.includes("freebase")) {
-            matchSub = prodNameLower.includes("freebase") || !prodNameLower.includes("salt");
-          }
-        } else if (collectionInfo.categoryKey === "accessories") {
-          if (subLower.includes("kit")) {
-            matchSub = prodNameLower.includes("kit") || prodNameLower.includes("device") || prodNameLower.includes("system");
-          } else if (subLower.includes("cartridge") || subLower.includes("pod")) {
-            matchSub = prodNameLower.includes("cartridge") || (prodNameLower.includes("pod") && !prodNameLower.includes("kit"));
-          } else if (subLower.includes("coil")) {
-            matchSub = prodNameLower.includes("coil") || prodNameLower.includes("coils");
-          }
-        } else {
-          // Brand checking for disposables or generic categories
-          const cleanBrand = subLower.replace("vape", "").replace("bar", "").trim();
-          matchSub = prodBrandLower.includes(cleanBrand) || prodNameLower.includes(cleanBrand);
-        }
+        const cleanSub = subLower.replace("vape", "").replace("bar", "").trim();
+        matchSub = prodBrandLower.includes(cleanSub) || prodNameLower.includes(cleanSub) || prodSectionLower.includes(cleanSub);
       }
 
       // Search query filter
       const matchSearch = !searchQuery || 
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        (p.brand && p.brand.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (p.section && p.section.toLowerCase().includes(searchQuery.toLowerCase()));
+        (p.brand && p.brand.toLowerCase().includes(searchQuery.toLowerCase()));
 
       return matchCollection && matchNic && matchPuff && matchBrand && matchStock && matchPrice && matchSub && matchSearch;
     });
@@ -252,7 +375,6 @@ function CollectionPageContent() {
     } else if (sortBy === "rating") {
       result.sort((a, b) => b.rating - a.rating);
     } else {
-      // Default: Popularity (reviews or isPopular flag)
       result.sort((a, b) => {
         if (a.isPopular && !b.isPopular) return -1;
         if (!a.isPopular && b.isPopular) return 1;
@@ -261,7 +383,21 @@ function CollectionPageContent() {
     }
 
     return result;
-  }, [products, collectionInfo, selectedNicotines, selectedPuffs, selectedBrands, selectedCategories, inStockOnly, maxPrice, sortBy, subFilter, searchQuery]);
+  }, [products, handle, selectedNicotines, selectedPuffs, selectedBrands, selectedCategories, inStockOnly, maxPrice, sortBy, subFilter, searchQuery]);
+
+  const ITEMS_PER_PAGE = 12;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedNicotines, selectedPuffs, selectedBrands, selectedCategories, inStockOnly, maxPrice, sortBy, subFilter, searchQuery, handle]);
+
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+
+  const paginatedProducts = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredProducts.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredProducts, currentPage]);
 
   const toggleNicotine = (nic: string) => {
     setSelectedNicotines((prev) =>
@@ -322,8 +458,31 @@ function CollectionPageContent() {
     router.push("/checkout");
   };
 
+  const itemListSchema = getItemListSchema(
+    collectionInfo.title,
+    filteredProducts.map((p) => ({
+      name: p.name,
+      handle: p.handle,
+      price: p.price,
+      image: p.image,
+    }))
+  );
+  const breadcrumbSchema = getBreadcrumbSchema([
+    { name: "Home", item: "/" },
+    { name: collectionInfo.title, item: `/collections/${handle}` },
+  ]);
+
   return (
     <div className="relative flex flex-col min-h-screen bg-background text-foreground">
+      {/* Collection JSON-LD Schemas */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       {/* Navbar */}
       <Navbar
         onCategorySelect={(c) => {
@@ -346,7 +505,7 @@ function CollectionPageContent() {
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6">
           <div className="bg-card border border-border/40 rounded-[2.5rem] p-8 sm:p-12 relative overflow-hidden shadow-sm">
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10" />
-            <div className="relative z-10 max-w-2xl">
+            <div className="relative z-10 max-w-3xl">
               <span className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">
                 Dubai Vape Catalog
               </span>
@@ -519,7 +678,7 @@ function CollectionPageContent() {
               {/* Toolbar */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card border border-border/40 px-4 sm:px-6 py-4 rounded-3xl shadow-sm">
                 <p className="text-xs font-bold text-foreground text-center sm:text-left">
-                  Showing <span className="text-primary">{filteredProducts.length}</span> premium products
+                  Showing <span className="text-primary">{paginatedProducts.length}</span> of {filteredProducts.length} premium products
                 </p>
                 
                 <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
@@ -585,138 +744,185 @@ function CollectionPageContent() {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-                  {filteredProducts.map((product) => {
-                    const isSale = product.tagColor === "sale";
-                    return (
-                      <div
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+                    {paginatedProducts.map((product) => (
+                      <ProductCard
                         key={product.id}
-                        className="group relative bg-card border border-border rounded-[1.5rem] overflow-hidden card-shadow hover:card-shadow-hover transition-all duration-300 hover:-translate-y-1.5 flex flex-col w-full"
+                        product={product}
+                        onAddToCart={handleAddToCart}
+                        onBuyNow={handleBuyNow}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-10 pb-4">
+                      <button
+                        onClick={() => {
+                          if (currentPage > 1) {
+                            setCurrentPage((prev) => prev - 1);
+                            window.scrollTo({ top: 350, behavior: "smooth" });
+                          }
+                        }}
+                        disabled={currentPage === 1}
+                        className="p-2 sm:p-2.5 rounded-xl border border-border bg-card text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary hover:text-white transition-colors cursor-pointer"
+                        aria-label="Previous page"
                       >
-                        {/* Image area */}
-                        <div className="relative bg-muted/30 mx-3 mt-3 rounded-[1.1rem] h-44 sm:h-56 flex items-center justify-center overflow-hidden">
-                          <div className="absolute w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-primary/5 filter blur-2xl pointer-events-none" />
-                          <Link href={`/product/${product.handle}`} className="block relative z-10 w-full h-full flex items-center justify-center">
-                            <img
-                              src={product.image}
-                              alt={product.name}
-                              className="h-32 sm:h-44 w-auto object-contain drop-shadow-md transition-transform duration-500 group-hover:scale-108"
-                              onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
-                            />
-                          </Link>
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
 
-                          {/* Tag badge */}
-                          {product.tag && (
-                            <div className={`absolute top-2.5 left-2.5 text-[8px] sm:text-[9px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full pointer-events-none z-20 ${
-                              product.isSoldOut
-                                ? "bg-foreground/80 text-background"
-                                : isSale
-                                ? "bg-primary text-white"
-                                : "bg-white/90 dark:bg-card/90 text-primary border border-primary/20"
-                            }`}>
-                              {product.isSoldOut ? "Sold Out" : product.tag}
-                            </div>
-                          )}
+                      {(() => {
+                        const pages: (number | string)[] = [];
+                        if (totalPages <= 5) {
+                          for (let i = 1; i <= totalPages; i++) pages.push(i);
+                        } else if (currentPage <= 3) {
+                          pages.push(1, 2, 3, 4, "...", totalPages);
+                        } else if (currentPage >= totalPages - 2) {
+                          pages.push(1, "...", totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+                        } else {
+                          pages.push(1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages);
+                        }
 
-                          {/* Quick add floating button for desktop hover */}
-                          {!product.isSoldOut && (
+                        return pages.map((item, idx) =>
+                          typeof item === "number" ? (
                             <button
-                              onClick={() => handleAddToCart(product)}
-                              className="absolute bottom-2.5 right-2.5 w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center shadow-md transition-all duration-300 cursor-pointer hover:bg-gold-shimmer z-20 opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 hidden sm:flex"
-                              aria-label="Quick add"
-                            >
-                              <ShoppingCart className="h-4 w-4" />
-                            </button>
-                          )}
-                        </div>
-
-                        {/* Details */}
-                        <div className="p-4 sm:p-5 flex flex-col gap-3 flex-grow">
-                          {/* Brand / Category */}
-                          <span className="text-[9px] sm:text-[10px] font-bold tracking-widest text-primary uppercase">
-                            {product.brand || product.section || product.category}
-                          </span>
-                          
-                          {/* Title */}
-                          <Link href={`/product/${product.handle}`} className="hover:text-primary transition-colors block">
-                            <h3 className="text-[13px] sm:text-sm font-semibold text-foreground leading-snug line-clamp-2 min-h-[40px]">
-                              {product.name}
-                            </h3>
-                          </Link>
-
-                          {/* Attributes */}
-                          <div className="flex flex-wrap gap-1">
-                            {product.puffs && product.puffs !== "Refillable" && (
-                              <span className="text-[8px] sm:text-[9px] bg-muted text-muted-foreground px-2.5 py-0.5 rounded-full font-medium">
-                                {product.puffs}
-                              </span>
-                            )}
-                            {product.nicotine && product.nicotine !== "Universal" && (
-                              <span className="text-[8px] sm:text-[9px] bg-muted text-muted-foreground px-2.5 py-0.5 rounded-full font-medium">
-                                {product.nicotine}
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Rating and Price */}
-                          <div className="flex items-end justify-between mt-auto pt-1">
-                            <div className="flex items-center gap-1">
-                              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 flex-shrink-0" />
-                              <span className="text-[11px] sm:text-xs font-bold text-foreground">{product.rating}</span>
-                              {product.reviews > 0 && (
-                                <span className="text-[9px] sm:text-[10px] text-muted-foreground">({product.reviews})</span>
-                              )}
-                            </div>
-                            <div className="text-right">
-                              {product.originalPrice && (
-                                <p className="text-[10px] sm:text-[11px] text-muted-foreground line-through">
-                                  Dhs. {product.originalPrice.toLocaleString()}
-                                </p>
-                              )}
-                              <p className="text-sm sm:text-base font-serif font-bold text-foreground">
-                                Dhs. {product.price.toLocaleString()}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* CTA Buttons */}
-                          <div className="flex flex-row gap-2 mt-0.5">
-                            <button
-                              onClick={() => !product.isSoldOut && handleAddToCart(product)}
-                              disabled={product.isSoldOut}
-                              className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-[10px] sm:text-[11px] font-bold tracking-wide transition-all duration-200 cursor-pointer ${
-                                product.isSoldOut
-                                  ? "bg-muted text-muted-foreground cursor-not-allowed"
-                                  : "bg-card hover:bg-muted/40 border border-border text-foreground hover:border-primary hover:text-primary"
+                              key={idx}
+                              onClick={() => {
+                                setCurrentPage(item);
+                                window.scrollTo({ top: 350, behavior: "smooth" });
+                              }}
+                              className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                                item === currentPage
+                                  ? "bg-primary text-white shadow-md scale-105 font-black"
+                                  : "bg-card border border-border text-foreground hover:bg-primary/10 hover:text-primary"
                               }`}
                             >
-                              {product.isSoldOut ? (
-                                "Sold Out"
-                              ) : (
-                                <>
-                                  <ShoppingCart className="h-3.5 w-3.5" /> Add to Cart
-                                </>
-                              )}
+                              {item}
                             </button>
-                            {!product.isSoldOut && (
-                              <button
-                                onClick={() => handleBuyNow(product)}
-                                className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-[10px] sm:text-[11px] font-bold tracking-wide bg-gradient-to-r from-primary to-orange-500 text-white hover:brightness-110 transition-all duration-200 cursor-pointer active:scale-[0.98] shadow-sm"
-                              >
-                                <Zap className="h-3.5 w-3.5" /> Buy Now
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                          ) : (
+                            <span key={idx} className="px-1 text-xs text-muted-foreground font-bold select-none">
+                              ...
+                            </span>
+                          )
+                        );
+                      })()}
+
+                      <button
+                        onClick={() => {
+                          if (currentPage < totalPages) {
+                            setCurrentPage((prev) => prev + 1);
+                            window.scrollTo({ top: 350, behavior: "smooth" });
+                          }
+                        }}
+                        disabled={currentPage === totalPages}
+                        className="p-2 sm:p-2.5 rounded-xl border border-border bg-card text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary hover:text-white transition-colors cursor-pointer"
+                        aria-label="Next page"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
 
             </div>
 
           </div>
+        </div>
+
+        {/* Collection Description (from Shopify) — Beautiful Expandable Guide after products */}
+        {collectionInfo.descriptionHtml && (
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+            <div className="bg-card border border-border/50 rounded-[2.5rem] p-6 sm:p-10 lg:p-12 relative overflow-hidden shadow-sm transition-all duration-300">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
+              
+              {/* Header Badges & Title */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-5 border-b border-border/40">
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase px-3.5 py-1.5 rounded-full">
+                    Buying Guide &amp; FAQs
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Updated Guide</span>
+                </div>
+              </div>
+
+              <h2 className="text-2xl sm:text-3xl font-serif font-black text-foreground tracking-tight mb-6">
+                About {collectionInfo.title}
+              </h2>
+
+              {/* Expandable Content Container */}
+              <div className="relative">
+                <div
+                  className={`transition-all duration-500 ease-in-out ${
+                    !isGuideExpanded ? "max-h-[360px] overflow-hidden" : "max-h-none"
+                  }`}
+                >
+                  <div
+                    className="text-sm sm:text-base text-foreground leading-relaxed prose prose-sm sm:prose-base max-w-none 
+                      [&_h1]:text-base [&_h1]:sm:text-lg [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-primary [&_h1]:mt-6 [&_h1]:mb-3 [&_h1]:border-l-4 [&_h1]:border-primary [&_h1]:pl-3.5
+                      [&_h2]:text-base [&_h2]:sm:text-lg [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-primary [&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:border-l-4 [&_h2]:border-primary [&_h2]:pl-3.5
+                      [&_h3]:text-sm [&_h3]:sm:text-base [&_h3]:font-serif [&_h3]:font-bold [&_h3]:text-primary [&_h3]:mt-5 [&_h3]:mb-2 [&_h3]:border-l-4 [&_h3]:border-primary [&_h3]:pl-3
+                      [&_h4]:text-sm [&_h4]:font-bold [&_h4]:text-primary [&_h4]:mt-4 [&_h4]:mb-1.5
+                      [&_p]:mb-4 [&_p]:text-foreground/95 [&_p]:leading-relaxed
+                      [&_li]:text-foreground/95
+                      [&_a]:text-primary [&_a]:font-bold [&_a]:underline [&_a]:decoration-primary/60 [&_a]:underline-offset-4 hover:[&_a]:decoration-primary hover:[&_a]:text-primary/80 transition-all
+                      [&_strong]:font-normal [&_strong]:text-inherit
+                      [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1.5 [&_ul]:mb-4
+                      [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1.5 [&_ol]:mb-4
+                      [&_table]:w-full [&_table]:text-left [&_table]:border-collapse
+                      [&_thead]:bg-primary [&_thead]:text-white
+                      [&_th]:p-4 [&_th]:sm:p-5 [&_th]:text-xs [&_th]:sm:text-sm [&_th]:font-extrabold [&_th]:tracking-wider [&_th]:uppercase [&_th]:text-white [&_th]:border-b [&_th]:border-white/20
+                      [&_td]:p-3.5 [&_td]:sm:p-4 [&_td]:text-xs [&_td]:sm:text-sm [&_td]:border-b [&_td]:border-border/30 [&_td]:text-foreground [&_tr:last-child_td]:border-b-0
+                      [&_td:first-child]:font-bold [&_td:first-child]:text-foreground
+                      [&_tr:nth-child(even)]:bg-primary/5 hover:[&_tr]:bg-primary/10 [&_tr]:transition-colors
+                      [&_img]:rounded-2xl [&_img]:p-1.5 [&_img]:sm:p-2 [&_img]:bg-muted/20 [&_img]:border [&_img]:border-border/40 [&_img]:shadow-sm [&_img]:my-6 [&_img]:mx-auto [&_img]:w-full [&_img]:h-auto"
+                    dangerouslySetInnerHTML={{ __html: cleanDescriptionHtml(collectionInfo.descriptionHtml) }}
+                  />
+                </div>
+
+                {/* Fade Overlay & Expand Toggle Button */}
+                {!isGuideExpanded ? (
+                  <div className="absolute bottom-0 left-0 right-0 h-44 bg-gradient-to-t from-card via-card/95 to-transparent flex items-end justify-center pb-2 z-10 pointer-events-none">
+                    <button
+                      type="button"
+                      onClick={() => setIsGuideExpanded(true)}
+                      className="pointer-events-auto inline-flex items-center gap-2 bg-primary/10 hover:bg-primary text-primary hover:text-white border border-primary/30 text-xs font-extrabold uppercase tracking-wider px-6 py-3 rounded-full transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                      <span>Read Full Guide &amp; FAQs</span>
+                      <span className="text-sm">↓</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex justify-center pt-8 pb-2 border-t border-border/30 mt-6">
+                    <button
+                      type="button"
+                      onClick={() => setIsGuideExpanded(false)}
+                      className="inline-flex items-center gap-2 bg-muted/60 hover:bg-muted text-foreground border border-border text-xs font-bold uppercase tracking-wider px-6 py-2.5 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                      <span>Show Less</span>
+                      <span className="text-sm">↑</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* Shop by Brands & Authorized Dealers Section */}
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+          <AuthorizedDealers />
+        </div>
+
+        {/* Direct WhatsApp Contact & Orders Section */}
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+          <WhatsAppContactSection />
         </div>
 
       </main>

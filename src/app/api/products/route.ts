@@ -1,9 +1,58 @@
 import { NextResponse } from "next/server";
 
 const SHOPIFY_STORE = process.env.SHOPIFY_STORE!;
-const ADMIN_API_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN!;
+const ADMIN_API_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN;
+const STOREFRONT_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || process.env.SHOPIFY_API_KEY;
 
-const query = `
+const storefrontQuery = `
+query {
+  products(first: 250) {
+    edges {
+      node {
+        id
+        title
+        handle
+        productType
+        vendor
+        tags
+        collections(first: 20) {
+          edges {
+            node {
+              id
+              title
+              handle
+            }
+          }
+        }
+        images(first: 5) {
+          edges {
+            node {
+              url
+            }
+          }
+        }
+        variants(first: 10) {
+          edges {
+            node {
+              id
+              title
+              price {
+                amount
+              }
+              compareAtPrice {
+                amount
+              }
+              availableForSale
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`;
+
+const adminQuery = `
 query {
   products(first: 250) {
     edges {
@@ -15,13 +64,15 @@ query {
         vendor
         tags
         status
-
-        puffs: metafield(namespace: "custom", key: "puffs") { value }
-        nicotine: metafield(namespace: "custom", key: "nicotine") { value }
-        badge: metafield(namespace: "custom", key: "badge_text") { value }
-        rating: metafield(namespace: "custom", key: "rating_value") { value }
-        reviews: metafield(namespace: "custom", key: "reviews_count") { value }
-        battery: metafield(namespace: "custom", key: "spec_battery") { value }
+        collections(first: 20) {
+          edges {
+            node {
+              id
+              title
+              handle
+            }
+          }
+        }
         images(first: 5) {
           edges {
             node {
@@ -37,7 +88,6 @@ query {
               price
               compareAtPrice
               availableForSale
-              inventoryQuantity
             }
           }
         }
@@ -48,27 +98,61 @@ query {
 `;
 
 async function fetchShopifyProducts() {
-  const url = `https://${SHOPIFY_STORE}/admin/api/2024-10/graphql.json`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "X-Shopify-Access-Token": ADMIN_API_TOKEN,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ query }),
-    next: { revalidate: 10 }, // Cache for 10 seconds
-  });
-
-  if (!response.ok) {
-    throw new Error(`Shopify API error: ${response.statusText}`);
+  if (!SHOPIFY_STORE) {
+    throw new Error("SHOPIFY_STORE is not configured");
   }
 
-  const json = await response.json();
-  if (json.errors) {
-    throw new Error(`Shopify GraphQL errors: ${JSON.stringify(json.errors)}`);
+  // Try Storefront API first
+  if (STOREFRONT_TOKEN) {
+    try {
+      const url = `https://${SHOPIFY_STORE}/api/2024-10/graphql.json`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "X-Shopify-Storefront-Access-Token": STOREFRONT_TOKEN,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query: storefrontQuery }),
+        next: { revalidate: 10 },
+      });
+
+      if (response.ok) {
+        const json = await response.json();
+        if (json.data?.products?.edges) {
+          return json.data.products.edges.map((edge: any) => edge.node);
+        }
+      }
+    } catch (err) {
+      console.warn("Storefront API fetch failed, trying Admin API:", err);
+    }
   }
 
-  return json.data.products.edges.map((edge: any) => edge.node);
+  // Fallback to Admin API
+  if (ADMIN_API_TOKEN) {
+    const url = `https://${SHOPIFY_STORE}/admin/api/2024-10/graphql.json`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "X-Shopify-Access-Token": ADMIN_API_TOKEN,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query: adminQuery }),
+      next: { revalidate: 10 },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Shopify API error: ${response.statusText}`);
+    }
+
+    const json = await response.json();
+    if (json.errors) {
+      throw new Error(`Shopify GraphQL errors: ${JSON.stringify(json.errors)}`);
+    }
+
+    return json.data.products.edges.map((edge: any) => edge.node);
+  }
+
+  throw new Error("No valid Shopify credentials found");
 }
 
 function detectBrand(title: string, vendor: string): string {
@@ -113,7 +197,6 @@ function detectBrand(title: string, vendor: string): string {
     return vendor;
   }
 
-  // Fallback: extract the first word of the title as brand
   const firstWord = title.trim().split(/\s+/)[0];
   if (firstWord && firstWord.length > 2) {
     const cleaned = firstWord.replace(/[^a-zA-Z0-9]/g, "");
@@ -138,21 +221,22 @@ export async function GET() {
   try {
     const rawProducts = await fetchShopifyProducts();
 
-    // Map Shopify products to frontend Product interface
     const mappedProducts = rawProducts.map((node: any) => {
-      const firstVariant = node.variants.edges[0]?.node;
-      const price = parseFloat(firstVariant?.price || "0");
-      const comparePriceStr = firstVariant?.compareAtPrice;
-      const comparePrice = comparePriceStr ? parseFloat(comparePriceStr) : 0;
+      const firstVariant = node.variants?.edges?.[0]?.node;
       
-      const isSoldOut = !node.variants.edges.some((v: any) => v.node.availableForSale);
+      const priceVal = typeof firstVariant?.price === 'object' ? firstVariant?.price?.amount : firstVariant?.price;
+      const price = parseFloat(priceVal || "0");
 
-      // Determine category based on productType or tags
+      const comparePriceVal = typeof firstVariant?.compareAtPrice === 'object' ? firstVariant?.compareAtPrice?.amount : firstVariant?.compareAtPrice;
+      const comparePrice = comparePriceVal ? parseFloat(comparePriceVal) : 0;
+      
+      const isSoldOut = !node.variants?.edges?.some((v: any) => v.node?.availableForSale);
+
       const typeLower = (node.productType || "").toLowerCase();
       const titleLower = (node.title || "").toLowerCase();
-      const tagsLower = node.tags.map((t: string) => t.toLowerCase());
+      const tagsLower = (node.tags || []).map((t: string) => t.toLowerCase());
 
-      let category = "accessories"; // default
+      let category = "accessories";
       if (typeLower.includes("juul") || tagsLower.includes("juul") || titleLower.includes("juul")) {
         category = "juul";
       } else if (typeLower.includes("disposable") || tagsLower.includes("disposable") || titleLower.includes("disposable")) {
@@ -163,7 +247,6 @@ export async function GET() {
         category = "accessories";
       }
 
-      // Determine Section (for grouped displays)
       let section = "Pod Systems";
       if (category === "juul") {
         section = titleLower.includes("juul 2") || titleLower.includes("juul2") ? "JUUL 2 Series" : "JUUL 1 Series";
@@ -173,13 +256,11 @@ export async function GET() {
         section = "E-Liquids";
       }
 
-      // If comparison price is higher, put it in Flash Sales
       if (comparePrice > price) {
         section = "Flash Sale";
       }
 
-      // Format images
-      const image = node.images.edges[0]?.node?.url || "/hero_vape.png";
+      const image = node.images?.edges?.[0]?.node?.url || "/hero_vape.png";
 
       return {
         id: node.id,
@@ -194,13 +275,14 @@ export async function GET() {
         image,
         tag: node.badge?.value || (isSoldOut ? "Sold Out" : comparePrice > price ? "Sale" : undefined),
         tagColor: comparePrice > price ? "sale" : undefined,
-        isPopular: node.tags.includes("Popular") || node.tags.includes("popular"),
+        isPopular: node.tags?.includes("Popular") || node.tags?.includes("popular"),
         isSoldOut,
         puffs: node.puffs?.value || undefined,
         nicotine: node.nicotine?.value || undefined,
         battery: node.battery?.value || undefined,
         section,
         brand: detectBrand(node.title, node.vendor),
+        collections: node.collections?.edges?.map((c: any) => c.node?.handle).filter(Boolean) || [],
       };
     });
 
