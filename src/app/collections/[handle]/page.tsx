@@ -10,6 +10,17 @@ import { useCart } from "@/context/CartContext";
 import { Product, ProductCard } from "@/components/sections/ProductFeed";
 import { AuthorizedDealers } from "@/components/sections/AuthorizedDealers";
 import { WhatsAppContactSection } from "@/components/sections/WhatsAppContactSection";
+import { BrandSphere3D } from "@/components/sections/BrandSphere3D";
+import { BottomCollectionGrid } from "@/components/sections/BottomCollectionGrid";
+import { FAQSection } from "@/components/sections/FAQSection";
+import { WhyShopWithUs } from "@/components/sections/WhyShopWithUs";
+import { CustomerReviewsSection } from "@/components/sections/CustomerReviewsSection";
+import { JuulTechSpecsSection } from "@/components/sections/JuulTechSpecsSection";
+import { JuulSignatureFlavorsSection } from "@/components/sections/JuulSignatureFlavorsSection";
+import { JuulPackagingCompareSection } from "@/components/sections/JuulPackagingCompareSection";
+import { MyleVerificationSection } from "@/components/sections/MyleVerificationSection";
+import { DisposableComparisonSections } from "@/components/sections/DisposableComparisonSections";
+import { DisposableBrandsShowcase } from "@/components/sections/DisposableBrandsShowcase";
 import {
   Star,
   ShoppingCart,
@@ -21,7 +32,10 @@ import {
   Tag,
   X,
   Check,
-  Zap
+  Zap,
+  Sparkles,
+  ShieldCheck,
+  Home
 } from "lucide-react";
 import { getItemListSchema, getBreadcrumbSchema } from "@/lib/seo-schemas";
 
@@ -43,13 +57,189 @@ function cleanDescriptionHtml(html: string): string {
 
   cleaned = cleaned.replace(/href="https?:\/\/(www\.)?(vapeuae\.shop|vapshopdubai\.ae|vapshop\.ae)\/collections\/([^"]+)"/gi, 'href="/collections/$3"');
   cleaned = cleaned.replace(/href="https?:\/\/(www\.)?(vapeuae\.shop|vapshopdubai\.ae|vapshop\.ae)\/brand\/([^"]+)"/gi, 'href="/collections/$3"');
-  cleaned = cleaned.replace(/href="https?:\/\/(www\.)?(vapeuae\.shop|vapshopdubai\.ae|vapshop\.ae)\/product\/([^"]+)"/gi, 'href="/product/$3"');
   return cleaned;
+}
+
+const ALL_BRANDS_COLLECTION = [
+  { name: "JUUL", handle: "juul-vape-dubai", image: "/juul_device.png", tag: "Devices & Pods", color: "from-blue-500/10 to-indigo-500/10" },
+  { name: "MYLE", handle: "myle-vape-dubai", image: "/vape_kit.png", tag: "V5, Disposables & Pods", color: "from-amber-500/10 to-orange-500/10" },
+  { name: "Elf Bar", handle: "elf-bar-vape", image: "/lost_mary.png", tag: "Disposables & Pods", color: "from-emerald-500/10 to-teal-500/10" },
+  { name: "Al Fakher", handle: "al-fakher-vape", image: "/premium_liquid.png", tag: "Crown Bar Disposables", color: "from-purple-500/10 to-pink-500/10" },
+  { name: "GeekVape", handle: "geek-vape", image: "/vape_kit.png", tag: "Kits, Mods & Coils", color: "from-red-500/10 to-rose-500/10" },
+  { name: "Uwell", handle: "uwell-vape", image: "/vape_kit.png", tag: "Caliburn Pod Systems", color: "from-cyan-500/10 to-blue-500/10" },
+  { name: "Vaporesso", handle: "vaporesso-vape", image: "/vape_kit.png", tag: "XROS & Pod Kits", color: "from-sky-500/10 to-indigo-500/10" },
+  { name: "Lost Mary", handle: "lost-mary-disposable", image: "/lost_mary.png", tag: "BM6000 & Disposables", color: "from-pink-500/10 to-rose-500/10" },
+  { name: "VooPoo", handle: "voopoo-vape", image: "/vape_kit.png", tag: "Drag & Argus Kits", color: "from-amber-500/10 to-yellow-500/10" },
+  { name: "Smok", handle: "smok-vape", image: "/vape_kit.png", tag: "Nord & Novo Pod Systems", color: "from-red-500/10 to-orange-500/10" },
+  { name: "OXVA", handle: "oxva-vape", image: "/vape_kit.png", tag: "Xlim Pod Systems", color: "from-violet-500/10 to-purple-500/10" },
+  { name: "Tugboat", handle: "tugboat-vape", image: "/lost_mary.png", tag: "Super 12000 & Evo", color: "from-teal-500/10 to-cyan-500/10" },
+  { name: "Pod Salt", handle: "pod-salt-vape", image: "/premium_liquid.png", tag: "Nicotine Salts & Liquids", color: "from-blue-500/10 to-sky-500/10" },
+  { name: "HQD", handle: "hqd-vape", image: "/lost_mary.png", tag: "Cuvie & Cuvie Plus", color: "from-yellow-500/10 to-amber-500/10" },
+  { name: "Fummo", handle: "fummo-vape", image: "/lost_mary.png", tag: "Target & King Disposables", color: "from-emerald-500/10 to-green-500/10" },
+  { name: "Vozol", handle: "vozol-vape", image: "/lost_mary.png", tag: "Gear 10000 & Star", color: "from-purple-500/10 to-indigo-500/10" },
+  { name: "Relx", handle: "relx-vape", image: "/vape_kit.png", tag: "Infinity & Essential", color: "from-slate-500/10 to-gray-500/10" },
+  { name: "Geek Bar", handle: "geek-bar-disposable", image: "/lost_mary.png", tag: "Pulse & DF9000", color: "from-rose-500/10 to-pink-500/10" },
+  { name: "Yuoto", handle: "yuoto-vape", image: "/lost_mary.png", tag: "Thanatos & XXL", color: "from-orange-500/10 to-amber-500/10" },
+  { name: "Nerd Vape", handle: "nerd-vape", image: "/lost_mary.png", tag: "5000 Puffs Disposables", color: "from-lime-500/10 to-emerald-500/10" },
+  { name: "VGOD", handle: "vgod-stig", image: "/premium_liquid.png", tag: "Stig & Cubano E-Liquids", color: "from-red-500/10 to-amber-500/10" },
+  { name: "Silvaper", handle: "silvaper-vape", image: "/premium_liquid.png", tag: "Premium E-Liquids", color: "from-teal-500/10 to-emerald-500/10" },
+  { name: "Vapes Bars", handle: "vapes-bars", image: "/lost_mary.png", tag: "Ghost Pro Disposables", color: "from-indigo-500/10 to-purple-500/10" },
+];
+
+function getSubPillsForHandle(h: string) {
+  const handleLower = (h || "").toLowerCase();
+
+  // JUUL Specific Sub-Collections
+  if (handleLower.includes("juul-1") || handleLower.includes("juul1")) {
+    return [
+      { label: "All JUUL 1", query: "all" },
+      { label: "Menthol 3%", query: "3%" },
+      { label: "Menthol 5%", query: "5%" },
+      { label: "Virginia Tobacco", query: "tobacco" },
+      { label: "Mango Pods", query: "mango" },
+      { label: "JUUL 1 Device", query: "device" },
+    ];
+  }
+  if (handleLower.includes("juul-2") || handleLower.includes("juul2")) {
+    return [
+      { label: "All JUUL 2", query: "all" },
+      { label: "Crisp Menthol", query: "crisp" },
+      { label: "Virginia Tobacco", query: "tobacco" },
+      { label: "Ruby Scheme", query: "ruby" },
+      { label: "Polar Menthol", query: "polar" },
+      { label: "JUUL 2 Device", query: "device" },
+    ];
+  }
+  if (handleLower.includes("juul-pods") || handleLower.includes("juul-menthol")) {
+    return [
+      { label: "All JUUL Pods", query: "all" },
+      { label: "Menthol Pods", query: "menthol" },
+      { label: "Tobacco Pods", query: "tobacco" },
+      { label: "3% Nicotine", query: "3%" },
+      { label: "5% Nicotine", query: "5%" },
+    ];
+  }
+  if (handleLower.includes("juul")) {
+    return [
+      { label: "All JUUL", query: "all" },
+      { label: "JUUL 1 Series", query: "juul 1" },
+      { label: "JUUL 2 Series", query: "juul 2" },
+      { label: "JUUL Menthol", query: "menthol" },
+      { label: "JUUL Tobacco", query: "tobacco" },
+    ];
+  }
+
+  // MYLE Specific Sub-Collections
+  if (handleLower.includes("myle-v5") || handleLower.includes("myle-meta-v5")) {
+    return [
+      { label: "All MYLE V5", query: "all" },
+      { label: "Iced Mint", query: "mint" },
+      { label: "Peach Mango", query: "peach" },
+      { label: "Mega Melon", query: "melon" },
+      { label: "Sweet Tobacco", query: "tobacco" },
+      { label: "MYLE V5 Device", query: "device" },
+    ];
+  }
+  if (handleLower.includes("myle-micro")) {
+    return [
+      { label: "All MYLE Micro", query: "all" },
+      { label: "1000 Puffs", query: "1000" },
+      { label: "Iced Watermelon", query: "watermelon" },
+      { label: "Blue Razz", query: "blue razz" },
+    ];
+  }
+  if (handleLower.includes("myle-drip")) {
+    return [
+      { label: "All MYLE Drip", query: "all" },
+      { label: "2500 Puffs", query: "2500" },
+      { label: "5000 Puffs", query: "5000" },
+      { label: "Mango Ice", query: "mango" },
+    ];
+  }
+  if (handleLower.includes("myle")) {
+    return [
+      { label: "All MYLE", query: "all" },
+      { label: "MYLE Meta V5", query: "meta v5" },
+      { label: "MYLE Micro", query: "micro" },
+      { label: "MYLE Drip", query: "drip" },
+      { label: "MYLE Meta Box", query: "meta box" },
+    ];
+  }
+
+  // Specific Brands
+  if (handleLower.includes("tugboat")) {
+    return [
+      { label: "All Tugboat", query: "all" },
+      { label: "Royal 13000", query: "13000" },
+      { label: "EVO 4500", query: "4500" },
+      { label: "Ultra 12000", query: "12000" },
+      { label: "Super 24000", query: "24000" },
+    ];
+  }
+  if (handleLower.includes("al-fakher") || handleLower.includes("al_fakher")) {
+    return [
+      { label: "All Al Fakher", query: "all" },
+      { label: "Crown Bar 8000", query: "8000" },
+      { label: "Crown Bar 10000", query: "10000" },
+      { label: "Two Apple", query: "apple" },
+      { label: "Gum Mint", query: "mint" },
+    ];
+  }
+  if (handleLower.includes("yuoto")) {
+    return [
+      { label: "All Yuoto", query: "all" },
+      { label: "Thanatos 5000", query: "thanatos" },
+      { label: "XXL 2500", query: "xxl" },
+      { label: "Luscious 1500", query: "luscious" },
+    ];
+  }
+  if (handleLower.includes("pod-salt") || handleLower.includes("pod_salt")) {
+    return [
+      { label: "All Pod Salt", query: "all" },
+      { label: "Evo 1600", query: "evo" },
+      { label: "Nexus 6000", query: "nexus" },
+      { label: "Salt Nicotine", query: "salt" },
+    ];
+  }
+
+  // Main Categories
+  if (handleLower.includes("disposable")) {
+    return [
+      { label: "All Disposables", query: "all" },
+      { label: "Tugboat", query: "tugboat" },
+      { label: "Yuoto", query: "yuoto" },
+      { label: "Al Fakher", query: "al fakher" },
+      { label: "Waka", query: "waka" },
+      { label: "Maskking", query: "maskking" },
+      { label: "Vozol", query: "vozol" },
+    ];
+  }
+  if (handleLower.includes("juice") || handleLower.includes("liquid")) {
+    return [
+      { label: "All E-Liquids", query: "all" },
+      { label: "Pod Salt", query: "pod salt" },
+      { label: "VGOD Stig", query: "vgod" },
+      { label: "Dr Vapes", query: "dr vapes" },
+      { label: "Nasty Juice", query: "nasty" },
+      { label: "Ruthless", query: "ruthless" },
+    ];
+  }
+
+  return [
+    { label: "All Products", query: "all" },
+    { label: "JUUL", query: "juul" },
+    { label: "MYLE", query: "myle" },
+    { label: "Disposables", query: "disposable" },
+    { label: "E-Liquids", query: "liquid" },
+    { label: "Pod Systems", query: "pod" },
+    { label: "Tugboat", query: "tugboat" },
+  ];
 }
 
 function CollectionPageContent() {
   const params = useParams();
-  const handle = params?.handle as string;
+  const rawHandle = params?.handle;
+  const handle = (typeof rawHandle === "string" ? rawHandle : Array.isArray(rawHandle) ? rawHandle[0] : "") || "";
   const router = useRouter();
   const searchParams = useSearchParams();
   const subFilter = searchParams?.get("sub");
@@ -64,11 +254,13 @@ function CollectionPageContent() {
   const [selectedPuffs, setSelectedPuffs] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedSeries, setSelectedSeries] = useState<string[]>([]);
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
   const [maxPrice, setMaxPrice] = useState<number>(2000);
   const [sortBy, setSortBy] = useState<string>("popular");
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [isGuideExpanded, setIsGuideExpanded] = useState(false);
+  const [activePillFilter, setActivePillFilter] = useState<string>("all");
 
   // Shopify collection metadata
   const [collectionMeta, setCollectionMeta] = useState<{
@@ -206,16 +398,198 @@ function CollectionPageContent() {
     }
   }, [collectionInfo]);
 
-  // Filter lists based on matching products
+  // Base collection products for THIS specific page/handle
+  const collectionProducts = useMemo(() => {
+    const hLower = (handle || "").toLowerCase();
+    if (!hLower || hLower === "all" || hLower === "shop") {
+      return products;
+    }
+
+    return products.filter((p) => {
+      const prodNameLower = p.name.toLowerCase();
+      const prodBrandLower = (p.brand || "").toLowerCase();
+      const prodSectionLower = (p.section || "").toLowerCase();
+      const prodCatLower = (p.category || "").toLowerCase();
+
+      // First check: Exact Shopify Collection match on the product
+      const hasDirectCollectionMatch = p.collections && p.collections.length > 0 && p.collections.some((c) => {
+        const cLower = c.toLowerCase();
+        return cLower === hLower;
+      });
+
+      switch (hLower) {
+        // JUUL Collections
+        case "juul-1-series":
+          return (prodBrandLower.includes("juul") || prodNameLower.includes("juul")) &&
+            !prodNameLower.includes("juul 2") && !prodNameLower.includes("juul2") && !prodNameLower.includes(" 2");
+        case "juul-2-series":
+          return (prodBrandLower.includes("juul") || prodNameLower.includes("juul")) &&
+            (prodNameLower.includes("juul 2") || prodNameLower.includes("juul2") || prodNameLower.includes(" 2"));
+        case "juul-pods-offers":
+          return (prodBrandLower.includes("juul") || prodNameLower.includes("juul")) &&
+            (prodNameLower.includes("pod") || prodNameLower.includes("pack") || prodNameLower.includes("flavor") || prodSectionLower.includes("pod"));
+        case "juul-vape-dubai":
+          return prodBrandLower.includes("juul") || prodNameLower.includes("juul") || prodCatLower === "juul";
+
+        // MYLE Collections
+        case "myle-v5-pods":
+          return (prodBrandLower.includes("myle") || prodNameLower.includes("myle")) &&
+            (prodNameLower.includes("v5") || prodNameLower.includes("v.5") || prodNameLower.includes("meta")) &&
+            (prodNameLower.includes("pod") || prodNameLower.includes("cartridge")) &&
+            !prodNameLower.includes("device") && !prodNameLower.includes("kit");
+        case "myle-v5-device":
+          return (prodBrandLower.includes("myle") || prodNameLower.includes("myle")) &&
+            (prodNameLower.includes("v5") || prodNameLower.includes("v.5") || prodNameLower.includes("meta")) &&
+            (prodNameLower.includes("device") || prodNameLower.includes("kit"));
+        case "myle-v5-series":
+          return (prodBrandLower.includes("myle") || prodNameLower.includes("myle")) &&
+            (prodNameLower.includes("v5") || prodNameLower.includes("v.5") || prodNameLower.includes("meta"));
+        case "myle-disposable":
+          return (prodBrandLower.includes("myle") || prodNameLower.includes("myle")) &&
+            (prodNameLower.includes("disposable") || prodNameLower.includes("drip") || prodNameLower.includes("bar") || prodNameLower.includes("box") || prodNameLower.includes("micro") || prodNameLower.includes("mini"));
+        case "myle-vape-dubai":
+          return prodBrandLower.includes("myle") || prodNameLower.includes("myle") || prodCatLower === "myle";
+
+        // Brand Collections
+        case "al-fakher-vape":
+          return prodBrandLower.includes("al fakher") || prodBrandLower.includes("fakher") || prodNameLower.includes("al fakher") || prodNameLower.includes("crown bar");
+        case "elf-bar-vape":
+          return prodBrandLower.includes("elf bar") || prodBrandLower.includes("elfbar") || prodNameLower.includes("elf bar") || prodNameLower.includes("elfbar");
+        case "fummo-vape":
+          return prodBrandLower.includes("fummo") || prodNameLower.includes("fummo");
+        case "geek-bar-disposable":
+          return prodBrandLower.includes("geek bar") || prodBrandLower.includes("geekbar") || prodNameLower.includes("geek bar") || prodNameLower.includes("geekbar");
+        case "geek-vape":
+          return prodBrandLower.includes("geek vape") || prodBrandLower.includes("geekvape") || prodNameLower.includes("geek vape") || prodNameLower.includes("geekvape");
+        case "hqd-vape":
+          return prodBrandLower.includes("hqd") || prodNameLower.includes("hqd");
+        case "lost-mary-disposable":
+          return prodBrandLower.includes("lost mary") || prodBrandLower.includes("lostmary") || prodNameLower.includes("lost mary");
+        case "maskking-vape":
+          return prodBrandLower.includes("maskking") || prodNameLower.includes("maskking");
+        case "nerd-vape":
+          return prodBrandLower.includes("nerd") || prodNameLower.includes("nerd");
+        case "oxva-vape":
+          return prodBrandLower.includes("oxva") || prodNameLower.includes("oxva");
+        case "pod-salt-vape":
+          return prodBrandLower.includes("pod salt") || prodBrandLower.includes("podsalt") || prodNameLower.includes("pod salt");
+        case "relx-vape":
+          return prodBrandLower.includes("relx") || prodNameLower.includes("relx");
+        case "silvaper-vape":
+          return prodBrandLower.includes("silvaper") || prodNameLower.includes("silvaper");
+        case "smok-vape":
+          return prodBrandLower.includes("smok") || prodNameLower.includes("smok");
+        case "tugboat-vape":
+          return prodBrandLower.includes("tugboat") || prodNameLower.includes("tugboat");
+        case "uwell-vape":
+          return prodBrandLower.includes("uwell") || prodNameLower.includes("uwell");
+        case "vapes-bars":
+          return prodBrandLower.includes("vapes bars") || prodBrandLower.includes("vapesbars") || prodNameLower.includes("vapes bars");
+        case "vaporesso-vape":
+          return prodBrandLower.includes("vaporesso") || prodNameLower.includes("vaporesso");
+        case "vgod-stig":
+          return prodBrandLower.includes("vgod") || prodNameLower.includes("vgod") || prodNameLower.includes("stig");
+        case "voopoo-vape":
+          return prodBrandLower.includes("voopoo") || prodNameLower.includes("voopoo");
+        case "vozol-vape":
+          return prodBrandLower.includes("vozol") || prodNameLower.includes("vozol");
+        case "yuoto-vape":
+          return prodBrandLower.includes("yuoto") || prodNameLower.includes("yuoto");
+
+        // Non-Brand / Category Collections
+        case "disposable-vape":
+          return prodCatLower === "disposables" || prodSectionLower.includes("disposable") || prodNameLower.includes("disposable");
+        case "vape-e-juice":
+          return prodCatLower === "e-liquids" || prodSectionLower.includes("liquid") || prodNameLower.includes("juice") || prodNameLower.includes("liquid");
+        case "freebase-e-liquid":
+          return prodCatLower === "e-liquids" && (prodNameLower.includes("freebase") || !prodNameLower.includes("salt"));
+        case "salt-nicotine":
+          return prodCatLower === "e-liquids" && (prodNameLower.includes("salt") || prodNameLower.includes("nicotine"));
+        case "pod-cartridge":
+          return prodNameLower.includes("cartridge") || prodNameLower.includes("pod") || prodSectionLower.includes("pod");
+        case "pod-kit":
+          return prodNameLower.includes("kit") || prodNameLower.includes("device") || prodSectionLower.includes("kit");
+        case "pod-system":
+          return prodCatLower === "accessories" || prodSectionLower.includes("pod") || prodNameLower.includes("pod") || prodNameLower.includes("device");
+        case "vape-coils":
+          return prodNameLower.includes("coil") || prodNameLower.includes("occ") || prodSectionLower.includes("coil");
+        case "best-seller-vape":
+          return p.isPopular || p.reviews > 40;
+        case "brand":
+          return Boolean(p.brand);
+        case "uncategorized":
+          return true;
+
+        default:
+          if (hasDirectCollectionMatch) {
+            return true;
+          }
+          const GENERIC_WORDS = new Set(["vape", "dubai", "disposable", "pods", "pod", "device", "kit", "series", "shop", "online", "uae", "offers", "offer"]);
+          const cleanKeywords = hLower
+            .split("-")
+            .filter((w) => w.length > 2 && !GENERIC_WORDS.has(w));
+
+          if (cleanKeywords.length > 0) {
+            return cleanKeywords.every((kw) =>
+              prodNameLower.includes(kw) ||
+              prodBrandLower.includes(kw) ||
+              prodSectionLower.includes(kw) ||
+              prodCatLower.includes(kw)
+            );
+          }
+          return true;
+      }
+    });
+  }, [products, handle]);
+
+  const toggleSeries = (s: string) => {
+    setSelectedSeries((prev) =>
+      prev.includes(s) ? prev.filter((item) => item !== s) : [...prev, s]
+    );
+  };
+
+  // Dynamic filter options generated ONLY from products present inside this specific collection
   const filterOptions = useMemo(() => {
     const nics = new Set<string>();
     const puffsSet = new Set<string>();
     const brandsSet = new Set<string>();
     const categoriesSet = new Set<string>();
+    const seriesSet = new Set<string>();
     let maxP = 0;
 
-    products.forEach((p) => {
-      if (p.nicotine) nics.add(p.nicotine);
+    collectionProducts.forEach((p) => {
+      const nameL = p.name.toLowerCase();
+
+      // Auto Nicotine Strength Detection
+      let nic = p.nicotine;
+      if (!nic) {
+        if (nameL.includes("1.8%") || nameL.includes("18mg") || nameL.includes("18 mg")) nic = "1.8% (18mg)";
+        else if (nameL.includes("3%") || nameL.includes("30mg") || nameL.includes("30 mg")) nic = "3.0% (30mg)";
+        else if (nameL.includes("5%") || nameL.includes("50mg") || nameL.includes("50 mg")) nic = "5.0% (50mg)";
+        else if (nameL.includes("2%") || nameL.includes("20mg") || nameL.includes("20 mg")) nic = "2.0% (20mg)";
+      }
+      if (nic) nics.add(nic);
+
+      // Auto Series / Product Line Detection for JUUL & MYLE
+      if (nameL.includes("juul 1") || (nameL.includes("juul") && !nameL.includes("juul 2") && !nameL.includes("juul2"))) {
+        seriesSet.add("JUUL 1 Series");
+      }
+      if (nameL.includes("juul 2") || nameL.includes("juul2")) {
+        seriesSet.add("JUUL 2 Series");
+      }
+      if (nameL.includes("v5") || nameL.includes("meta v5")) {
+        seriesSet.add("MYLE Meta V5");
+      }
+      if (nameL.includes("micro")) {
+        seriesSet.add("MYLE Micro");
+      }
+      if (nameL.includes("drip")) {
+        seriesSet.add("MYLE Drip");
+      }
+      if (nameL.includes("meta box") || nameL.includes("myle box")) {
+        seriesSet.add("MYLE Meta Box");
+      }
+
       if (p.puffs) puffsSet.add(p.puffs);
       if (p.brand) brandsSet.add(p.brand);
       if (p.category) categoriesSet.add(p.category);
@@ -223,13 +597,14 @@ function CollectionPageContent() {
     });
 
     return {
-      nicotines: Array.from(nics).filter(Boolean),
+      nicotines: Array.from(nics).filter(Boolean).sort(),
       puffs: Array.from(puffsSet).filter(Boolean),
       brands: Array.from(brandsSet).filter(Boolean),
       categories: Array.from(categoriesSet).filter(Boolean),
+      series: Array.from(seriesSet).filter(Boolean),
       maxFoundPrice: maxP || 2000
     };
-  }, [products]);
+  }, [collectionProducts]);
 
   // Initialize maxPrice slider default
   useEffect(() => {
@@ -240,114 +615,52 @@ function CollectionPageContent() {
 
   // Filter and Sort logic
   const filteredProducts = useMemo(() => {
-    const hLower = (handle || "").toLowerCase();
-
-    let result = products.filter((p) => {
+    let result = collectionProducts.filter((p) => {
       const prodNameLower = p.name.toLowerCase();
       const prodBrandLower = (p.brand || "").toLowerCase();
       const prodSectionLower = (p.section || "").toLowerCase();
       const prodCatLower = (p.category || "").toLowerCase();
 
-      let matchCollection = true;
-
-      if (hLower && hLower !== "all" && hLower !== "shop") {
-        // Priority 1: Direct Shopify Collection Handle Match (exact match)
-        const hasDirectCollectionMatch = p.collections && p.collections.length > 0 && p.collections.some((c) => {
-          const cLower = c.toLowerCase();
-          return cLower === hLower;
+      // Series filter
+      let matchSeries = true;
+      if (selectedSeries.length > 0) {
+        matchSeries = selectedSeries.some((ser) => {
+          const serL = ser.toLowerCase();
+          if (serL.includes("juul 1")) return prodNameLower.includes("juul") && !prodNameLower.includes("juul 2") && !prodNameLower.includes("juul2");
+          if (serL.includes("juul 2")) return prodNameLower.includes("juul 2") || prodNameLower.includes("juul2");
+          if (serL.includes("meta v5")) return prodNameLower.includes("v5") || prodNameLower.includes("meta");
+          if (serL.includes("micro")) return prodNameLower.includes("micro");
+          if (serL.includes("drip")) return prodNameLower.includes("drip");
+          if (serL.includes("box")) return prodNameLower.includes("box");
+          return prodNameLower.includes(serL);
         });
-
-        if (hasDirectCollectionMatch) {
-          matchCollection = true;
-        } else {
-          // Priority 2: Strict Brand & Category Submenu Matcher
-          const KNOWN_BRANDS: Record<string, string[]> = {
-            "al-fakher": ["al fakher", "fakher", "crown bar"],
-            "elf-bar": ["elf bar", "elfbar"],
-            "myle": ["myle"],
-            "juul": ["juul"],
-            "tugboat": ["tugboat"],
-            "fummo": ["fummo"],
-            "pod-salt": ["pod salt", "podsalt"],
-            "vapes-bars": ["vapes bars", "vapesbars"],
-            "vozol": ["vozol"],
-            "hqd": ["hqd"],
-            "lost-mary": ["lost mary", "lostmary"],
-            "maskking": ["maskking"],
-            "geek-bar": ["geek bar", "geekbar"],
-            "yuoto": ["yuoto"],
-            "relx": ["relx"],
-            "nerd": ["nerd"],
-            "vgod": ["vgod"],
-            "silvaper": ["silvaper"],
-            "oxva": ["oxva"],
-            "uwell": ["uwell"],
-            "vaporesso": ["vaporesso"],
-            "smok": ["smok"],
-            "geek-vape": ["geek vape", "geekvape"],
-            "geekvape": ["geek vape", "geekvape"],
-            "voopoo": ["voopoo"],
-          };
-
-          let matchedBrandSlug = "";
-          for (const key of Object.keys(KNOWN_BRANDS)) {
-            if (hLower.includes(key)) {
-              matchedBrandSlug = key;
-              break;
-            }
-          }
-
-          if (matchedBrandSlug) {
-            // Strictly match target brand!
-            const brandTokens = KNOWN_BRANDS[matchedBrandSlug];
-            matchCollection = brandTokens.some(
-              (token) => prodBrandLower.includes(token) || prodNameLower.includes(token)
-            );
-          } else if (hLower === "disposables" || hLower === "disposable" || hLower.includes("disposable")) {
-            matchCollection = prodCatLower === "disposables" || prodSectionLower.includes("disposable") || prodNameLower.includes("disposable");
-          } else if (hLower === "juul" || hLower.includes("juul")) {
-            matchCollection = prodCatLower === "juul" || prodBrandLower.includes("juul") || prodNameLower.includes("juul");
-          } else if (hLower === "myle" || hLower.includes("myle")) {
-            matchCollection = prodCatLower === "myle" || prodBrandLower.includes("myle") || prodNameLower.includes("myle");
-          } else if (hLower === "e-liquids" || hLower === "e-juice" || hLower.includes("e-liquid") || hLower.includes("e-juice") || hLower.includes("salt-nicotine")) {
-            matchCollection = prodCatLower === "e-liquids" || prodSectionLower.includes("liquid") || prodNameLower.includes("salt");
-          } else if (hLower === "accessories" || hLower.includes("pod-system") || hLower.includes("pod-kit")) {
-            matchCollection = prodCatLower === "accessories" || prodSectionLower.includes("pod") || prodNameLower.includes("pod");
-          } else {
-            // Require ALL clean non-generic keywords to match product
-            const GENERIC_WORDS = new Set(["vape", "dubai", "disposable", "pods", "pod", "device", "kit", "series", "shop", "online", "uae", "offers", "offer"]);
-            const cleanKeywords = hLower
-              .split("-")
-              .filter((w) => w.length > 2 && !GENERIC_WORDS.has(w));
-
-            if (cleanKeywords.length > 0) {
-              matchCollection = cleanKeywords.every((kw) =>
-                prodNameLower.includes(kw) ||
-                prodBrandLower.includes(kw) ||
-                prodSectionLower.includes(kw) ||
-                prodCatLower.includes(kw)
-              );
-            } else {
-              matchCollection = true;
-            }
-          }
-        }
-      } else {
-        matchCollection = selectedCategories.length === 0 || selectedCategories.includes(p.category);
       }
 
       // Nicotine filter
-      const matchNic = selectedNicotines.length === 0 || (p.nicotine && selectedNicotines.includes(p.nicotine));
-      
+      let matchNic = true;
+      if (selectedNicotines.length > 0) {
+        let pNic = p.nicotine || "";
+        if (!pNic) {
+          if (prodNameLower.includes("1.8%") || prodNameLower.includes("18mg") || prodNameLower.includes("18 mg")) pNic = "1.8% (18mg)";
+          else if (prodNameLower.includes("3%") || prodNameLower.includes("30mg") || prodNameLower.includes("30 mg")) pNic = "3.0% (30mg)";
+          else if (prodNameLower.includes("5%") || prodNameLower.includes("50mg") || prodNameLower.includes("50 mg")) pNic = "5.0% (50mg)";
+          else if (prodNameLower.includes("2%") || prodNameLower.includes("20mg") || prodNameLower.includes("20 mg")) pNic = "2.0% (20mg)";
+        }
+        matchNic = selectedNicotines.includes(pNic);
+      }
+
       // Puffs filter
       const matchPuff = selectedPuffs.length === 0 || (p.puffs && selectedPuffs.includes(p.puffs));
 
       // Brand filter
       const matchBrand = selectedBrands.length === 0 || (p.brand && selectedBrands.includes(p.brand));
 
+      // Category filter
+      const matchCategory = selectedCategories.length === 0 || (p.category && selectedCategories.includes(p.category));
+
       // In stock filter
       const matchStock = !inStockOnly || !p.isSoldOut;
-      
+
       // Price filter
       const matchPrice = p.price <= maxPrice;
 
@@ -359,12 +672,24 @@ function CollectionPageContent() {
         matchSub = prodBrandLower.includes(cleanSub) || prodNameLower.includes(cleanSub) || prodSectionLower.includes(cleanSub);
       }
 
+      // Active Pill Filter (In-Page State)
+      let matchPill = true;
+      if (activePillFilter && activePillFilter !== "all") {
+        const cleanPill = activePillFilter.toLowerCase().replace("all", "").trim();
+        if (cleanPill) {
+          matchPill = prodNameLower.includes(cleanPill) ||
+                      prodBrandLower.includes(cleanPill) ||
+                      prodSectionLower.includes(cleanPill) ||
+                      prodCatLower.includes(cleanPill);
+        }
+      }
+
       // Search query filter
-      const matchSearch = !searchQuery || 
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      const matchSearch = !searchQuery ||
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (p.brand && p.brand.toLowerCase().includes(searchQuery.toLowerCase()));
 
-      return matchCollection && matchNic && matchPuff && matchBrand && matchStock && matchPrice && matchSub && matchSearch;
+      return matchSeries && matchNic && matchPuff && matchBrand && matchCategory && matchStock && matchPrice && matchSub && matchPill && matchSearch;
     });
 
     // Sorting
@@ -383,14 +708,14 @@ function CollectionPageContent() {
     }
 
     return result;
-  }, [products, handle, selectedNicotines, selectedPuffs, selectedBrands, selectedCategories, inStockOnly, maxPrice, sortBy, subFilter, searchQuery]);
+  }, [collectionProducts, selectedSeries, selectedNicotines, selectedPuffs, selectedBrands, selectedCategories, inStockOnly, maxPrice, sortBy, subFilter, searchQuery, activePillFilter]);
 
   const ITEMS_PER_PAGE = 12;
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedNicotines, selectedPuffs, selectedBrands, selectedCategories, inStockOnly, maxPrice, sortBy, subFilter, searchQuery, handle]);
+  }, [selectedNicotines, selectedPuffs, selectedBrands, selectedCategories, inStockOnly, maxPrice, sortBy, subFilter, searchQuery, activePillFilter, handle]);
 
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
 
@@ -492,352 +817,422 @@ function CollectionPageContent() {
       />
 
       <main className="flex-grow pb-24 pt-20 sm:pt-28">
-        {/* Breadcrumb */}
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10">
-          <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-            <ChevronRight className="h-3 w-3" />
-            <span className="text-foreground">{collectionInfo.title}</span>
-          </nav>
-        </div>
+        {/* Slim Collection Header Bar (Exact Reference Match) */}
+        {!(handle === "brand" || handle === "brands") && (
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
+            <div className="bg-card border border-border/50 rounded-2xl sm:rounded-3xl p-4 sm:p-5 space-y-3.5 shadow-xs">
+              
+              {/* Top Row: Breadcrumb & Title Badge */}
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-3">
+                <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <Link href="/" className="hover:text-primary transition-colors flex items-center gap-1.5">
+                    <Home className="w-3.5 h-3.5 text-primary" />
+                    <span>Home</span>
+                  </Link>
+                  <ChevronRight className="h-3 w-3" />
+                  <Link href="/shop" className="hover:text-primary transition-colors">
+                    Categories
+                  </Link>
+                  <ChevronRight className="h-3 w-3" />
+                  <span className="text-foreground font-black text-primary">{collectionInfo.title}</span>
+                </nav>
 
-        {/* Collection Intro Banner */}
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-          <div className="bg-card border border-border/40 rounded-[2.5rem] p-8 sm:p-12 relative overflow-hidden shadow-sm">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10" />
-            <div className="relative z-10 max-w-3xl">
-              <span className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">
-                Dubai Vape Catalog
-              </span>
-              <h1 className="text-2xl sm:text-4xl font-serif font-bold text-foreground mt-2 leading-tight">
-                {collectionInfo.title}
-              </h1>
-              <p className="text-sm sm:text-base text-muted-foreground mt-4 leading-relaxed">
-                {collectionInfo.description}
-              </p>
-            </div>
-            <div className="absolute right-0 bottom-0 opacity-5 sm:opacity-10 pointer-events-none transform translate-y-6 translate-x-6">
-              <Tag className="w-64 h-64 text-primary" />
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-extrabold bg-primary/10 text-primary px-3 py-1 rounded-full uppercase tracking-widest border border-primary/20">
+                    Products Of {collectionInfo.title}
+                  </span>
+                </div>
+              </div>
+
+              {/* Bottom Row: Horizontal Scrollable Sub-Category & Brand Filter Pills (In-Page State Filtering) */}
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-0.5 pb-0.5">
+                {getSubPillsForHandle(handle).map((pill, idx) => {
+                  const isActive = activePillFilter === pill.query || (activePillFilter === "all" && pill.query === "all");
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setActivePillFilter(pill.query);
+                      }}
+                      className={`shrink-0 text-xs font-bold px-4 py-1.5 rounded-full transition-all duration-300 cursor-pointer shadow-2xs ${
+                        isActive
+                          ? "bg-primary text-white font-black scale-105 shadow-md border border-primary"
+                          : "bg-background border border-border/70 text-foreground hover:border-primary hover:bg-primary/10 hover:text-primary hover:scale-105"
+                      }`}
+                    >
+                      {pill.label}
+                    </button>
+                  );
+                })}
+              </div>
+
             </div>
           </div>
-        </div>
+        )}
 
         {/* Catalog Section */}
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            
-            {/* Filter Sidebar (Desktop) */}
-            <div className="hidden lg:block space-y-6">
-              <div className="bg-card border border-border/40 rounded-3xl p-6 space-y-6 shadow-sm sticky top-28">
-                
-                <div className="flex items-center justify-between pb-4 border-b border-border/40">
-                  <h3 className="font-serif font-bold text-lg flex items-center gap-2 text-foreground">
-                    <SlidersHorizontal className="h-4 w-4 text-primary" /> Filters
-                  </h3>
-                  {(selectedNicotines.length > 0 ||
-                    selectedPuffs.length > 0 ||
-                    selectedBrands.length > 0 ||
-                    selectedCategories.length > 0 ||
-                    inStockOnly ||
-                    maxPrice !== filterOptions.maxFoundPrice) && (
-                    <button
-                      onClick={handleClearFilters}
-                      className="text-[10px] font-bold text-primary uppercase hover:underline cursor-pointer"
-                    >
-                      Clear All
-                    </button>
-                  )}
-                </div>
+        {handle === "brand" || handle === "brands" ? (
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-12">
+            {/* Brand Directory Showcase */}
+            <BrandSphere3D />
+          </div>
+        ) : (
+          <div id="catalog-top" className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-                {/* Filters Content */}
-                <div className="space-y-6">
-                  {/* Price range filter */}
-                  <div className="space-y-3">
-                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex justify-between">
-                      <span>Max Price:</span>
-                      <span className="text-primary font-bold">Dhs. {maxPrice}</span>
-                    </label>
-                    <input
-                      type="range"
-                      min={0}
-                      max={filterOptions.maxFoundPrice}
-                      value={maxPrice}
-                      onChange={(e) => setMaxPrice(Number(e.target.value))}
-                      className="w-full h-1 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
-                    />
-                    <div className="flex justify-between text-[10px] font-semibold text-muted-foreground">
-                      <span>0 AED</span>
-                      <span>{filterOptions.maxFoundPrice} AED</span>
-                    </div>
-                  </div>
+              {/* Filter Sidebar (Desktop) */}
+              <div className="hidden lg:block space-y-6">
+                <div className="bg-card border border-border/40 rounded-3xl p-6 space-y-6 shadow-sm sticky top-28">
 
-                  {/* Availability Toggle */}
-                  <div className="space-y-3 pt-4 border-t border-border/40">
-                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Availability:</p>
-                    <label className="flex items-center gap-2.5 text-xs font-semibold cursor-pointer text-foreground group">
-                      <input
-                        type="checkbox"
-                        checked={inStockOnly}
-                        onChange={(e) => setInStockOnly(e.target.checked)}
-                        className="accent-primary h-4 w-4 rounded border-border focus:ring-0 cursor-pointer"
-                      />
-                      <span className="group-hover:text-primary transition-colors">In Stock Only</span>
-                    </label>
-                  </div>
-
-                  {/* Category List (Only displayed if handle is "all" or general shop page) */}
-                  {collectionInfo.categoryKey === "all" && filterOptions.categories.length > 0 && (
-                    <div className="space-y-3 pt-4 border-t border-border/40">
-                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Category:</p>
-                      <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
-                        {filterOptions.categories.map((cat) => {
-                          const label = cat === "juul" ? "JUUL Pods & Kits" : cat === "disposables" ? "Disposables" : cat === "e-liquids" ? "Premium E-Liquids" : "Kits & Hardware";
-                          return (
-                            <label key={cat} className="flex items-center gap-2.5 text-xs font-semibold cursor-pointer text-foreground group">
-                              <input
-                                type="checkbox"
-                                checked={selectedCategories.includes(cat)}
-                                onChange={() => toggleCategory(cat)}
-                                className="accent-primary h-4 w-4 rounded border-border focus:ring-0 cursor-pointer"
-                              />
-                              <span className="group-hover:text-primary transition-colors capitalize">{label}</span>
-                            </label>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Brand Checklist */}
-                  {filterOptions.brands.length > 0 && (
-                    <div className="space-y-3 pt-4 border-t border-border/40">
-                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Brand:</p>
-                      <div className="space-y-2 max-h-44 overflow-y-auto pr-1 scrollbar-thin">
-                        {filterOptions.brands.map((brand) => (
-                          <label key={brand} className="flex items-center gap-2.5 text-xs font-semibold cursor-pointer text-foreground group">
-                            <input
-                              type="checkbox"
-                              checked={selectedBrands.includes(brand)}
-                              onChange={() => toggleBrand(brand)}
-                              className="accent-primary h-4 w-4 rounded border-border focus:ring-0 cursor-pointer"
-                            />
-                            <span className="group-hover:text-primary transition-colors">{brand}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Nicotine strengths Checklist */}
-                  {filterOptions.nicotines.length > 0 && (
-                    <div className="space-y-3 pt-4 border-t border-border/40">
-                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Nicotine Strength:</p>
-                      <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
-                        {filterOptions.nicotines.map((nic) => (
-                          <label key={nic} className="flex items-center gap-2.5 text-xs font-semibold cursor-pointer text-foreground group">
-                            <input
-                              type="checkbox"
-                              checked={selectedNicotines.includes(nic)}
-                              onChange={() => toggleNicotine(nic)}
-                              className="accent-primary h-4 w-4 rounded border-border focus:ring-0 cursor-pointer"
-                            />
-                            <span className="group-hover:text-primary transition-colors">{nic}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Puffs list Checklist */}
-                  {filterOptions.puffs.length > 0 && (
-                    <div className="space-y-3 pt-4 border-t border-border/40">
-                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Puffs Capacity:</p>
-                      <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
-                        {filterOptions.puffs.map((puff) => (
-                          <label key={puff} className="flex items-center gap-2.5 text-xs font-semibold cursor-pointer text-foreground group">
-                            <input
-                              type="checkbox"
-                              checked={selectedPuffs.includes(puff)}
-                              onChange={() => togglePuff(puff)}
-                              className="accent-primary h-4 w-4 rounded border-border focus:ring-0 cursor-pointer"
-                            />
-                            <span className="group-hover:text-primary transition-colors">{puff}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-              </div>
-            </div>
-
-            {/* Products Feed & Toolbar */}
-            <div className="lg:col-span-3 space-y-6">
-              
-              {/* Toolbar */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card border border-border/40 px-4 sm:px-6 py-4 rounded-3xl shadow-sm">
-                <p className="text-xs font-bold text-foreground text-center sm:text-left">
-                  Showing <span className="text-primary">{paginatedProducts.length}</span> of {filteredProducts.length} premium products
-                </p>
-                
-                <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
-                  {/* Mobile Filters Trigger */}
-                  <button
-                    onClick={() => setIsMobileFiltersOpen(true)}
-                    className="lg:hidden flex items-center justify-center gap-1.5 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 px-3.5 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all active:scale-95 flex-grow sm:flex-grow-0"
-                  >
-                    <SlidersHorizontal className="h-3.5 w-3.5" /> Filters
+                  <div className="flex items-center justify-between pb-4 border-b border-border/40">
+                    <h3 className="font-serif font-bold text-lg flex items-center gap-2 text-foreground">
+                      <SlidersHorizontal className="h-4 w-4 text-primary" /> Filters
+                    </h3>
                     {(selectedNicotines.length > 0 ||
                       selectedPuffs.length > 0 ||
                       selectedBrands.length > 0 ||
                       selectedCategories.length > 0 ||
                       inStockOnly ||
                       maxPrice !== filterOptions.maxFoundPrice) && (
-                      <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                    )}
-                  </button>
-
-                  {/* Sort selector */}
-                  <div className="flex items-center gap-2 flex-grow sm:flex-grow-0 justify-end">
-                    <span className="text-xs text-muted-foreground font-semibold hidden sm:inline">Sort By:</span>
-                    <div className="relative w-full sm:w-auto">
-                      <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
-                        className="w-full bg-background border border-border rounded-xl text-xs font-bold px-3.5 py-2 pr-8 appearance-none cursor-pointer hover:border-primary focus:outline-none text-foreground"
-                      >
-                        <option value="popular">Popularity</option>
-                        <option value="price-low">Price: Low to High</option>
-                        <option value="price-high">Price: High to Low</option>
-                        <option value="rating">Average Rating</option>
-                      </select>
-                      <ChevronDown className="h-3 w-3 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground" />
-                    </div>
+                        <button
+                          onClick={handleClearFilters}
+                          className="text-[10px] font-bold text-primary uppercase hover:underline cursor-pointer"
+                        >
+                          Clear All
+                        </button>
+                      )}
                   </div>
+
+                  {/* Filters Content */}
+                  <div className="space-y-6">
+                    {/* Price range filter */}
+                    <div className="space-y-3">
+                      <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex justify-between">
+                        <span>Max Price:</span>
+                        <span className="text-primary font-bold">Dhs. {maxPrice}</span>
+                      </label>
+                      <input
+                        type="range"
+                        min={0}
+                        max={filterOptions.maxFoundPrice}
+                        value={maxPrice}
+                        onChange={(e) => setMaxPrice(Number(e.target.value))}
+                        className="w-full h-1 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                      />
+                      <div className="flex justify-between text-[10px] font-semibold text-muted-foreground">
+                        <span>0 AED</span>
+                        <span>{filterOptions.maxFoundPrice} AED</span>
+                      </div>
+                    </div>
+
+                    {/* Availability Toggle */}
+                    <div className="space-y-3 pt-4 border-t border-border/40">
+                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Availability:</p>
+                      <label className="flex items-center gap-2.5 text-xs font-semibold cursor-pointer text-foreground group">
+                        <input
+                          type="checkbox"
+                          checked={inStockOnly}
+                          onChange={(e) => setInStockOnly(e.target.checked)}
+                          className="accent-primary h-4 w-4 rounded border-border focus:ring-0 cursor-pointer"
+                        />
+                        <span className="group-hover:text-primary transition-colors">In Stock Only</span>
+                      </label>
+                    </div>
+
+                    {/* Category List (Only displayed if handle is "all" or general shop page) */}
+                    {collectionInfo.categoryKey === "all" && filterOptions.categories.length > 0 && (
+                      <div className="space-y-3 pt-4 border-t border-border/40">
+                        <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Category:</p>
+                        <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                          {filterOptions.categories.map((cat) => {
+                            const label = cat === "juul" ? "JUUL Pods & Kits" : cat === "disposables" ? "Disposables" : cat === "e-liquids" ? "Premium E-Liquids" : "Kits & Hardware";
+                            return (
+                              <label key={cat} className="flex items-center gap-2.5 text-xs font-semibold cursor-pointer text-foreground group">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedCategories.includes(cat)}
+                                  onChange={() => toggleCategory(cat)}
+                                  className="accent-primary h-4 w-4 rounded border-border focus:ring-0 cursor-pointer"
+                                />
+                                <span className="group-hover:text-primary transition-colors capitalize">{label}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Series / Sub-Model Checklist (JUUL 1, JUUL 2, MYLE V5, etc.) */}
+                    {filterOptions.series.length > 0 && (
+                      <div className="space-y-3 pt-4 border-t border-border/40">
+                        <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Series / Model:</p>
+                        <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                          {filterOptions.series.map((ser) => (
+                            <label key={ser} className="flex items-center gap-2.5 text-xs font-semibold cursor-pointer text-foreground group">
+                              <input
+                                type="checkbox"
+                                checked={selectedSeries.includes(ser)}
+                                onChange={() => toggleSeries(ser)}
+                                className="accent-primary h-4 w-4 rounded border-border focus:ring-0 cursor-pointer"
+                              />
+                              <span className="group-hover:text-primary transition-colors">{ser}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Brand Checklist (Only shown if current collection has multiple brands) */}
+                    {filterOptions.brands.length > 1 && (
+                      <div className="space-y-3 pt-4 border-t border-border/40">
+                        <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Brand:</p>
+                        <div className="space-y-2 max-h-44 overflow-y-auto pr-1 scrollbar-thin">
+                          {filterOptions.brands.map((brand) => (
+                            <label key={brand} className="flex items-center gap-2.5 text-xs font-semibold cursor-pointer text-foreground group">
+                              <input
+                                type="checkbox"
+                                checked={selectedBrands.includes(brand)}
+                                onChange={() => toggleBrand(brand)}
+                                className="accent-primary h-4 w-4 rounded border-border focus:ring-0 cursor-pointer"
+                              />
+                              <span className="group-hover:text-primary transition-colors">{brand}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Nicotine strengths Checklist */}
+                    {filterOptions.nicotines.length > 0 && (
+                      <div className="space-y-3 pt-4 border-t border-border/40">
+                        <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Nicotine Strength:</p>
+                        <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                          {filterOptions.nicotines.map((nic) => (
+                            <label key={nic} className="flex items-center gap-2.5 text-xs font-semibold cursor-pointer text-foreground group">
+                              <input
+                                type="checkbox"
+                                checked={selectedNicotines.includes(nic)}
+                                onChange={() => toggleNicotine(nic)}
+                                className="accent-primary h-4 w-4 rounded border-border focus:ring-0 cursor-pointer"
+                              />
+                              <span className="group-hover:text-primary transition-colors">{nic}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Puffs list Checklist */}
+                    {filterOptions.puffs.length > 0 && (
+                      <div className="space-y-3 pt-4 border-t border-border/40">
+                        <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Puffs Capacity:</p>
+                        <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                          {filterOptions.puffs.map((puff) => (
+                            <label key={puff} className="flex items-center gap-2.5 text-xs font-semibold cursor-pointer text-foreground group">
+                              <input
+                                type="checkbox"
+                                checked={selectedPuffs.includes(puff)}
+                                onChange={() => togglePuff(puff)}
+                                className="accent-primary h-4 w-4 rounded border-border focus:ring-0 cursor-pointer"
+                              />
+                              <span className="group-hover:text-primary transition-colors">{puff}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                 </div>
               </div>
 
-              {/* Grid content */}
-              {loading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-                  {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <div key={i} className="animate-pulse bg-card border border-border/40 rounded-[2rem] p-5 flex flex-col gap-4 min-h-[350px]">
-                      <div className="bg-muted rounded-[1.5rem] h-48 w-full animate-pulse" />
-                      <div className="h-3 bg-muted rounded w-1/4 animate-pulse" />
-                      <div className="h-5 bg-muted rounded w-3/4 animate-pulse" />
-                      <div className="h-10 bg-muted rounded-full w-full mt-auto animate-pulse" />
-                    </div>
-                  ))}
-                </div>
-              ) : filteredProducts.length === 0 ? (
-                <div className="bg-card border border-border/40 rounded-[2rem] p-12 text-center flex flex-col items-center justify-center">
-                  <p className="text-base font-bold text-foreground">No Products Found</p>
-                  <p className="text-xs text-muted-foreground mt-2 max-w-xs">
-                    Try adjusting your filters or search keywords to view matching premium vapes.
+              {/* Products Feed & Toolbar */}
+              <div className="lg:col-span-3 space-y-6">
+
+                {/* Toolbar */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card border border-border/40 px-4 sm:px-6 py-4 rounded-3xl shadow-sm">
+                  <p className="text-xs font-bold text-foreground text-center sm:text-left">
+                    Showing <span className="text-primary">{paginatedProducts.length}</span> of {filteredProducts.length} premium products
                   </p>
-                  <button
-                    onClick={handleClearFilters}
-                    className="mt-6 text-xs uppercase tracking-widest bg-primary text-white font-bold px-5 py-3 rounded-full hover:bg-gold-shimmer transition-all cursor-pointer"
-                  >
-                    Reset Filters
-                  </button>
+
+                  <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
+                    {/* Mobile Filters Trigger */}
+                    <button
+                      onClick={() => setIsMobileFiltersOpen(true)}
+                      className="lg:hidden flex items-center justify-center gap-1.5 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 px-3.5 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all active:scale-95 flex-grow sm:flex-grow-0"
+                    >
+                      <SlidersHorizontal className="h-3.5 w-3.5" /> Filters
+                      {(selectedNicotines.length > 0 ||
+                        selectedPuffs.length > 0 ||
+                        selectedBrands.length > 0 ||
+                        selectedCategories.length > 0 ||
+                        inStockOnly ||
+                        maxPrice !== filterOptions.maxFoundPrice) && (
+                          <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                        )}
+                    </button>
+
+                    {/* Sort selector */}
+                    <div className="flex items-center gap-2 flex-grow sm:flex-grow-0 justify-end">
+                      <span className="text-xs text-muted-foreground font-semibold hidden sm:inline">Sort By:</span>
+                      <div className="relative w-full sm:w-auto">
+                        <select
+                          value={sortBy}
+                          onChange={(e) => setSortBy(e.target.value)}
+                          className="w-full bg-background border border-border rounded-xl text-xs font-bold px-3.5 py-2 pr-8 appearance-none cursor-pointer hover:border-primary focus:outline-none text-foreground"
+                        >
+                          <option value="popular">Popularity</option>
+                          <option value="price-low">Price: Low to High</option>
+                          <option value="price-high">Price: High to Low</option>
+                          <option value="rating">Average Rating</option>
+                        </select>
+                        <ChevronDown className="h-3 w-3 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <>
+
+                {/* Grid content */}
+                {loading ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-                    {paginatedProducts.map((product) => (
-                      <ProductCard
-                        key={product.id}
-                        product={product}
-                        onAddToCart={handleAddToCart}
-                        onBuyNow={handleBuyNow}
-                      />
+                    {[1, 2, 3, 4, 5, 6].map((i) => (
+                      <div key={i} className="animate-pulse bg-card border border-border/40 rounded-[2rem] p-5 flex flex-col gap-4 min-h-[350px]">
+                        <div className="bg-muted rounded-[1.5rem] h-48 w-full animate-pulse" />
+                        <div className="h-3 bg-muted rounded w-1/4 animate-pulse" />
+                        <div className="h-5 bg-muted rounded w-3/4 animate-pulse" />
+                        <div className="h-10 bg-muted rounded-full w-full mt-auto animate-pulse" />
+                      </div>
                     ))}
                   </div>
-
-                  {/* Pagination Controls */}
-                  {totalPages > 1 && (
-                    <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-10 pb-4">
-                      <button
-                        onClick={() => {
-                          if (currentPage > 1) {
-                            setCurrentPage((prev) => prev - 1);
-                            window.scrollTo({ top: 350, behavior: "smooth" });
-                          }
-                        }}
-                        disabled={currentPage === 1}
-                        className="p-2 sm:p-2.5 rounded-xl border border-border bg-card text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary hover:text-white transition-colors cursor-pointer"
-                        aria-label="Previous page"
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </button>
-
-                      {(() => {
-                        const pages: (number | string)[] = [];
-                        if (totalPages <= 5) {
-                          for (let i = 1; i <= totalPages; i++) pages.push(i);
-                        } else if (currentPage <= 3) {
-                          pages.push(1, 2, 3, 4, "...", totalPages);
-                        } else if (currentPage >= totalPages - 2) {
-                          pages.push(1, "...", totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
-                        } else {
-                          pages.push(1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages);
-                        }
-
-                        return pages.map((item, idx) =>
-                          typeof item === "number" ? (
-                            <button
-                              key={idx}
-                              onClick={() => {
-                                setCurrentPage(item);
-                                window.scrollTo({ top: 350, behavior: "smooth" });
-                              }}
-                              className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                                item === currentPage
-                                  ? "bg-primary text-white shadow-md scale-105 font-black"
-                                  : "bg-card border border-border text-foreground hover:bg-primary/10 hover:text-primary"
-                              }`}
-                            >
-                              {item}
-                            </button>
-                          ) : (
-                            <span key={idx} className="px-1 text-xs text-muted-foreground font-bold select-none">
-                              ...
-                            </span>
-                          )
-                        );
-                      })()}
-
-                      <button
-                        onClick={() => {
-                          if (currentPage < totalPages) {
-                            setCurrentPage((prev) => prev + 1);
-                            window.scrollTo({ top: 350, behavior: "smooth" });
-                          }
-                        }}
-                        disabled={currentPage === totalPages}
-                        className="p-2 sm:p-2.5 rounded-xl border border-border bg-card text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary hover:text-white transition-colors cursor-pointer"
-                        aria-label="Next page"
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </button>
+                ) : filteredProducts.length === 0 ? (
+                  <div className="bg-card border border-border/40 rounded-[2rem] p-12 text-center flex flex-col items-center justify-center">
+                    <p className="text-base font-bold text-foreground">No Products Found</p>
+                    <p className="text-xs text-muted-foreground mt-2 max-w-xs">
+                      Try adjusting your filters or search keywords to view matching premium vapes.
+                    </p>
+                    <button
+                      onClick={handleClearFilters}
+                      className="mt-6 text-xs uppercase tracking-widest bg-primary text-white font-bold px-5 py-3 rounded-full hover:bg-gold-shimmer transition-all cursor-pointer"
+                    >
+                      Reset Filters
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+                      {paginatedProducts.map((product) => (
+                        <ProductCard
+                          key={product.id}
+                          product={product}
+                          onAddToCart={handleAddToCart}
+                          onBuyNow={handleBuyNow}
+                        />
+                      ))}
                     </div>
-                  )}
-                </>
-              )}
+
+                    {/* Pagination Controls */}
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                      <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-10 pb-4">
+                        <button
+                          onClick={() => {
+                            if (currentPage > 1) {
+                              setCurrentPage((prev) => prev - 1);
+                              const el = document.getElementById("catalog-top");
+                              if (el) {
+                                const yOffset = -100;
+                                const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                                window.scrollTo({ top: y, behavior: "smooth" });
+                              }
+                            }
+                          }}
+                          disabled={currentPage === 1}
+                          className="p-2 sm:p-2.5 rounded-xl border border-border bg-card text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary hover:text-white transition-colors cursor-pointer"
+                          aria-label="Previous page"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </button>
+
+                        {(() => {
+                          const pages: (number | string)[] = [];
+                          if (totalPages <= 5) {
+                            for (let i = 1; i <= totalPages; i++) pages.push(i);
+                          } else if (currentPage <= 3) {
+                            pages.push(1, 2, 3, 4, "...", totalPages);
+                          } else if (currentPage >= totalPages - 2) {
+                            pages.push(1, "...", totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+                          } else {
+                            pages.push(1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages);
+                          }
+
+                          return pages.map((item, idx) =>
+                            typeof item === "number" ? (
+                              <button
+                                key={idx}
+                                onClick={() => {
+                                  setCurrentPage(item);
+                                  const el = document.getElementById("catalog-top");
+                                  if (el) {
+                                    const yOffset = -100;
+                                    const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                                    window.scrollTo({ top: y, behavior: "smooth" });
+                                  }
+                                }}
+                                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl text-xs font-bold transition-all cursor-pointer ${item === currentPage
+                                    ? "bg-primary text-white shadow-md scale-105 font-black"
+                                    : "bg-card border border-border text-foreground hover:bg-primary/10 hover:text-primary"
+                                  }`}
+                              >
+                                {item}
+                              </button>
+                            ) : (
+                              <span key={idx} className="px-1 text-xs text-muted-foreground font-bold select-none">
+                                ...
+                              </span>
+                            )
+                          );
+                        })()}
+
+                        <button
+                          onClick={() => {
+                            if (currentPage < totalPages) {
+                              setCurrentPage((prev) => prev + 1);
+                              const el = document.getElementById("catalog-top");
+                              if (el) {
+                                const yOffset = -100;
+                                const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                                window.scrollTo({ top: y, behavior: "smooth" });
+                              }
+                            }
+                          }}
+                          disabled={currentPage === totalPages}
+                          className="p-2 sm:p-2.5 rounded-xl border border-border bg-card text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary hover:text-white transition-colors cursor-pointer"
+                          aria-label="Next page"
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+
+              </div>
 
             </div>
-
           </div>
-        </div>
+        )}
+
+        {/* Custom 5-Category Bottom Sub-Collection Recommendation Grid */}
+        {!(handle === "brand" || handle === "brands") && (
+          <BottomCollectionGrid handle={handle} />
+        )}
 
         {/* Collection Description (from Shopify) — Beautiful Expandable Guide after products */}
         {collectionInfo.descriptionHtml && (
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12">
             <div className="bg-card border border-border/50 rounded-[2.5rem] p-6 sm:p-10 lg:p-12 relative overflow-hidden shadow-sm transition-all duration-300">
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
-              
+
               {/* Header Badges & Title */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-5 border-b border-border/40">
                 <div className="flex items-center gap-3">
@@ -855,70 +1250,78 @@ function CollectionPageContent() {
                 About {collectionInfo.title}
               </h2>
 
-              {/* Expandable Content Container */}
-              <div className="relative">
+              {/* Full Unclamped Guide Content */}
+              <div>
                 <div
-                  className={`transition-all duration-500 ease-in-out ${
-                    !isGuideExpanded ? "max-h-[360px] overflow-hidden" : "max-h-none"
-                  }`}
-                >
-                  <div
-                    className="text-sm sm:text-base text-foreground leading-relaxed prose prose-sm sm:prose-base max-w-none 
-                      [&_h1]:text-base [&_h1]:sm:text-lg [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-primary [&_h1]:mt-6 [&_h1]:mb-3 [&_h1]:border-l-4 [&_h1]:border-primary [&_h1]:pl-3.5
-                      [&_h2]:text-base [&_h2]:sm:text-lg [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-primary [&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:border-l-4 [&_h2]:border-primary [&_h2]:pl-3.5
-                      [&_h3]:text-sm [&_h3]:sm:text-base [&_h3]:font-serif [&_h3]:font-bold [&_h3]:text-primary [&_h3]:mt-5 [&_h3]:mb-2 [&_h3]:border-l-4 [&_h3]:border-primary [&_h3]:pl-3
-                      [&_h4]:text-sm [&_h4]:font-bold [&_h4]:text-primary [&_h4]:mt-4 [&_h4]:mb-1.5
-                      [&_p]:mb-4 [&_p]:text-foreground/95 [&_p]:leading-relaxed
-                      [&_li]:text-foreground/95
-                      [&_a]:text-primary [&_a]:font-bold [&_a]:underline [&_a]:decoration-primary/60 [&_a]:underline-offset-4 hover:[&_a]:decoration-primary hover:[&_a]:text-primary/80 transition-all
-                      [&_strong]:font-normal [&_strong]:text-inherit
-                      [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1.5 [&_ul]:mb-4
-                      [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1.5 [&_ol]:mb-4
-                      [&_table]:w-full [&_table]:text-left [&_table]:border-collapse
-                      [&_thead]:bg-primary [&_thead]:text-white
-                      [&_th]:p-4 [&_th]:sm:p-5 [&_th]:text-xs [&_th]:sm:text-sm [&_th]:font-extrabold [&_th]:tracking-wider [&_th]:uppercase [&_th]:text-white [&_th]:border-b [&_th]:border-white/20
-                      [&_td]:p-3.5 [&_td]:sm:p-4 [&_td]:text-xs [&_td]:sm:text-sm [&_td]:border-b [&_td]:border-border/30 [&_td]:text-foreground [&_tr:last-child_td]:border-b-0
-                      [&_td:first-child]:font-bold [&_td:first-child]:text-foreground
-                      [&_tr:nth-child(even)]:bg-primary/5 hover:[&_tr]:bg-primary/10 [&_tr]:transition-colors
-                      [&_img]:rounded-2xl [&_img]:p-1.5 [&_img]:sm:p-2 [&_img]:bg-muted/20 [&_img]:border [&_img]:border-border/40 [&_img]:shadow-sm [&_img]:my-6 [&_img]:mx-auto [&_img]:w-full [&_img]:h-auto"
-                    dangerouslySetInnerHTML={{ __html: cleanDescriptionHtml(collectionInfo.descriptionHtml) }}
-                  />
-                </div>
-
-                {/* Fade Overlay & Expand Toggle Button */}
-                {!isGuideExpanded ? (
-                  <div className="absolute bottom-0 left-0 right-0 h-44 bg-gradient-to-t from-card via-card/95 to-transparent flex items-end justify-center pb-2 z-10 pointer-events-none">
-                    <button
-                      type="button"
-                      onClick={() => setIsGuideExpanded(true)}
-                      className="pointer-events-auto inline-flex items-center gap-2 bg-primary/10 hover:bg-primary text-primary hover:text-white border border-primary/30 text-xs font-extrabold uppercase tracking-wider px-6 py-3 rounded-full transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 active:scale-95 cursor-pointer"
-                    >
-                      <span>Read Full Guide &amp; FAQs</span>
-                      <span className="text-sm">↓</span>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex justify-center pt-8 pb-2 border-t border-border/30 mt-6">
-                    <button
-                      type="button"
-                      onClick={() => setIsGuideExpanded(false)}
-                      className="inline-flex items-center gap-2 bg-muted/60 hover:bg-muted text-foreground border border-border text-xs font-bold uppercase tracking-wider px-6 py-2.5 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
-                    >
-                      <span>Show Less</span>
-                      <span className="text-sm">↑</span>
-                    </button>
-                  </div>
-                )}
+                  className="text-sm sm:text-base text-foreground leading-relaxed prose prose-sm sm:prose-base max-w-none 
+                    [&_h1]:text-base [&_h1]:sm:text-lg [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-primary [&_h1]:mt-6 [&_h1]:mb-3 [&_h1]:border-l-4 [&_h1]:border-primary [&_h1]:pl-3.5
+                    [&_h2]:text-base [&_h2]:sm:text-lg [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-primary [&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:border-l-4 [&_h2]:border-primary [&_h2]:pl-3.5
+                    [&_h3]:text-sm [&_h3]:sm:text-base [&_h3]:font-serif [&_h3]:font-bold [&_h3]:text-primary [&_h3]:mt-5 [&_h3]:mb-2 [&_h3]:border-l-4 [&_h3]:border-primary [&_h3]:pl-3
+                    [&_h4]:text-sm [&_h4]:font-bold [&_h4]:text-primary [&_h4]:mt-4 [&_h4]:mb-1.5
+                    [&_p]:mb-4 [&_p]:text-foreground/95 [&_p]:leading-relaxed
+                    [&_li]:text-foreground/95
+                    [&_a]:text-primary [&_a]:font-bold [&_a]:underline [&_a]:decoration-primary/60 [&_a]:underline-offset-4 hover:[&_a]:decoration-primary hover:[&_a]:text-primary/80 transition-all
+                    [&_strong]:font-normal [&_strong]:text-inherit
+                    [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1.5 [&_ul]:mb-4
+                    [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1.5 [&_ol]:mb-4
+                    [&_table]:w-full [&_table]:text-left [&_table]:border-collapse
+                    [&_thead]:bg-primary [&_thead]:text-white
+                    [&_th]:p-4 [&_th]:sm:p-5 [&_th]:text-xs [&_th]:sm:text-sm [&_th]:font-extrabold [&_th]:tracking-wider [&_th]:uppercase [&_th]:text-white [&_th]:border-b [&_th]:border-white/20
+                    [&_td]:p-3.5 [&_td]:sm:p-4 [&_td]:text-xs [&_td]:sm:text-sm [&_td]:border-b [&_td]:border-border/30 [&_td]:text-foreground [&_tr:last-child_td]:border-b-0
+                    [&_td:first-child]:font-bold [&_td:first-child]:text-foreground
+                    [&_tr:nth-child(even)]:bg-primary/5 hover:[&_tr]:bg-primary/10 [&_tr]:transition-colors
+                    [&_img]:rounded-2xl [&_img]:p-1.5 [&_img]:sm:p-2 [&_img]:bg-muted/20 [&_img]:border [&_img]:border-border/40 [&_img]:shadow-sm [&_img]:my-6 [&_img]:mx-auto [&_img]:w-full [&_img]:h-auto"
+                  dangerouslySetInnerHTML={{ __html: cleanDescriptionHtml(collectionInfo.descriptionHtml) }}
+                />
               </div>
 
             </div>
           </div>
         )}
 
-        {/* Shop by Brands & Authorized Dealers Section */}
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-          <AuthorizedDealers />
-        </div>
+        {/* Custom Disposable Comparison & Brands Showcase Sections */}
+        {(handle === "disposable-vape" || handle.includes("disposable")) && (
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 space-y-12">
+            <DisposableBrandsShowcase />
+            <DisposableComparisonSections />
+          </div>
+        )}
+
+        {/* JUUL Signature Flavors Section (Exclusive for JUUL collection pages) */}
+        {Boolean(handle?.toLowerCase().includes("juul")) && (
+          <JuulSignatureFlavorsSection handle={handle} />
+        )}
+
+        {/* JUUL 1 Packaging: Old vs New Comparison (Exclusive for JUUL 1 collection pages) */}
+        {Boolean(handle?.toLowerCase().includes("juul") && !handle?.toLowerCase().includes("juul-2")) && (
+          <JuulPackagingCompareSection />
+        )}
+
+        {/* Technical Specifications Section (Exclusive for JUUL collection pages) */}
+        {Boolean(handle?.toLowerCase().includes("juul")) && (
+          <JuulTechSpecsSection handle={handle} />
+        )}
+
+        {/* MYLE Anti-Counterfeit Verification Guide (Exclusive for MYLE pages) */}
+        {Boolean(handle?.toLowerCase().includes("myle")) && (
+          <MyleVerificationSection />
+        )}
+
+        {/* Why Shop With Us Section */}
+        <WhyShopWithUs />
+
+        {/* Verified Customer Reviews Section */}
+        <CustomerReviewsSection collectionName={collectionInfo.title} />
+
+        {/* Customer Help & Frequently Asked Questions Section */}
+        <FAQSection />
+
+        {/* Shop by Brands & Authorized Dealers Section (Hidden on Brand Directory page) */}
+        {!(handle === "brand" || handle === "brands") && (
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+            <AuthorizedDealers />
+          </div>
+        )}
 
         {/* Direct WhatsApp Contact & Orders Section */}
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
@@ -950,13 +1353,13 @@ function CollectionPageContent() {
                   selectedCategories.length > 0 ||
                   inStockOnly ||
                   maxPrice !== filterOptions.maxFoundPrice) && (
-                  <button
-                    onClick={handleClearFilters}
-                    className="text-[10px] font-bold text-primary uppercase hover:underline"
-                  >
-                    Clear
-                  </button>
-                )}
+                    <button
+                      onClick={handleClearFilters}
+                      className="text-[10px] font-bold text-primary uppercase hover:underline"
+                    >
+                      Clear
+                    </button>
+                  )}
                 <button
                   onClick={() => setIsMobileFiltersOpen(false)}
                   className="p-1.5 rounded-lg border border-border bg-card hover:bg-muted text-muted-foreground flex items-center justify-center transition-colors"

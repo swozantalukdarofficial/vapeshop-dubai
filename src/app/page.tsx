@@ -10,6 +10,7 @@ import { Categories } from "@/components/sections/Categories";
 import { ProductFeed } from "@/components/sections/ProductFeed";
 import { AuthorizedDealers } from "@/components/sections/AuthorizedDealers";
 import { FAQSection } from "@/components/sections/FAQSection";
+import { WhyShopWithUs } from "@/components/sections/WhyShopWithUs";
 import { WhatsAppContactSection } from "@/components/sections/WhatsAppContactSection";
 import { AgeGate } from "@/components/sections/AgeGate";
 import { getFAQSchema, getBreadcrumbSchema } from "@/lib/seo-schemas";
@@ -79,6 +80,10 @@ export default function Home() {
 
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <WhatsAppContactSection />
+        </div>
+
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+          <WhyShopWithUs />
         </div>
 
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">

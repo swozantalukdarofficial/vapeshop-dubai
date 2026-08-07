@@ -50,36 +50,53 @@ export default function SingleBlogPage() {
     }
   };
 
+  // Clean author name if it's an email
+  let authorDisplay = post.author || "Vape Shop Dubai Editorial";
+  if (authorDisplay.includes("@")) {
+    authorDisplay = "Vape Shop Dubai Editorial";
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-primary/20">
       <Navbar />
 
       <main className="flex-grow pt-28 sm:pt-32 pb-20">
-        {/* Breadcrumb */}
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-            <ChevronRight className="h-3 w-3" />
-            <Link href="/blog" className="hover:text-primary transition-colors">Blog</Link>
-            <ChevronRight className="h-3 w-3" />
-            <span className="text-foreground truncate max-w-[200px] sm:max-w-xs">{post.title}</span>
-          </nav>
+        {/* Breadcrumb & Back Link */}
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+              <ChevronRight className="h-3 w-3" />
+              <Link href="/blog" className="hover:text-primary transition-colors">Blog</Link>
+              <ChevronRight className="h-3 w-3" />
+              <span className="text-foreground truncate max-w-[200px] sm:max-w-xs">{post.title}</span>
+            </nav>
+
+            <Link
+              href="/blog"
+              className="inline-flex items-center gap-1.5 text-xs font-extrabold text-primary hover:underline"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Articles</span>
+            </Link>
+          </div>
         </div>
 
         {/* Article Header */}
-        <div className="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+        <div className="max-w-[950px] mx-auto px-4 sm:px-6 lg:px-8 mt-8">
           <div className="space-y-4 text-center">
-            <span className="inline-block bg-primary/10 border border-primary/20 text-primary text-xs font-extrabold tracking-widest uppercase px-4 py-1.5 rounded-full">
+            <span className="inline-block bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider px-3.5 py-1 rounded-full">
               {post.category || "News"}
             </span>
+
             <h1 className="text-3xl sm:text-5xl font-serif font-black text-foreground tracking-tight leading-tight">
               {post.title}
             </h1>
 
-            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-muted-foreground pt-2">
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs font-medium text-muted-foreground pt-2">
               <span className="flex items-center gap-1.5 font-bold text-foreground">
                 <User className="h-3.5 w-3.5 text-primary" />
-                {post.author || "Vape Shop Dubai Editorial"}
+                {authorDisplay}
               </span>
               <span>•</span>
               <span className="flex items-center gap-1.5">
@@ -94,43 +111,43 @@ export default function SingleBlogPage() {
             </div>
           </div>
 
-          {/* Featured Image */}
-          <div className="mt-8 bg-card border border-border/40 rounded-[2.5rem] p-8 aspect-video flex items-center justify-center overflow-hidden shadow-md">
+          {/* Clean Featured Image Banner */}
+          <div className="mt-8 bg-gradient-to-br from-background via-muted/20 to-background border border-border/50 rounded-3xl p-4 sm:p-8 flex items-center justify-center overflow-hidden shadow-xs">
             <img
               src={post.image}
               alt={post.title}
-              className="max-h-72 w-auto object-contain drop-shadow-2xl"
+              className="max-h-[380px] w-auto object-contain rounded-2xl filter drop-shadow-xl"
               onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
             />
           </div>
         </div>
 
         {/* Article Content Body */}
-        <div className="max-w-[850px] mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+        <div className="max-w-[800px] mx-auto px-4 sm:px-6 lg:px-8 mt-12">
           {post.contentHtml ? (
             <div
-              className="product-description-content text-muted-foreground leading-relaxed text-sm sm:text-base space-y-4"
+              className="product-description-content text-foreground/80 leading-relaxed text-base space-y-5 font-sans"
               dangerouslySetInnerHTML={{ __html: post.contentHtml }}
             />
           ) : (
-            <article className="prose dark:prose-invert max-w-none text-muted-foreground leading-relaxed text-sm sm:text-base space-y-6">
+            <article className="prose dark:prose-invert max-w-none text-foreground/80 leading-relaxed text-base space-y-6">
               <p className="text-base sm:text-lg font-medium text-foreground leading-relaxed border-l-4 border-primary pl-4 bg-primary/5 py-3 rounded-r-xl">
                 {post.excerpt}
               </p>
 
-              <h2 className="text-xl sm:text-2xl font-serif font-bold text-foreground mt-8 mb-4">
+              <h2 className="text-xl sm:text-2xl font-serif font-black text-foreground mt-8 mb-4">
                 Overview &amp; Key Features
               </h2>
-              <p>
+              <p className="text-sm sm:text-base font-normal leading-relaxed text-muted-foreground">
                 Vaping in Dubai and across the United Arab Emirates has seen exponential growth in recent years. With strict ESMA (Emirates Authority for Standardization and Metrology) standards, users in the UAE can enjoy high-grade, lab-tested devices and authentic salt nicotine formulations.
               </p>
 
-              <div className="bg-card border border-border/40 rounded-2xl p-6 my-8 space-y-3">
+              <div className="bg-card border border-border/50 rounded-2xl p-6 my-8 space-y-3 shadow-2xs">
                 <h3 className="text-base font-bold text-foreground flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-primary" />
                   Key Takeaways for UAE Vapers:
                 </h3>
-                <ul className="list-disc list-inside text-xs sm:text-sm space-y-2 text-muted-foreground">
+                <ul className="list-disc list-inside text-xs sm:text-sm space-y-2.5 text-muted-foreground font-medium">
                   <li><strong className="text-foreground">100% Genuine Certification:</strong> Always scan security QR codes on manufacturer packaging to verify authenticity.</li>
                   <li><strong className="text-foreground">2-Hour Express Delivery:</strong> Orders placed before 10 PM in Dubai arrive directly at your door within 120 minutes.</li>
                   <li><strong className="text-foreground">Payment Flexibility:</strong> Pay easily via Cash on Delivery, Mobile Card Reader at door, or Apple Pay.</li>
@@ -140,7 +157,7 @@ export default function SingleBlogPage() {
           )}
 
           {/* Social Share Bar */}
-          <div className="pt-8 mt-12 border-t border-border/30 flex items-center justify-between gap-4 flex-wrap">
+          <div className="pt-8 mt-12 border-t border-border/40 flex items-center justify-between gap-4 flex-wrap">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
               <Share2 className="h-4 w-4 text-primary" />
               Share Article:
@@ -150,14 +167,14 @@ export default function SingleBlogPage() {
                 href={`https://wa.me/?text=${encodeURIComponent(post.title)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2.5 rounded-full bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all cursor-pointer"
+                className="p-2.5 rounded-full bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all cursor-pointer shadow-2xs"
                 title="Share on WhatsApp"
               >
                 <MessageCircle className="h-4 w-4" />
               </a>
               <button
                 onClick={handleCopyLink}
-                className="p-2.5 rounded-full bg-muted text-foreground hover:bg-primary hover:text-white transition-all cursor-pointer"
+                className="p-2.5 rounded-full bg-muted text-foreground hover:bg-primary hover:text-white transition-all cursor-pointer shadow-2xs"
                 title="Copy Article Link"
               >
                 {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
@@ -166,18 +183,25 @@ export default function SingleBlogPage() {
           </div>
         </div>
 
-        {/* Related Articles */}
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-24 pt-12 border-t border-border/20">
-          <h3 className="text-2xl font-serif font-bold text-foreground mb-8">Related Articles</h3>
+        {/* Clean Related Articles Grid */}
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-24 pt-12 border-t border-border/30">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-2xl font-serif font-black text-foreground">Related Articles</h3>
+            <Link href="/blog" className="text-xs font-extrabold text-primary hover:underline flex items-center gap-1">
+              <span>View All</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {relatedPosts.map((rel) => (
-              <div key={rel.slug} className="bg-card border border-border/40 rounded-2xl p-4 flex flex-col gap-3 hover:-translate-y-1 transition-all">
-                <Link href={`/blog/${rel.slug}`} className="bg-muted/10 rounded-xl p-4 aspect-video flex items-center justify-center">
-                  <img src={rel.image} alt={rel.title} className="h-28 w-auto object-contain" onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }} />
+              <div key={rel.slug} className="bg-card border border-border/50 rounded-3xl p-4 flex flex-col gap-3 hover:-translate-y-1 transition-all shadow-2xs hover:shadow-md">
+                <Link href={`/blog/${rel.slug}`} className="bg-gradient-to-br from-background via-muted/30 to-background rounded-2xl p-4 aspect-video flex items-center justify-center border border-border/30">
+                  <img src={rel.image} alt={rel.title} className="h-28 w-auto object-contain filter drop-shadow-md" onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }} />
                 </Link>
-                <span className="text-[10px] font-bold text-primary uppercase">{rel.category}</span>
+                <span className="text-[10px] font-black text-primary uppercase tracking-wider">{rel.category}</span>
                 <Link href={`/blog/${rel.slug}`}>
-                  <h4 className="font-bold text-sm text-foreground hover:text-primary transition-colors line-clamp-2">{rel.title}</h4>
+                  <h4 className="font-serif font-black text-sm text-foreground hover:text-primary transition-colors line-clamp-2 leading-snug">{rel.title}</h4>
                 </Link>
               </div>
             ))}

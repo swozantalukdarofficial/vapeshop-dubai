@@ -137,7 +137,7 @@ const MAIN_HANDLE_MAP: Record<string, string> = {
   disposables: "disposable-vape",
   "e-liquids": "vape-e-juice",
   accessories: "pod-system",
-  brand: "all",
+  brand: "brand",
   blog: "blog",
 };
 
@@ -158,6 +158,24 @@ const NavbarContent: React.FC<NavbarProps> = ({
   const [isDevModalOpen, setIsDevModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileNavRef = useRef<HTMLDivElement>(null);
+  const dropdownTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnterNav = (id: string) => {
+    if (dropdownTimerRef.current) {
+      clearTimeout(dropdownTimerRef.current);
+      dropdownTimerRef.current = null;
+    }
+    setOpenDropdown(id);
+  };
+
+  const handleMouseLeaveNav = () => {
+    if (dropdownTimerRef.current) {
+      clearTimeout(dropdownTimerRef.current);
+    }
+    dropdownTimerRef.current = setTimeout(() => {
+      setOpenDropdown(null);
+    }, 200);
+  };
 
   // Suggestions states & refs
   const [products, setProducts] = useState<any[]>([]);
@@ -265,7 +283,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
   const getNavLinkHref = (id: string, subItem?: string): string => {
     if (id === "home") return "/";
     if (id === "all") return "/shop";
-    if (id === "blog") return "#";
+    if (id === "blog") return "/blog";
 
     if (subItem) {
       if (SUB_HANDLE_MAP[subItem]) {
@@ -304,7 +322,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
         router.push("/");
       }
     } else if (id === "blog") {
-      setIsDevModalOpen(true);
+      router.push("/blog");
     } else if (id === "all") {
       if (pathname === "/") {
         onCategorySelect?.("all");
@@ -366,8 +384,8 @@ const NavbarContent: React.FC<NavbarProps> = ({
                   <div 
                     key={link.id} 
                     className="relative group"
-                    onMouseEnter={() => link.sub && setOpenDropdown(link.id)}
-                    onMouseLeave={() => link.sub && setOpenDropdown(null)}
+                    onMouseEnter={() => link.sub && handleMouseEnterNav(link.id)}
+                    onMouseLeave={() => link.sub && handleMouseLeaveNav()}
                   >
                     <div
                       className={`flex items-center rounded-xl text-xs xl:text-[13px] font-extrabold tracking-wider whitespace-nowrap transition-all duration-200 ${
@@ -379,10 +397,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
                       <Link
                         href={mainHref}
                         onClick={(e) => {
-                          if (link.id === "blog") {
-                            e.preventDefault();
-                            setIsDevModalOpen(true);
-                          } else if (link.id === "home" && pathname === "/") {
+                          if (link.id === "home" && pathname === "/") {
                             onCategorySelect?.("all");
                             window.scrollTo({ top: 0, behavior: "smooth" });
                           } else if (link.id === "all" && pathname === "/") {
@@ -411,9 +426,13 @@ const NavbarContent: React.FC<NavbarProps> = ({
                       )}
                     </div>
 
-                    {/* Dropdown (Shows on Hover & Click) */}
+                    {/* Dropdown (Shows on Hover & Click with Pseudo-Bridge Gap Filler) */}
                     {link.sub && openDropdown === link.id && (
-                      <div className="absolute top-full left-0 mt-1 bg-card/98 backdrop-blur-md border border-border/70 rounded-2xl shadow-xl p-2 min-w-[220px] max-h-96 overflow-y-auto z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                      <div
+                        onMouseEnter={() => handleMouseEnterNav(link.id)}
+                        onMouseLeave={handleMouseLeaveNav}
+                        className="absolute top-full left-0 mt-1 bg-card/98 backdrop-blur-md border border-border/70 rounded-2xl shadow-xl p-2 min-w-[220px] max-h-96 overflow-y-auto z-50 animate-in fade-in slide-in-from-top-2 duration-150 before:absolute before:-top-4 before:left-0 before:right-0 before:h-4 before:content-['']"
+                      >
                         {link.sub.map((s) => {
                           const subHref = getNavLinkHref(link.id, s);
                           return (
@@ -701,17 +720,6 @@ const NavbarContent: React.FC<NavbarProps> = ({
                         <span>{link.label}</span>
                         <ChevronDown className={`h-4.5 w-4.5 transition-transform duration-200 ${isSubOpen ? "rotate-180 text-primary" : "text-muted-foreground"}`} />
                       </button>
-                    ) : link.id === "blog" ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsDevModalOpen(true);
-                          setIsMobileMenuOpen(false);
-                        }}
-                        className="w-full text-left px-4 py-3 rounded-xl text-sm font-extrabold tracking-wider transition-all cursor-pointer text-foreground/80 hover:text-foreground hover:bg-muted/50"
-                      >
-                        {link.label}
-                      </button>
                     ) : (
                       <Link
                         href={mainHref}
@@ -788,47 +796,6 @@ const NavbarContent: React.FC<NavbarProps> = ({
             <button className="flex-1 border border-border text-sm font-bold py-2.5 rounded-xl text-foreground/70 hover:border-primary hover:text-primary transition-all cursor-pointer">
               Login / Register
             </button>
-          </div>
-        </div>
-      )}
-
-      {/* Custom Under Development Modal */}
-      {isDevModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setIsDevModalOpen(false)}
-          />
-          
-          {/* Modal Content */}
-          <div className="relative bg-card border border-border rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 border border-primary/20">
-              <ShieldAlert className="w-6 h-6 text-primary" />
-            </div>
-            
-            <h3 className="text-lg font-serif font-bold text-foreground mb-2">Under Development</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed mb-6">
-              This page is currently under development. For any inquiries, please contact <strong className="text-foreground font-semibold">Shipon Talukdar</strong>.
-            </p>
-            
-            <div className="flex flex-col gap-2">
-              <a
-                href="https://wa.me/971582839787?text=Hi Shipon, I'm contacting you regarding the website."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 bg-[#25D366] text-white text-xs font-bold py-3 rounded-full hover:opacity-90 transition-all cursor-pointer"
-              >
-                <MessageCircle className="w-4 h-4" />
-                Contact Shipon Talukdar
-              </a>
-              <button
-                onClick={() => setIsDevModalOpen(false)}
-                className="text-xs font-semibold text-muted-foreground hover:text-foreground py-2 hover:underline cursor-pointer bg-transparent border-none"
-              >
-                Close
-              </button>
-            </div>
           </div>
         </div>
       )}

@@ -3,6 +3,7 @@
 import React from "react";
 import { ShieldCheck, CheckCircle2, Award, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { FlavorsWheel } from "./FlavorsWheel";
 
 interface AuthorizedDealersProps {
   onBrandSelect?: (brand: string) => void;
@@ -207,58 +208,10 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
         </div>
       </div>
 
-      {/* ── Shop by Flavor — Beautiful Floating Card with Infinite Scroll ── */}
-      <div className="bg-card border border-border/40 rounded-[2.5rem] p-8 sm:p-12 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300 relative overflow-hidden">
+      {/* ── Shop by Flavor — Interactive Rotating Wheel ── */}
+      <div className="bg-card border border-border/40 rounded-[2.5rem] p-4 sm:p-8 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300 relative overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10" />
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-border/5 relative">
-          {/* Spacer for desktop to keep title perfectly centered */}
-          <div className="hidden sm:block w-32" />
-
-          {/* Centered Title */}
-          <div className="text-center flex flex-col items-center flex-1">
-            <span className="text-xs font-extrabold tracking-[0.25em] text-primary uppercase mb-1.5">
-              Browse by Flavour
-            </span>
-            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-serif font-black text-foreground tracking-tight leading-tight">
-              Shop by Flavor
-            </h2>
-            {/* Premium Divider */}
-            <div className="flex items-center justify-center gap-2 mt-2">
-              <div className="h-[1px] w-10 bg-gradient-to-r from-transparent to-primary/65" />
-              <div className="w-1.5 h-1.5 rotate-45 border border-primary/40 bg-primary/10" />
-              <div className="h-[1px] w-10 bg-gradient-to-l from-transparent to-primary/65" />
-            </div>
-          </div>
-
-          {/* Spacer for desktop balance */}
-          <div className="hidden sm:block w-32" />
-        </div>
-
-        {/* Infinite Scrolling track */}
-        <div className="relative overflow-hidden py-2">
-          {/* Gradient overlays for fade effects */}
-          <div className="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none bg-gradient-to-r from-card to-transparent" />
-          <div className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none bg-gradient-to-l from-card to-transparent" />
-
-          <div className="flex gap-4 animate-marquee whitespace-nowrap hover:[animation-play-state:paused] w-max">
-            {/* Duplicate flavors to ensure seamless loop */}
-            {[...FLAVORS, ...FLAVORS, ...FLAVORS, ...FLAVORS].map((flavor, i) => (
-              <button
-                key={i}
-                onClick={() => handleFlavorClick(flavor.label)}
-                className={`group inline-flex flex-col items-center justify-center flex-shrink-0 w-[140px] sm:w-[160px] bg-gradient-to-br ${flavor.color} border border-border/30 rounded-2xl p-5 text-center transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.03] ${flavor.border} ${flavor.shadow} cursor-pointer min-h-[115px]`}
-              >
-                <span className="text-3xl transition-transform duration-300 group-hover:scale-125 group-hover:rotate-12 select-none mb-2">
-                  {flavor.emoji}
-                </span>
-                <span className="text-[10px] sm:text-xs font-bold text-foreground leading-tight group-hover:text-primary transition-colors tracking-wide whitespace-normal line-clamp-2">
-                  {flavor.label}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
+        <FlavorsWheel onFlavorSelect={onFlavorSelect} />
       </div>
 
       {/* ── Why Trust Us — Elegant Floating Card ── */}

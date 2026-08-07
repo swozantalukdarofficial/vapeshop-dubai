@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/layout/CartDrawer";
-import { Calendar, Clock, User, ChevronRight, Search, ArrowRight, Tag, BookOpen, Sparkles } from "lucide-react";
+import { Calendar, Clock, User, ChevronRight, ChevronLeft, Search, ArrowRight, Tag, BookOpen, Sparkles } from "lucide-react";
 
 export interface BlogPost {
   slug: string;
@@ -85,13 +85,23 @@ export const BLOG_POSTS: BlogPost[] = [
 
 const CATEGORIES = ["All", "JUUL & Pods", "Disposables", "E-Liquids", "Comparisons", "Safety & Authenticity", "UAE Guides"];
 
+function formatDate(dateStr?: string) {
+  if (!dateStr) return "August 2, 2026";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return "August 2, 2026";
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
 export default function BlogPage() {
+  const [mounted, setMounted] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [posts, setPosts] = useState<BlogPost[]>(BLOG_POSTS);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setMounted(true);
     async function loadShopifyArticles() {
       try {
         const res = await fetch("/api/articles");
@@ -104,11 +114,7 @@ export default function BlogPage() {
               excerpt: item.excerpt || "Read full article on Vape Shop Dubai.",
               category: item.blogTitle || "News",
               author: item.author || "Vape Shop Dubai Editorial",
-              date: new Date(item.publishedAt).toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              }),
+              date: formatDate(item.publishedAt),
               readTime: "5 min read",
               image: item.image || "/hero_vape.png",
               featured: idx === 0,
@@ -125,6 +131,9 @@ export default function BlogPage() {
     loadShopifyArticles();
   }, []);
 
+  const POSTS_PER_PAGE = 6;
+  const [currentPage, setCurrentPage] = useState(1);
+
   const filteredPosts = posts.filter((post) => {
     const matchCat = selectedCategory === "All" || post.category === selectedCategory;
     const matchSearch =
@@ -134,10 +143,18 @@ export default function BlogPage() {
     return matchCat && matchSearch;
   });
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, searchQuery]);
+
+  const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
+  const startIdx = (currentPage - 1) * POSTS_PER_PAGE;
+  const paginatedPosts = filteredPosts.slice(startIdx, startIdx + POSTS_PER_PAGE);
+
   const featuredPost = posts.find((p) => p.featured) || posts[0];
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-primary/20">
+    <div suppressHydrationWarning className="min-h-screen bg-background text-foreground flex flex-col selection:bg-primary/20">
       <Navbar />
 
       <main className="flex-grow pt-28 sm:pt-32 pb-20">
@@ -150,48 +167,45 @@ export default function BlogPage() {
           </nav>
         </div>
 
-        {/* Page Header */}
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-          <div className="text-center flex flex-col items-center justify-center max-w-3xl mx-auto">
-            <span className="text-xs font-extrabold tracking-[0.25em] text-primary uppercase mb-2 flex items-center gap-2">
-              <BookOpen className="h-4 w-4" />
-              Knowledge Hub
+        {/* Clean Page Header */}
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
+          <div className="text-center flex flex-col items-center justify-center max-w-2xl mx-auto space-y-3">
+            <span className="inline-block bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] px-4 py-1 rounded-full">
+              Dubai Vaping Editorial
             </span>
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-black text-foreground tracking-tight leading-tight">
-              Vape Shop Dubai Blog &amp; Guides
+              Vape Guides &amp; Insights
             </h1>
-            <div className="flex items-center justify-center gap-2 mt-3 mb-4">
-              <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-primary/65" />
-              <div className="w-1.5 h-1.5 rotate-45 border border-primary/40 bg-primary/10" />
-              <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-primary/65" />
-            </div>
-            <p className="text-xs sm:text-base text-muted-foreground leading-relaxed">
-              Expert vaping insights, product reviews, pod system comparisons, authenticity checks, and UAE delivery news.
+            <p className="text-sm sm:text-base text-muted-foreground font-medium max-w-xl leading-relaxed">
+              Expert reviews, pod system comparisons, authenticity guides &amp; UAE vaping news.
             </p>
           </div>
         </div>
 
-        {/* Featured Hero Article */}
+        {/* Clean Featured Hero Article */}
         {featuredPost && selectedCategory === "All" && !searchQuery && (
           <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:mt-12">
-            <div className="bg-card border border-border/40 rounded-[2.5rem] p-6 sm:p-10 shadow-[var(--shadow-card)] hover:shadow-lg transition-all duration-300 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-6 space-y-4">
-                <div className="flex items-center gap-3 text-xs font-bold text-primary uppercase tracking-widest">
-                  <span className="bg-primary/10 border border-primary/20 px-3 py-1 rounded-full">
+            <div className="bg-card border border-border/50 rounded-3xl p-6 sm:p-10 shadow-sm hover:shadow-md transition-all duration-300 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-7 space-y-4">
+                <div className="flex items-center gap-2.5 text-xs font-bold text-primary uppercase tracking-widest">
+                  <span className="bg-primary/10 border border-primary/20 text-primary px-3 py-1 rounded-full text-[10px] font-black">
                     {featuredPost.category}
                   </span>
-                  <span>Featured Guide</span>
+                  <span className="text-muted-foreground text-[11px]">• Featured Article</span>
                 </div>
+
                 <Link href={`/blog/${featuredPost.slug}`}>
-                  <h2 className="text-2xl sm:text-4xl font-serif font-bold text-foreground hover:text-primary transition-colors leading-tight">
+                  <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-black text-foreground hover:text-primary transition-colors leading-tight">
                     {featuredPost.title}
                   </h2>
                 </Link>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+
+                <p className="text-sm text-muted-foreground leading-relaxed font-medium line-clamp-3">
                   {featuredPost.excerpt}
                 </p>
-                <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground pt-2 border-t border-border/20">
-                  <span className="flex items-center gap-1.5 font-semibold text-foreground">
+
+                <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground pt-3 border-t border-border/30">
+                  <span className="flex items-center gap-1.5 font-bold text-foreground">
                     <User className="h-3.5 w-3.5 text-primary" />
                     {featuredPost.author}
                   </span>
@@ -204,23 +218,24 @@ export default function BlogPage() {
                     {featuredPost.readTime}
                   </span>
                 </div>
+
                 <div className="pt-2">
                   <Link
                     href={`/blog/${featuredPost.slug}`}
-                    className="inline-flex items-center gap-2 bg-primary text-white font-bold text-xs uppercase tracking-wider px-6 py-3 rounded-full hover:bg-primary/90 transition-all shadow-md active:scale-95"
+                    className="inline-flex items-center gap-2 bg-primary text-white font-black text-xs uppercase tracking-wider px-6 py-3 rounded-full hover:bg-primary/90 transition-all shadow-sm active:scale-95"
                   >
-                    Read Full Article
+                    Read Article
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>
               </div>
               
-              <div className="lg:col-span-6">
-                <Link href={`/blog/${featuredPost.slug}`} className="block relative bg-muted/10 border border-border/30 rounded-[2rem] p-8 aspect-video flex items-center justify-center overflow-hidden group">
+              <div className="lg:col-span-5">
+                <Link href={`/blog/${featuredPost.slug}`} className="block relative bg-gradient-to-br from-background via-muted/30 to-background border border-border/40 rounded-2xl p-6 aspect-video flex items-center justify-center overflow-hidden group shadow-inner">
                   <img
                     src={featuredPost.image}
                     alt={featuredPost.title}
-                    className="max-h-56 w-auto object-contain transition-transform duration-500 group-hover:scale-105 drop-shadow-xl"
+                    className="max-h-52 w-auto object-contain transition-transform duration-500 group-hover:scale-105 filter drop-shadow-xl"
                   />
                 </Link>
               </div>
@@ -228,19 +243,19 @@ export default function BlogPage() {
           </div>
         )}
 
-        {/* Filter & Search Bar */}
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-card border border-border/40 rounded-2xl p-4 shadow-xs">
-            {/* Categories scroll */}
-            <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-thin">
+        {/* Clean Filter & Search Bar */}
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-card border border-border/50 rounded-2xl p-3 sm:p-4 shadow-xs">
+            {/* Categories Scroll */}
+            <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto no-scrollbar py-0.5">
               {CATEGORIES.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                  className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs ${
                     selectedCategory === cat
-                      ? "bg-primary text-white shadow-xs"
-                      : "bg-muted/30 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      ? "bg-primary text-white font-black scale-105 shadow-sm"
+                      : "bg-background border border-border/70 text-foreground hover:border-primary hover:bg-primary/10 hover:text-primary"
                   }`}
                 >
                   {cat}
@@ -253,10 +268,10 @@ export default function BlogPage() {
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search articles..."
+                placeholder="Search guides..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-background border border-border/50 rounded-xl pl-10 pr-4 py-2 text-xs font-medium focus:outline-none focus:border-primary transition-colors text-foreground"
+                className="w-full bg-background border border-border/60 rounded-full pl-10 pr-4 py-2 text-xs font-bold focus:outline-none focus:border-primary transition-colors text-foreground shadow-2xs"
               />
             </div>
           </div>
@@ -265,7 +280,7 @@ export default function BlogPage() {
         {/* Article Grid */}
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mt-8">
           {filteredPosts.length === 0 ? (
-            <div className="bg-card border border-border/40 rounded-3xl p-12 text-center">
+            <div className="bg-card border border-border/50 rounded-3xl p-12 text-center">
               <p className="text-base font-bold text-foreground">No articles found matching your query.</p>
               <button
                 onClick={() => { setSelectedCategory("All"); setSearchQuery(""); }}
@@ -275,60 +290,108 @@ export default function BlogPage() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              {filteredPosts.map((post) => (
-                <article
-                  key={post.slug}
-                  className="bg-card border border-border/40 rounded-[2rem] overflow-hidden flex flex-col p-4 shadow-xs hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
-                >
-                  <Link href={`/blog/${post.slug}`} className="relative bg-muted/10 rounded-[1.5rem] p-6 aspect-video flex items-center justify-center overflow-hidden">
-                    <img
-                      src={post.image}
-                      alt={post.title}
-                      className="max-h-40 w-auto object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-md"
-                    />
-                    <span className="absolute top-3 left-3 bg-card/90 backdrop-blur-md border border-border/30 text-primary text-[10px] font-bold tracking-wider uppercase px-3 py-1 rounded-full shadow-xs">
-                      {post.category}
-                    </span>
-                  </Link>
-
-                  <div className="p-4 flex flex-col flex-grow gap-3">
-                    <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3 text-primary" />
-                        {post.date}
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {paginatedPosts.map((post) => (
+                  <article
+                    key={post.slug}
+                    className="bg-card border border-border/50 rounded-3xl overflow-hidden flex flex-col p-4 shadow-xs hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
+                  >
+                    <Link href={`/blog/${post.slug}`} className="relative bg-gradient-to-br from-background via-muted/30 to-background rounded-2xl p-6 aspect-video flex items-center justify-center overflow-hidden border border-border/30">
+                      <img
+                        src={post.image}
+                        alt={post.title}
+                        className="max-h-36 w-auto object-contain transition-transform duration-300 group-hover:scale-105 filter drop-shadow-md"
+                      />
+                      <span className="absolute top-3 left-3 bg-background/90 backdrop-blur-md border border-border/40 text-primary text-[10px] font-extrabold tracking-wider uppercase px-3 py-1 rounded-full shadow-xs">
+                        {post.category}
                       </span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3 text-primary" />
-                        {post.readTime}
-                      </span>
-                    </div>
-
-                    <Link href={`/blog/${post.slug}`}>
-                      <h3 className="font-serif font-bold text-lg text-foreground group-hover:text-primary transition-colors leading-snug line-clamp-2">
-                        {post.title}
-                      </h3>
                     </Link>
 
-                    <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
-                      {post.excerpt}
-                    </p>
+                    <div className="pt-4 px-1 flex flex-col flex-grow gap-2.5">
+                      <div className="flex items-center gap-2 text-[11px] font-semibold text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3 text-primary" />
+                          {post.date}
+                        </span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3 text-primary" />
+                          {post.readTime}
+                        </span>
+                      </div>
 
-                    <div className="pt-3 border-t border-border/20 mt-auto flex items-center justify-between">
-                      <span className="text-[11px] font-bold text-muted-foreground">{post.author}</span>
-                      <Link
-                        href={`/blog/${post.slug}`}
-                        className="text-xs font-bold text-primary flex items-center gap-1 group-hover:translate-x-1 transition-transform"
-                      >
-                        Read
-                        <ArrowRight className="h-3.5 w-3.5" />
+                      <Link href={`/blog/${post.slug}`}>
+                        <h3 className="font-serif font-black text-base text-foreground group-hover:text-primary transition-colors leading-snug line-clamp-2">
+                          {post.title}
+                        </h3>
                       </Link>
+
+                      <p className="text-xs text-muted-foreground font-medium leading-relaxed line-clamp-2">
+                        {post.excerpt}
+                      </p>
+
+                      <div className="pt-3 border-t border-border/30 mt-auto flex items-center justify-between">
+                        <span className="text-[11px] font-bold text-muted-foreground">{post.author}</span>
+                        <Link
+                          href={`/blog/${post.slug}`}
+                          className="text-xs font-bold text-primary flex items-center gap-1 group-hover:translate-x-1 transition-transform"
+                        >
+                          Read
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                </article>
-              ))}
-            </div>
+                  </article>
+                ))}
+              </div>
+
+              {/* Numbered Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="mt-12 flex flex-wrap items-center justify-center gap-2">
+                  <button
+                    disabled={currentPage === 1}
+                    onClick={() => {
+                      setCurrentPage((prev) => Math.max(prev - 1, 1));
+                      window.scrollTo({ top: 400, behavior: "smooth" });
+                    }}
+                    className="px-4 py-2 rounded-full border border-border/60 bg-card text-xs font-bold text-foreground hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    <span>Prev</span>
+                  </button>
+
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                    <button
+                      key={pageNum}
+                      onClick={() => {
+                        setCurrentPage(pageNum);
+                        window.scrollTo({ top: 400, behavior: "smooth" });
+                      }}
+                      className={`w-9 h-9 rounded-full text-xs font-bold transition-all shadow-2xs cursor-pointer ${
+                        currentPage === pageNum
+                          ? "bg-primary text-white font-black scale-105 shadow-sm"
+                          : "bg-card border border-border/60 text-foreground hover:border-primary hover:text-primary"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  ))}
+
+                  <button
+                    disabled={currentPage === totalPages}
+                    onClick={() => {
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+                      window.scrollTo({ top: 400, behavior: "smooth" });
+                    }}
+                    className="px-4 py-2 rounded-full border border-border/60 bg-card text-xs font-bold text-foreground hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>

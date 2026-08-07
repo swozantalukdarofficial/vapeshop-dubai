@@ -260,7 +260,9 @@ export async function GET() {
         section = "Flash Sale";
       }
 
-      const image = node.images?.edges?.[0]?.node?.url || "/hero_vape.png";
+      const allImages = node.images?.edges?.map((img: any) => img.node?.url).filter(Boolean) || [];
+      const image = allImages[0] || "/hero_vape.png";
+      const hoverImage = allImages.length > 1 ? allImages[1] : undefined;
 
       return {
         id: node.id,
@@ -273,6 +275,8 @@ export async function GET() {
         rating: parseFloat(node.rating?.value || "4.8"),
         reviews: parseInt(node.reviews?.value || "125"),
         image,
+        hoverImage,
+        images: allImages,
         tag: node.badge?.value || (isSoldOut ? "Sold Out" : comparePrice > price ? "Sale" : undefined),
         tagColor: comparePrice > price ? "sale" : undefined,
         isPopular: node.tags?.includes("Popular") || node.tags?.includes("popular"),

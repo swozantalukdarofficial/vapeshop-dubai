@@ -19,6 +19,8 @@ export interface Product {
   rating: number;
   reviews: number;
   image: string;
+  hoverImage?: string;
+  images?: string[];
   tag?: string;
   tagColor?: string;
   isPopular?: boolean;
@@ -136,29 +138,105 @@ interface ProductFeedProps {
 
 export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Product; onAddToCart: (p: Product) => void; onBuyNow: (p: Product) => void }) {
   const [hovered, setHovered] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const isSale = product.tagColor === "sale";
+
+  const allImagesList = useMemo(() => {
+    if (product.images && product.images.length > 0) return product.images;
+    if (product.hoverImage) return [product.image, product.hoverImage];
+    return [product.image];
+  }, [product]);
+
+  const displayedImage = allImagesList[activeImageIndex] || product.image;
+
+  // Preload all variant images for instant 0ms switching
+  useEffect(() => {
+    if (typeof window !== "undefined" && allImagesList.length > 0) {
+      allImagesList.forEach((url) => {
+        const img = new Image();
+        img.src = url;
+      });
+    }
+  }, [allImagesList]);
 
   return (
     <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseEnter={() => {
+        setHovered(true);
+        if (activeImageIndex === 0 && allImagesList.length > 1) {
+          setActiveImageIndex(1);
+        }
+      }}
+      onMouseLeave={() => {
+        setHovered(false);
+        setActiveImageIndex(0);
+      }}
       className="group relative bg-card border border-border/50 rounded-[2rem] p-4 sm:p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1.5 flex flex-col w-full h-full"
     >
       {/* Large Image Area */}
       <div className="relative bg-[#F9F6F0] dark:bg-[#1A1612] rounded-[1.6rem] h-72 sm:h-80 p-2 sm:p-4 flex items-center justify-center overflow-hidden border border-border/30">
         <div className="absolute w-56 h-56 rounded-full bg-primary/5 filter blur-2xl pointer-events-none" />
         
+        {/* Loading Skeleton Shimmer */}
+        {!imageLoaded && (
+          <div className="absolute inset-0 z-0 flex flex-col items-center justify-center bg-muted/40 animate-pulse p-4">
+            <div className="w-24 h-36 bg-primary/10 rounded-2xl animate-pulse mb-2 border border-primary/10 flex items-center justify-center shadow-inner">
+              <Package className="w-8 h-8 text-primary/40 animate-bounce" />
+            </div>
+            <div className="w-20 h-2 bg-primary/20 rounded-full animate-pulse" />
+          </div>
+        )}
+
         <Link href={`/product/${product.handle}`} className="block relative z-10 w-full h-full flex items-center justify-center">
           <img
-            src={product.image}
+            key={displayedImage}
+            src={displayedImage}
             alt={product.name}
             loading="lazy"
             decoding="async"
-            className="h-[230px] sm:h-[260px] max-h-full w-auto object-contain drop-shadow-md transition-transform duration-500"
-            style={{ transform: hovered ? "scale(1.08)" : "scale(1)" }}
-            onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
+            onLoad={() => setImageLoaded(true)}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = "/hero_vape.png";
+              setImageLoaded(true);
+            }}
+            className={`h-[230px] sm:h-[260px] max-h-full w-auto object-contain drop-shadow-md transition-all duration-300 ${
+              imageLoaded ? "opacity-100" : "opacity-0"
+            } ${hovered ? "scale-105" : "scale-100"}`}
           />
         </Link>
+
+        {/* Multi-Variant Image Swatch Dots Bar */}
+        {allImagesList.length > 1 && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full z-20 border border-white/20 shadow-md transition-all duration-300 opacity-80 group-hover:opacity-100">
+            {allImagesList.slice(0, 6).map((_, idx) => (
+              <button
+                key={idx}
+                onMouseEnter={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setActiveImageIndex(idx);
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setActiveImageIndex(idx);
+                }}
+                className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all cursor-pointer ${
+                  activeImageIndex === idx
+                    ? "bg-primary scale-125 ring-2 ring-primary/40 shadow-sm"
+                    : "bg-white/60 hover:bg-white hover:scale-110"
+                }`}
+                aria-label={`View variant image ${idx + 1}`}
+              />
+            ))}
+            {allImagesList.length > 6 && (
+              <span className="text-[9px] font-extrabold text-white/90 pl-1">
+                +{allImagesList.length - 6}
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Top-Left Tag / Sold Out Badge */}
         {(product.isSoldOut || product.tag) && (
@@ -312,15 +390,46 @@ export const ProductFeed: React.FC<ProductFeedProps> = ({
     return filteredProducts.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredProducts, currentPage]);
 
-  // Group products by section for "all" view
+  // Group products by section in exact user-requested order
   const sections = useMemo(() => {
     if (activeCategory !== "all" || searchQuery) return null;
     const groups: Record<string, Product[]> = {};
-    activeProductsList.forEach((p) => {
-      const key = p.section || p.category;
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(p);
+
+    // 1. Flash Sale (Discounted items)
+    const flashSaleProds = activeProductsList.filter((p) => p.originalPrice && p.originalPrice > p.price);
+    if (flashSaleProds.length > 0) groups["Flash Sale"] = flashSaleProds;
+
+    // 2. JUUL 1 Series
+    const juul1Prods = activeProductsList.filter((p) => {
+      const nameL = p.name.toLowerCase();
+      const brandL = (p.brand || "").toLowerCase();
+      return (brandL.includes("juul") || nameL.includes("juul")) &&
+        !nameL.includes("juul 2") && !nameL.includes("juul2") && !nameL.includes(" 2");
     });
+    if (juul1Prods.length > 0) groups["JUUL 1 Series"] = juul1Prods;
+
+    // 3. JUUL 2 Series
+    const juul2Prods = activeProductsList.filter((p) => {
+      const nameL = p.name.toLowerCase();
+      const brandL = (p.brand || "").toLowerCase();
+      return (brandL.includes("juul") || nameL.includes("juul")) &&
+        (nameL.includes("juul 2") || nameL.includes("juul2") || nameL.includes(" 2"));
+    });
+    if (juul2Prods.length > 0) groups["JUUL 2 Series"] = juul2Prods;
+
+    // 4. DISPOSABLE VAPE
+    const disposableProds = activeProductsList.filter((p) => {
+      const catL = (p.category || "").toLowerCase();
+      const secL = (p.section || "").toLowerCase();
+      const nameL = p.name.toLowerCase();
+      return catL.includes("disposable") || secL.includes("disposable") || nameL.includes("disposable") || nameL.includes("puffs") || nameL.includes("bar");
+    });
+    if (disposableProds.length > 0) groups["DISPOSABLE VAPE"] = disposableProds;
+
+    // 5. Best Sellers
+    const bestSellerProds = activeProductsList.filter((p) => p.isPopular || p.reviews > 40);
+    if (bestSellerProds.length > 0) groups["Best Sellers"] = bestSellerProds;
+
     return groups;
   }, [activeProductsList, activeCategory, searchQuery]);
 
