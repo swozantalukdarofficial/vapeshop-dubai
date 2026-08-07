@@ -17,7 +17,7 @@ export const WhatsAppFloating: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Hello! 👋 Welcome to Vape Shop Dubai!\n\nI'm your AI assistant — I can help you find products, check prices, and place orders. Ask me anything in any language!"
+      content: "Hello! 👋 Welcome to Vape Shop Dubai.\n\nI'm your Sales Assistant. How can I help you today?\n\nWhich language do you prefer to chat in? (English / العربية / বাংলা / Русский / French)"
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);

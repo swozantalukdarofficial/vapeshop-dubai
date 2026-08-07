@@ -33,28 +33,36 @@ function getDynamicLiveCatalogReply(userMessage: string, liveProducts: LiveProdu
   const query = rawQuery.toLowerCase();
 
   if (!liveProducts || liveProducts.length === 0) {
-    return "Assalamu Alaikum! Welcome to Vape Shop Dubai. WhatsApp us at +971582839787 for any product inquiry.";
+    return "Welcome to Vape Shop Dubai! Which language do you prefer to chat in? (English / Arabic / Bengali / French / Russian). WhatsApp us at +971582839787 for any inquiry.";
   }
 
-  // 1. STORE CATEGORIES & COLLECTIONS INTENT
+  // 1. GREETINGS & SOCIAL INTENT (Default English + Language Ask)
+  const greetingKeywords = ["hi", "hello", "salam", "hey", "who", "bot", "human", "kemon", "obostha", "bhai", "bro", "kaha", "kayfa", "bonjour", "privet"];
+  const isGreeting = greetingKeywords.some((g) => query.includes(g)) && !query.includes("juul") && !query.includes("vct") && !query.includes("vozol") && !query.includes("fakher") && !query.includes("best") && !query.includes("bhalo") && !query.includes("elfbar") && !query.includes("elf") && !query.includes("yuoto");
+
+  if (isGreeting) {
+    return `Hello! 👋 Welcome to Vape Shop Dubai.\n\nWhich language do you prefer to chat in? (English / العربية / বাংলা / Русский / French)\n\nWe have 100% authentic JUUL, Myle, Disposables, & SaltNic in stock with ⚡ 2-Hour Express Delivery in Dubai!\n\n📁 Explore Category: ${siteUrl}/collections/disposable-vape`;
+  }
+
+  // STORE CATEGORIES & COLLECTIONS INTENT
   if (query.includes("disposable") || query.includes("disposables") || query.includes("puff")) {
-    return `Amader Disposable Vapes Collection-e All Popular Brands (Al Fakher, Vozol, Geek Bar, Elf Bar) stock-e ache! 💨\n\n📁 Explore Disposable Category: ${siteUrl}/collections/disposable-vape`;
+    return `All popular Disposable Vape Brands (Al Fakher, Vozol, Geek Bar, Elf Bar) are ready in stock! 💨\n\n📁 Explore Disposable Category: ${siteUrl}/collections/disposable-vape`;
   }
 
   if (query.includes("juul") || query.includes("juul2") || query.includes("juul 2")) {
-    return `Amader 100% Original JUUL 1 & JUUL 2 Pods & Devices Collection: 🍇\n\n📁 Explore JUUL Collection: ${siteUrl}/collections/juul`;
+    return `Original JUUL 1 & JUUL 2 Pods & Devices Collection: 🍇\n\n📁 Explore JUUL Collection: ${siteUrl}/collections/juul`;
   }
 
   if (query.includes("pod system") || query.includes("pod kit") || query.includes("myle")) {
-    return `Amader Pod Systems & Myle Devices Collection: ⚡\n\n📁 Explore Pod Systems Category: ${siteUrl}/collections/pod-system\n📁 Explore Myle Collection: ${siteUrl}/collections/myle`;
+    return `Authentic Pod Systems & Myle Devices Collection: ⚡\n\n📁 Explore Pod Systems Category: ${siteUrl}/collections/pod-system\n📁 Explore Myle Collection: ${siteUrl}/collections/myle`;
   }
 
   if (query.includes("e-liquid") || query.includes("liquid") || query.includes("juice") || query.includes("saltnic") || query.includes("salt nic")) {
-    return `Amader Authentic E-Liquids & Salt Nicotine Liquids Collection: 🧪\n\n📁 Explore Salt Nicotine Category: ${siteUrl}/collections/salt-nicotine\n📁 Explore E-Liquids Category: ${siteUrl}/collections/e-liquid`;
+    return `Authentic E-Liquids & Salt Nicotine Liquids Collection: 🧪\n\n📁 Explore Salt Nicotine Category: ${siteUrl}/collections/salt-nicotine\n📁 Explore E-Liquids Category: ${siteUrl}/collections/e-liquid`;
   }
 
   if (query.includes("blog") || query.includes("article") || query.includes("guide") || query.includes("review")) {
-    return `Amader official Vape Guides & Blog Articles dekhte parben:\n\n📰 Vape Shop Dubai Blog: ${siteUrl}/blog`;
+    return `Check out our official Vape Guides & Blog Articles:\n\n📰 Vape Shop Dubai Blog: ${siteUrl}/blog`;
   }
 
   // STORE NAME & IDENTITY QUESTIONS
@@ -84,49 +92,41 @@ function getDynamicLiveCatalogReply(userMessage: string, liveProducts: LiveProdu
     query.includes("hotline") ||
     query.includes("call")
   ) {
-    return "Apni amader 24/7 WhatsApp Hotline +971582839787-e direct text or call korte paren! 📱\n\nDirect WhatsApp Link: https://wa.me/971582839787";
-  }
-
-  // GREETINGS & SOCIAL INTENT
-  const greetingKeywords = ["hi", "hello", "salam", "hey", "kemon", "obostha", "bhai", "bro", "kaha", "kayfa", "who", "aist", "bot", "human", "manush", "kene", "vhalo", "valam"];
-  const isGreeting = greetingKeywords.some((g) => query.includes(g)) && !query.includes("juul") && !query.includes("vct") && !query.includes("vozol") && !query.includes("fakher") && !query.includes("best") && !query.includes("bhalo") && !query.includes("elfbar") && !query.includes("elf") && !query.includes("yuoto");
-
-  if (isGreeting) {
-    return `Assalamu Alaikum! 👋 Welcome to Vape Shop Dubai.\n\nAmader kache JUUL, Myle, Disposables, & SaltNic 100% original stock-e ache. Kon category ba product somporke jante chan?\n\n📁 Main Categories: ${siteUrl}/collections/disposable-vape`;
+    return "You can contact our 24/7 WhatsApp Hotline at +971582839787! 📱\n\nDirect WhatsApp Link: https://wa.me/971582839787";
   }
 
   // RECOMMENDATIONS & BEST SELLERS INTENT
-  if (query.includes("bhalo") || query.includes("best") || query.includes("suggest") || query.includes("popular") || query.includes("top") || query.includes("vlo") || query.includes("valobhasha")) {
+  if (query.includes("bhalo") || query.includes("best") || query.includes("suggest") || query.includes("popular") || query.includes("top") || query.includes("vlo") || query.includes("recommend")) {
     const topLiveItems = liveProducts.slice(0, 3);
     const topLines = topLiveItems.map((p) => {
       const price = p.price > 0 ? `${p.price.toFixed(2)} AED` : "Contact for price";
       return `${cleanTitleForHuman(p.name)} — ${price}\n🔗 ${siteUrl}/product/${p.handle}`;
     });
 
-    return `Amader live store-er Top Bestselling & Highest Recommended Products: 🔥\n\n${topLines.join("\n\n")}\n\n📁 Explore All Collections: ${siteUrl}/collections/disposable-vape`;
+    return `Top Bestselling & Highest Recommended Products in Our Store: 🔥\n\n${topLines.join("\n\n")}\n\n📁 Explore All Collections: ${siteUrl}/collections/disposable-vape`;
   }
 
   // CHEAPEST / LOW PRICE INTENT
-  if (query.includes("cheap") || query.includes("sasta") || query.includes("kam") || query.includes("কম") || query.includes("low price")) {
+  if (query.includes("cheap") || query.includes("sasta") || query.includes("kam") || query.includes("low price")) {
     const cheapProducts = [...liveProducts].filter(p => p.price > 0).sort((a, b) => a.price - b.price).slice(0, 3);
     const cheapLines = cheapProducts.map((p) => `${cleanTitleForHuman(p.name)} — ${p.price.toFixed(2)} AED\n🔗 ${siteUrl}/product/${p.handle}`);
 
-    return `Amader store-er Lowest Price Authentic Items: 💳\n\n${cheapLines.join("\n\n")}\n\n🚚 300 AED+ Order-e FREE Delivery! Kon ta order korben?`;
+    return `Lowest Price Authentic Items in Our Store: 💳\n\n${cheapLines.join("\n\n")}\n\n🚚 300 AED+ Order-e FREE Delivery! Which item would you like to order?`;
   }
 
   // PAYMENT INTENT
-  if (query.includes("payment") || query.includes("pay") || query.includes("cod") || query.includes("card") || query.includes("cash") || query.includes("taka")) {
-    return "Amader Payment Options:\n- Cash on Delivery (COD)\n- Card on Delivery (Driver credit card machine carry kore)\n\n🚚 Dubai-e ⚡ 2-Hour Express Delivery! 300 AED+ order-e FREE shipping.";
+  if (query.includes("payment") || query.includes("pay") || query.includes("cod") || query.includes("card") || query.includes("cash")) {
+    return "Our Payment Options:\n- Cash on Delivery (COD)\n- Card on Delivery (Driver carries portable credit card machine)\n\n🚚 ⚡ 2-Hour Express Delivery in Dubai! FREE shipping on 300 AED+ orders.";
   }
 
   // DELIVERY & LOCATION INTENT
-  if (query.includes("delivery") || query.includes("ship") || query.includes("kothay") || query.includes("dubai") || query.includes("location") || query.includes("address") || query.includes("dokan")) {
-    return "Amra full Dubai-er sob area-te (Marina, Downtown, Deira, JLT, Business Bay, Palm, etc.) ⚡ 2-Hour Express Delivery diyi! Abu Dhabi & Sharjah-e Same-Day delivery.\n\n300 AED+ order-e FREE delivery! Payment: Cash on Delivery & Card on Delivery available.";
+  if (query.includes("delivery") || query.includes("ship") || query.includes("location") || query.includes("address") || query.includes("dubai")) {
+    return "We deliver ⚡ 2-Hour Express Delivery across all Dubai areas (Marina, Downtown, Deira, JLT, Business Bay, Palm, etc.)! Same-Day delivery across Abu Dhabi & Sharjah.\n\nFREE shipping on 300 AED+ orders! Payment: Cash or Card on Delivery.";
   }
 
   // ORDERING INTENT
-  if (query.includes("order") || query.includes("buy") || query.includes("kine") || msgIncludesOrder(query)) {
-    return "Order korte ei info gulo confirm kore diyi:\n\n1. Product Name & Flavor\n2. Quantity\n3. Delivery Address in Dubai/UAE\n4. Phone Number";
+  if (query.includes("order") || query.includes("buy") || msgIncludesOrder(query)) {
+    return "To place an order, please provide:\n\n1. Product Name & Flavor\n2. Quantity\n3. Delivery Address (Dubai/UAE)\n4. Phone Number";
   }
 
   // SPECIFIC PRODUCT SEARCH
@@ -167,7 +167,7 @@ function getDynamicLiveCatalogReply(userMessage: string, liveProducts: LiveProdu
         return `${cleanTitleForHuman(p.name)} — ${price} (${status})\n🔗 ${siteUrl}/product/${p.handle}`;
       });
 
-      return `Haan brother! Ei item amader live website store-e available ache: 📦\n\n${lines.join("\n\n")}\n\nKon flavor/item ta order korben janan!`;
+      return `Yes! This product is available in our store: 📦\n\n${lines.join("\n\n")}\n\nPlease let us know which flavor/item you would like to order!`;
     }
 
     const cleanKeyword = strongTokens.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
@@ -177,11 +177,11 @@ function getDynamicLiveCatalogReply(userMessage: string, liveProducts: LiveProdu
       return `✨ ${cleanTitleForHuman(p.name)} — ${price}\n🔗 ${siteUrl}/product/${p.handle}`;
     });
 
-    return `Sorry brother! 😔 "${cleanKeyword}" item ta amader live store-e ekhon stock-out.\n\nTobe amader store-e ei top alternative items ready stock-e ache:\n\n${altLines.join("\n\n")}\n\nDubai-e ⚡ 2-Hour Express Delivery! Restock timing jante WhatsApp-e message diyo: +971582839787 📱`;
+    return `Sorry! 😔 "${cleanKeyword}" is currently out of stock.\n\nHere are top in-stock alternatives available in our store:\n\n${altLines.join("\n\n")}\n\n⚡ 2-Hour Express Delivery in Dubai! Contact us on WhatsApp for restock updates: +971582839787 📱`;
   }
 
   // DEFAULT CONVERSATIONAL FALLBACK
-  return `Assalamu Alaikum! 👋 Our store name is Vape Shop Dubai (${siteUrl}).\n\nWe are Dubai's #1 online vape shop delivering 100% authentic JUUL, Myle, Disposables, & SaltNic with ⚡ 2-Hour Express Delivery across Dubai!\n\n📁 Explore All Collections: ${siteUrl}/collections/disposable-vape`;
+  return `Hello! 👋 Welcome to Vape Shop Dubai (${siteUrl}).\n\nWhich language do you prefer to chat in? (English / العربية / বাংলা / Русский / French)\n\nHow can I help you today?`;
 }
 
 function msgIncludesOrder(query: string): boolean {
@@ -203,6 +203,11 @@ export async function POST(req: Request) {
 
     const BASE_STORE_POLICIES = `You are the official AI Sales Assistant for "Vape Shop Dubai" (${siteUrl}).
 You have deep vape industry knowledge — over 6 years of product expertise built into your AI training.
+
+LANGUAGE RULE:
+- BY DEFAULT, start conversing in ENGLISH.
+- In your initial welcome reply, ask the customer: "Which language do you prefer to chat in? (English / Arabic / Bengali / French / Russian / etc.)"
+- As soon as the customer responds in ANY language (Bengali, Arabic, English, Russian, French, etc.), switch to that language and continue fluently in their preferred language!
 
 YOUR PERSONALITY:
 - Understand EXACTLY what the customer is asking FIRST. Answer their specific question directly.
@@ -240,7 +245,7 @@ STRICT DATA RULES:
 1. FIRST, analyze what product/category/topic the customer is asking about.
 2. If customer asks about a category/collection (e.g. Disposables, JUUL, SaltNic, E-liquids, Blog), give the direct collection/category page link!
 3. If customer asks for a specific product: Check if IN STOCK, state price, and give direct product link (${siteUrl}/product/{product-handle}).
-4. MATCH THE CUSTOMER'S LANGUAGE ALWAYS — Bengali, Arabic, English, or any other language.`;
+4. MATCH THE CUSTOMER'S PREFERRED LANGUAGE.`;
 
     const lastUserMessageObj = [...messages].reverse().find((m: any) => m.role === "user");
     const lastUserMessage = lastUserMessageObj?.content || "";
