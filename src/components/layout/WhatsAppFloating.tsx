@@ -14,6 +14,7 @@ export const WhatsAppFloating: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"ai" | "whatsapp">("ai");
 
   const [inputMessage, setInputMessage] = useState("");
+  const [unreadCount, setUnreadCount] = useState(0);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -21,6 +22,14 @@ export const WhatsAppFloating: React.FC = () => {
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const playNotificationSound = () => {
+    try {
+      const audio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+      audio.volume = 0.5;
+      audio.play().catch(() => {});
+    } catch (e) {}
+  };
 
   const dashboardRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -33,6 +42,7 @@ export const WhatsAppFloating: React.FC = () => {
   useEffect(() => {
     if (isOpen && activeTab === "ai") {
       scrollToBottom();
+      setUnreadCount(0);
     }
   }, [messages, isOpen, activeTab]);
 
@@ -86,27 +96,23 @@ export const WhatsAppFloating: React.FC = () => {
         body: JSON.stringify({ messages: newMessages }),
       });
 
+      const handleNewAssistantMessage = (content: string) => {
+        setMessages((prev) => [...prev, { role: "assistant", content }]);
+        playNotificationSound();
+        setUnreadCount((prev) => prev + 1);
+      };
+
       if (res.ok) {
         const data = await res.json();
-        setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
+        handleNewAssistantMessage(data.reply);
       } else {
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content: "We offer ⚡ 2-Hour Express Delivery in Dubai for JUUL, Myle, and Disposables! Please reply with your required product or WhatsApp us at +971582839787."
-          }
-        ]);
+        handleNewAssistantMessage("We offer ⚡ 2-Hour Express Delivery in Dubai for JUUL, Myle, and Disposables! Please reply with your required product or WhatsApp us at +971582839787.");
       }
     } catch (err) {
       console.error("AI Chat Error:", err);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "I am ready to take your order! 📦 What product & flavor would you like to order today?"
-        }
-      ]);
+      setMessages((prev) => [...prev, { role: "assistant", content: "I am ready to take your order! 📦 What product & flavor would you like to order today?" }]);
+      playNotificationSound();
+      setUnreadCount((prev) => prev + 1);
     } finally {
       setIsLoading(false);
     }
@@ -394,9 +400,13 @@ export const WhatsAppFloating: React.FC = () => {
             <Bot className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" />
           )}
 
-          {!isOpen && (
+          {!isOpen && unreadCount > 0 ? (
+            <span className="absolute top-0 right-0 flex h-5 w-5 -translate-y-1 translate-x-1 items-center justify-center rounded-full bg-red-500 text-[11px] font-bold text-white shadow ring-2 ring-primary animate-bounce">
+              {unreadCount}
+            </span>
+          ) : !isOpen ? (
             <span className="absolute top-0.5 right-0.5 block h-3 w-3 rounded-full ring-2 ring-primary bg-emerald-500" />
-          )}
+          ) : null}
         </button>
       </div>
     </div>
