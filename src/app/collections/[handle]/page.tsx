@@ -818,7 +818,7 @@ function CollectionPageContent() {
         activeCategory={activeCategory}
       />
 
-      <main className="flex-grow pb-24 pt-16 sm:pt-24 lg:pt-28">
+      <main className="flex-grow pb-24 pt-12 sm:pt-16 lg:pt-20">
         {/* Slim Collection Header Bar (Exact Reference Match) */}
         {!(handle === "brand" || handle === "brands") && (
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">

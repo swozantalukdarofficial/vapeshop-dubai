@@ -122,7 +122,7 @@ export const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="relative pt-24 sm:pt-28 lg:pt-36 pb-4 overflow-hidden bg-transparent">
+    <section className="relative pt-16 sm:pt-20 lg:pt-28 pb-4 overflow-hidden bg-transparent">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* ── Main Hero Grid ──────────────────────────── */}

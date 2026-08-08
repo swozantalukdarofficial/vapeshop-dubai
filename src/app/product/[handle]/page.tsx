@@ -336,8 +336,7 @@ export default function ProductPage() {
         }}
         activeCategory={activeCategory}
       />
-
-      <main className="flex-grow pb-16 pt-16 sm:pt-24 lg:pt-32">
+      <main className="flex-grow pb-16 pt-12 sm:pt-16 lg:pt-24">
         {/* Breadcrumb */}
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
@@ -865,7 +864,7 @@ export default function ProductPage() {
 
         {/* Similar Products Recommendation Carousel (Same as Home Page) */}
         {similarProducts.length > 0 && (
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-24">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
             <ProductSectionCarousel
               sectionName="You May Also Like"
               products={similarProducts}

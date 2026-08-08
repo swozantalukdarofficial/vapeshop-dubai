@@ -60,7 +60,7 @@ export default function SingleBlogPage() {
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-primary/20">
       <Navbar />
 
-      <main className="flex-grow pt-28 sm:pt-32 pb-20">
+      <main className="flex-grow pt-16 sm:pt-20 lg:pt-24 pb-12">
         {/* Breadcrumb & Back Link */}
         <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap items-center justify-between gap-4">
