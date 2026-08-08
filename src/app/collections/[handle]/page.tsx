@@ -18,9 +18,11 @@ import { CustomerReviewsSection } from "@/components/sections/CustomerReviewsSec
 import { JuulTechSpecsSection } from "@/components/sections/JuulTechSpecsSection";
 import { JuulSignatureFlavorsSection } from "@/components/sections/JuulSignatureFlavorsSection";
 import { JuulPackagingCompareSection } from "@/components/sections/JuulPackagingCompareSection";
+import { JuulAppIntegrationSection } from "@/components/sections/JuulAppIntegrationSection";
 import { MyleVerificationSection } from "@/components/sections/MyleVerificationSection";
 import { DisposableComparisonSections } from "@/components/sections/DisposableComparisonSections";
 import { DisposableBrandsShowcase } from "@/components/sections/DisposableBrandsShowcase";
+import { EJuiceBrandsShowcase } from "@/components/sections/EJuiceBrandsShowcase";
 import {
   Star,
   ShoppingCart,
@@ -816,7 +818,7 @@ function CollectionPageContent() {
         activeCategory={activeCategory}
       />
 
-      <main className="flex-grow pb-24 pt-20 sm:pt-28">
+      <main className="flex-grow pb-24 pt-16 sm:pt-24 lg:pt-28">
         {/* Slim Collection Header Bar (Exact Reference Match) */}
         {!(handle === "brand" || handle === "brands") && (
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
@@ -1287,6 +1289,13 @@ function CollectionPageContent() {
           </div>
         )}
 
+        {/* Custom E-Juice / E-Liquid Brands Showcase Section */}
+        {(handle === "e-liquids" || handle === "e-juice" || handle.includes("juice") || handle.includes("liquid") || handle.includes("salt")) && (
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+            <EJuiceBrandsShowcase />
+          </div>
+        )}
+
         {/* JUUL Signature Flavors Section (Exclusive for JUUL collection pages) */}
         {Boolean(handle?.toLowerCase().includes("juul")) && (
           <JuulSignatureFlavorsSection handle={handle} />
@@ -1300,6 +1309,11 @@ function CollectionPageContent() {
         {/* Technical Specifications Section (Exclusive for JUUL collection pages) */}
         {Boolean(handle?.toLowerCase().includes("juul")) && (
           <JuulTechSpecsSection handle={handle} />
+        )}
+
+        {/* JUUL 2 App Integration Section (Exclusive for JUUL 2 collection pages) */}
+        {Boolean(handle?.toLowerCase().includes("juul-2") || handle?.toLowerCase().includes("juul2")) && (
+          <JuulAppIntegrationSection />
         )}
 
         {/* MYLE Anti-Counterfeit Verification Guide (Exclusive for MYLE pages) */}

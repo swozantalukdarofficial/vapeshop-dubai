@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { AlertCircle, CheckCircle2, ChevronLeft, ChevronRight, Layers, ShieldCheck, Sparkles } from "lucide-react";
+import { AlertCircle, CheckCircle2, ChevronLeft, ChevronRight, Layers, ShieldCheck, Award } from "lucide-react";
 
 export function JuulPackagingCompareSection() {
   const [activeTab, setActiveTab] = useState<"old" | "new">("old");

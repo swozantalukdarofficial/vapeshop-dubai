@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ExternalLink, Sparkles, ShieldCheck } from "lucide-react";
+import { ExternalLink, ShieldCheck, CheckCircle2 } from "lucide-react";
 
 export function MyleVerificationSection() {
   return (

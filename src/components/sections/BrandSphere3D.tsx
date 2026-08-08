@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Sparkles,
   ShieldCheck,
   Zap,
   ArrowRight,
@@ -330,7 +329,7 @@ export function BrandSphere3D() {
 
         <div className="relative z-10 max-w-3xl space-y-4">
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-1.5 rounded-full">
-            <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+            <ShieldCheck className="w-4 h-4 text-primary" />
             <span className="text-xs font-black tracking-[0.2em] text-primary uppercase">
               100% Certified UAE Distributors
             </span>

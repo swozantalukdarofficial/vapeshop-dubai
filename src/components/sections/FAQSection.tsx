@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { HelpCircle, ChevronDown, Sparkles, Search, ShieldCheck, Zap, CreditCard, CheckCircle2 } from "lucide-react";
+import { HelpCircle, ChevronDown, Search, ShieldCheck, Zap, CreditCard, CheckCircle2 } from "lucide-react";
 
 export interface FAQItem {
   question: string;

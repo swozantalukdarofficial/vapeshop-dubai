@@ -144,7 +144,7 @@ export default function SingleBlogPage() {
 
               <div className="bg-card border border-border/50 rounded-2xl p-6 my-8 space-y-3 shadow-2xs">
                 <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
+                  <BookOpen className="h-4 w-4 text-primary" />
                   Key Takeaways for UAE Vapers:
                 </h3>
                 <ul className="list-disc list-inside text-xs sm:text-sm space-y-2.5 text-muted-foreground font-medium">

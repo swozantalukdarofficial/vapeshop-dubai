@@ -2,13 +2,11 @@
 
 import React from "react";
 import {
-  Zap,
   ShieldCheck,
   CreditCard,
   Headphones,
   Tag,
   RefreshCw,
-  Sparkles,
   Award,
   CheckCircle2,
   Clock,
@@ -27,7 +25,7 @@ export interface ValuePillar {
 
 const PILLARS: ValuePillar[] = [
   {
-    icon: Zap,
+    icon: Truck,
     title: "2-Hour Express Dubai Delivery",
     subtitle: "Order before 10:00 PM for guaranteed 2-hour express delivery anywhere in Dubai. Same-day delivery across Abu Dhabi & all UAE Emirates.",
     badge: "Express Speed",
@@ -141,7 +139,7 @@ export function WhyShopWithUs() {
                     </div>
 
                     <span className="inline-flex items-center gap-1 bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full">
-                      <Sparkles className="w-3 h-3 animate-pulse" />
+                      <ShieldCheck className="w-3 h-3 text-primary" />
                       {pillar.badge}
                     </span>
                   </div>

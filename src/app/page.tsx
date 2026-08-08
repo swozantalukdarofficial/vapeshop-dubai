@@ -13,6 +13,7 @@ import { FAQSection } from "@/components/sections/FAQSection";
 import { WhyShopWithUs } from "@/components/sections/WhyShopWithUs";
 import { WhatsAppContactSection } from "@/components/sections/WhatsAppContactSection";
 import { AgeGate } from "@/components/sections/AgeGate";
+import { BlogSection } from "@/components/sections/BlogSection";
 import { getFAQSchema, getBreadcrumbSchema } from "@/lib/seo-schemas";
 
 const HOME_FAQS = [
@@ -59,7 +60,7 @@ export default function Home() {
       />
 
       {/* Main content */}
-      <main className="flex-grow space-y-8 sm:space-y-12 pb-20">
+      <main className="flex-grow space-y-4 sm:space-y-6 pb-6">
         <HeroSection />
         
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -92,6 +93,10 @@ export default function Home() {
 
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <Highlights />
+        </div>
+
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+          <BlogSection />
         </div>
       </main>
 

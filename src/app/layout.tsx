@@ -106,6 +106,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${playfair.variable} ${inter.variable} h-full antialiased overflow-x-hidden max-w-full`}
+      suppressHydrationWarning
     >
       <head>
         <link rel="preconnect" href="https://cdn.shopify.com" crossOrigin="anonymous" />
@@ -125,7 +126,10 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(storeSchema) }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-background text-foreground transition-colors duration-200 overflow-x-hidden max-w-full w-full">
+      <body
+        className="min-h-full flex flex-col bg-background text-foreground transition-colors duration-200 overflow-x-hidden max-w-full w-full"
+        suppressHydrationWarning
+      >
         <CanonicalHead />
         <ThemeProvider>
           <CartProvider>

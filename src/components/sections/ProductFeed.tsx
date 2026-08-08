@@ -172,10 +172,10 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
         setHovered(false);
         setActiveImageIndex(0);
       }}
-      className="group relative bg-card border border-border/50 rounded-[2rem] p-4 sm:p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1.5 flex flex-col w-full h-full"
+      className="group relative bg-card border border-border/50 rounded-[1.5rem] sm:rounded-[2rem] p-2.5 sm:p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1.5 flex flex-col w-full h-full"
     >
       {/* Large Image Area */}
-      <div className="relative bg-[#F9F6F0] dark:bg-[#1A1612] rounded-[1.6rem] h-72 sm:h-80 p-2 sm:p-4 flex items-center justify-center overflow-hidden border border-border/30">
+      <div className="relative bg-[#F9F6F0] dark:bg-[#1A1612] rounded-[1.2rem] sm:rounded-[1.6rem] h-52 sm:h-72 lg:h-80 p-2 sm:p-4 flex items-center justify-center overflow-hidden border border-border/30">
         <div className="absolute w-56 h-56 rounded-full bg-primary/5 filter blur-2xl pointer-events-none" />
         
         {/* Loading Skeleton Shimmer */}
@@ -200,7 +200,7 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
               (e.currentTarget as HTMLImageElement).src = "/hero_vape.png";
               setImageLoaded(true);
             }}
-            className={`h-[230px] sm:h-[260px] max-h-full w-auto object-contain drop-shadow-md transition-all duration-300 ${
+            className={`h-[160px] sm:h-[230px] lg:h-[260px] max-h-full w-auto object-contain drop-shadow-md transition-all duration-300 ${
               imageLoaded ? "opacity-100" : "opacity-0"
             } ${hovered ? "scale-105" : "scale-100"}`}
           />

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import { ChevronLeft, ChevronRight, Droplet, ShoppingCart, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Droplet, ShoppingCart, Flame } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
 interface JuulSignatureFlavorsSectionProps {

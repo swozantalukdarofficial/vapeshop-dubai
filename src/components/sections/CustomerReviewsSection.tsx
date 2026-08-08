@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Star, ShieldCheck, ThumbsUp, MessageSquare, Plus, CheckCircle2, UserCheck, Sparkles, Filter } from "lucide-react";
+import { Star, ShieldCheck, ThumbsUp, MessageSquare, Plus, CheckCircle2, UserCheck, Filter } from "lucide-react";
 
 export interface Review {
   id: string;
@@ -155,7 +155,7 @@ export function CustomerReviewsSection({ collectionName = "Vape Products" }: Cus
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-8 border-b border-border/40 mb-8">
           <div className="space-y-3 max-w-2xl">
             <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] px-3.5 py-1.5 rounded-full">
-              <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+              <UserCheck className="w-4 h-4 text-primary" />
               <span>Verified Customer Feedback</span>
             </div>
 

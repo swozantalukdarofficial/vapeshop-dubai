@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Zap, Battery, Droplet, Cpu, Activity, Box, ShieldCheck, Sparkles } from "lucide-react";
+import { Zap, Battery, Droplet, Cpu, Activity, Box, ShieldCheck, CheckCircle2 } from "lucide-react";
 
 interface JuulTechSpecsSectionProps {
   handle: string;
