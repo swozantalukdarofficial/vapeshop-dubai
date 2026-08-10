@@ -123,7 +123,7 @@ export function FlavorsWheel({ onFlavorSelect }: FlavorsWheelProps) {
   };
 
   return (
-    <div className="py-12 md:py-16 relative overflow-hidden">
+    <div className="py-6 sm:py-10 relative">
       {/* CSS for wheel spin animations */}
       <style
         dangerouslySetInnerHTML={{
@@ -146,16 +146,16 @@ export function FlavorsWheel({ onFlavorSelect }: FlavorsWheelProps) {
         }}
       />
 
-      <div className="max-w-[1400px] mx-auto px-4 relative min-h-[500px] sm:min-h-[600px] md:min-h-[700px] flex items-center justify-center">
+      <div className="max-w-[1400px] mx-auto px-10 sm:px-16 md:px-24 relative flex items-center justify-center">
         {/* Center Text Block (Matching reference design) */}
-        <div className="absolute z-10 text-center max-w-xs sm:max-w-md flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-xs sm:text-sm font-extrabold tracking-[0.25em] text-primary uppercase mb-1.5">
+        <div className="absolute z-10 text-center max-w-[200px] sm:max-w-md flex flex-col items-center justify-center pointer-events-none">
+          <span className="text-[9px] sm:text-sm font-extrabold tracking-[0.25em] text-primary uppercase mb-1.5">
             Taste the Difference
           </span>
-          <h2 className="text-3xl sm:text-6xl font-serif font-black text-foreground tracking-tight leading-tight mb-2">
+          <h2 className="text-2xl sm:text-6xl font-serif font-black text-foreground tracking-tight leading-tight mb-2">
             Bash Flavours
           </h2>
-          <p className="text-muted-foreground text-xs sm:text-sm mb-4 px-4 leading-relaxed line-clamp-2 sm:line-clamp-none font-medium">
+          <p className="hidden sm:block text-muted-foreground text-xs sm:text-sm mb-4 px-4 leading-relaxed font-medium">
             From fruity bursts to icy hits, Bash Flavours bring your vibe to life with every puff.
           </p>
 
@@ -170,7 +170,7 @@ export function FlavorsWheel({ onFlavorSelect }: FlavorsWheelProps) {
 
           <button
             onClick={() => handleFlavorClick(activeFlavor)}
-            className="pointer-events-auto rounded-full border-2 border-foreground/30 px-6 sm:px-9 py-2.5 sm:py-3.5 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all hover:bg-foreground hover:text-background active:scale-95 cursor-pointer shadow-md"
+            className="pointer-events-auto rounded-full border-2 border-foreground/30 px-5 sm:px-9 py-2 sm:py-3.5 text-[10px] sm:text-sm font-bold uppercase tracking-wider transition-all hover:bg-foreground hover:text-background active:scale-95 cursor-pointer shadow-md"
           >
             Shop Now
           </button>
@@ -178,7 +178,7 @@ export function FlavorsWheel({ onFlavorSelect }: FlavorsWheelProps) {
 
         {/* Dense Rotating Wheel with 14 Fruit Badges */}
         <div
-          className="relative w-[340px] h-[340px] sm:w-[480px] sm:h-[480px] md:w-[620px] md:h-[620px] lg:w-[680px] lg:h-[680px] rounded-full border border-foreground/10 pointer-events-none"
+          className="relative w-full max-w-[340px] sm:max-w-[480px] md:max-w-[620px] lg:max-w-[680px] aspect-square rounded-full border border-foreground/10 pointer-events-none shrink-0"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
@@ -200,7 +200,7 @@ export function FlavorsWheel({ onFlavorSelect }: FlavorsWheelProps) {
                       style={{ animationPlayState: isPaused ? "paused" : "running" }}
                     >
                       <div
-                        className={`w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-22 lg:h-22 rounded-full overflow-hidden border-4 bg-background shadow-xl hover:scale-125 transition-all cursor-pointer relative z-20 ${
+                        className={`w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-22 lg:h-22 rounded-full overflow-hidden border-4 bg-background shadow-xl hover:scale-125 transition-all cursor-pointer relative z-20 ${
                           activeFlavor.id === flavor.id
                             ? "ring-4 ring-offset-2 ring-primary scale-125 border-primary"
                             : "border-background hover:border-primary/50"
@@ -209,10 +209,10 @@ export function FlavorsWheel({ onFlavorSelect }: FlavorsWheelProps) {
                         onClick={() => handleFlavorClick(flavor)}
                         onMouseEnter={() => setActiveFlavor(flavor)}
                       >
-                        <img
-                          src={flavor.img}
-                          alt={flavor.name}
-                          className="w-full h-full object-cover"
+                        <div
+                          className="w-full h-full bg-cover bg-center"
+                          style={{ backgroundImage: `url(${flavor.img})` }}
+                          title={flavor.name}
                         />
                       </div>
                     </div>
