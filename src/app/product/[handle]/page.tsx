@@ -34,6 +34,7 @@ import { WhatsAppContactSection } from "@/components/sections/WhatsAppContactSec
 import { ProductCard } from "@/components/sections/ProductFeed";
 import { ProductSectionCarousel } from "@/components/sections/ProductSectionCarousel";
 import { JuulAppIntegrationSection } from "@/components/sections/JuulAppIntegrationSection";
+import { JuulCrispMentholSections } from "@/components/sections/JuulCrispMentholSections";
 import { ProductAvailableFlavorsSection } from "@/components/sections/ProductAvailableFlavorsSection";
 import { CustomerReviewsSection } from "@/components/sections/CustomerReviewsSection";
 import { ProductKeySpecsSection } from "@/components/sections/ProductKeySpecsSection";
@@ -773,16 +774,31 @@ export default function ProductPage() {
           </div>
         </div>
 
-        {/* Key Features & Specifications Table Section (MYLE, Disposables & all products) */}
-        <ProductKeySpecsSection
-          productName={product.name}
-          category={product.category}
-          brand={product.brand}
-          puffs={product.puffs}
-          nicotine={product.nicotine}
-          battery={product.battery}
-          specsTable={product.specsTable}
-        />
+        {/* JUUL Product Sections (For all JUUL Pods/Products) */}
+        {Boolean(
+          product.handle?.toLowerCase().includes("juul") ||
+          product.name?.toLowerCase().includes("juul")
+        ) && (
+            <JuulCrispMentholSections productName={product.name} />
+        )}
+
+        {/* Key Features & Specifications Table Section (Hidden for JUUL and MYLE products) */}
+        {!Boolean(
+          product.handle?.toLowerCase().includes("juul") ||
+          product.name?.toLowerCase().includes("juul") ||
+          product.handle?.toLowerCase().includes("myle") ||
+          product.name?.toLowerCase().includes("myle")
+        ) && (
+          <ProductKeySpecsSection
+            productName={product.name}
+            category={product.category}
+            brand={product.brand}
+            puffs={product.puffs}
+            nicotine={product.nicotine}
+            battery={product.battery}
+            specsTable={product.specsTable}
+          />
+        )}
 
         {/* Available Flavours Grid Section (Interactive Flavor Profiles Table) */}
         <ProductAvailableFlavorsSection
@@ -794,16 +810,6 @@ export default function ProductPage() {
             setSelectedVariant(variant);
           }}
         />
-
-        {/* JUUL 2 Smart App Integration Section (Exclusive for JUUL 2 product pages) */}
-        {Boolean(
-          product.handle?.toLowerCase().includes("juul-2") ||
-          product.handle?.toLowerCase().includes("juul2") ||
-          product.name?.toLowerCase().includes("juul 2") ||
-          product.name?.toLowerCase().includes("juul2")
-        ) && (
-            <JuulAppIntegrationSection />
-          )}
 
         {/* Product & Delivery FAQ Section (Matches Screenshot 4) */}
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">

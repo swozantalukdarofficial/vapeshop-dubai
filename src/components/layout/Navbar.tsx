@@ -559,23 +559,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
                 )}
               </div>
 
-              {/* WhatsApp */}
-              <a
-                href="https://wa.me/971582839787?text=Hello, I'd like to order from Vape Shop Dubai!"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hidden sm:flex items-center gap-1.5 text-[10px] font-bold text-[#25D366] border border-[#25D366]/25 px-3 py-1.5 rounded-full hover:bg-[#25D366]/8 transition-all cursor-pointer"
-              >
-                <MessageCircle className="h-3.5 w-3.5" />
-                <span className="hidden lg:inline">WhatsApp</span>
-              </a>
 
-
-
-              {/* Login */}
-              <button className="hidden sm:inline-flex text-[10px] font-bold text-foreground/70 hover:text-primary px-3 py-1.5 rounded-full border border-border hover:border-primary/30 transition-all cursor-pointer">
-                LOGIN
-              </button>
 
               {/* Cart */}
               <button

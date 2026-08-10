@@ -239,7 +239,7 @@ export function BottomCollectionGrid({ handle }: BottomCollectionGridProps) {
                   <span>{sec.badge}</span>
                 </div>
 
-                <h2 className="text-2xl sm:text-4xl font-serif font-black text-foreground tracking-tight">
+                <h2 className="text-2xl sm:text-4xl font-serif font-black text-primary tracking-tight">
                   {sec.title}
                 </h2>
 
@@ -260,17 +260,17 @@ export function BottomCollectionGrid({ handle }: BottomCollectionGridProps) {
                 <Link
                   key={idx}
                   href={card.href}
-                  className="group relative bg-background border border-border/80 hover:border-primary rounded-3xl p-6 sm:p-7 flex flex-col justify-between cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/10 overflow-hidden"
+                  className="group relative bg-card border-2 border-primary/20 hover:border-primary/80 rounded-[2rem] p-6 sm:p-8 flex flex-col justify-between cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] shadow-xl hover:shadow-2xl hover:shadow-primary/30 overflow-hidden"
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${card.color} opacity-40 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`} />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${card.color} opacity-60 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
 
-                  <div className="relative z-10 flex items-start gap-4">
-                    <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-card border border-border/60 p-3 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-md">
-                      <img src={card.image} alt={card.title} className="w-full h-full object-contain" />
+                  <div className="relative z-10 flex items-start gap-4 sm:gap-5">
+                    <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-2xl bg-white dark:bg-background border-2 border-primary/10 group-hover:border-primary/30 p-3 flex items-center justify-center shrink-0 group-hover:scale-110 transition-all duration-500 shadow-lg group-hover:shadow-xl">
+                      <img src={card.image} alt={card.title} className="w-full h-full object-contain drop-shadow-sm group-hover:drop-shadow-md transition-all" />
                     </div>
 
                     <div className="space-y-1.5">
-                      <h3 className="text-xl sm:text-2xl font-serif font-black text-foreground group-hover:text-primary transition-colors tracking-tight leading-snug">
+                      <h3 className="text-xl sm:text-2xl font-serif font-black text-primary transition-colors tracking-tight leading-snug">
                         {card.title}
                       </h3>
                       <p className="text-xs sm:text-sm text-foreground/80 font-medium leading-relaxed line-clamp-2">
@@ -299,98 +299,46 @@ export function BottomCollectionGrid({ handle }: BottomCollectionGridProps) {
   }
 
   // Single Category Page behavior (JUUL, MYLE, DISPOSABLE, E-JUICE, POD SYSTEM)
-  let categoryType: "juul" | "juul-1" | "juul-2" | "myle" | "e-juice" | "pod-system" | "disposable" = "disposable";
+  let badgeText = "Sub-Categories";
   let sectionTitle = "Explore Related Collections";
   let sectionSub = "Browse complementary certified categories with 2-hour express delivery in Dubai.";
-  let badgeText = "Sub-Categories";
   let cards: BottomCardItem[] = DISPOSABLE_CARDS;
 
-  if (h === "juul-1-series") {
-    categoryType = "juul-1";
-    badgeText = "JUUL 1 SUB-CATEGORIES";
-    sectionTitle = "JUUL 1 Sub-Collections & Accessories";
-    sectionSub = "Select JUUL 1 pods, starter devices, or upgrade to JUUL 2 series.";
-    cards = [
-      {
-        title: "JUUL 1 Pods Collection",
-        subtitle: "Virginia Tobacco, Menthol, Mint & Mango Pods (3% & 5% Nicotine)",
-        image: "/juul_device.png",
-        href: "/collections/juul-1-series?sub=pods",
-        color: "from-blue-500/20 via-indigo-500/10 to-transparent",
-      },
-      {
-        title: "JUUL 1 Device Kits",
-        subtitle: "Slate & Silver Rechargeable JUUL 1 Devices & USB Chargers",
-        image: "/juul_device.png",
-        href: "/collections/juul-1-series?sub=device",
-        color: "from-slate-500/20 via-gray-500/10 to-transparent",
-      },
-      {
-        title: "Upgrade to JUUL 2 Series",
-        subtitle: "JUUL 2 Next-Gen Pod System with LED Indicator & 18mg Salts",
-        image: "/juul_device.png",
-        href: "/collections/juul-2-series",
-        color: "from-amber-500/20 via-orange-500/10 to-transparent",
-      },
-    ];
-  } else if (h === "juul-2-series") {
-    categoryType = "juul-2";
-    badgeText = "JUUL 2 SUB-CATEGORIES";
-    sectionTitle = "JUUL 2 Sub-Collections & Upgrades";
-    sectionSub = "Select JUUL 2 starter kits, 18mg salt nic pods, or classic JUUL 1 series.";
-    cards = [
-      {
-        title: "JUUL 2 Starter Kits",
-        subtitle: "JUUL 2 Slate Device + USB Magnetic Charging Dock",
-        image: "/juul_device.png",
-        href: "/collections/juul-2-series?sub=device",
-        color: "from-sky-500/20 via-blue-500/10 to-transparent",
-      },
-      {
-        title: "JUUL 2 Pod Flavors",
-        subtitle: "Virginia Tobacco 18mg, Crisp Menthol, Ruby Scheme & Polar",
-        image: "/juul_device.png",
-        href: "/collections/juul-2-series?sub=pods",
-        color: "from-indigo-500/20 via-purple-500/10 to-transparent",
-      },
-      {
-        title: "Classic JUUL 1 Series",
-        subtitle: "Browse Original JUUL 1 USA Made Pods & Slate Devices",
-        image: "/juul_device.png",
-        href: "/collections/juul-1-series",
-        color: "from-blue-500/20 via-indigo-500/10 to-transparent",
-      },
-    ];
-  } else if (h.includes("juul")) {
-    categoryType = "juul";
+  if (h.includes("juul")) {
     badgeText = "JUUL SUB-CATEGORIES";
-    sectionTitle = "JUUL Series Sub-Categories";
-    sectionSub = "Explore JUUL 1 Series, JUUL 2 Next-Gen Pods, and Bundle Offers.";
+    sectionTitle = "Explore Other JUUL Collections";
+    sectionSub = "Discover more JUUL series and bundle deals.";
     cards = JUUL_CARDS;
   } else if (h.includes("myle")) {
-    categoryType = "myle";
     badgeText = "MYLE SUB-CATEGORIES";
-    sectionTitle = "MYLE Series Sub-Categories";
+    sectionTitle = "Explore Other MYLE Collections";
     sectionSub = "Explore MYLE Meta V5 Pods, Rechargeable Devices, and Micro Disposables.";
     cards = MYLE_CARDS;
   } else if (h.includes("juice") || h.includes("liquid") || h.includes("salt")) {
-    categoryType = "e-juice";
     badgeText = "E-JUICE SUB-CATEGORIES";
-    sectionTitle = "Top E-Juice & Nicotine Salt Collections";
+    sectionTitle = "Explore Other E-Juice Collections";
     sectionSub = "Explore premium 30ml salt nics, high VG freebase liquids, and top brands.";
     cards = EJUICE_CARDS;
   } else if (h.includes("pod") || h.includes("kit") || h.includes("coil") || h.includes("cartridge") || h.includes("uwell") || h.includes("oxva") || h.includes("vaporesso")) {
-    categoryType = "pod-system";
     badgeText = "POD SYSTEM SUB-CATEGORIES";
-    sectionTitle = "Top Pod System & Kit Collections";
+    sectionTitle = "Explore Other Pod Systems";
     sectionSub = "Explore Uwell Caliburn, Vaporesso XROS, OXVA Xlim kits, and replacement pods.";
     cards = POD_SYSTEM_CARDS;
   } else {
-    categoryType = "disposable";
     badgeText = "DISPOSABLE SUB-CATEGORIES";
-    sectionTitle = "Top Disposable Vape Collections";
+    sectionTitle = "Explore Other Disposable Collections";
     sectionSub = "Explore long-lasting 10000+ puff rechargeable disposables in Dubai.";
     cards = DISPOSABLE_CARDS;
+  }
+
+  // Filter out the current collection to only show siblings
+  cards = cards.filter(c => {
+    const cardHandle = c.href.split('/').pop()?.split('?')[0] || '';
+    return cardHandle !== h;
+  });
+
+  if (cards.length === 0) {
+    return null; // Don't show the grid if there are no other collections
   }
 
   return (
@@ -406,7 +354,7 @@ export function BottomCollectionGrid({ handle }: BottomCollectionGridProps) {
               <span>{badgeText}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl font-serif font-black text-foreground tracking-tight">
+            <h2 className="text-2xl sm:text-4xl font-serif font-black text-primary tracking-tight">
               {sectionTitle}
             </h2>
 
@@ -427,17 +375,17 @@ export function BottomCollectionGrid({ handle }: BottomCollectionGridProps) {
             <Link
               key={idx}
               href={card.href}
-              className="group relative bg-background border border-border/80 hover:border-primary rounded-3xl p-6 sm:p-7 flex flex-col justify-between cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/10 overflow-hidden"
+              className="group relative bg-card border-2 border-primary/20 hover:border-primary/80 rounded-[2rem] p-6 sm:p-8 flex flex-col justify-between cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] shadow-xl hover:shadow-2xl hover:shadow-primary/30 overflow-hidden"
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${card.color} opacity-40 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`} />
+              <div className={`absolute inset-0 bg-gradient-to-br ${card.color} opacity-60 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
 
-              <div className="relative z-10 flex items-start gap-4">
-                <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-card border border-border/60 p-3 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-md">
-                  <img src={card.image} alt={card.title} className="w-full h-full object-contain" />
+              <div className="relative z-10 flex items-start gap-4 sm:gap-5">
+                <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-2xl bg-white dark:bg-background border-2 border-primary/10 group-hover:border-primary/30 p-3 flex items-center justify-center shrink-0 group-hover:scale-110 transition-all duration-500 shadow-lg group-hover:shadow-xl">
+                  <img src={card.image} alt={card.title} className="w-full h-full object-contain drop-shadow-sm group-hover:drop-shadow-md transition-all" />
                 </div>
 
                 <div className="space-y-1.5">
-                  <h3 className="text-xl sm:text-2xl font-serif font-black text-foreground group-hover:text-primary transition-colors tracking-tight leading-snug">
+                  <h3 className="text-xl sm:text-2xl font-serif font-black text-primary transition-colors tracking-tight leading-snug">
                     {card.title}
                   </h3>
                   <p className="text-xs sm:text-sm text-foreground/80 font-medium leading-relaxed line-clamp-2">

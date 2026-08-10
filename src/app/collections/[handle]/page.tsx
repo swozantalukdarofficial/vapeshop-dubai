@@ -1224,10 +1224,7 @@ function CollectionPageContent() {
           </div>
         )}
 
-        {/* Custom 5-Category Bottom Sub-Collection Recommendation Grid */}
-        {!(handle === "brand" || handle === "brands") && (
-          <BottomCollectionGrid handle={handle} />
-        )}
+
 
         {/* Collection Description (from Shopify) — Beautiful Expandable Guide after products */}
         {collectionInfo.descriptionHtml && (
@@ -1311,6 +1308,11 @@ function CollectionPageContent() {
           <JuulTechSpecsSection handle={handle} />
         )}
 
+        {/* Custom 5-Category Bottom Sub-Collection Recommendation Grid */}
+        {!(handle === "brand" || handle === "brands") && (
+          <BottomCollectionGrid handle={handle} />
+        )}
+
         {/* JUUL 2 App Integration Section (Exclusive for JUUL 2 collection pages) */}
         {Boolean(handle?.toLowerCase().includes("juul-2") || handle?.toLowerCase().includes("juul2")) && (
           <JuulAppIntegrationSection />
@@ -1324,11 +1326,11 @@ function CollectionPageContent() {
         {/* Why Shop With Us Section */}
         <WhyShopWithUs />
 
-        {/* Verified Customer Reviews Section */}
-        <CustomerReviewsSection collectionName={collectionInfo.title} />
-
         {/* Customer Help & Frequently Asked Questions Section */}
         <FAQSection />
+
+        {/* Verified Customer Reviews Section */}
+        <CustomerReviewsSection collectionName={collectionInfo.title} />
 
         {/* Shop by Brands & Authorized Dealers Section (Hidden on Brand Directory page) */}
         {!(handle === "brand" || handle === "brands") && (

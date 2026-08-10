@@ -2,7 +2,7 @@
 
 import React from "react";
 import { ShieldCheck, CheckCircle2, Award, Zap } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { FlavorsWheel } from "./FlavorsWheel";
 
 interface AuthorizedDealersProps {
@@ -116,6 +116,9 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
   onFlavorSelect,
 }) => {
   const router = useRouter();
+  const params = useParams();
+  const handle = (params?.handle as string) || "";
+  const isJuul1Or2 = handle.toLowerCase().includes("juul-1") || handle.toLowerCase().includes("juul-2") || handle.toLowerCase().includes("juul1") || handle.toLowerCase().includes("juul2");
 
   const handleBrandClick = (brand: typeof BRANDS_DATA[number]) => {
     if (onBrandSelect) {
@@ -208,11 +211,13 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
         </div>
       </div>
 
-      {/* ── Shop by Flavor — Interactive Rotating Wheel ── */}
-      <div className="bg-card border border-border/40 rounded-[2.5rem] p-4 sm:p-8 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300 relative overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10" />
-        <FlavorsWheel onFlavorSelect={onFlavorSelect} />
-      </div>
+      {/* ── Shop by Flavor — Interactive Rotating Wheel (Hidden on JUUL 1 & 2) ── */}
+      {!isJuul1Or2 && (
+        <div className="bg-card border border-border/40 rounded-[2.5rem] p-4 sm:p-8 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300 relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10" />
+          <FlavorsWheel onFlavorSelect={onFlavorSelect} />
+        </div>
+      )}
 
       {/* ── Why Trust Us — Elegant Floating Card ── */}
       <div className="bg-card border border-border/40 rounded-[2.5rem] p-8 sm:p-12 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300 relative overflow-hidden">

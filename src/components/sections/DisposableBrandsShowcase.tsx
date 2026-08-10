@@ -94,7 +94,7 @@ export function DisposableBrandsShowcase() {
             <span>Disposable Brand Guide &amp; Overview</span>
           </div>
 
-          <h2 className="text-2xl sm:text-4xl font-serif font-bold text-foreground tracking-tight leading-tight">
+          <h2 className="text-2xl sm:text-4xl font-serif font-black text-primary tracking-tight leading-tight">
             Popular Disposable Vape Brands in Dubai
           </h2>
 
@@ -107,73 +107,57 @@ export function DisposableBrandsShowcase() {
       {/* Grid of Balanced, Elegant Brand Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {DISPOSABLE_BRANDS.map((brand) => (
-          <div
+          <Link
             key={brand.id}
-            className="bg-card border border-border/70 hover:border-primary/50 rounded-[2rem] p-6 sm:p-7 flex flex-col justify-between gap-5 transition-all duration-300 shadow-2xs hover:shadow-md group relative overflow-hidden"
+            href={`/collections/disposable-vape?sub=${encodeURIComponent(brand.name)}`}
+            className="group relative bg-card border-2 border-primary/20 hover:border-primary/80 rounded-[2.5rem] p-6 sm:p-8 flex flex-col justify-between cursor-pointer transition-all duration-500 shadow-xl hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-2 hover:scale-[1.02] overflow-hidden"
           >
-            {/* Top Section: Avatar, Brand Title & Tagline */}
-            <div className="space-y-3.5">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  {/* Brand Avatar Circle */}
-                  <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 text-primary font-serif font-black text-lg flex items-center justify-center shadow-xs group-hover:scale-105 group-hover:bg-primary group-hover:text-white transition-all duration-300 shrink-0">
-                    {brand.name.charAt(0)}
-                  </div>
+            {/* Subtle Gradient Background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/15 opacity-60 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-                  <div>
-                    <h3 className="text-lg sm:text-xl font-serif font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
-                      {brand.name}
-                    </h3>
-                    <p className="text-[11px] font-bold text-primary uppercase tracking-wider mt-0.5">
-                      {brand.tagline}
-                    </p>
-                  </div>
+            {/* Top Section: Avatar & Title layout like product card */}
+            <div className="relative z-10 flex items-start gap-4 sm:gap-5">
+              <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-2xl bg-white dark:bg-background border-2 border-primary/10 group-hover:border-primary/30 flex items-center justify-center shrink-0 group-hover:scale-110 transition-all duration-500 shadow-lg group-hover:shadow-xl text-3xl sm:text-4xl font-serif font-black text-primary">
+                {brand.name.charAt(0)}
+              </div>
+
+              <div className="space-y-1.5 flex-1">
+                <h3 className="text-xl sm:text-2xl font-serif font-black text-primary transition-colors tracking-tight leading-snug">
+                  {brand.name}
+                </h3>
+                <p className="text-[10px] sm:text-xs text-foreground/80 font-bold uppercase tracking-widest leading-relaxed">
+                  {brand.tagline}
+                </p>
+                <div className="flex flex-wrap items-center gap-1.5 pt-2 hidden sm:flex">
+                  {brand.tags.slice(0, 2).map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-[9px] font-bold uppercase tracking-wider bg-primary/10 text-primary px-2 py-0.5 rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
                 </div>
-
-                <Link
-                  href={`/collections/disposable-vape?sub=${encodeURIComponent(brand.name)}`}
-                  className="hidden sm:inline-flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-primary transition-colors shrink-0"
-                >
-                  <span>Shop</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
               </div>
-
-              {/* Tag Badges - Clean & Soft Pill Badges */}
-              <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                {brand.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-[10px] font-semibold uppercase tracking-wider bg-secondary/80 border border-border/50 text-secondary-foreground px-2.5 py-1 rounded-full shadow-2xs group-hover:border-primary/30 transition-colors"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-
-              {/* Description Paragraph - Clean, Readable, Soft Contrast */}
-              <p className="text-xs sm:text-sm text-foreground/80 font-normal leading-relaxed pt-1">
-                {brand.description}
-              </p>
             </div>
 
-            {/* Bottom Row: Top Models & Elegant Action Link */}
-            <div className="pt-4 border-t border-border/40 flex items-center justify-between gap-3">
-              <div className="text-[11px] sm:text-xs text-muted-foreground font-medium truncate">
-                <span className="font-bold text-foreground">Top Models: </span>
-                <span className="text-foreground/90 font-semibold">{brand.popularModel}</span>
+            {/* Bottom Row: Action Like Product Card */}
+            <div className="relative z-10 mt-6 pt-5 border-t border-border/40 flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider group-hover:text-foreground transition-colors mb-0.5">
+                  Top Models
+                </span>
+                <span className="text-xs text-foreground/90 font-bold truncate max-w-[130px] sm:max-w-[180px]">
+                  {brand.popularModel}
+                </span>
               </div>
 
-              <Link
-                href={`/collections/disposable-vape?sub=${encodeURIComponent(brand.name)}`}
-                className="inline-flex items-center gap-1.5 bg-primary/10 hover:bg-primary text-primary hover:text-white border border-primary/20 text-xs font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-xl transition-all duration-300 shrink-0 shadow-2xs"
-              >
-                <span>Explore {brand.name}</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
+              <div className="inline-flex items-center gap-2 bg-primary text-white hover:bg-gold-shimmer px-4 py-2 rounded-full text-xs font-extrabold uppercase tracking-wider transition-all duration-300 shadow-md group-hover:scale-105 shrink-0">
+                <span>Explore</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
             </div>
-
-          </div>
+          </Link>
         ))}
       </div>
 
