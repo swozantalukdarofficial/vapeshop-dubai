@@ -1,20 +1,47 @@
 "use client";
 
 import React, { useState } from "react";
+import dynamic from "next/dynamic";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/layout/CartDrawer";
 import { HeroSection } from "@/components/sections/HeroSection";
-import { Highlights } from "@/components/sections/Highlights";
-import { Categories } from "@/components/sections/Categories";
-import { ProductFeed } from "@/components/sections/ProductFeed";
-import { AuthorizedDealers } from "@/components/sections/AuthorizedDealers";
-import { FAQSection } from "@/components/sections/FAQSection";
-import { WhyShopWithUs } from "@/components/sections/WhyShopWithUs";
-import { WhatsAppContactSection } from "@/components/sections/WhatsAppContactSection";
 import { AgeGate } from "@/components/sections/AgeGate";
-import { BlogSection } from "@/components/sections/BlogSection";
 import { getFAQSchema, getBreadcrumbSchema } from "@/lib/seo-schemas";
+
+/* ── Below-fold lazy-loaded sections (code-split into separate chunks) ── */
+const Categories = dynamic(
+  () => import("@/components/sections/Categories").then((m) => ({ default: m.Categories })),
+  { ssr: false }
+);
+const ProductFeed = dynamic(
+  () => import("@/components/sections/ProductFeed").then((m) => ({ default: m.ProductFeed })),
+  { ssr: false }
+);
+const AuthorizedDealers = dynamic(
+  () => import("@/components/sections/AuthorizedDealers").then((m) => ({ default: m.AuthorizedDealers })),
+  { ssr: false }
+);
+const WhatsAppContactSection = dynamic(
+  () => import("@/components/sections/WhatsAppContactSection").then((m) => ({ default: m.WhatsAppContactSection })),
+  { ssr: false }
+);
+const WhyShopWithUs = dynamic(
+  () => import("@/components/sections/WhyShopWithUs").then((m) => ({ default: m.WhyShopWithUs })),
+  { ssr: false }
+);
+const FAQSection = dynamic(
+  () => import("@/components/sections/FAQSection").then((m) => ({ default: m.FAQSection })),
+  { ssr: false }
+);
+const Highlights = dynamic(
+  () => import("@/components/sections/Highlights").then((m) => ({ default: m.Highlights })),
+  { ssr: false }
+);
+const BlogSection = dynamic(
+  () => import("@/components/sections/BlogSection").then((m) => ({ default: m.BlogSection })),
+  { ssr: false }
+);
 
 const HOME_FAQS = [
   {
@@ -63,11 +90,11 @@ export default function Home() {
       <main className="flex-grow space-y-4 sm:space-y-6 pb-6">
         <HeroSection />
         
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">
           <Categories onCategorySelect={setActiveCategory} activeCategory={activeCategory} />
         </div>
 
-        <div id="products-section" className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div id="products-section" className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">
           <ProductFeed
             searchQuery={searchQuery}
             activeCategory={activeCategory}
@@ -75,27 +102,27 @@ export default function Home() {
           />
         </div>
 
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">
           <AuthorizedDealers />
         </div>
 
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">
           <WhatsAppContactSection />
         </div>
 
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">
           <WhyShopWithUs />
         </div>
 
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">
           <FAQSection />
         </div>
 
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">
           <Highlights />
         </div>
 
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">
           <BlogSection />
         </div>
       </main>

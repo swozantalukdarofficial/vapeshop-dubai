@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Star, ShoppingCart, Package, Zap, Tag, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
@@ -154,7 +155,7 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
   useEffect(() => {
     if (typeof window !== "undefined" && allImagesList.length > 0) {
       allImagesList.forEach((url) => {
-        const img = new Image();
+        const img = new globalThis.Image();
         img.src = url;
       });
     }
@@ -189,12 +190,13 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
         )}
 
         <Link href={`/product/${product.handle}`} className="block relative z-10 w-full h-full flex items-center justify-center">
-          <img
+          <Image
             key={displayedImage}
             src={displayedImage}
             alt={product.name}
-            loading="lazy"
-            decoding="async"
+            width={260}
+            height={260}
+            sizes="(max-width: 640px) 160px, (max-width: 1024px) 230px, 260px"
             onLoad={() => setImageLoaded(true)}
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src = "/hero_vape.png";

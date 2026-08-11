@@ -129,7 +129,6 @@ body {
     radial-gradient(ellipse 80% 60% at 20% 10%, rgba(232, 82, 26, 0.04) 0%, transparent 60%),
     radial-gradient(ellipse 70% 50% at 80% 80%, rgba(232, 82, 26, 0.03) 0%, transparent 55%),
     linear-gradient(160deg, #F8FAFC 0%, #F1F5F9 50%, #E2E8F0 100%);
-  background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-inter), system-ui, sans-serif;
   overflow-x: hidden !important;
@@ -149,27 +148,28 @@ body {
 
 /* ─── GPU Hardware Acceleration ─── */
 .animate-float,
-.animate-float-slow,
-.card-shadow,
-.card-shadow-hover {
+.animate-float-slow {
   transform: translateZ(0);
   backface-visibility: hidden;
-  will-change: transform;
 }
 
 /* ─── Offscreen Content Optimization for 60/120 FPS ─── */
 .cv-auto {
   content-visibility: auto;
-  contain-intrinsic-size: 1px 500px;
+  contain-intrinsic-size: auto 600px;
 }
 
-/* Mobile Blur Optimization for 100/100 Mobile Speed */
+/* Mobile Blur + Paint Optimization */
 @media (max-width: 768px) {
   .backdrop-blur-md,
   .backdrop-blur-lg,
   .backdrop-blur-xl {
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+  }
+  /* Disable heavy box-shadows on mobile for paint perf */
+  .hover\:shadow-xl:hover {
+    box-shadow: 0 4px 12px -2px rgba(0,0,0,0.1) !important;
   }
 }
 

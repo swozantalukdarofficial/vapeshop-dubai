@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
@@ -160,12 +161,14 @@ export const HeroSection: React.FC = () => {
                       {/* Product image (Placed TOP on mobile, RIGHT on desktop) */}
                       <div className="md:w-[45%] md:order-2 flex items-center justify-center relative min-h-[200px] sm:min-h-[320px] py-2 sm:py-4 select-none pointer-events-none">
                         <div className="absolute w-44 sm:w-56 h-44 sm:h-56 rounded-full bg-primary/8 filter blur-[60px] pointer-events-none" />
-                        <img
+                        <Image
                           src={slide.image}
                           alt={slide.title}
-                          draggable="false"
-                          loading={idx === 0 ? "eager" : "lazy"}
-                          decoding="async"
+                          width={420}
+                          height={420}
+                          draggable={false}
+                          priority={idx === 0}
+                          sizes="(max-width: 640px) 200px, (max-width: 1024px) 360px, 420px"
                           className="animate-float relative z-10 h-[200px] sm:h-[360px] lg:h-[420px] w-auto object-contain drop-shadow-[0_25px_50px_rgba(0,0,0,0.12)] pointer-events-none"
                         />
                       </div>
@@ -297,11 +300,13 @@ export const HeroSection: React.FC = () => {
               {/* Right Product Image */}
               <div className="w-[125px] sm:w-[145px] flex-shrink-0 relative flex items-center justify-center z-10">
                 <div className="absolute w-24 h-24 rounded-full bg-primary/5 filter blur-[30px]" />
-                <img
+                <Image
                   src="/vape_kit.png"
                   alt="JUUL 1"
+                  width={180}
+                  height={180}
+                  sizes="145px"
                   className="relative h-[150px] sm:h-[180px] w-auto object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.15)] group-hover:scale-110 group-hover:rotate-2 transition-all duration-500"
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
                 />
               </div>
             </div>
@@ -328,11 +333,13 @@ export const HeroSection: React.FC = () => {
               {/* Right Product Image */}
               <div className="w-[125px] sm:w-[145px] flex-shrink-0 relative flex items-center justify-center z-10">
                 <div className="absolute w-24 h-24 rounded-full bg-white/10 filter blur-[30px]" />
-                <img
+                <Image
                   src="/vape_kit.png"
                   alt="JUUL 2"
+                  width={180}
+                  height={180}
+                  sizes="145px"
                   className="relative h-[150px] sm:h-[180px] w-auto object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.25)] group-hover:scale-110 group-hover:-rotate-2 transition-all duration-500"
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
                 />
               </div>
             </div>
