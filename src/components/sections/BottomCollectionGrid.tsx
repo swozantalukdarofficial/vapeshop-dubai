@@ -356,16 +356,16 @@ function SubCollectionSectionSlider({
             className={`${
               isThreeOrLess
                 ? "w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] flex-shrink-0"
-                : "w-[260px] sm:w-[300px] lg:w-[330px] flex-shrink-0"
-            } snap-start group relative bg-background border border-border/70 hover:border-primary/60 rounded-3xl p-4 sm:p-5 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 shadow-sm hover:shadow-xl overflow-hidden`}
+                : "w-[270px] sm:w-[310px] lg:w-[340px] flex-shrink-0"
+            } snap-start group relative bg-card border-2 border-border/80 hover:border-primary/70 rounded-[1.75rem] p-4 sm:p-5 flex flex-col justify-between transition-all duration-300 hover:-translate-y-2 shadow-md hover:shadow-2xl hover:shadow-primary/10 overflow-hidden`}
           >
-            {/* Top Product Image Display Area - Full Cover Banner */}
-            <div className="w-full h-40 sm:h-48 rounded-2xl bg-slate-950 border border-border/40 relative mb-3.5 overflow-hidden shrink-0 group-hover:border-primary/40 transition-all duration-300">
+            {/* Top Product Image Display Area - Clean Premium Studio Showcase */}
+            <div className="w-full h-40 sm:h-48 rounded-2xl bg-gradient-to-b from-muted/30 via-muted/15 to-transparent border border-border/60 p-3 sm:p-4 flex items-center justify-center relative mb-3.5 overflow-hidden shrink-0 group-hover:border-primary/40 group-hover:bg-primary/5 transition-all duration-300">
               <img
                 src={card.image}
                 alt={card.title}
                 draggable={false}
-                className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 pointer-events-none opacity-90 group-hover:opacity-100"
+                className="max-w-full max-h-full w-auto h-auto object-contain filter drop-shadow-xl group-hover:scale-108 transition-transform duration-500 pointer-events-none"
               />
             </div>
 
@@ -380,12 +380,12 @@ function SubCollectionSectionSlider({
             </div>
 
             {/* Bottom CTA Bar: VIEW COLLECTION */}
-            <div className="mt-4 pt-3.5 border-t border-border/40 flex items-center justify-between">
+            <div className="mt-4 pt-3.5 border-t border-border/50 flex items-center justify-between">
               <span className="text-[11px] font-extrabold text-foreground uppercase tracking-wider group-hover:text-primary transition-colors">
                 View Collection
               </span>
 
-              <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-md shadow-primary/20 group-hover:scale-110 group-hover:bg-gold-shimmer transition-all duration-300">
+              <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-md shadow-primary/25 group-hover:scale-110 group-hover:bg-gold-shimmer transition-all duration-300">
                 <ArrowRight className="w-4 h-4" />
               </div>
             </div>

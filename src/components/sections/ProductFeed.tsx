@@ -172,10 +172,10 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
         setHovered(false);
         setActiveImageIndex(0);
       }}
-      className="group relative bg-card border border-border/50 rounded-[1.5rem] sm:rounded-[2rem] p-2.5 sm:p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1.5 flex flex-col w-full h-full"
+      className="group relative bg-card border-2 border-primary/20 hover:border-primary rounded-[1.8rem] sm:rounded-[2.2rem] p-3 sm:p-5 shadow-sm hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-1.5 flex flex-col w-full h-full overflow-hidden"
     >
       {/* Large Image Area */}
-      <div className="relative bg-[#F9F6F0] dark:bg-[#1A1612] rounded-[1.2rem] sm:rounded-[1.6rem] h-52 sm:h-72 lg:h-80 p-2 sm:p-4 flex items-center justify-center overflow-hidden border border-border/30">
+      <div className="relative bg-muted/20 rounded-[1.3rem] sm:rounded-[1.8rem] h-52 sm:h-72 lg:h-80 p-3 sm:p-5 flex items-center justify-center overflow-hidden border border-primary/15 group-hover:border-primary/40 transition-all duration-300">
         <div className="absolute w-56 h-56 rounded-full bg-primary/5 filter blur-2xl pointer-events-none" />
         
         {/* Loading Skeleton Shimmer */}
@@ -200,7 +200,7 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
               (e.currentTarget as HTMLImageElement).src = "/hero_vape.png";
               setImageLoaded(true);
             }}
-            className={`h-[160px] sm:h-[230px] lg:h-[260px] max-h-full w-auto object-contain drop-shadow-md transition-all duration-300 ${
+            className={`h-[160px] sm:h-[230px] lg:h-[260px] max-h-full w-auto object-contain filter drop-shadow-md transition-all duration-300 ${
               imageLoaded ? "opacity-100" : "opacity-0"
             } ${hovered ? "scale-105" : "scale-100"}`}
           />
@@ -245,7 +245,7 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
               ? "bg-[#2D2A26] text-white"
               : isSale
               ? "bg-primary text-white"
-              : "bg-white/95 dark:bg-card/95 text-primary border border-primary/20"
+              : "bg-card/95 text-primary border border-primary/20"
           }`}>
             {product.isSoldOut ? "SOLD OUT" : product.tag}
           </div>
@@ -272,7 +272,7 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
 
         {/* Product Title */}
         <Link href={`/product/${product.handle}`} className="hover:text-primary transition-colors block">
-          <h3 className="text-sm sm:text-base font-serif font-bold text-foreground leading-snug line-clamp-2 min-h-[44px]">
+          <h3 className="text-sm sm:text-base font-serif font-black text-foreground group-hover:text-primary transition-colors leading-snug line-clamp-2 min-h-[44px]">
             {product.name}
           </h3>
         </Link>
@@ -301,7 +301,7 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
             {product.originalPrice && (
               <p className="text-[11px] text-muted-foreground line-through">Dhs. {product.originalPrice.toFixed(2)}</p>
             )}
-            <p className="text-base sm:text-lg font-serif font-bold text-foreground">
+            <p className="text-base sm:text-lg font-serif font-black text-primary">
               Dhs. {product.price.toFixed(2)}
             </p>
           </div>
