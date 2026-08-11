@@ -168,6 +168,7 @@ export const HeroSection: React.FC = () => {
                           height={420}
                           draggable={false}
                           priority={idx === 0}
+                          fetchPriority={idx === 0 ? "high" : "auto"}
                           sizes="(max-width: 640px) 200px, (max-width: 1024px) 360px, 420px"
                           className="animate-float relative z-10 h-[200px] sm:h-[360px] lg:h-[420px] w-auto object-contain drop-shadow-[0_25px_50px_rgba(0,0,0,0.12)] pointer-events-none"
                         />
