@@ -65,42 +65,41 @@ export function FAQSection() {
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-      <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-10 lg:p-12 relative overflow-hidden shadow-md transition-all duration-300">
-        {/* Glowing Ambient Gradient */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
+      <div className="bg-card border border-border/60 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md transition-all duration-300">
         {/* Section Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-8 border-b border-border/40 mb-8">
-          <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] px-3.5 py-1.5 rounded-full">
-              <HelpCircle className="w-4 h-4 text-primary" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/40 pb-5 mb-6 relative">
+          {/* Spacer for desktop optical centering */}
+          <div className="hidden sm:block w-48" />
+
+          {/* Centered Title & Badge */}
+          <div className="text-center flex flex-col items-center flex-1">
+            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] px-3.5 py-1 rounded-full mb-2">
+              <HelpCircle className="w-3.5 h-3.5 text-primary" />
               <span>Customer Help &amp; FAQs</span>
             </div>
 
-            <h2 className="text-3xl sm:text-5xl font-serif font-black text-foreground tracking-tight leading-tight">
-              Frequently Asked <span className="text-primary">Questions</span>
+            <h2 className="text-2xl sm:text-4xl font-serif font-black text-foreground tracking-tight leading-tight">
+              Frequently Asked Questions
             </h2>
 
-            <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1 font-semibold max-w-xl">
               Find instant answers regarding 2-hour express delivery in Dubai, product authenticity, card payments on delivery, and vape device selection.
             </p>
+
+            {/* Premium Centered Line Divider */}
+            <div className="flex items-center justify-center gap-2 mt-2">
+              <div className="h-[1px] w-10 bg-gradient-to-r from-transparent to-primary/65" />
+              <div className="w-1.5 h-1.5 rotate-45 border border-primary/40 bg-primary/10" />
+              <div className="h-[1px] w-10 bg-gradient-to-l from-transparent to-primary/65" />
+            </div>
           </div>
 
-          {/* Quick Stats Badges */}
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2 bg-background border border-border/60 px-4 py-2 rounded-2xl shadow-sm text-xs font-bold text-foreground">
-              <Zap className="w-4 h-4 text-primary" />
+          {/* Right Delivery Badge */}
+          <div className="flex items-center justify-center sm:justify-end gap-2.5 w-full sm:w-48">
+            <div className="hidden lg:flex items-center gap-1.5 text-[10px] font-extrabold text-primary uppercase tracking-wider bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-full shrink-0">
+              <Zap className="w-3.5 h-3.5 text-primary" />
               <span>2-Hour Delivery</span>
-            </div>
-            <div className="flex items-center gap-2 bg-background border border-border/60 px-4 py-2 rounded-2xl shadow-sm text-xs font-bold text-foreground">
-              <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              <span>100% Authentic</span>
-            </div>
-            <div className="flex items-center gap-2 bg-background border border-border/60 px-4 py-2 rounded-2xl shadow-sm text-xs font-bold text-foreground">
-              <CreditCard className="w-4 h-4 text-primary" />
-              <span>Card on Delivery</span>
             </div>
           </div>
         </div>

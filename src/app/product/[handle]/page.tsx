@@ -337,38 +337,38 @@ export default function ProductPage() {
         }}
         activeCategory={activeCategory}
       />
-      <main className="flex-grow pb-16 pt-12 sm:pt-16 lg:pt-24">
-        {/* Breadcrumb */}
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-            <ChevronRight className="h-3 w-3" />
-            <span className="hover:text-primary transition-colors cursor-pointer capitalize">{product.category}</span>
-            <ChevronRight className="h-3 w-3" />
-            <span className="text-foreground truncate max-w-[150px] sm:max-w-xs">{product.name}</span>
-          </nav>
+      <main className="flex-grow pb-16 pt-[92px]">
+        {/* Full-Width Header-Attached Breadcrumb Bar with Soft Lighter Tint */}
+        <div className="w-full bg-muted/40 dark:bg-card/50 border-b border-border/50 py-2.5 mb-6 sm:mb-8">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+            <nav className="flex flex-wrap items-center gap-2 text-[11px] sm:text-xs font-semibold tracking-wide text-muted-foreground/80">
+              <Link href="/" className="hover:text-primary transition-colors shrink-0">HOME</Link>
+              <span className="text-muted-foreground/40 shrink-0 font-light">/</span>
+              <Link href="/shop" className="hover:text-primary transition-colors shrink-0">PRODUCTS</Link>
+              <span className="text-muted-foreground/40 shrink-0 font-light">/</span>
+              <Link href={`/collections/${product.category}`} className="hover:text-primary transition-colors capitalize shrink-0">{product.category}</Link>
+              <span className="text-muted-foreground/40 shrink-0 font-light">/</span>
+              <span className="text-foreground font-bold">{product.name}</span>
+            </nav>
+          </div>
         </div>
 
         {/* Product Details Hero Section */}
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
 
-            {/* Left Column: Image Gallery (Prominent Large Glassmorphic Display Frame) */}
+            {/* Left Column: Image Gallery (Clean Premium Display Frame) */}
             <div className="lg:col-span-6 flex flex-col gap-4 w-full lg:sticky lg:top-28">
-              <div className="relative bg-card border-2 border-border/70 rounded-[2.5rem] p-3 sm:p-5 flex items-center justify-center aspect-square overflow-hidden shadow-xl hover:shadow-2xl hover:border-primary/50 transition-all duration-500 group">
-                
-                {/* Background Ambient Radial Glow */}
-                <div className="absolute w-96 h-96 rounded-full bg-primary/10 filter blur-3xl pointer-events-none group-hover:bg-primary/20 transition-colors duration-500" />
-
+              <div className="relative bg-card border border-border/70 rounded-[2.5rem] p-6 sm:p-8 flex items-center justify-center aspect-square overflow-hidden shadow-lg hover:shadow-xl hover:border-primary/40 transition-all duration-500 group">
                 <img
                   src={activeImage}
                   alt={product.name}
-                  className="w-full h-full object-contain filter drop-shadow-2xl scale-110 sm:scale-115 group-hover:scale-120 transition-transform duration-500"
+                  className="max-w-[90%] max-h-[90%] w-auto h-auto object-contain filter drop-shadow-2xl group-hover:scale-102 transition-transform duration-500 pointer-events-none"
                   onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
                 />
                 
                 {product.tag && (
-                  <div className="absolute top-5 left-5 bg-primary text-white text-[10px] sm:text-xs font-black tracking-widest uppercase px-4 py-1.5 rounded-full shadow-lg z-10">
+                  <div className="absolute top-4 left-4 bg-primary text-white text-[10px] sm:text-xs font-black tracking-widest uppercase px-3.5 py-1 rounded-full shadow-md z-10">
                     {product.tag}
                   </div>
                 )}
@@ -382,8 +382,8 @@ export default function ProductPage() {
                       key={idx}
                       onClick={() => setActiveImage(img)}
                       className={`h-20 w-20 rounded-2xl border-2 overflow-hidden bg-card p-2 flex items-center justify-center flex-shrink-0 transition-all duration-300 cursor-pointer ${activeImage === img
-                          ? "border-primary ring-2 ring-primary/30 shadow-md scale-105"
-                          : "border-border/60 hover:border-primary/50 opacity-80 hover:opacity-100"
+                        ? "border-primary ring-2 ring-primary/30 shadow-md scale-105"
+                        : "border-border/60 hover:border-primary/50 opacity-80 hover:opacity-100"
                         }`}
                     >
                       <img
@@ -418,8 +418,8 @@ export default function ProductPage() {
                         <Star
                           key={i}
                           className={`h-3.5 w-3.5 ${i < Math.floor(product.rating)
-                              ? "fill-amber-400 text-amber-400"
-                              : "text-muted-foreground/30"
+                            ? "fill-amber-400 text-amber-400"
+                            : "text-muted-foreground/30"
                             }`}
                         />
                       ))}
@@ -482,19 +482,22 @@ export default function ProductPage() {
                 </div>
               </div>
 
-              {/* Luxury Pricing Banner */}
-              <div className="flex items-center justify-between bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/30 p-5 sm:p-6 rounded-[2rem] shadow-xs relative overflow-hidden">
-                <div className="flex items-baseline gap-3">
+              {/* Compact Clean Pricing Row */}
+              <div className="flex items-center justify-between gap-4 py-2 border-b border-border/40">
+                <div className="flex items-baseline gap-2.5">
                   <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">PRICE:</span>
-                  <p className="text-3xl sm:text-4xl font-serif font-black text-primary tracking-tight">
+                  <span className="text-2xl sm:text-3xl font-serif font-black text-primary tracking-tight">
                     Dhs. {selectedVariant ? selectedVariant.price.toLocaleString() : product.price.toLocaleString()}
-                  </p>
+                  </span>
                   {isSale && selectedVariant && selectedVariant.compareAtPrice && (
-                    <p className="text-sm sm:text-base text-muted-foreground line-through font-semibold">Dhs. {selectedVariant.compareAtPrice.toLocaleString()}</p>
+                    <span className="text-xs sm:text-sm text-muted-foreground line-through font-semibold">
+                      Dhs. {selectedVariant.compareAtPrice.toLocaleString()}
+                    </span>
                   )}
                 </div>
+
                 {isSale && discountPercent > 0 && (
-                  <span className="bg-primary text-white text-[11px] font-black uppercase tracking-widest px-4 py-2 rounded-xl shadow-md shadow-primary/20 animate-pulse">
+                  <span className="bg-primary/10 text-primary border border-primary/20 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full">
                     Save {discountPercent}%
                   </span>
                 )}
@@ -614,8 +617,8 @@ export default function ProductPage() {
                   type="button"
                   onClick={() => setIsWishlist(!isWishlist)}
                   className={`w-full py-3 px-4 rounded-2xl border text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${isWishlist
-                      ? "bg-rose-500/10 border-rose-500/30 text-rose-500"
-                      : "bg-card border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
+                    ? "bg-rose-500/10 border-rose-500/30 text-rose-500"
+                    : "bg-card border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
                     }`}
                 >
                   <Heart className={`h-4 w-4 ${isWishlist ? "fill-rose-500 text-rose-500" : ""}`} />
@@ -780,7 +783,7 @@ export default function ProductPage() {
           product.name?.toLowerCase().includes("juul")
         ) && (
             <JuulCrispMentholSections productName={product.name} />
-        )}
+          )}
 
         {/* Key Features & Specifications Table Section (Hidden for JUUL and MYLE products) */}
         {!Boolean(
@@ -789,16 +792,16 @@ export default function ProductPage() {
           product.handle?.toLowerCase().includes("myle") ||
           product.name?.toLowerCase().includes("myle")
         ) && (
-          <ProductKeySpecsSection
-            productName={product.name}
-            category={product.category}
-            brand={product.brand}
-            puffs={product.puffs}
-            nicotine={product.nicotine}
-            battery={product.battery}
-            specsTable={product.specsTable}
-          />
-        )}
+            <ProductKeySpecsSection
+              productName={product.name}
+              category={product.category}
+              brand={product.brand}
+              puffs={product.puffs}
+              nicotine={product.nicotine}
+              battery={product.battery}
+              specsTable={product.specsTable}
+            />
+          )}
 
         {/* Available Flavours Grid Section (Interactive Flavor Profiles Table) */}
         <ProductAvailableFlavorsSection
@@ -910,7 +913,7 @@ export default function ProductPage() {
       {isFlavorModalOpen && product?.variants && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="bg-card border border-border/80 rounded-[2.5rem] max-w-xl w-full p-6 sm:p-8 shadow-2xl relative space-y-5 animate-in zoom-in-95 duration-200 max-h-[85vh] flex flex-col overflow-hidden">
-            
+
             {/* Modal Top Header */}
             <div className="flex items-center justify-between border-b border-border/40 pb-4 shrink-0">
               <div>
@@ -962,13 +965,12 @@ export default function ProductPage() {
                           setFlavorSearchQuery("");
                         }
                       }}
-                      className={`w-full p-4 rounded-2xl border flex items-center justify-between text-left transition-all duration-200 cursor-pointer ${
-                        !v.availableForSale
+                      className={`w-full p-4 rounded-2xl border flex items-center justify-between text-left transition-all duration-200 cursor-pointer ${!v.availableForSale
                           ? "opacity-40 cursor-not-allowed bg-muted/10 border-border/40 line-through"
                           : isSelected
-                          ? "bg-primary/10 border-2 border-primary shadow-md"
-                          : "bg-background hover:bg-muted/30 border-border/60 hover:border-primary/40"
-                      }`}
+                            ? "bg-primary/10 border-2 border-primary shadow-md"
+                            : "bg-background hover:bg-muted/30 border-border/60 hover:border-primary/40"
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         <span className={`w-3 h-3 rounded-full shrink-0 ${v.availableForSale ? "bg-emerald-500" : "bg-zinc-400"}`} />

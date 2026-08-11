@@ -145,22 +145,18 @@ export function CustomerReviewsSection({ collectionName = "Vape Products" }: Cus
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-      <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-10 lg:p-12 relative overflow-hidden shadow-md transition-all duration-300">
-        {/* Glow ambient background accent */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
+      <div className="bg-card border border-border/60 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md transition-all duration-300">
         {/* Section Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-8 border-b border-border/40 mb-8">
-          <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] px-3.5 py-1.5 rounded-full">
-              <UserCheck className="w-4 h-4 text-primary" />
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pb-5 border-b border-border/40 mb-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] px-3.5 py-1 rounded-full">
+              <UserCheck className="w-3.5 h-3.5 text-primary" />
               <span>Verified Customer Feedback</span>
             </div>
 
-            <h2 className="text-3xl sm:text-5xl font-serif font-black text-foreground tracking-tight leading-tight">
-              Customer Reviews for <span className="text-primary">{collectionName}</span>
+            <h2 className="text-2xl sm:text-4xl font-serif font-black text-foreground tracking-tight leading-tight">
+              Customer Reviews for {collectionName}
             </h2>
 
             <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">
@@ -241,7 +237,7 @@ export function CustomerReviewsSection({ collectionName = "Vape Products" }: Cus
           {filteredReviews.map((rev) => (
             <div
               key={rev.id}
-              className="bg-background border border-border/80 hover:border-primary/50 rounded-3xl p-6 sm:p-8 transition-all duration-300 shadow-sm hover:shadow-md"
+              className="bg-card border border-border/80 hover:border-primary/50 rounded-3xl p-6 sm:p-8 transition-all duration-300 shadow-sm hover:shadow-md"
             >
               {/* Review Card Header */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border/40 mb-4">

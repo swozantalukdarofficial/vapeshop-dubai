@@ -281,7 +281,7 @@ export const HeroSection: React.FC = () => {
               onClick={() => router.push("/collections/juul-1-series")}
             >
               <div className="absolute bottom-0 right-0 w-44 h-44 rounded-full bg-orange-50 dark:bg-primary/5 filter blur-3xl pointer-events-none" />
-              
+
               {/* Left content */}
               <div className="flex flex-col justify-center flex-grow min-w-0 z-10 gap-4 py-1">
                 <div>
@@ -297,10 +297,10 @@ export const HeroSection: React.FC = () => {
               {/* Right Product Image */}
               <div className="w-[125px] sm:w-[145px] flex-shrink-0 relative flex items-center justify-center z-10">
                 <div className="absolute w-24 h-24 rounded-full bg-primary/5 filter blur-[30px]" />
-                <img 
-                  src="/vape_kit.png" 
-                  alt="JUUL 1" 
-                  className="relative h-[150px] sm:h-[180px] w-auto object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.15)] group-hover:scale-110 group-hover:rotate-2 transition-all duration-500" 
+                <img
+                  src="/vape_kit.png"
+                  alt="JUUL 1"
+                  className="relative h-[150px] sm:h-[180px] w-auto object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.15)] group-hover:scale-110 group-hover:rotate-2 transition-all duration-500"
                   onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
                 />
               </div>
@@ -312,7 +312,7 @@ export const HeroSection: React.FC = () => {
               onClick={() => router.push("/collections/juul-2-series")}
             >
               <div className="absolute top-0 right-0 w-44 h-44 rounded-full bg-white/10 filter blur-3xl pointer-events-none" />
-              
+
               {/* Left content */}
               <div className="flex flex-col justify-center flex-grow min-w-0 z-10 gap-4 py-1">
                 <div>
@@ -328,10 +328,10 @@ export const HeroSection: React.FC = () => {
               {/* Right Product Image */}
               <div className="w-[125px] sm:w-[145px] flex-shrink-0 relative flex items-center justify-center z-10">
                 <div className="absolute w-24 h-24 rounded-full bg-white/10 filter blur-[30px]" />
-                <img 
-                  src="/vape_kit.png" 
-                  alt="JUUL 2" 
-                  className="relative h-[150px] sm:h-[180px] w-auto object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.25)] group-hover:scale-110 group-hover:-rotate-2 transition-all duration-500" 
+                <img
+                  src="/vape_kit.png"
+                  alt="JUUL 2"
+                  className="relative h-[150px] sm:h-[180px] w-auto object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.25)] group-hover:scale-110 group-hover:-rotate-2 transition-all duration-500"
                   onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
                 />
               </div>

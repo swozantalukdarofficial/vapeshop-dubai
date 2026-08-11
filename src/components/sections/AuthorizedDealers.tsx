@@ -147,9 +147,9 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
   };
 
   return (
-    <div className="space-y-12 sm:space-y-16">
+    <div className="space-y-4 sm:space-y-6">
       {/* ── Shop by Brands — Beautiful Grid ── */}
-      <div className="bg-card border border-border/40 rounded-[2.5rem] p-8 sm:p-12 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300 relative overflow-hidden">
+      <div className="bg-card border border-border/40 rounded-[2rem] p-5 sm:p-7 lg:p-8 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300 relative overflow-hidden">
         {/* Decorative gold shimmer strip */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10" />
 

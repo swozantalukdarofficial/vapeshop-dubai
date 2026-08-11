@@ -1,13 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight, ChevronRight, Layers } from "lucide-react";
+import { ArrowRight, Layers, ChevronLeft, ChevronRight, Truck } from "lucide-react";
 
 interface BrandInfo {
   id: string;
   name: string;
   tagline: string;
+  image: string;
   tags: string[];
   description: string;
   popularModel: string;
@@ -18,149 +19,288 @@ const DISPOSABLE_BRANDS: BrandInfo[] = [
     id: "al-fakher",
     name: "Al Fakher",
     tagline: "Authentic Shisha Flavors & Massive Puffs",
+    image: "/premium_liquid.png",
     tags: ["Shisha Flavors", "Up to 60,000 Puffs", "Crown Bar Series"],
-    description: "Al Fakher Crown Bar and E-Hose disposable vape devices bring traditional shisha-inspired flavors into a modern portable vape format. Known for bold taste profiles, rechargeable batteries, and massive puff counts.",
+    description: "Al Fakher Crown Bar and E-Hose disposable vape devices bring traditional shisha-inspired flavors into a modern portable vape format.",
     popularModel: "Crown Bar 8000 / E-Hose X 60000",
   },
   {
     id: "vozol",
     name: "Vozol",
     tagline: "Smart Display & Advanced Vapor Tech",
+    image: "/lost_mary.png",
     tags: ["Smart LED Screen", "Dual Mesh Coil", "Extended Battery"],
-    description: "Vozol disposable vapes combine sleek futuristic styling with robust battery life and advanced dual mesh coil technology. Models feature smart digital displays and adjustable airflow for extended daily vaping.",
+    description: "Vozol disposable vapes combine sleek futuristic styling with robust battery life and advanced dual mesh coil technology.",
     popularModel: "Vozol Vista 20000 / Gear Power 20000",
   },
   {
     id: "tugboat",
     name: "Tugboat",
     tagline: "Dependable Performance & Everyday Comfort",
+    image: "/lost_mary.png",
     tags: ["Mesh Coil", "Type-C Charging", "Lightweight Build"],
-    description: "Tugboat disposable vape devices are engineered for practical performance and simple operation. Offering reliable flavor consistency, mesh coil systems, and lightweight designs for comfortable everyday carrying.",
+    description: "Tugboat disposable vape devices are engineered for practical performance and simple operation with reliable flavor consistency.",
     popularModel: "Tugboat T12000 / EVO 4500",
   },
   {
     id: "lost-mary",
     name: "Lost Mary",
     tagline: "Compact Ergonomics & Rich Fruit Profiles",
+    image: "/lost_mary.png",
     tags: ["Compact Design", "Smooth Salt Nic", "Style Gradient"],
-    description: "Lost Mary disposable vapes are celebrated for their compact ergonomic feel, stylish color gradient looks, and unique salt nicotine flavor blends. Delivers steady vapor output with precision mesh coils.",
+    description: "Lost Mary disposable vapes are celebrated for their compact ergonomic feel, stylish color gradient looks, and unique salt nicotine blends.",
     popularModel: "Lost Mary BC10000 / OS5000",
   },
   {
     id: "hqd",
     name: "HQD",
     tagline: "Ultra-Reliable Daily Vaping & Zero Upkeep",
+    image: "/vape_kit.png",
     tags: ["Zero Maintenance", "Fruit & Mint", "Long Battery"],
-    description: "HQD provides reliable disposable e-cigarettes popular across Dubai for daily vaping. Small, easy to use, and available in crisp fruit, tobacco, and icy mint formulations that require zero upkeep.",
+    description: "HQD provides reliable disposable e-cigarettes popular across Dubai for daily vaping with zero upkeep required.",
     popularModel: "HQD Cuvie Slick 6000 / HBAR",
   },
   {
     id: "geek-bar",
     name: "Geek Bar",
     tagline: "Pulse Boost Mode & Full Screen Displays",
+    image: "/lost_mary.png",
     tags: ["Pulse Boost Mode", "Full Curved Screen", "Instant Vapor"],
-    description: "Geek Bar disposable vape products are designed for flavor-focused vapers seeking smooth airflow and modern device styling. Featuring dual-core processing and high puff counts with rich fruit and icy blends.",
+    description: "Geek Bar disposable vape products are designed for flavor-focused vapers seeking smooth airflow and modern device styling.",
     popularModel: "Geek Bar Pulse 15000 / Skyview",
   },
   {
     id: "elf-bar",
     name: "Elf Bar",
     tagline: "World-Renowned Flavor Consistency & Quality",
+    image: "/lost_mary.png",
     tags: ["Global Favorite", "Smart Battery Screen", "Quaq Tech"],
-    description: "Elf Bar disposables set industry standards for flavor delivery and draw smoothness. Built with advanced Quaq mesh coil tech and smart e-liquid/battery digital indicators for a premium hassle-free experience.",
+    description: "Elf Bar disposables set industry standards for flavor delivery and draw smoothness built with advanced Quaq mesh coil tech.",
     popularModel: "Elf Bar BC10000 / Ice King 40000",
   },
   {
     id: "maskking",
     name: "Maskking",
     tagline: "Premium Metallic Finish & Intense Flavor Output",
+    image: "/vape_kit.png",
     tags: ["Metallic Shell", "Draw Activated", "Super Smooth"],
-    description: "Maskking disposable vapes feature premium alloy construction and instant draw-activated heating. Beloved in Dubai for high-octane flavor density and sleek pocketable form factors.",
+    description: "Maskking disposable vapes feature premium alloy construction and instant draw-activated heating beloved in Dubai.",
     popularModel: "Maskking Aroma 6000 / High Pro",
   },
 ];
 
 export function DisposableBrandsShowcase() {
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeftPos, setScrollLeftPos] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  // Auto-scroll loop (pauses on mouse hover or drag)
+  useEffect(() => {
+    if (isHovered || isDragging) return;
+
+    const interval = setInterval(() => {
+      if (sliderRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
+        if (scrollLeft + clientWidth >= scrollWidth - 10) {
+          sliderRef.current.scrollTo({ left: 0, behavior: "smooth" });
+          setActiveIndex(0);
+        } else {
+          sliderRef.current.scrollBy({ left: 320, behavior: "smooth" });
+        }
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [isHovered, isDragging]);
+
+  // Track active slide index on scroll
+  const handleScrollTrack = () => {
+    if (sliderRef.current) {
+      const { scrollLeft, clientWidth } = sliderRef.current;
+      const index = Math.round(scrollLeft / (clientWidth > 0 ? clientWidth * 0.75 : 300));
+      setActiveIndex(Math.min(DISPOSABLE_BRANDS.length - 1, Math.max(0, index)));
+    }
+  };
+
+  const scrollToSlide = (index: number) => {
+    if (sliderRef.current) {
+      const cardWidth = 320;
+      sliderRef.current.scrollTo({ left: index * cardWidth, behavior: "smooth" });
+      setActiveIndex(index);
+    }
+  };
+
+  // Mouse Drag / Swipe Handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!sliderRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - sliderRef.current.offsetLeft);
+    setScrollLeftPos(sliderRef.current.scrollLeft);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+    setIsHovered(false);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !sliderRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - sliderRef.current.offsetLeft;
+    const walk = (x - startX) * 1.6;
+    sliderRef.current.scrollLeft = scrollLeftPos - walk;
+  };
+
+  const handleScroll = (dir: "left" | "right") => {
+    if (sliderRef.current) {
+      const scrollAmount = dir === "left" ? -340 : 340;
+      sliderRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
+
   return (
-    <div className="my-12 space-y-8">
-      
-      {/* Section Header */}
-      <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-8 shadow-xs relative overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary to-primary/10" />
-        
-        <div className="space-y-2.5">
-          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] px-3.5 py-1.5 rounded-full">
+    <div className="bg-card border border-border/60 rounded-[2rem] p-5 sm:p-7 relative overflow-hidden shadow-md transition-all duration-300">
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
+
+      {/* Centered Section Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/40 pb-4 mb-5 relative">
+        {/* Spacer for desktop optical centering */}
+        <div className="hidden sm:block w-48" />
+
+        {/* Centered Title & Badge */}
+        <div className="text-center flex flex-col items-center flex-1">
+          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-extrabold uppercase tracking-[0.2em] px-3.5 py-1 rounded-full mb-2">
             <Layers className="w-3.5 h-3.5 text-primary" />
-            <span>Disposable Brand Guide &amp; Overview</span>
+            <span>Disposable Brand Guide</span>
           </div>
 
-          <h2 className="text-2xl sm:text-4xl font-serif font-black text-primary tracking-tight leading-tight">
+          <h2 className="text-2xl sm:text-4xl font-serif font-black text-foreground tracking-tight leading-tight">
             Popular Disposable Vape Brands in Dubai
           </h2>
 
-          <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed max-w-3xl">
-            Explore leading disposable vape manufacturers in the UAE. Compare flagship models, puff capacities, smart screen features, and signature nicotine salt flavor profiles.
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1 font-semibold max-w-xl">
+            Explore leading disposable vape manufacturers in the UAE. Compare flagship models, puff capacities, and signature nicotine salt flavor profiles.
           </p>
+
+          {/* Premium Centered Line Divider */}
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <div className="h-[1px] w-10 bg-gradient-to-r from-transparent to-primary/65" />
+            <div className="w-1.5 h-1.5 rotate-45 border border-primary/40 bg-primary/10" />
+            <div className="h-[1px] w-10 bg-gradient-to-l from-transparent to-primary/65" />
+          </div>
+        </div>
+
+        {/* Right Slider Controls & Express Pill */}
+        <div className="flex items-center justify-center sm:justify-end gap-3 w-full sm:w-48">
+          <div className="hidden lg:flex items-center gap-1.5 text-[10px] font-extrabold text-primary uppercase tracking-wider bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-full shrink-0">
+            <Truck className="w-3.5 h-3.5 text-primary" />
+            <span>2-Hour Express</span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => handleScroll("left")}
+              aria-label="Scroll left"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-muted/60 hover:bg-primary border border-border/60 hover:border-primary text-foreground hover:text-white flex items-center justify-center transition-all duration-300 cursor-pointer shadow-xs active:scale-95"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => handleScroll("right")}
+              aria-label="Scroll right"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-muted/60 hover:bg-primary border border-border/60 hover:border-primary text-foreground hover:text-white flex items-center justify-center transition-all duration-300 cursor-pointer shadow-xs active:scale-95"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Grid of Balanced, Elegant Brand Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Interactive Horizontal Brand Slider Track */}
+      <div
+        ref={sliderRef}
+        onScroll={handleScrollTrack}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={handleMouseLeave}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseMove={handleMouseMove}
+        className={`flex gap-4 sm:gap-6 overflow-x-auto scrollbar-none py-3 px-1 select-none transform-gpu transition-all ${
+          isDragging
+            ? "cursor-grabbing scroll-auto"
+            : "cursor-grab scroll-smooth snap-x snap-mandatory"
+        }`}
+        style={{
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+          WebkitOverflowScrolling: "touch",
+        }}
+      >
         {DISPOSABLE_BRANDS.map((brand) => (
           <Link
             key={brand.id}
             href={`/collections/disposable-vape?sub=${encodeURIComponent(brand.name)}`}
-            className="group relative bg-card border-2 border-primary/20 hover:border-primary/80 rounded-[2.5rem] p-6 sm:p-8 flex flex-col justify-between cursor-pointer transition-all duration-500 shadow-xl hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-2 hover:scale-[1.02] overflow-hidden"
+            draggable={false}
+            className="w-[260px] sm:w-[300px] lg:w-[330px] snap-start flex-shrink-0 group relative bg-background border border-border/70 hover:border-primary/60 rounded-3xl p-4 sm:p-5 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 shadow-sm hover:shadow-xl overflow-hidden"
           >
-            {/* Subtle Gradient Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/15 opacity-60 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-
-            {/* Top Section: Avatar & Title layout like product card */}
-            <div className="relative z-10 flex items-start gap-4 sm:gap-5">
-              <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-2xl bg-white dark:bg-background border-2 border-primary/10 group-hover:border-primary/30 flex items-center justify-center shrink-0 group-hover:scale-110 transition-all duration-500 shadow-lg group-hover:shadow-xl text-3xl sm:text-4xl font-serif font-black text-primary">
-                {brand.name.charAt(0)}
-              </div>
-
-              <div className="space-y-1.5 flex-1">
-                <h3 className="text-xl sm:text-2xl font-serif font-black text-primary transition-colors tracking-tight leading-snug">
-                  {brand.name}
-                </h3>
-                <p className="text-[10px] sm:text-xs text-foreground/80 font-bold uppercase tracking-widest leading-relaxed">
-                  {brand.tagline}
-                </p>
-                <div className="flex flex-wrap items-center gap-1.5 pt-2 hidden sm:flex">
-                  {brand.tags.slice(0, 2).map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-[9px] font-bold uppercase tracking-wider bg-primary/10 text-primary px-2 py-0.5 rounded-full"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
+            {/* Top Product Image Display Area - Full Cover Banner */}
+            <div className="w-full h-40 sm:h-48 rounded-2xl bg-slate-950 border border-border/40 relative mb-3.5 overflow-hidden shrink-0 group-hover:border-primary/40 transition-all duration-300">
+              <img
+                src={brand.image}
+                alt={brand.name}
+                draggable={false}
+                className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 pointer-events-none opacity-90 group-hover:opacity-100"
+              />
             </div>
 
-            {/* Bottom Row: Action Like Product Card */}
-            <div className="relative z-10 mt-6 pt-5 border-t border-border/40 flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider group-hover:text-foreground transition-colors mb-0.5">
-                  Top Models
-                </span>
-                <span className="text-xs text-foreground/90 font-bold truncate max-w-[130px] sm:max-w-[180px]">
-                  {brand.popularModel}
-                </span>
-              </div>
+            {/* Title & Short Description */}
+            <div className="space-y-1">
+              <h3 className="text-base sm:text-lg font-serif font-black text-foreground group-hover:text-primary transition-colors leading-snug">
+                {brand.name}
+              </h3>
+              <p className="text-xs text-muted-foreground font-normal leading-relaxed line-clamp-2">
+                {brand.tagline} — {brand.description}
+              </p>
+            </div>
 
-              <div className="inline-flex items-center gap-2 bg-primary text-white hover:bg-gold-shimmer px-4 py-2 rounded-full text-xs font-extrabold uppercase tracking-wider transition-all duration-300 shadow-md group-hover:scale-105 shrink-0">
-                <span>Explore</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            {/* Bottom CTA Bar: VIEW COLLECTION */}
+            <div className="mt-4 pt-3.5 border-t border-border/40 flex items-center justify-between">
+              <span className="text-[11px] font-extrabold text-foreground uppercase tracking-wider group-hover:text-primary transition-colors">
+                View Collection
+              </span>
+
+              <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-md shadow-primary/20 group-hover:scale-110 group-hover:bg-gold-shimmer transition-all duration-300">
+                <ArrowRight className="w-4 h-4" />
               </div>
             </div>
           </Link>
         ))}
       </div>
 
+      {/* Pagination Dots Indicator */}
+      {DISPOSABLE_BRANDS.length > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-4 pt-2">
+          {DISPOSABLE_BRANDS.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => scrollToSlide(idx)}
+              aria-label={`Go to slide ${idx + 1}`}
+              className={`transition-all duration-300 rounded-full cursor-pointer ${
+                idx === activeIndex
+                  ? "bg-primary w-6 h-2 shadow-xs"
+                  : "bg-muted-foreground/30 hover:bg-primary/50 w-2 h-2"
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

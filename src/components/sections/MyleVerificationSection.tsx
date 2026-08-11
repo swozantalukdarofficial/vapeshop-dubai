@@ -24,9 +24,9 @@ export function MyleVerificationSection() {
 
         {/* 3 White Vertical Cards Grid (Exact Reference Match) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 items-stretch">
-          
+
           {/* CARD 1: FIND QR CODE */}
-          <div className="bg-background border border-border/80 hover:border-primary/50 rounded-3xl p-7 sm:p-8 flex flex-col items-center text-center justify-between transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-1.5 group">
+          <div className="bg-card border border-border/80 hover:border-primary/50 rounded-3xl p-7 sm:p-8 flex flex-col items-center text-center justify-between transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-1.5 group">
             {/* Vector Illustration 1: Hand Peeling MYLE Box Tab */}
             <div className="w-full h-48 sm:h-52 flex items-center justify-center my-2 p-3 bg-muted/20 rounded-2xl border border-border/40 group-hover:scale-105 transition-transform duration-300">
               <svg viewBox="0 0 200 220" className="w-full h-full max-h-44 stroke-foreground fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -36,7 +36,7 @@ export function MyleVerificationSection() {
                 <line x1="75" y1="65" x2="125" y2="65" />
                 <text x="100" y="105" textAnchor="middle" className="fill-foreground font-sans font-black text-[11px] tracking-widest stroke-none">MYLÉ</text>
                 <text x="100" y="122" textAnchor="middle" className="fill-muted-foreground font-sans font-bold text-[8px] tracking-widest stroke-none">META V5</text>
-                
+
                 {/* Security Tab & Peeling Hand */}
                 <path d="M125 75 L145 70 L145 95 L125 90 Z" className="fill-amber-500/20 stroke-amber-500" strokeDasharray="3 3" />
                 {/* Hand Peeling Finger Icon */}
@@ -56,7 +56,7 @@ export function MyleVerificationSection() {
           </div>
 
           {/* CARD 2: SCAN CODE */}
-          <div className="bg-background border border-border/80 hover:border-primary/50 rounded-3xl p-7 sm:p-8 flex flex-col items-center text-center justify-between transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-1.5 group">
+          <div className="bg-card border border-border/80 hover:border-primary/50 rounded-3xl p-7 sm:p-8 flex flex-col items-center text-center justify-between transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-1.5 group">
             {/* Vector Illustration 2: Desktop iMac Monitor Screen */}
             <div className="w-full h-48 sm:h-52 flex items-center justify-center my-2 p-3 bg-muted/20 rounded-2xl border border-border/40 group-hover:scale-105 transition-transform duration-300">
               <svg viewBox="0 0 200 180" className="w-full h-full max-h-44 stroke-foreground fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -93,7 +93,7 @@ export function MyleVerificationSection() {
           </div>
 
           {/* CARD 3: RECEIVE REWARD POINTS */}
-          <div className="bg-background border border-border/80 hover:border-primary/50 rounded-3xl p-7 sm:p-8 flex flex-col items-center text-center justify-between transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-1.5 group">
+          <div className="bg-card border border-border/80 hover:border-primary/50 rounded-3xl p-7 sm:p-8 flex flex-col items-center text-center justify-between transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-1.5 group">
             {/* Vector Illustration 3: Circular MYLE REWARDS Medal Badge */}
             <div className="w-full h-48 sm:h-52 flex items-center justify-center my-2 p-3 bg-muted/20 rounded-2xl border border-border/40 group-hover:scale-105 transition-transform duration-300">
               <svg viewBox="0 0 180 180" className="w-full h-full max-h-44 stroke-foreground fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -101,7 +101,7 @@ export function MyleVerificationSection() {
                 <circle cx="90" cy="90" r="70" className="stroke-foreground fill-slate-900" strokeWidth="3" />
                 <circle cx="90" cy="90" r="62" className="stroke-amber-500/60" strokeDasharray="6 4" strokeWidth="2" />
                 <circle cx="90" cy="90" r="52" className="stroke-slate-700 fill-slate-800" strokeWidth="2" />
-                
+
                 {/* Center Badge Content: MYLE REWARDS */}
                 <text x="90" y="80" textAnchor="middle" className="fill-white font-serif font-black text-[12px] tracking-widest stroke-none">
                   MYLÉ

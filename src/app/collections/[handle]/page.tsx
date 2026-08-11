@@ -818,7 +818,7 @@ function CollectionPageContent() {
         activeCategory={activeCategory}
       />
 
-      <main className="flex-grow pb-24 pt-12 sm:pt-16 lg:pt-20">
+      <main className="flex-grow pb-24 pt-[92px]">
         {/* Slim Collection Header Bar (Exact Reference Match) */}
         {!(handle === "brand" || handle === "brands") && (
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
@@ -826,17 +826,16 @@ function CollectionPageContent() {
               
               {/* Top Row: Breadcrumb & Title Badge */}
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-3">
-                <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  <Link href="/" className="hover:text-primary transition-colors flex items-center gap-1.5">
-                    <Home className="w-3.5 h-3.5 text-primary" />
-                    <span>Home</span>
+                <nav className="flex flex-wrap items-center gap-2.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <Link href="/" className="hover:text-primary transition-colors shrink-0">
+                    HOME
                   </Link>
-                  <ChevronRight className="h-3 w-3" />
-                  <Link href="/shop" className="hover:text-primary transition-colors">
-                    Categories
+                  <span className="text-muted-foreground/40 shrink-0 font-light">/</span>
+                  <Link href="/shop" className="hover:text-primary transition-colors shrink-0">
+                    PRODUCTS
                   </Link>
-                  <ChevronRight className="h-3 w-3" />
-                  <span className="text-foreground font-black text-primary">{collectionInfo.title}</span>
+                  <span className="text-muted-foreground/40 shrink-0 font-light">/</span>
+                  <span className="text-foreground font-extrabold">{collectionInfo.title}</span>
                 </nav>
 
                 <div className="flex items-center gap-2">
@@ -1228,14 +1227,14 @@ function CollectionPageContent() {
 
         {/* Collection Description (from Shopify) — Beautiful Expandable Guide after products */}
         {collectionInfo.descriptionHtml && (
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12">
-            <div className="bg-card border border-border/50 rounded-[2.5rem] p-6 sm:p-10 lg:p-12 relative overflow-hidden shadow-sm transition-all duration-300">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
+            <div className="bg-card border border-border/50 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-sm transition-all duration-300">
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
 
               {/* Header Badges & Title */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-5 border-b border-border/40">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-border/40">
                 <div className="flex items-center gap-3">
-                  <span className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase px-3.5 py-1.5 rounded-full">
+                  <span className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase px-3.5 py-1 rounded-full">
                     Buying Guide &amp; FAQs
                   </span>
                 </div>
@@ -1245,7 +1244,7 @@ function CollectionPageContent() {
                 </div>
               </div>
 
-              <h2 className="text-2xl sm:text-3xl font-serif font-black text-foreground tracking-tight mb-6">
+              <h2 className="text-xl sm:text-2xl font-serif font-black text-foreground tracking-tight mb-4">
                 About {collectionInfo.title}
               </h2>
 
@@ -1280,7 +1279,7 @@ function CollectionPageContent() {
 
         {/* Custom Disposable Comparison & Brands Showcase Sections */}
         {(handle === "disposable-vape" || handle.includes("disposable")) && (
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 space-y-12">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 space-y-4 sm:space-y-6">
             <DisposableBrandsShowcase />
             <DisposableComparisonSections />
           </div>
@@ -1288,7 +1287,7 @@ function CollectionPageContent() {
 
         {/* Custom E-Juice / E-Liquid Brands Showcase Section */}
         {(handle === "e-liquids" || handle === "e-juice" || handle.includes("juice") || handle.includes("liquid") || handle.includes("salt")) && (
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
             <EJuiceBrandsShowcase />
           </div>
         )}
@@ -1334,13 +1333,13 @@ function CollectionPageContent() {
 
         {/* Shop by Brands & Authorized Dealers Section (Hidden on Brand Directory page) */}
         {!(handle === "brand" || handle === "brands") && (
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
             <AuthorizedDealers />
           </div>
         )}
 
         {/* Direct WhatsApp Contact & Orders Section */}
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
           <WhatsAppContactSection />
         </div>
 

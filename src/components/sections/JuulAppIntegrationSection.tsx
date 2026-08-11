@@ -71,12 +71,6 @@ export function JuulAppIntegrationSection({ className = "" }: JuulAppIntegration
   return (
     <section className={`max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-20 ${className}`}>
       <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-10 lg:p-14 relative overflow-hidden shadow-md transition-all duration-300">
-        
-        {/* Dynamic Top Ambient Glow Line (Site Primary Color #E8521A) */}
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary/10 via-primary to-primary/10" />
-        <div className="absolute -top-40 -left-40 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-
         {/* Section Header */}
         <div className="max-w-3xl mx-auto text-center space-y-4 mb-10 sm:mb-14">
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-black uppercase tracking-[0.25em] px-4 py-1.5 rounded-full">
@@ -95,11 +89,11 @@ export function JuulAppIntegrationSection({ className = "" }: JuulAppIntegration
 
         {/* Main Content Grid: Left Phone Mockup UI + Right 6 Feature Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          
+
           {/* Left Column: Interactive Phone Screen Mockup */}
           <div className="lg:col-span-5 flex items-center justify-center">
             <div className="relative w-full max-w-[340px] sm:max-w-[370px] bg-slate-950 rounded-[3rem] border-[6px] border-slate-800 shadow-2xl p-3 pt-4 pb-4 overflow-hidden text-slate-100 font-sans transition-all duration-300">
-              
+
               {/* iPhone Notch & Status Bar */}
               <div className="flex items-center justify-between px-6 pt-1 pb-2 text-[11px] font-semibold text-slate-300">
                 <span>9:41</span>
@@ -118,7 +112,7 @@ export function JuulAppIntegrationSection({ className = "" }: JuulAppIntegration
 
               {/* Dynamic Phone Content Container */}
               <div className="p-4 bg-slate-900/90 rounded-2xl border border-slate-800/80 mt-3 min-h-[440px] flex flex-col justify-between relative overflow-hidden">
-                
+
                 {/* App Screen Content: Analytics */}
                 {activeFeature === "analytics" && (
                   <div className="space-y-4 animate-in fade-in duration-300">
@@ -143,7 +137,7 @@ export function JuulAppIntegrationSection({ className = "" }: JuulAppIntegration
                         <span>Puff Volume Curve</span>
                         <span className="text-emerald-400 font-bold">● Normal</span>
                       </div>
-                      
+
                       <svg className="w-full h-24 overflow-visible" viewBox="0 0 200 80">
                         <defs>
                           <linearGradient id="primaryArea" x1="0" y1="0" x2="0" y2="1">
@@ -289,9 +283,8 @@ export function JuulAppIntegrationSection({ className = "" }: JuulAppIntegration
 
                     <button
                       onClick={() => setIsDeviceLocked(!isDeviceLocked)}
-                      className={`w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
-                        isDeviceLocked ? "bg-primary text-white shadow-md shadow-primary/30" : "bg-emerald-600 text-white"
-                      }`}
+                      className={`w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${isDeviceLocked ? "bg-primary text-white shadow-md shadow-primary/30" : "bg-emerald-600 text-white"
+                        }`}
                     >
                       {isDeviceLocked ? "Tap to Unlock Device" : "Tap to Lock Device"}
                     </button>
@@ -463,11 +456,10 @@ export function JuulAppIntegrationSection({ className = "" }: JuulAppIntegration
                   key={feat.id}
                   type="button"
                   onClick={() => setActiveFeature(feat.id)}
-                  className={`text-left rounded-3xl p-6 transition-all duration-300 border cursor-pointer relative group flex flex-col justify-between ${
-                    isActive
+                  className={`text-left rounded-3xl p-6 transition-all duration-300 border cursor-pointer relative group flex flex-col justify-between ${isActive
                       ? "bg-primary/10 border-primary shadow-lg shadow-primary/10 scale-[1.02]"
-                      : "bg-background border-border/80 hover:border-primary/50 hover:bg-card hover:shadow-md"
-                  }`}
+                      : "bg-card border border-border/80 hover:border-primary/50 hover:bg-card hover:shadow-md"
+                    }`}
                 >
                   {/* Active Screen Badge Pill for Usage Analytics card or active card */}
                   {isActive && (
@@ -479,11 +471,10 @@ export function JuulAppIntegrationSection({ className = "" }: JuulAppIntegration
                   <div className="space-y-4">
                     {/* Icon Container */}
                     <div
-                      className={`w-12 h-12 rounded-2xl border p-2.5 flex items-center justify-center transition-colors duration-300 ${
-                        isActive
+                      className={`w-12 h-12 rounded-2xl border p-2.5 flex items-center justify-center transition-colors duration-300 ${isActive
                           ? "bg-primary text-white border-primary shadow-md"
                           : "bg-primary/10 border-primary/20 text-primary group-hover:bg-primary group-hover:text-white"
-                      }`}
+                        }`}
                     >
                       <Icon className="w-6 h-6" />
                     </div>
@@ -491,9 +482,8 @@ export function JuulAppIntegrationSection({ className = "" }: JuulAppIntegration
                     {/* Title & Description */}
                     <div>
                       <h3
-                        className={`text-base font-serif font-bold transition-colors ${
-                          isActive ? "text-primary font-black" : "text-foreground group-hover:text-primary"
-                        }`}
+                        className={`text-base font-serif font-bold transition-colors ${isActive ? "text-primary font-black" : "text-foreground group-hover:text-primary"
+                          }`}
                       >
                         {feat.title}
                       </h3>

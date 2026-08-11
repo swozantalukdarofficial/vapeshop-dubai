@@ -79,7 +79,7 @@ export const BlogSection: React.FC = () => {
           {posts.map((post) => (
             <Card
               key={post.slug}
-              className="group overflow-hidden bg-card/60 backdrop-blur-sm border-border/60 hover:border-primary/40 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1.5 flex flex-col h-full rounded-[2rem]"
+              className="group overflow-hidden bg-card border-border/60 hover:border-primary/40 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1.5 flex flex-col h-full rounded-[2rem]"
             >
               {/* Card Image Header */}
               <div className="relative h-56 sm:h-64 w-full overflow-hidden bg-muted">

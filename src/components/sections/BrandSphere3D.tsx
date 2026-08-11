@@ -323,10 +323,6 @@ export function BrandSphere3D() {
     <div className="w-full space-y-10 my-4">
       {/* Hero Showcase Banner Header */}
       <div className="relative bg-card border border-border/50 rounded-[2.5rem] p-8 sm:p-12 overflow-hidden shadow-sm transition-all duration-300">
-        {/* Glowing Background Orbs */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-
         <div className="relative z-10 max-w-3xl space-y-4">
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-1.5 rounded-full">
             <ShieldCheck className="w-4 h-4 text-primary" />

@@ -8,14 +8,8 @@ export const WhatsAppContactSection: React.FC = () => {
     "https://wa.me/971582839787?text=Hello%20Vape%20Shop%20Dubai%2C%20I%20need%20assistance%20or%20would%20like%20to%20place%20an%20order!";
 
   return (
-    <section className="relative overflow-hidden bg-card border border-border/60 rounded-[2.5rem] p-8 sm:p-12 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300">
-      {/* Decorative top gold shimmer bar */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary to-primary/10" />
-      
-      {/* Background gold glow circle */}
-      <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl pointer-events-none" />
-
-      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+    <section className="relative overflow-hidden bg-card border border-border/60 rounded-[2rem] p-5 sm:p-7 lg:p-8 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300">
+      <div className="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
         
         {/* Left Column: Info & Copy */}
         <div className="max-w-2xl space-y-4">
