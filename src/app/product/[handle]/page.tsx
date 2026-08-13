@@ -38,6 +38,7 @@ import { JuulCrispMentholSections } from "@/components/sections/JuulCrispMenthol
 import { ProductAvailableFlavorsSection } from "@/components/sections/ProductAvailableFlavorsSection";
 import { CustomerReviewsSection } from "@/components/sections/CustomerReviewsSection";
 import { ProductKeySpecsSection } from "@/components/sections/ProductKeySpecsSection";
+import { WhyChooseProductSection } from "@/components/sections/WhyChooseProductSection";
 import {
   getProductSchema,
   getBreadcrumbSchema,
@@ -783,6 +784,19 @@ export default function ProductPage() {
           product.name?.toLowerCase().includes("juul")
         ) && (
             <JuulCrispMentholSections productName={product.name} />
+          )}
+
+        {/* Why Choose Product Value Section (Matches User Reference Mockup with Brand Theme) */}
+        {!Boolean(
+          product.handle?.toLowerCase().includes("juul") ||
+          product.name?.toLowerCase().includes("juul")
+        ) && (
+            <WhyChooseProductSection
+              productName={product.name}
+              brand={product.brand}
+              category={product.category}
+              puffs={product.puffs}
+            />
           )}
 
         {/* Key Features & Specifications Table Section (Hidden for JUUL and MYLE products) */}
