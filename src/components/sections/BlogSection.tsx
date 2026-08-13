@@ -82,15 +82,18 @@ export const BlogSection: React.FC = () => {
               className="group overflow-hidden bg-background/80 hover:bg-background border border-border/80 hover:border-primary/40 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 flex flex-col h-full rounded-[1.75rem]"
             >
               {/* Card Image Header */}
-              <div className="relative h-52 sm:h-56 w-full overflow-hidden bg-muted">
+              <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-gradient-to-br from-background via-muted/40 to-background flex items-center justify-center p-6 border-b border-border/40">
+                {/* Subtle ambient glow */}
+                <div className="absolute w-28 h-28 rounded-full bg-primary/8 filter blur-xl pointer-events-none" />
+                
                 <Image
                   src={post.image}
                   alt={post.title}
-                  fill
-                  className="object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+                  width={240}
+                  height={240}
+                  className="relative z-10 max-h-36 sm:max-h-40 w-auto object-contain group-hover:scale-108 transition-transform duration-500 ease-out drop-shadow-md"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/10 to-transparent opacity-80" />
                 
                 {/* Category Badge */}
                 <div className="absolute top-3.5 left-3.5 z-10">

@@ -16,7 +16,8 @@ const SLIDES = [
     title: "MYLE Devices & Pods",
     accent: "Premium Pod Systems",
     desc: "Experience the ultimate in convenience and satisfaction. Official MYLE V5, V4, and Meta systems. Bold flavor profiles, smooth nicotine delivery, and long-lasting battery life.",
-    image: "/vape_kit.png",
+    image: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/myle_slider.webp?v=1786640992",
+    fallbackImage: "/Slider/myle_slider.webp",
     tag: "🔥 Premium Pod Systems",
     buttonText: "Shop MYLE Collection",
     stat1: { value: "5%", label: "Nicotine Strength" },
@@ -27,7 +28,8 @@ const SLIDES = [
     title: "Disposable Vapes",
     accent: "Premium Disposables",
     desc: "Lost Mary, Al Fakher Crown Bar, Tugboat, BECO, and more. Up to 15,000 puffs. From 40 AED. Cash on delivery available with instant delivery across Dubai.",
-    image: "/vape_kit.png",
+    image: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/disposable_slider.webp?v=1786640994",
+    fallbackImage: "/Slider/disposable_slider.webp",
     tag: "💰 From 40 AED Only",
     buttonText: "Shop Disposables",
     stat1: { value: "15K", label: "Max Puffs" },
@@ -38,7 +40,8 @@ const SLIDES = [
     title: "Pod Systems & Kits",
     accent: "Vape Devices & Pods",
     desc: "Refillable and pre-filled pod kits from top brands like Uwell, Geekvape, Vaporesso, OXVA, Voopoo. Compact, powerful, and designed for daily use.",
-    image: "/vape_kit.png",
+    image: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/pod_kits_slider.webp?v=1786640996",
+    fallbackImage: "/Slider/pod_kits_slider.webp",
     tag: "⚡ High Performance Kits",
     buttonText: "Shop Pod Systems",
     stat1: { value: "100%", label: "Authentic" },
@@ -49,7 +52,8 @@ const SLIDES = [
     title: "Premium E-Liquids & Salts",
     accent: "Nicotine Salts & Freebase",
     desc: "Nasty Juice, Pod Salt, Tokyo, RufPuf, and more. 0mg to 50mg nicotine options. Over 80 premium flavors in stock with same-day 2-hour delivery.",
-    image: "/vape_kit.png",
+    image: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/e_liquid_slider.webp?v=1786640998",
+    fallbackImage: "/Slider/e_liquid_slider.webp",
     tag: "⭐ 80+ Flavors Available",
     buttonText: "Shop E-Liquids",
     stat1: { value: "80+", label: "Flavors" },
@@ -170,7 +174,10 @@ export const HeroSection: React.FC = () => {
                           priority={idx === 0}
                           fetchPriority={idx === 0 ? "high" : "auto"}
                           sizes="(max-width: 640px) 200px, (max-width: 1024px) 360px, 420px"
-                          className="animate-float relative z-10 h-[200px] sm:h-[360px] lg:h-[420px] w-auto object-contain drop-shadow-[0_25px_50px_rgba(0,0,0,0.12)] pointer-events-none"
+                          className="animate-float relative z-10 max-h-[220px] sm:max-h-[340px] lg:max-h-[390px] w-auto max-w-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.12)] pointer-events-none"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src = slide.fallbackImage || "/vape_kit.png";
+                          }}
                         />
                       </div>
 
@@ -299,15 +306,15 @@ export const HeroSection: React.FC = () => {
               </div>
 
               {/* Right Product Image */}
-              <div className="w-[125px] sm:w-[145px] flex-shrink-0 relative flex items-center justify-center z-10">
-                <div className="absolute w-24 h-24 rounded-full bg-primary/5 filter blur-[30px]" />
+              <div className="w-[120px] sm:w-[140px] h-[160px] sm:h-[190px] flex-shrink-0 relative flex items-center justify-center z-10 overflow-hidden">
+                <div className="absolute w-24 h-24 rounded-full bg-primary/5 filter blur-[30px] pointer-events-none" />
                 <Image
-                  src="/vape_kit.png"
+                  src="https://cdn.shopify.com/s/files/1/0684/3488/6727/files/juul_1_slider.webp?v=1786641000"
                   alt="JUUL 1"
-                  width={180}
-                  height={180}
-                  sizes="145px"
-                  className="relative h-[150px] sm:h-[180px] w-auto object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.15)] group-hover:scale-110 group-hover:rotate-2 transition-all duration-500"
+                  width={140}
+                  height={190}
+                  sizes="140px"
+                  className="relative max-h-full max-w-full w-auto h-auto object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.15)] group-hover:scale-108 group-hover:rotate-2 transition-all duration-500 pointer-events-none"
                 />
               </div>
             </div>
@@ -332,15 +339,15 @@ export const HeroSection: React.FC = () => {
               </div>
 
               {/* Right Product Image */}
-              <div className="w-[125px] sm:w-[145px] flex-shrink-0 relative flex items-center justify-center z-10">
-                <div className="absolute w-24 h-24 rounded-full bg-white/10 filter blur-[30px]" />
+              <div className="w-[120px] sm:w-[140px] h-[160px] sm:h-[190px] flex-shrink-0 relative flex items-center justify-center z-10 overflow-hidden">
+                <div className="absolute w-24 h-24 rounded-full bg-white/10 filter blur-[30px] pointer-events-none" />
                 <Image
-                  src="/vape_kit.png"
+                  src="https://cdn.shopify.com/s/files/1/0684/3488/6727/files/juul_2_slider.webp?v=1786641001"
                   alt="JUUL 2"
-                  width={180}
-                  height={180}
-                  sizes="145px"
-                  className="relative h-[150px] sm:h-[180px] w-auto object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.25)] group-hover:scale-110 group-hover:-rotate-2 transition-all duration-500"
+                  width={140}
+                  height={190}
+                  sizes="140px"
+                  className="relative max-h-full max-w-full w-auto h-auto object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.25)] group-hover:scale-108 group-hover:-rotate-2 transition-all duration-500 pointer-events-none"
                 />
               </div>
             </div>
