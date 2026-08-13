@@ -78,53 +78,46 @@ export const FlashSaleTimer: React.FC = () => {
   const format = (num: number) => String(num).padStart(2, "0");
 
   return (
-    <div className="relative bg-zinc-950/85 backdrop-blur-md border border-white/5 rounded-2xl py-6 px-4 mb-6 flex flex-col items-center justify-center overflow-hidden shadow-[var(--shadow-card)] w-full">
-      {/* Subtle radial golden glow behind timer */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-16 bg-primary/10 rounded-full filter blur-[35px] pointer-events-none" />
-
-      {/* Pulsing red/gold label */}
-      <span className="text-[10px] font-bold tracking-[0.25em] text-primary uppercase mb-4 relative z-10 flex items-center gap-2">
-        <span className="relative flex h-2 w-2">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-        </span>
+    <div className="flex flex-col items-start sm:items-center lg:items-end gap-2">
+      <span className="text-[10px] font-black tracking-[0.25em] text-primary uppercase flex items-center gap-1.5">
+        <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
         Flash Sale Ends In
       </span>
 
       {/* Timer digits */}
-      <div className="flex items-center gap-3 sm:gap-4 relative z-10">
+      <div className="flex items-center gap-2 sm:gap-2.5">
         {/* Hours */}
         <div className="flex flex-col items-center">
-          <div className="bg-[#121214] border border-white/5 rounded-xl px-4 py-2 min-w-[56px] text-center shadow-inner">
-            <span className="text-2xl sm:text-3xl font-bold font-mono text-white tracking-tight">
+          <div className="bg-card border-2 border-primary/30 rounded-xl px-3 py-1.5 sm:px-3.5 sm:py-2 min-w-[50px] sm:min-w-[56px] text-center shadow-md">
+            <span className="text-xl sm:text-2xl font-black font-mono text-foreground tracking-tight">
               {!isMounted ? "00" : format(timeLeft.hours)}
             </span>
           </div>
-          <span className="text-[9px] uppercase tracking-wider text-zinc-400 mt-2">Hours</span>
+          <span className="text-[9px] font-extrabold uppercase tracking-wider text-muted-foreground mt-1">Hours</span>
         </div>
 
-        <span className="text-2xl font-bold text-zinc-500/50 -mt-6">:</span>
+        <span className="text-xl font-bold text-primary -mt-4">:</span>
 
         {/* Minutes */}
         <div className="flex flex-col items-center">
-          <div className="bg-[#121214] border border-white/5 rounded-xl px-4 py-2 min-w-[56px] text-center shadow-inner">
-            <span className="text-2xl sm:text-3xl font-bold font-mono text-white tracking-tight">
+          <div className="bg-card border-2 border-primary/30 rounded-xl px-3 py-1.5 sm:px-3.5 sm:py-2 min-w-[50px] sm:min-w-[56px] text-center shadow-md">
+            <span className="text-xl sm:text-2xl font-black font-mono text-foreground tracking-tight">
               {!isMounted ? "00" : format(timeLeft.minutes)}
             </span>
           </div>
-          <span className="text-[9px] uppercase tracking-wider text-zinc-400 mt-2">Minutes</span>
+          <span className="text-[9px] font-extrabold uppercase tracking-wider text-muted-foreground mt-1">Mins</span>
         </div>
 
-        <span className="text-2xl font-bold text-zinc-500/50 -mt-6">:</span>
+        <span className="text-xl font-bold text-primary -mt-4">:</span>
 
         {/* Seconds */}
         <div className="flex flex-col items-center">
-          <div className="bg-[#121214] border border-white/5 rounded-xl px-4 py-2 min-w-[56px] text-center shadow-inner">
-            <span className="text-2xl sm:text-3xl font-bold font-mono text-primary tracking-tight">
+          <div className="bg-card border-2 border-primary rounded-xl px-3 py-1.5 sm:px-3.5 sm:py-2 min-w-[50px] sm:min-w-[56px] text-center shadow-md shadow-primary/10">
+            <span className="text-xl sm:text-2xl font-black font-mono text-primary tracking-tight">
               {!isMounted ? "00" : format(timeLeft.seconds)}
             </span>
           </div>
-          <span className="text-[9px] uppercase tracking-wider text-zinc-400 mt-2">Seconds</span>
+          <span className="text-[9px] font-extrabold uppercase tracking-wider text-primary mt-1">Secs</span>
         </div>
       </div>
     </div>

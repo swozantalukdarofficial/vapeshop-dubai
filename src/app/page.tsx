@@ -34,10 +34,6 @@ const FAQSection = dynamic(
   () => import("@/components/sections/FAQSection").then((m) => ({ default: m.FAQSection })),
   { ssr: false }
 );
-const Highlights = dynamic(
-  () => import("@/components/sections/Highlights").then((m) => ({ default: m.Highlights })),
-  { ssr: false }
-);
 const BlogSection = dynamic(
   () => import("@/components/sections/BlogSection").then((m) => ({ default: m.BlogSection })),
   { ssr: false }
@@ -87,7 +83,7 @@ export default function Home() {
       />
 
       {/* Main content */}
-      <main className="flex-grow space-y-4 sm:space-y-6 pb-6">
+      <main className="flex-grow space-y-4 sm:space-y-6 pb-0">
         <HeroSection />
         
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">
@@ -107,10 +103,6 @@ export default function Home() {
         </div>
 
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">
-          <WhatsAppContactSection />
-        </div>
-
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">
           <WhyShopWithUs />
         </div>
 
@@ -119,7 +111,7 @@ export default function Home() {
         </div>
 
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">
-          <Highlights />
+          <WhatsAppContactSection />
         </div>
 
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">

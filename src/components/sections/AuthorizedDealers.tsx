@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { ShieldCheck, CheckCircle2, Award, Zap } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import { FlavorsWheel } from "./FlavorsWheel";
 
@@ -11,8 +10,8 @@ interface AuthorizedDealersProps {
 }
 
 const BRANDS_DATA = [
-  { name: "JUUL", image: "/juul_device.png", path: "/collections/juul-vape-dubai" },
-  { name: "MYLE", image: "/vape_kit.png", path: "/collections/myle-vape-dubai" },
+  { name: "JUUL", image: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/juul_2_device_result.webp?v=1786633076", path: "/collections/juul-vape-dubai" },
+  { name: "MYLE", image: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/myle_result_result.webp?v=1786633741", path: "/collections/myle-vape-dubai" },
   { name: "GeekVape", image: "/vape_kit.png", path: "/collections/geek-vape" },
   { name: "Uwell", image: "/vape_kit.png", path: "/collections/uwell-vape" },
   { name: "Vaporesso", image: "/vape_kit.png", path: "/collections/vaporesso-vape" },
@@ -85,29 +84,6 @@ const FLAVORS = [
     color: "from-green-50/50 to-emerald-50/50 dark:from-green-950/20 dark:to-emerald-950/10", 
     shadow: "hover:shadow-green-500/10 dark:hover:shadow-green-500/5", 
     border: "hover:border-green-500/30" 
-  },
-];
-
-const BADGES = [
-  {
-    icon: ShieldCheck,
-    title: "100% Authentic",
-    desc: "Every product ships with official manufacturer holograms and QR scratch-code verification.",
-  },
-  {
-    icon: CheckCircle2,
-    title: "Verified UAE Importer",
-    desc: "We are an authorized direct importer — no third-party re-sellers, no counterfeit risk.",
-  },
-  {
-    icon: Award,
-    title: "Warranty Guaranteed",
-    desc: "Dead-on-arrival exchange within 24 hours. Our commitment to your satisfaction.",
-  },
-  {
-    icon: Zap,
-    title: "3-Hour Express",
-    desc: "Order before 6 PM for same-day delivery in Dubai. 7 days a week, no minimum order.",
   },
 ];
 
@@ -194,11 +170,11 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
               className="bg-background hover:bg-muted/40 border border-border/45 rounded-xl p-2.5 sm:p-4 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 hover:-translate-y-0.5 active:scale-95 shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-sm"
             >
               {/* Image Container */}
-              <div className="relative w-10 h-10 sm:w-16 sm:h-16 flex items-center justify-center bg-muted/10 rounded-lg p-1 sm:p-2 mb-2">
+              <div className="relative w-11 h-11 sm:w-14 sm:h-14 flex items-center justify-center bg-muted/10 rounded-lg p-1.5 mb-2 overflow-hidden shrink-0">
                 <img
                   src={brand.image}
                   alt={brand.name}
-                  className="w-full h-full object-contain"
+                  className="max-w-full max-h-full w-auto h-auto object-contain pointer-events-none"
                   onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
                 />
               </div>
@@ -218,44 +194,6 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
           <FlavorsWheel onFlavorSelect={onFlavorSelect} />
         </div>
       )}
-
-      {/* ── Why Trust Us — Elegant Floating Card ── */}
-      <div className="bg-card border border-border/40 rounded-[2.5rem] p-8 sm:p-12 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300 relative overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10" />
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <div className="lg:col-span-4 space-y-4">
-            <p className="text-xs font-extrabold tracking-[0.25em] text-primary uppercase">Why Trust Us</p>
-            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-serif font-black text-foreground tracking-tight leading-tight">
-              Trusted JUUL &amp; MYLE Vape Store Dubai
-            </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              In the ever-evolving world of vaping, finding a reliable JUUL seller is essential. Vape Shop Dubai provides authentic products sourced directly from official distributors — no grey-market stock, no compromised build quality.
-            </p>
-            <div className="inline-flex items-center gap-2 bg-primary/8 border border-primary/15 text-primary text-[10px] font-bold tracking-widest uppercase px-4 py-2 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary badge-live" />
-              UAE Licensed Retailer Since 2020
-            </div>
-          </div>
-
-          <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {BADGES.map((badge, i) => {
-              const Icon = badge.icon;
-              return (
-                <div key={i} className="group bg-background/50 border border-border/30 rounded-[1.25rem] p-5 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 flex gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center group-hover:bg-primary/14 transition-colors">
-                    <Icon className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-foreground mb-1">{badge.title}</h3>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{badge.desc}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
