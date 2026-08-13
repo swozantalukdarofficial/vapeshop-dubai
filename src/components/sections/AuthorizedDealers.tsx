@@ -10,8 +10,8 @@ interface AuthorizedDealersProps {
 }
 
 const BRANDS_DATA = [
-  { name: "JUUL", image: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/juul_2_device_result.webp?v=1786633076", path: "/collections/juul-vape-dubai" },
-  { name: "MYLE", image: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/myle_result_result.webp?v=1786633741", path: "/collections/myle-vape-dubai" },
+  { name: "JUUL", image: "/juul_device.png", path: "/collections/juul-vape-dubai" },
+  { name: "MYLE", image: "/vape_kit.png", path: "/collections/myle-vape-dubai" },
   { name: "GeekVape", image: "/vape_kit.png", path: "/collections/geek-vape" },
   { name: "Uwell", image: "/vape_kit.png", path: "/collections/uwell-vape" },
   { name: "Vaporesso", image: "/vape_kit.png", path: "/collections/vaporesso-vape" },
@@ -170,11 +170,11 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
               className="bg-background hover:bg-muted/40 border border-border/45 rounded-xl p-2.5 sm:p-4 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 hover:-translate-y-0.5 active:scale-95 shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-sm"
             >
               {/* Image Container */}
-              <div className="relative w-11 h-11 sm:w-14 sm:h-14 flex items-center justify-center bg-muted/10 rounded-lg p-1.5 mb-2 overflow-hidden shrink-0">
+              <div className="relative w-10 h-10 sm:w-16 sm:h-16 flex items-center justify-center bg-muted/10 rounded-lg p-1 sm:p-2 mb-2">
                 <img
                   src={brand.image}
                   alt={brand.name}
-                  className="max-w-full max-h-full w-auto h-auto object-contain pointer-events-none"
+                  className="w-full h-full object-contain"
                   onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
                 />
               </div>
