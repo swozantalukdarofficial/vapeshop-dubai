@@ -162,24 +162,24 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
         </div>
 
         {/* Grid matching category style */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 sm:gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2.5 sm:gap-3.5">
           {BRANDS_DATA.map((brand) => (
             <div
               key={brand.name}
               onClick={() => handleBrandClick(brand)}
-              className="bg-background hover:bg-muted/40 border border-border/45 rounded-xl p-2.5 sm:p-4 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 hover:-translate-y-0.5 active:scale-95 shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-sm"
+              className="group bg-card hover:bg-primary/[0.04] border-2 border-primary/20 hover:border-primary rounded-2xl p-2.5 sm:p-4 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 hover:-translate-y-1 active:scale-95 shadow-xs hover:shadow-md hover:shadow-primary/10"
             >
               {/* Image Container */}
-              <div className="relative w-10 h-10 sm:w-16 sm:h-16 flex items-center justify-center bg-muted/10 rounded-lg p-1 sm:p-2 mb-2">
+              <div className="relative w-10 h-10 sm:w-16 sm:h-16 flex items-center justify-center bg-muted/20 border border-primary/15 group-hover:border-primary/40 rounded-xl p-1 sm:p-2 mb-2 transition-colors">
                 <img
                   src={brand.image}
                   alt={brand.name}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain filter drop-shadow-xs transition-transform duration-300 group-hover:scale-110"
                   onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
                 />
               </div>
               {/* Label */}
-              <span className="text-[9px] sm:text-xs font-semibold text-foreground leading-tight line-clamp-2">
+              <span className="text-[9px] sm:text-xs font-bold text-foreground group-hover:text-primary transition-colors leading-tight line-clamp-2">
                 {brand.name}
               </span>
             </div>
