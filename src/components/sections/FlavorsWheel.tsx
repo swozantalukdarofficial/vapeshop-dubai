@@ -123,7 +123,7 @@ export function FlavorsWheel({ onFlavorSelect }: FlavorsWheelProps) {
   };
 
   return (
-    <div className="py-6 sm:py-10 relative">
+    <div className="py-2 sm:py-6 md:py-10 relative overflow-hidden">
       {/* CSS for wheel spin animations */}
       <style
         dangerouslySetInnerHTML={{
@@ -146,22 +146,22 @@ export function FlavorsWheel({ onFlavorSelect }: FlavorsWheelProps) {
         }}
       />
 
-      <div className="max-w-[1400px] mx-auto px-10 sm:px-16 md:px-24 relative flex items-center justify-center">
+      <div className="max-w-[1400px] mx-auto px-2 sm:px-8 md:px-16 lg:px-24 relative flex items-center justify-center min-h-[300px] sm:min-h-[460px] md:min-h-[580px]">
         {/* Center Text Block (Matching reference design) */}
-        <div className="absolute z-10 text-center max-w-[200px] sm:max-w-md flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-[9px] sm:text-sm font-extrabold tracking-[0.25em] text-primary uppercase mb-1.5">
+        <div className="absolute z-10 text-center max-w-[150px] sm:max-w-xs md:max-w-md flex flex-col items-center justify-center pointer-events-none select-none">
+          <span className="text-[8px] sm:text-xs md:text-sm font-extrabold tracking-[0.2em] sm:tracking-[0.25em] text-primary uppercase mb-0.5 sm:mb-1.5">
             Taste the Difference
           </span>
-          <h2 className="text-2xl sm:text-6xl font-serif font-black text-foreground tracking-tight leading-tight mb-2">
-            Bash Flavours
+          <h2 className="text-lg sm:text-3xl md:text-5xl lg:text-6xl font-serif font-black text-foreground tracking-tight leading-tight mb-1 sm:mb-2">
+            Best Flavours
           </h2>
-          <p className="hidden sm:block text-muted-foreground text-xs sm:text-sm mb-4 px-4 leading-relaxed font-medium">
-            From fruity bursts to icy hits, Bash Flavours bring your vibe to life with every puff.
+          <p className="hidden md:block text-muted-foreground text-xs sm:text-sm mb-3 px-4 leading-relaxed font-medium">
+            From fruity bursts to icy hits, Best Flavours bring your vibe to life with every puff.
           </p>
 
-          <div className="h-8 mb-4">
+          <div className="h-5 sm:h-7 md:h-8 mb-1.5 sm:mb-3 flex items-center justify-center">
             <p
-              className="text-lg sm:text-2xl font-bold transition-all duration-300 ease-in-out"
+              className="text-xs sm:text-base md:text-xl lg:text-2xl font-bold transition-all duration-300 ease-in-out truncate max-w-[140px] sm:max-w-none"
               style={{ color: activeFlavor.color }}
             >
               {activeFlavor.name}
@@ -170,7 +170,7 @@ export function FlavorsWheel({ onFlavorSelect }: FlavorsWheelProps) {
 
           <button
             onClick={() => handleFlavorClick(activeFlavor)}
-            className="pointer-events-auto rounded-full border-2 border-foreground/30 px-5 sm:px-9 py-2 sm:py-3.5 text-[10px] sm:text-sm font-bold uppercase tracking-wider transition-all hover:bg-foreground hover:text-background active:scale-95 cursor-pointer shadow-md"
+            className="pointer-events-auto rounded-full border border-foreground/30 sm:border-2 px-3.5 sm:px-7 md:px-9 py-1 sm:py-2 md:py-3 text-[8px] sm:text-xs md:text-sm font-bold uppercase tracking-wider transition-all hover:bg-foreground hover:text-background active:scale-95 cursor-pointer shadow-md bg-card/70 backdrop-blur-xs"
           >
             Shop Now
           </button>
@@ -178,7 +178,7 @@ export function FlavorsWheel({ onFlavorSelect }: FlavorsWheelProps) {
 
         {/* Dense Rotating Wheel with 14 Fruit Badges */}
         <div
-          className="relative w-full max-w-[340px] sm:max-w-[480px] md:max-w-[620px] lg:max-w-[680px] aspect-square rounded-full border border-foreground/10 pointer-events-none shrink-0"
+          className="relative w-[230px] sm:w-[380px] md:w-[500px] lg:w-[580px] aspect-square rounded-full border border-foreground/10 pointer-events-none shrink-0 my-5 sm:my-8"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
@@ -200,11 +200,10 @@ export function FlavorsWheel({ onFlavorSelect }: FlavorsWheelProps) {
                       style={{ animationPlayState: isPaused ? "paused" : "running" }}
                     >
                       <div
-                        className={`w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-22 lg:h-22 rounded-full overflow-hidden border-4 bg-background shadow-xl hover:scale-125 transition-all cursor-pointer relative z-20 ${
-                          activeFlavor.id === flavor.id
-                            ? "ring-4 ring-offset-2 ring-primary scale-125 border-primary"
-                            : "border-background hover:border-primary/50"
-                        }`}
+                        className={`w-9 h-9 sm:w-14 sm:h-14 md:w-18 md:h-18 lg:w-20 lg:h-20 rounded-full overflow-hidden border-2 sm:border-4 bg-background shadow-lg hover:scale-125 transition-all cursor-pointer relative z-20 ${activeFlavor.id === flavor.id
+                          ? "ring-2 sm:ring-4 ring-offset-1 sm:ring-offset-2 ring-primary scale-115 sm:scale-125 border-primary shadow-primary/30"
+                          : "border-background hover:border-primary/50"
+                          }`}
                         style={{ transform: `rotate(-${angle}deg)` }}
                         onClick={() => handleFlavorClick(flavor)}
                         onMouseEnter={() => setActiveFlavor(flavor)}

@@ -189,7 +189,7 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
 
       {/* ── Shop by Flavor — Interactive Rotating Wheel (Hidden on JUUL 1 & 2) ── */}
       {!isJuul1Or2 && (
-        <div className="bg-card border border-border/40 rounded-[2.5rem] p-4 sm:p-8 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300 relative overflow-hidden">
+        <div className="bg-card border border-border/40 rounded-[2.5rem] p-2 sm:p-6 md:p-8 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300 relative overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10" />
           <FlavorsWheel onFlavorSelect={onFlavorSelect} />
         </div>
