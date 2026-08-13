@@ -339,11 +339,17 @@ const NavbarContent: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "shadow-md" : ""}`}>
+    <header
+      suppressHydrationWarning
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "shadow-md" : ""}`}
+    >
 
       {/* ── Announcement Bar ──────────────────────────── */}
-      <div className={`hidden sm:block bg-primary text-white transition-all duration-300 overflow-hidden ${isScrolled ? "h-0 opacity-0" : "h-8 opacity-100"}`}>
-        <div className="max-w-[1600px] mx-auto px-4 h-full flex items-center justify-center">
+      <div
+        suppressHydrationWarning
+        className={`hidden sm:block bg-primary text-white transition-all duration-300 overflow-hidden ${isScrolled ? "h-0 opacity-0" : "h-8 opacity-100"}`}
+      >
+        <div suppressHydrationWarning className="max-w-[1600px] mx-auto px-4 h-full flex items-center justify-center">
           <p className="text-[10px] sm:text-xs font-semibold tracking-wider text-center">
             🚀 FREE DELIVERY ON ORDERS 300AED+&nbsp;&nbsp;|&nbsp;&nbsp;⚡ SAME DAY DELIVERY&nbsp;&nbsp;|&nbsp;&nbsp;💳 COD & CREDIT CARD MACHINE ON DELIVERY
           </p>
@@ -790,8 +796,8 @@ const NavbarContent: React.FC<NavbarProps> = ({
 export const Navbar: React.FC<NavbarProps> = (props) => {
   return (
     <Suspense fallback={
-      <header className="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-border py-3">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      <header suppressHydrationWarning className="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-border py-3">
+        <div suppressHydrationWarning className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <div className="h-9 sm:h-10 w-24 bg-muted animate-pulse rounded" />
           <div className="h-5 w-40 bg-muted animate-pulse rounded hidden md:block" />
           <div className="h-9 w-9 bg-muted animate-pulse rounded-full" />
