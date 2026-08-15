@@ -7,7 +7,9 @@ import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/layout/CartDrawer";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { AgeGate } from "@/components/sections/AgeGate";
+import { useThemeSettings } from "@/context/ThemeSettingsContext";
 import { getFAQSchema, getBreadcrumbSchema } from "@/lib/seo-schemas";
+import type { SectionId } from "@/lib/theme/types";
 
 /* ── Below-fold lazy-loaded sections (code-split into separate chunks) ── */
 const Categories = dynamic(
@@ -39,27 +41,85 @@ const BlogSection = dynamic(
   { ssr: false }
 );
 
-const HOME_FAQS = [
-  {
-    question: "Do you offer same-day vape delivery in Dubai?",
-    answer: "Yes! We offer express 2-hour delivery across all Dubai areas including Marina, Downtown, Deira, and JLT, as well as same-day delivery across Abu Dhabi, Sharjah, Ajman, and UAE."
-  },
-  {
-    question: "Are your vape devices and pods 100% authentic?",
-    answer: "Yes, 100% authentic. All products come directly from authorized regional distributors with genuine verification codes on the packaging."
-  },
-  {
-    question: "What payment methods are available?",
-    answer: "We support Cash on Delivery (COD) and Card on Delivery for maximum convenience."
-  }
-];
+/** Standard page gutter shared by every section below the hero. */
+const CONTAINER = "max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
+  const settings = useThemeSettings();
 
-  const faqSchema = getFAQSchema(HOME_FAQS);
+  // The FAQ rich-results schema is generated from the same content the FAQ
+  // section renders, so editing a question in the admin keeps the structured
+  // data Google reads in sync automatically.
+  const faqSchema = getFAQSchema(
+    settings.sections.faq.items.map(({ question, answer }) => ({ question, answer }))
+  );
   const breadcrumbSchema = getBreadcrumbSchema([{ name: "Home", item: "/" }]);
+
+  /* Order and visibility both come from the theme customizer. */
+  const renderSection = (id: SectionId): React.ReactNode => {
+    switch (id) {
+      case "hero":
+        return <HeroSection />;
+
+      case "categories":
+        return (
+          <div className={CONTAINER}>
+            <Categories onCategorySelect={setActiveCategory} activeCategory={activeCategory} />
+          </div>
+        );
+
+      case "products":
+        return (
+          <div id="products-section" className={CONTAINER}>
+            <ProductFeed
+              searchQuery={searchQuery}
+              activeCategory={activeCategory}
+              onCategorySelect={setActiveCategory}
+            />
+          </div>
+        );
+
+      case "brands":
+        return (
+          <div className={CONTAINER}>
+            <AuthorizedDealers />
+          </div>
+        );
+
+      case "whyShop":
+        return (
+          <div className={CONTAINER}>
+            <WhyShopWithUs />
+          </div>
+        );
+
+      case "faq":
+        return (
+          <div className={CONTAINER}>
+            <FAQSection />
+          </div>
+        );
+
+      case "whatsapp":
+        return (
+          <div className={CONTAINER}>
+            <WhatsAppContactSection />
+          </div>
+        );
+
+      case "blog":
+        return (
+          <div className={CONTAINER}>
+            <BlogSection />
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="relative flex flex-col min-h-screen bg-background text-foreground">
@@ -84,39 +144,15 @@ export default function Home() {
 
       {/* Main content */}
       <main className="flex-grow space-y-4 sm:space-y-6 pb-0">
-        <HeroSection />
-        
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">
-          <Categories onCategorySelect={setActiveCategory} activeCategory={activeCategory} />
-        </div>
-
-        <div id="products-section" className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">
-          <ProductFeed
-            searchQuery={searchQuery}
-            activeCategory={activeCategory}
-            onCategorySelect={setActiveCategory}
-          />
-        </div>
-
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">
-          <AuthorizedDealers />
-        </div>
-
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">
-          <WhyShopWithUs />
-        </div>
-
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">
-          <FAQSection />
-        </div>
-
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">
-          <WhatsAppContactSection />
-        </div>
-
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto">
-          <BlogSection />
-        </div>
+        {settings.sectionOrder
+          .filter((id) => settings.sections[id]?.enabled)
+          .map((id) => (
+            // data-section-id lets the customizer scroll the preview to the
+            // section the merchant is editing.
+            <div key={id} data-section-id={id} className="scroll-mt-24">
+              {renderSection(id)}
+            </div>
+          ))}
       </main>
 
       {/* Cart Drawer */}

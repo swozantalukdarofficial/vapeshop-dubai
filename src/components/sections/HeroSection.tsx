@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
@@ -10,60 +9,116 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "@/components/ui/carousel";
+import { SmartImage } from "@/components/ui/smart-image";
+import { useSectionSettings } from "@/context/ThemeSettingsContext";
+import type { HeroPromoCard } from "@/lib/theme/types";
 
-const SLIDES = [
-  {
-    title: "MYLE Devices & Pods",
-    accent: "Premium Pod Systems",
-    desc: "Experience the ultimate in convenience and satisfaction. Official MYLE V5, V4, and Meta systems. Bold flavor profiles, smooth nicotine delivery, and long-lasting battery life.",
-    image: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/myle_slider.webp?v=1786640992",
-    fallbackImage: "/Slider/myle_slider.webp",
-    tag: "🔥 Premium Pod Systems",
-    buttonText: "Shop MYLE Collection",
-    stat1: { value: "5%", label: "Nicotine Strength" },
-    stat2: { value: "V5", label: "Latest Series" },
-    ctaCategory: "myle-vape-dubai",
-  },
-  {
-    title: "Disposable Vapes",
-    accent: "Premium Disposables",
-    desc: "Lost Mary, Al Fakher Crown Bar, Tugboat, BECO, and more. Up to 15,000 puffs. From 40 AED. Cash on delivery available with instant delivery across Dubai.",
-    image: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/disposable_slider.webp?v=1786640994",
-    fallbackImage: "/Slider/disposable_slider.webp",
-    tag: "💰 From 40 AED Only",
-    buttonText: "Shop Disposables",
-    stat1: { value: "15K", label: "Max Puffs" },
-    stat2: { value: "40", label: "AED Starting" },
-    ctaCategory: "disposable-vape",
-  },
-  {
-    title: "Pod Systems & Kits",
-    accent: "Vape Devices & Pods",
-    desc: "Refillable and pre-filled pod kits from top brands like Uwell, Geekvape, Vaporesso, OXVA, Voopoo. Compact, powerful, and designed for daily use.",
-    image: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/pod_kits_slider.webp?v=1786640996",
-    fallbackImage: "/Slider/pod_kits_slider.webp",
-    tag: "⚡ High Performance Kits",
-    buttonText: "Shop Pod Systems",
-    stat1: { value: "100%", label: "Authentic" },
-    stat2: { value: "Top", label: "Global Brands" },
-    ctaCategory: "pod-system",
-  },
-  {
-    title: "Premium E-Liquids & Salts",
-    accent: "Nicotine Salts & Freebase",
-    desc: "Nasty Juice, Pod Salt, Tokyo, RufPuf, and more. 0mg to 50mg nicotine options. Over 80 premium flavors in stock with same-day 2-hour delivery.",
-    image: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/e_liquid_slider.webp?v=1786640998",
-    fallbackImage: "/Slider/e_liquid_slider.webp",
-    tag: "⭐ 80+ Flavors Available",
-    buttonText: "Shop E-Liquids",
-    stat1: { value: "80+", label: "Flavors" },
-    stat2: { value: "0-50mg", label: "Nicotine Range" },
-    ctaCategory: "vape-e-juice",
-  },
-];
+/** Renders the headline, colouring an `&` in the brand colour when present. */
+const SlideHeadline: React.FC<{ title: string; as: "h1" | "h2" }> = ({ title, as }) => {
+  const Tag = as;
+  const className =
+    "text-3xl sm:text-5xl lg:text-[3.3rem] font-serif font-black text-foreground leading-[1.08] tracking-tight";
+
+  if (!title.includes("&")) {
+    return <Tag className={className}>{title}</Tag>;
+  }
+
+  const [before, ...after] = title.split("&");
+  return (
+    <Tag className={className}>
+      {before}
+      <span className="text-primary">&</span>
+      {after.join("&")}
+    </Tag>
+  );
+};
+
+const PromoCard: React.FC<{ card: HeroPromoCard }> = ({ card }) => {
+  const router = useRouter();
+  const isPrimary = card.style === "primary";
+
+  return (
+    <div
+      className={`flex-1 border rounded-[2.5rem] p-6 sm:p-8 flex gap-5 items-center justify-between relative overflow-hidden group card-shadow hover:card-shadow-hover transition-all duration-300 hover:-translate-y-1.5 cursor-pointer min-h-[260px] sm:min-h-[290px] ${
+        isPrimary ? "bg-primary border-primary" : "bg-card border-border/60"
+      }`}
+      onClick={() => router.push(card.href || "/shop")}
+    >
+      <div
+        className={`absolute w-44 h-44 rounded-full filter blur-3xl pointer-events-none ${
+          isPrimary
+            ? "top-0 right-0 bg-white/10"
+            : "bottom-0 right-0 bg-orange-50 dark:bg-primary/5"
+        }`}
+      />
+
+      {/* Left content */}
+      <div className="flex flex-col justify-center flex-grow min-w-0 z-10 gap-4 py-1">
+        <div>
+          <span
+            className={`text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5 ${
+              isPrimary ? "text-white/80" : "text-primary"
+            }`}
+          >
+            {card.eyebrow}
+          </span>
+          <h3
+            className={`text-lg sm:text-xl font-serif font-bold leading-snug ${
+              isPrimary ? "text-white" : "text-foreground"
+            }`}
+          >
+            {card.title}
+          </h3>
+          <p
+            className={`text-xs sm:text-sm mt-1.5 leading-relaxed ${
+              isPrimary ? "text-white/85" : "text-muted-foreground"
+            }`}
+          >
+            {card.subtitle}
+          </p>
+        </div>
+        <div
+          className={`inline-flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full transition-all duration-300 hover:scale-[1.04] active:scale-95 w-fit ${
+            isPrimary
+              ? "bg-white text-primary group-hover:opacity-95 shadow-md"
+              : "bg-primary text-white group-hover:bg-gold-shimmer primary-glow shadow-xs"
+          }`}
+        >
+          {card.buttonText} <ArrowRight className="h-4 w-4" />
+        </div>
+      </div>
+
+      {/* Right product image */}
+      <div className="w-[120px] sm:w-[140px] h-[160px] sm:h-[190px] flex-shrink-0 relative flex items-center justify-center z-10 overflow-hidden">
+        <div
+          className={`absolute w-24 h-24 rounded-full filter blur-[30px] pointer-events-none ${
+            isPrimary ? "bg-white/10" : "bg-primary/5"
+          }`}
+        />
+        {card.image && (
+          <SmartImage
+            src={card.image}
+            alt={card.title}
+            width={140}
+            height={190}
+            sizes="140px"
+            className={`relative max-h-full max-w-full w-auto h-auto object-contain group-hover:scale-108 transition-all duration-500 pointer-events-none ${
+              isPrimary
+                ? "drop-shadow-[0_10px_25px_rgba(0,0,0,0.25)] group-hover:-rotate-2"
+                : "drop-shadow-[0_10px_25px_rgba(0,0,0,0.15)] group-hover:rotate-2"
+            }`}
+          />
+        )}
+      </div>
+    </div>
+  );
+};
 
 export const HeroSection: React.FC = () => {
   const router = useRouter();
+  const hero = useSectionSettings("hero");
+  const slides = hero.slides;
+
   const [api, setApi] = useState<CarouselApi>();
   const [activeSlide, setActiveSlide] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -83,7 +138,7 @@ export const HeroSection: React.FC = () => {
     if (!api) return;
 
     setProgress(0);
-    const total = 6000;
+    const total = Math.max(hero.autoplaySeconds, 2) * 1000;
     const step = 50;
     let elapsed = 0;
     let isHovered = false;
@@ -119,12 +174,19 @@ export const HeroSection: React.FC = () => {
       emblaRoot.removeEventListener("mouseenter", onMouseEnter);
       emblaRoot.removeEventListener("mouseleave", onMouseLeave);
     };
-  }, [api, activeSlide]);
+  }, [api, activeSlide, hero.autoplaySeconds]);
+
+  // Re-measure when the merchant adds or removes a slide in the customizer.
+  useEffect(() => {
+    api?.reInit();
+  }, [api, slides.length]);
 
   const handleDotClick = (idx: number) => {
     api?.scrollTo(idx);
     setActiveSlide(idx);
   };
+
+  if (slides.length === 0) return null;
 
   return (
     <section className="relative pt-16 sm:pt-20 lg:pt-28 pb-4 overflow-hidden bg-transparent">
@@ -147,7 +209,7 @@ export const HeroSection: React.FC = () => {
               className="w-full flex-grow flex flex-col"
             >
               <CarouselContent className="flex-grow flex m-0 cursor-grab active:cursor-grabbing select-none">
-                {SLIDES.map((slide, idx) => (
+                {slides.map((slide, idx) => (
                   <CarouselItem
                     key={idx}
                     className="basis-full p-6 sm:p-10 lg:p-12 min-h-[440px] sm:min-h-[520px] lg:min-h-[560px] flex flex-col justify-between"
@@ -165,20 +227,20 @@ export const HeroSection: React.FC = () => {
                       {/* Product image (Placed TOP on mobile, RIGHT on desktop) */}
                       <div className="md:w-[45%] md:order-2 flex items-center justify-center relative min-h-[200px] sm:min-h-[320px] py-2 sm:py-4 select-none pointer-events-none">
                         <div className="absolute w-44 sm:w-56 h-44 sm:h-56 rounded-full bg-primary/8 filter blur-[60px] pointer-events-none" />
-                        <Image
-                          src={slide.image}
-                          alt={slide.title}
-                          width={420}
-                          height={420}
-                          draggable={false}
-                          priority={idx === 0}
-                          fetchPriority={idx === 0 ? "high" : "auto"}
-                          sizes="(max-width: 640px) 200px, (max-width: 1024px) 360px, 420px"
-                          className="animate-float relative z-10 max-h-[220px] sm:max-h-[340px] lg:max-h-[390px] w-auto max-w-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.12)] pointer-events-none"
-                          onError={(e) => {
-                            (e.currentTarget as HTMLImageElement).src = slide.fallbackImage || "/vape_kit.png";
-                          }}
-                        />
+                        {slide.image && (
+                          <SmartImage
+                            src={slide.image}
+                            fallbackSrc={slide.fallbackImage || "/vape_kit.png"}
+                            alt={slide.title}
+                            width={420}
+                            height={420}
+                            draggable={false}
+                            priority={idx === 0}
+                            fetchPriority={idx === 0 ? "high" : "auto"}
+                            sizes="(max-width: 640px) 200px, (max-width: 1024px) 360px, 420px"
+                            className="animate-float relative z-10 max-h-[220px] sm:max-h-[340px] lg:max-h-[390px] w-auto max-w-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.12)] pointer-events-none"
+                          />
+                        )}
                       </div>
 
                       {/* Text content (Placed BELOW image on mobile, LEFT on desktop) */}
@@ -187,53 +249,29 @@ export const HeroSection: React.FC = () => {
                           <p className="text-[10px] sm:text-xs font-extrabold tracking-[0.25em] text-primary uppercase mb-1.5 sm:mb-2">
                             {slide.accent}
                           </p>
-                          {idx === 0 ? (
-                            <h1 className="text-3xl sm:text-5xl lg:text-[3.3rem] font-serif font-black text-foreground leading-[1.08] tracking-tight">
-                              {slide.title.includes("&") ? (
-                                <>
-                                  {slide.title.split("&")[0]}
-                                  <span className="text-primary">&</span>
-                                  {slide.title.split("&")[1]}
-                                </>
-                              ) : (
-                                slide.title
-                              )}
-                            </h1>
-                          ) : (
-                            <h2 className="text-3xl sm:text-5xl lg:text-[3.3rem] font-serif font-black text-foreground leading-[1.08] tracking-tight">
-                              {slide.title.includes("&") ? (
-                                <>
-                                  {slide.title.split("&")[0]}
-                                  <span className="text-primary">&</span>
-                                  {slide.title.split("&")[1]}
-                                </>
-                              ) : (
-                                slide.title
-                              )}
-                            </h2>
-                          )}
+                          <SlideHeadline title={slide.title} as={idx === 0 ? "h1" : "h2"} />
                         </div>
                         <p className="text-xs sm:text-base text-muted-foreground leading-relaxed font-normal min-h-[40px] sm:min-h-[64px]">
-                          {slide.desc}
+                          {slide.description}
                         </p>
 
                         {/* Stats */}
                         <div className="flex gap-6 sm:gap-8 pt-1 sm:pt-2">
                           <div>
                             <p className="text-2xl sm:text-4xl font-serif font-extrabold text-foreground">
-                              {slide.stat1.value}
+                              {slide.stat1Value}
                             </p>
                             <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider font-semibold mt-0.5 sm:mt-1">
-                              {slide.stat1.label}
+                              {slide.stat1Label}
                             </p>
                           </div>
                           <div className="w-px bg-border/60" />
                           <div>
                             <p className="text-2xl sm:text-4xl font-serif font-extrabold text-foreground">
-                              {slide.stat2.value}
+                              {slide.stat2Value}
                             </p>
                             <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider font-semibold mt-0.5 sm:mt-1">
-                              {slide.stat2.label}
+                              {slide.stat2Label}
                             </p>
                           </div>
                         </div>
@@ -241,7 +279,7 @@ export const HeroSection: React.FC = () => {
                         {/* Button */}
                         <div className="pt-2">
                           <button
-                            onClick={() => router.push(`/collections/${slide.ctaCategory}`)}
+                            onClick={() => router.push(slide.ctaHref || "/shop")}
                             className="inline-flex items-center gap-2.5 bg-primary text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded-full text-xs sm:text-base font-extrabold tracking-wide hover:bg-gold-shimmer transition-all duration-300 primary-glow hover:scale-[1.03] active:scale-95 cursor-pointer shadow-md"
                           >
                             {slide.buttonText} <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -257,7 +295,7 @@ export const HeroSection: React.FC = () => {
             {/* Progress dots */}
             <div className="relative z-20 px-8 sm:px-12 pb-6 sm:pb-8 border-t border-border/60 pt-4 bg-card rounded-b-[2.5rem]">
               <div className="flex items-center gap-4">
-                {SLIDES.map((_, idx) => (
+                {slides.map((_, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleDotClick(idx)}
@@ -284,75 +322,13 @@ export const HeroSection: React.FC = () => {
           </div>
 
           {/* ── Right: Promo Cards ──────────── col 9-12 */}
-          <div className="lg:col-span-4 flex flex-col gap-5">
-
-            {/* JUUL 1 Series Promo */}
-            <div
-              className="flex-1 bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-8 flex gap-5 items-center justify-between relative overflow-hidden group card-shadow hover:card-shadow-hover transition-all duration-300 hover:-translate-y-1.5 cursor-pointer min-h-[260px] sm:min-h-[290px]"
-              onClick={() => router.push("/collections/juul-1-series")}
-            >
-              <div className="absolute bottom-0 right-0 w-44 h-44 rounded-full bg-orange-50 dark:bg-primary/5 filter blur-3xl pointer-events-none" />
-
-              {/* Left content */}
-              <div className="flex flex-col justify-center flex-grow min-w-0 z-10 gap-4 py-1">
-                <div>
-                  <span className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase block mb-1.5">JUUL 1 Series</span>
-                  <h3 className="text-lg sm:text-xl font-serif font-bold text-foreground leading-snug">JUUL 1 Devices & Pods</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 leading-relaxed">Original USA Stock · 3% & 5% Nic</p>
-                </div>
-                <div className="inline-flex items-center gap-2.5 bg-primary text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full group-hover:bg-gold-shimmer transition-all duration-300 primary-glow hover:scale-[1.04] active:scale-95 w-fit shadow-xs">
-                  Shop JUUL 1 <ArrowRight className="h-4 w-4" />
-                </div>
-              </div>
-
-              {/* Right Product Image */}
-              <div className="w-[120px] sm:w-[140px] h-[160px] sm:h-[190px] flex-shrink-0 relative flex items-center justify-center z-10 overflow-hidden">
-                <div className="absolute w-24 h-24 rounded-full bg-primary/5 filter blur-[30px] pointer-events-none" />
-                <Image
-                  src="https://cdn.shopify.com/s/files/1/0684/3488/6727/files/juul_1_slider.webp?v=1786641000"
-                  alt="JUUL 1"
-                  width={140}
-                  height={190}
-                  sizes="140px"
-                  className="relative max-h-full max-w-full w-auto h-auto object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.15)] group-hover:scale-108 group-hover:rotate-2 transition-all duration-500 pointer-events-none"
-                />
-              </div>
+          {hero.promoCards.length > 0 && (
+            <div className="lg:col-span-4 flex flex-col gap-5">
+              {hero.promoCards.map((card, idx) => (
+                <PromoCard key={idx} card={card} />
+              ))}
             </div>
-
-            {/* JUUL 2 Series Promo */}
-            <div
-              className="flex-1 bg-primary border border-primary rounded-[2.5rem] p-6 sm:p-8 flex gap-5 items-center justify-between relative overflow-hidden group card-shadow hover:card-shadow-hover transition-all duration-300 hover:-translate-y-1.5 cursor-pointer min-h-[260px] sm:min-h-[290px]"
-              onClick={() => router.push("/collections/juul-2-series")}
-            >
-              <div className="absolute top-0 right-0 w-44 h-44 rounded-full bg-white/10 filter blur-3xl pointer-events-none" />
-
-              {/* Left content */}
-              <div className="flex flex-col justify-center flex-grow min-w-0 z-10 gap-4 py-1">
-                <div>
-                  <span className="text-[10px] font-bold tracking-[0.2em] text-white/80 uppercase block mb-1.5">JUUL 2 Series</span>
-                  <h3 className="text-lg sm:text-xl font-serif font-bold text-white leading-snug">JUUL 2 Devices & Pods</h3>
-                  <p className="text-xs sm:text-sm text-white/85 mt-1.5 leading-relaxed">Authentic UK Stock · 18mg Nic</p>
-                </div>
-                <div className="inline-flex items-center gap-2.5 bg-white text-primary text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full group-hover:opacity-95 transition-all duration-300 shadow-md hover:scale-[1.04] active:scale-95 w-fit">
-                  Shop JUUL 2 <ArrowRight className="h-4 w-4" />
-                </div>
-              </div>
-
-              {/* Right Product Image */}
-              <div className="w-[120px] sm:w-[140px] h-[160px] sm:h-[190px] flex-shrink-0 relative flex items-center justify-center z-10 overflow-hidden">
-                <div className="absolute w-24 h-24 rounded-full bg-white/10 filter blur-[30px] pointer-events-none" />
-                <Image
-                  src="https://cdn.shopify.com/s/files/1/0684/3488/6727/files/juul_2_slider.webp?v=1786641001"
-                  alt="JUUL 2"
-                  width={140}
-                  height={190}
-                  sizes="140px"
-                  className="relative max-h-full max-w-full w-auto h-auto object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.25)] group-hover:scale-108 group-hover:-rotate-2 transition-all duration-500 pointer-events-none"
-                />
-              </div>
-            </div>
-
-          </div>
+          )}
         </div>
       </div>
     </section>

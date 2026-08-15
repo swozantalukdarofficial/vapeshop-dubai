@@ -3,6 +3,8 @@ import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { ThemeSettingsProvider } from "@/context/ThemeSettingsContext";
+import { getThemeSettings } from "@/lib/theme/get-settings";
 import { WhatsAppFloating } from "@/components/layout/WhatsAppFloating";
 import { CanonicalHead } from "@/components/layout/CanonicalHead";
 import {
@@ -93,7 +95,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -101,6 +103,7 @@ export default function RootLayout({
   const orgSchema = getOrganizationSchema();
   const websiteSchema = getWebSiteSchema();
   const storeSchema = getLocalBusinessSchema();
+  const themeSettings = await getThemeSettings();
 
   return (
     <html
@@ -131,12 +134,14 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <CanonicalHead />
-        <ThemeProvider>
-          <CartProvider>
-            {children}
-            <WhatsAppFloating />
-          </CartProvider>
-        </ThemeProvider>
+        <ThemeSettingsProvider initial={themeSettings}>
+          <ThemeProvider>
+            <CartProvider>
+              {children}
+              <WhatsAppFloating />
+            </CartProvider>
+          </ThemeProvider>
+        </ThemeSettingsProvider>
       </body>
     </html>
   );
