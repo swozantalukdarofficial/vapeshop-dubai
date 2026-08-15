@@ -18,6 +18,19 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+## Theme Customizer
+
+Homepage content is editable from a Shopify-style admin at **`/admin`** — live
+preview, drag-to-reorder sections, draft/publish, and multi-user sign-in.
+
+```bash
+# one-time: create the first admin account
+npm run admin:create -- --email you@example.com --password "your-password" --role admin
+```
+
+Set `ADMIN_SESSION_SECRET` in `.env` before deploying. Full documentation:
+[docs/theme-customizer.md](docs/theme-customizer.md).
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More

@@ -1,58 +1,26 @@
 "use client";
 
 import React, { useState } from "react";
-import { HelpCircle, ChevronDown, Search, ShieldCheck, Zap, CreditCard, CheckCircle2 } from "lucide-react";
+import { HelpCircle, ChevronDown, Search, Zap, CheckCircle2 } from "lucide-react";
 
-export interface FAQItem {
-  question: string;
-  answer: string;
-  category: "delivery" | "authenticity" | "payment" | "products";
-}
+import { useSectionSettings } from "@/context/ThemeSettingsContext";
 
-export const MAIN_FAQS: FAQItem[] = [
-  {
-    question: "How fast is vape delivery in Dubai and across the UAE?",
-    answer: "We offer 2-Hour Express Delivery in Dubai for all orders placed before 10:00 PM. For Abu Dhabi, Sharjah, Ajman, RAK, Fujairah, and UAQ, we provide guaranteed same-day or next-day express delivery.",
-    category: "delivery",
-  },
-  {
-    question: "Are all vapes, pods, and devices 100% authentic?",
-    answer: "Yes, 100%! All devices, disposable vapes, pods, and e-liquids sold at Vape Shop Dubai are directly imported from certified manufacturers and authorized regional distributors. Every product features a security seal and scannable QR verification code.",
-    category: "authenticity",
-  },
-  {
-    question: "Can I pay by card when the delivery driver arrives?",
-    answer: "Yes! We support Cash on Delivery (COD) as well as Card Machine on Delivery. Our delivery riders carry mobile wireless card terminals accepting Visa, Mastercard, Apple Pay, and contactless payments.",
-    category: "payment",
-  },
-  {
-    question: "What is the difference between JUUL 1 and JUUL 2?",
-    answer: "JUUL 2 is the next-generation pod system featuring enhanced airflow, smart LED battery level indicators, anti-counterfeit pod detection, and 18mg nicotine salt pods. JUUL 1 is the classic minimal device available in 3% and 5% USA nicotine strengths.",
-    category: "products",
-  },
-  {
-    question: "What is the difference between Nicotine Salt and Freebase E-Liquids?",
-    answer: "Nicotine Salt e-liquids provide a smoother throat hit at higher nicotine concentrations (20mg to 50mg), making them ideal for pod systems like Caliburn, XROS, and MYLE. Freebase e-liquids have higher VG ratios designed for sub-ohm mod kits to produce thick vapor clouds.",
-    category: "products",
-  },
-  {
-    question: "What is the legal age to buy vape products in Dubai?",
-    answer: "In accordance with UAE federal regulations, you must be at least 18 years of age or older to purchase electronic cigarettes, nicotine pods, or vaping accessories.",
-    category: "authenticity",
-  },
-  {
-    question: "What should I do if a disposable vape or device is defective?",
-    answer: "All products are backed by our 100% Satisfaction Guarantee. If you receive a defective unit or damaged item, contact our customer support team via WhatsApp within 24 hours for an immediate free replacement.",
-    category: "delivery",
-  },
+const FILTER_TABS = [
+  { label: "All Questions", id: "all" },
+  { label: "Delivery", id: "delivery" },
+  { label: "Authenticity", id: "authenticity" },
+  { label: "Payment", id: "payment" },
+  { label: "Products", id: "products" },
 ];
 
 export function FAQSection() {
+  const settings = useSectionSettings("faq");
+
   const [openIndex, setOpenIndex] = useState<number | null>(0); // First open by default
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
-  const filteredFaqs = MAIN_FAQS.filter((faq) => {
+  const filteredFaqs = settings.items.filter((faq) => {
     const matchCat = selectedCategory === "all" || faq.category === selectedCategory;
     const matchSearch =
       faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -75,15 +43,15 @@ export function FAQSection() {
         <div className="text-center flex flex-col items-center flex-1">
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] px-3.5 py-1 rounded-full mb-2">
             <HelpCircle className="w-3.5 h-3.5 text-primary" />
-            <span>Customer Help &amp; FAQs</span>
+            <span>{settings.badgeText}</span>
           </div>
 
           <h2 className="text-2xl sm:text-4xl font-serif font-black text-foreground tracking-tight leading-tight">
-            Frequently Asked Questions
+            {settings.heading}
           </h2>
 
           <p className="text-xs sm:text-sm text-muted-foreground mt-1 font-semibold max-w-xl">
-            Find instant answers regarding 2-hour express delivery in Dubai, product authenticity, card payments on delivery, and vape device selection.
+            {settings.description}
           </p>
 
           {/* Premium Centered Line Divider */}
@@ -96,10 +64,12 @@ export function FAQSection() {
 
         {/* Right Delivery Badge */}
         <div className="flex items-center justify-center sm:justify-end gap-2.5 w-full sm:w-48">
-          <div className="hidden lg:flex items-center gap-1.5 text-[10px] font-extrabold text-primary uppercase tracking-wider bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-full shrink-0">
-            <Zap className="w-3.5 h-3.5 text-primary" />
-            <span>2-Hour Delivery</span>
-          </div>
+          {settings.deliveryBadge && (
+            <div className="hidden lg:flex items-center gap-1.5 text-[10px] font-extrabold text-primary uppercase tracking-wider bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-full shrink-0">
+              <Zap className="w-3.5 h-3.5 text-primary" />
+              <span>{settings.deliveryBadge}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -110,7 +80,7 @@ export function FAQSection() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search FAQs (e.g. delivery, JUUL, card)..."
+            placeholder={settings.searchPlaceholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-11 pr-4 py-3 bg-background border border-border/80 rounded-2xl text-xs font-semibold text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-all shadow-inner"
@@ -127,13 +97,7 @@ export function FAQSection() {
 
         {/* Filter Tabs */}
         <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto no-scrollbar py-1">
-          {[
-            { label: "All Questions", id: "all" },
-            { label: "Delivery", id: "delivery" },
-            { label: "Authenticity", id: "authenticity" },
-            { label: "Payment", id: "payment" },
-            { label: "Products", id: "products" },
-          ].map((tab) => (
+          {FILTER_TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setSelectedCategory(tab.id)}
@@ -200,10 +164,12 @@ export function FAQSection() {
                       {faq.answer}
                     </p>
 
-                    <div className="mt-4 flex items-center gap-2 text-xs font-bold text-primary">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                      <span>Verified Answer for Dubai &amp; UAE Customers</span>
-                    </div>
+                    {settings.verifiedNote && (
+                      <div className="mt-4 flex items-center gap-2 text-xs font-bold text-primary">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                        <span>{settings.verifiedNote}</span>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

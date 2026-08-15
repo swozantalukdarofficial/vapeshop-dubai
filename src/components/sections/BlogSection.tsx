@@ -8,10 +8,14 @@ import { BLOG_POSTS, BlogPost } from "@/app/blog/page";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
+import { useSectionSettings } from "@/context/ThemeSettingsContext";
 import { cn } from "@/lib/utils";
 
 export const BlogSection: React.FC = () => {
-  const [posts, setPosts] = useState<BlogPost[]>(BLOG_POSTS.slice(0, 3));
+  const settings = useSectionSettings("blog");
+  const postCount = Math.max(1, settings.postCount);
+
+  const [posts, setPosts] = useState<BlogPost[]>(BLOG_POSTS.slice(0, postCount));
 
   useEffect(() => {
     async function fetchLatestPosts() {
@@ -20,7 +24,7 @@ export const BlogSection: React.FC = () => {
         if (res.ok) {
           const data = await res.json();
           if (data.articles && data.articles.length > 0) {
-            const mapped: BlogPost[] = data.articles.slice(0, 3).map((item: any, idx: number) => ({
+            const mapped: BlogPost[] = data.articles.slice(0, postCount).map((item: any, idx: number) => ({
               slug: item.handle || `article-${idx}`,
               title: item.title,
               excerpt: item.excerpt || (item.contentHtml ? item.contentHtml.replace(/<[^>]+>/g, "").slice(0, 120) + "..." : ""),
@@ -39,7 +43,7 @@ export const BlogSection: React.FC = () => {
     }
 
     fetchLatestPosts();
-  }, []);
+  }, [postCount]);
 
   return (
     <section className="w-full bg-card border border-border/60 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md transition-all duration-300">
@@ -53,23 +57,23 @@ export const BlogSection: React.FC = () => {
           <div className="space-y-2">
             <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 gap-1.5 px-3.5 py-1 text-[10px] font-black uppercase tracking-widest">
               <BookOpen className="w-3.5 h-3.5" />
-              <span>Vape Dubai Journal & Guides</span>
+              <span>{settings.badgeText}</span>
             </Badge>
-            
+
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-black text-foreground tracking-tight leading-tight">
-              Latest Vaping Guides & Insights
+              {settings.heading}
             </h2>
-            
+
             <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl font-medium leading-relaxed">
-              Stay informed with authentic product reviews, JUUL 2 guides, disposable vape comparisons, and legal UAE regulations.
+              {settings.description}
             </p>
           </div>
 
           <Link
-            href="/blog"
+            href={settings.viewAllHref || "/blog"}
             className="group self-start md:self-auto inline-flex items-center justify-center gap-2 bg-foreground text-background hover:bg-primary transition-colors text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full shadow-sm"
           >
-            <span>View All Articles</span>
+            <span>{settings.viewAllLabel}</span>
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
@@ -156,7 +160,7 @@ export const BlogSection: React.FC = () => {
         {/* Bottom Mobile View All Link */}
         <div className="text-center pt-1 md:hidden">
           <Link
-            href="/blog"
+            href={settings.viewAllHref || "/blog"}
             className={cn(
               buttonVariants({ variant: "outline", size: "sm" }),
               "w-full sm:w-auto inline-flex items-center gap-2"

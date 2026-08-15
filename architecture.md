@@ -9,6 +9,17 @@
 
 ## Directory Structure
 - `/src/app`: App router pages, route handlers, site map, robots.ts, layout.tsx, globals.css
+- `/src/app/admin`: Theme customizer (merchant-facing admin panel)
 - `/src/components/ui`: Primitive UI components (Button, Card, Badge, Accordion, Sheet)
 - `/src/components/sections`: Domain feature sections (Hero, Categories, ProductFeed, WhyShopWithUs, CustomerReviews, Blog, JuulApp, MyleVerification, BottomCollectionGrid)
+- `/src/components/admin`: Customizer UI (Customizer, FieldRenderer, field primitives)
+- `/src/lib/theme`: Theme settings — types, defaults, admin form schema, file storage
+- `/src/lib/auth`: Admin authentication — scrypt hashing, signed sessions, user store
 - `/src/lib`: Utilities and helpers
+- `/src/proxy.ts`: Route guard for `/admin` and `/api/admin` (Next 16 replaces `middleware.ts` with `proxy.ts`)
+- `/data`: Runtime JSON store for theme settings and admin users (gitignored)
+
+## Theme Customizer
+Homepage section content is data-driven rather than hard-coded. Sections read
+from `useSectionSettings(<id>)`; order and visibility come from `sectionOrder`.
+See `docs/theme-customizer.md`.

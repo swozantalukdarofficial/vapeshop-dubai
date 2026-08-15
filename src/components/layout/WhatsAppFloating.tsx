@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { X, Send, Bot, ShieldCheck, MessageCircle, User } from "lucide-react";
 
 interface Message {
@@ -9,6 +10,11 @@ interface Message {
 }
 
 export const WhatsAppFloating: React.FC = () => {
+  // Mounted by the root layout, which also wraps the admin panel — the support
+  // widget has no place over the theme customizer.
+  const pathname = usePathname();
+  const isAdminRoute = pathname?.startsWith("/admin") ?? false;
+
   const [isOpen, setIsOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [activeTab, setActiveTab] = useState<"ai" | "whatsapp">("ai");
@@ -131,6 +137,8 @@ export const WhatsAppFloating: React.FC = () => {
     { text: "💨 Highest puff disposables?", msg: "Which disposable vape has highest puffs?" },
     { text: "📦 Place an order", msg: "I want to place an order now." },
   ];
+
+  if (isAdminRoute) return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">

@@ -1,80 +1,14 @@
 "use client";
 
 import React from "react";
-import {
-  ShieldCheck,
-  CreditCard,
-  Headphones,
-  Tag,
-  RefreshCw,
-  Award,
-  CheckCircle2,
-  Clock,
-  Truck,
-  Building2,
-} from "lucide-react";
+import { Award, Building2, CheckCircle2, ShieldCheck } from "lucide-react";
 
-export interface ValuePillar {
-  icon: React.ElementType;
-  title: string;
-  subtitle: string;
-  badge: string;
-  color: string;
-  iconBg: string;
-}
-
-const PILLARS: ValuePillar[] = [
-  {
-    icon: Truck,
-    title: "2-Hour Express Dubai Delivery",
-    subtitle: "Order before 10:00 PM for guaranteed 2-hour express delivery anywhere in Dubai. Same-day delivery across Abu Dhabi & all UAE Emirates.",
-    badge: "Express Speed",
-    color: "",
-    iconBg: "bg-primary/10 text-primary border-primary/20",
-  },
-  {
-    icon: ShieldCheck,
-    title: "100% Guaranteed Authentic",
-    subtitle: "Directly imported from official certified factory distributors. Every device and pod box includes QR scratch codes for instant genuine verification.",
-    badge: "Certified Original",
-    color: "",
-    iconBg: "bg-primary/10 text-primary border-primary/20",
-  },
-  {
-    icon: CreditCard,
-    title: "Cash & Card on Delivery",
-    subtitle: "Pay conveniently at your door. Our delivery drivers carry mobile wireless POS terminals accepting Visa, Mastercard, Apple Pay, and cash.",
-    badge: "Flexible Payment",
-    color: "",
-    iconBg: "bg-primary/10 text-primary border-primary/20",
-  },
-  {
-    icon: Headphones,
-    title: "24/7 Dedicated WhatsApp Support",
-    subtitle: "Need product advice or instant order tracking? Our Dubai vape specialists are available 24/7 on WhatsApp to assist you immediately.",
-    badge: "Always Available",
-    color: "",
-    iconBg: "bg-primary/10 text-primary border-primary/20",
-  },
-  {
-    icon: Tag,
-    title: "Direct Wholesale Pricing",
-    subtitle: "Enjoy direct distributor wholesale prices, multi-pack bundle savings on JUUL & disposables, and exclusive seasonal promotions in Dubai.",
-    badge: "Best Value",
-    color: "",
-    iconBg: "bg-primary/10 text-primary border-primary/20",
-  },
-  {
-    icon: RefreshCw,
-    title: "Zero-Hassle Free Replacements",
-    subtitle: "If any factory unit is defective upon unboxing, our express driver will replace it immediately with a brand new sealed box at no cost.",
-    badge: "Buyer Protection",
-    color: "",
-    iconBg: "bg-primary/10 text-primary border-primary/20",
-  },
-];
+import { ThemeIcon } from "@/components/ui/theme-icon";
+import { useSectionSettings } from "@/context/ThemeSettingsContext";
 
 export function WhyShopWithUs() {
+  const settings = useSectionSettings("whyShop");
+
   return (
     <div className="w-full bg-card border border-border/60 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md transition-all duration-300">
       {/* Section Header */}
@@ -82,15 +16,16 @@ export function WhyShopWithUs() {
         <div className="space-y-2 max-w-2xl">
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] px-3.5 py-1 rounded-full">
             <Award className="w-3.5 h-3.5 text-primary" />
-            <span>The Dubai Vape Standard</span>
+            <span>{settings.badgeText}</span>
           </div>
 
           <h2 className="text-2xl sm:text-4xl font-serif font-black text-foreground tracking-tight leading-tight">
-            Why Shop With <span className="text-primary">Vape Shop Dubai?</span>
+            {settings.headingLead}{" "}
+            <span className="text-primary">{settings.headingHighlight}</span>
           </h2>
 
           <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">
-            We are Dubai&apos;s most trusted online vape store delivering 100% authentic devices, Disposable Vapes, Pod Systems, JUUL, MYLE, and E-Liquids directly to your doorstep.
+            {settings.description}
           </p>
         </div>
 
@@ -99,20 +34,18 @@ export function WhyShopWithUs() {
           <Building2 className="w-5 h-5 text-primary shrink-0" />
           <div>
             <div className="text-xs font-black text-foreground uppercase tracking-wider">
-              Licensed UAE Importer
+              {settings.pillTitle}
             </div>
             <div className="text-[10px] text-muted-foreground font-medium">
-              Serving Dubai, Abu Dhabi, Sharjah &amp; All Emirates
+              {settings.pillSubtitle}
             </div>
           </div>
         </div>
       </div>
 
-      {/* 6 Value Pillars Grid */}
+      {/* Value Pillars Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-        {PILLARS.map((pillar, idx) => {
-          const Icon = pillar.icon;
-
+        {settings.pillars.map((pillar, idx) => {
           return (
             <div
               key={idx}
@@ -121,16 +54,16 @@ export function WhyShopWithUs() {
               <div>
                 {/* Top Badge & Icon */}
                 <div className="relative z-10 flex items-center justify-between mb-4">
-                  <div
-                    className={`w-11 h-11 rounded-xl border p-2 flex items-center justify-center ${pillar.iconBg} shadow-xs group-hover:scale-105 transition-transform duration-300`}
-                  >
-                    <Icon className="w-5 h-5" />
+                  <div className="w-11 h-11 rounded-xl border p-2 flex items-center justify-center bg-primary/10 text-primary border-primary/20 shadow-xs group-hover:scale-105 transition-transform duration-300">
+                    <ThemeIcon name={pillar.icon} className="w-5 h-5" />
                   </div>
 
-                  <span className="inline-flex items-center gap-1 bg-muted/60 border border-border/60 text-muted-foreground group-hover:text-primary group-hover:border-primary/30 text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full transition-colors">
-                    <ShieldCheck className="w-3 h-3 text-primary" />
-                    {pillar.badge}
-                  </span>
+                  {pillar.badge && (
+                    <span className="inline-flex items-center gap-1 bg-muted/60 border border-border/60 text-muted-foreground group-hover:text-primary group-hover:border-primary/30 text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full transition-colors">
+                      <ShieldCheck className="w-3 h-3 text-primary" />
+                      {pillar.badge}
+                    </span>
+                  )}
                 </div>
 
                 {/* Title & Subtitle */}
@@ -146,10 +79,12 @@ export function WhyShopWithUs() {
               </div>
 
               {/* Footer Checkmark Guarantee */}
-              <div className="relative z-10 mt-4 pt-3 border-t border-border/40 flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                <span>Verified Service Commitment</span>
-              </div>
+              {settings.footerNote && (
+                <div className="relative z-10 mt-4 pt-3 border-t border-border/40 flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                  <span>{settings.footerNote}</span>
+                </div>
+              )}
             </div>
           );
         })}
