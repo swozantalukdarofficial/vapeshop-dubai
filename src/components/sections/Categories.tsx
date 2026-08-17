@@ -3,16 +3,24 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 
-import { useSectionSettings } from "@/context/ThemeSettingsContext";
-
-interface CategoriesProps {
-  onCategorySelect?: (id: string) => void;
-  activeCategory?: string;
+export interface CategoryItem {
+  label: string;
+  image: string;
+  href: string;
 }
 
-export const Categories: React.FC<CategoriesProps> = () => {
+export interface CategoriesSettings {
+  eyebrow: string;
+  heading: string;
+  seeAllLabel: string;
+  seeAllHref: string;
+  items: CategoryItem[];
+}
+
+export const Categories: React.FC<{ settings: CategoriesSettings }> = ({
+  settings,
+}) => {
   const router = useRouter();
-  const settings = useSectionSettings("categories");
 
   return (
     <div className="py-4 sm:py-6">

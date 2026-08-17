@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 import { getSession } from "@/lib/auth/session";
 import { THEME_CACHE_TAG } from "@/lib/theme/get-settings";
-import { normalizeSettings } from "@/lib/theme/merge";
+import { normalizeSettings } from "@/lib/theme/normalize";
 import {
   discardDraft,
   publishDraft,

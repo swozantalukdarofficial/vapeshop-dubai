@@ -1,333 +1,406 @@
-import type { ThemeSettings } from "./types";
+import { SECTION_REGISTRY } from "./sections";
+import type { SectionInstance, Template, ThemeSettings } from "./types";
+
+export const THEME_VERSION = 2;
 
 /**
- * The factory defaults — extracted verbatim from the original hard-coded
- * section components so a fresh install renders exactly as it did before the
- * customizer existed. "Reset to default" in the admin restores this object.
+ * Factory defaults.
+ *
+ * Every template below reproduces what the corresponding page rendered before
+ * the customizer existed — including the handle-based rules, now carried as
+ * `showWhen` conditions. A fresh install therefore looks identical, and
+ * "Reset to defaults" restores exactly this.
  */
-export const DEFAULT_THEME_SETTINGS: ThemeSettings = {
-  version: 1,
-  sectionOrder: [
-    "hero",
-    "categories",
-    "products",
-    "brands",
-    "whyShop",
-    "faq",
-    "whatsapp",
-    "blog",
+
+/** Build a section instance, seeding content from the registry defaults. */
+function inst(
+  id: string,
+  type: string,
+  extra: { showWhen?: string; settings?: Record<string, unknown>; enabled?: boolean } = {}
+): SectionInstance {
+  const def = SECTION_REGISTRY[type];
+  if (!def) throw new Error(`Unknown section type in defaults: ${type}`);
+  return {
+    id,
+    type,
+    enabled: extra.enabled ?? true,
+    ...(extra.showWhen ? { showWhen: extra.showWhen } : {}),
+    settings: { ...structuredClone(def.defaults), ...(extra.settings ?? {}) },
+  };
+}
+
+function template(
+  t: Omit<Template, "instances" | "order"> & { sections: SectionInstance[] }
+): Template {
+  const { sections, ...rest } = t;
+  return {
+    ...rest,
+    order: sections.map((s) => s.id),
+    instances: Object.fromEntries(sections.map((s) => [s.id, s])),
+  };
+}
+
+/* ── Static page bodies ───────────────────────────────────────────── */
+
+const ABOUT_BODY = `Vape Shop Dubai is the UAE's trusted destination for 100% authentic vaping products. We supply JUUL, MYLE, disposable vapes, pod systems and premium e-liquids sourced directly from authorized regional distributors.
+
+Every device and pod we sell carries a manufacturer security seal and a scannable verification code, so you always know exactly what you are buying.
+
+- 2-hour express delivery across Dubai
+- Same-day delivery to Abu Dhabi, Sharjah, Ajman and the wider UAE
+- Cash and card accepted at your door
+- Free replacement on any factory-defective unit`;
+
+const SHIPPING_BODY = `We deliver across all seven Emirates, with express service in Dubai.
+
+- Dubai: 2-hour express delivery on orders placed before 10:00 PM
+- Abu Dhabi, Sharjah, Ajman, RAK, Fujairah, UAQ: same-day or next-day express
+- Free delivery on orders above 300 AED
+- Cash on delivery and card machine on delivery both available
+
+An ID check confirming you are 18 or older is mandatory at the time of delivery.`;
+
+const PRIVACY_BODY = `We collect only the information needed to process and deliver your order: your name, delivery address, phone number and order history.
+
+We never sell your personal data. Information is shared with delivery partners only to the extent required to complete your order.
+
+You can request a copy of your data, or ask us to delete it, by contacting us at any time.`;
+
+const TERMS_BODY = `By purchasing from Vape Shop Dubai you confirm that you are 18 years of age or older and that vaping products are legal in your area.
+
+All products are sold as-is with manufacturer warranty where applicable. Factory-defective units are replaced free of charge when reported within 24 hours of delivery.
+
+Prices are listed in AED and may change without notice. Orders are subject to stock availability.`;
+
+/* ── Templates ────────────────────────────────────────────────────── */
+
+function buildTemplates(): Record<string, Template> {
+  return {
+    /* ═══ Homepage ═══ */
+    index: template({
+      type: "index",
+      label: "Homepage",
+      previewPath: "/",
+      sections: [
+        inst("index-hero", "hero"),
+        inst("index-categories", "categories"),
+        inst("index-products", "productFeed"),
+        inst("index-brands", "brands"),
+        inst("index-whyshop", "whyShop"),
+        inst("index-faq", "faq"),
+        inst("index-whatsapp", "whatsapp"),
+        inst("index-blog", "blogPosts"),
+      ],
+    }),
+
+    /* ═══ Collection (default for every handle) ═══ */
+    collection: template({
+      type: "collection",
+      label: "Collection pages",
+      previewPath: "/collections/disposable-vape",
+      sections: [
+        inst("col-main", "collectionMain"),
+        inst("col-disp-showcase", "disposableShowcase", {
+          showWhen: "handleIncludesDisposable",
+        }),
+        inst("col-disp-compare", "disposableComparison", {
+          showWhen: "handleIncludesDisposable",
+        }),
+        inst("col-ejuice", "ejuiceShowcase", { showWhen: "handleIsEJuice" }),
+        inst("col-juul-flavors", "juulSignatureFlavors", {
+          showWhen: "handleIncludesJuul",
+        }),
+        inst("col-juul-packaging", "juulPackagingCompare", {
+          showWhen: "handleIsJuul1",
+        }),
+        inst("col-juul-specs", "juulTechSpecs", { showWhen: "handleIncludesJuul" }),
+        inst("col-bottom-grid", "bottomCollectionGrid", {
+          showWhen: "notBrandDirectory",
+        }),
+        inst("col-juul-app", "juulAppIntegration", { showWhen: "handleIsJuul2" }),
+        inst("col-myle-verify", "myleVerification", { showWhen: "handleIncludesMyle" }),
+        inst("col-whyshop", "whyShop"),
+        inst("col-faq", "faq"),
+        inst("col-reviews", "customerReviews"),
+        inst("col-brands", "brands", { showWhen: "notBrandDirectory" }),
+        inst("col-whatsapp", "whatsapp"),
+      ],
+    }),
+
+    /* ═══ Product (default for every handle) ═══ */
+    product: template({
+      type: "product",
+      label: "Product pages",
+      previewPath: "/product/",
+      sections: [
+        inst("prod-main", "productMain"),
+        inst("prod-juul-menthol", "juulCrispMenthol", { showWhen: "productIsJuul" }),
+        inst("prod-why-choose", "whyChooseProduct", { showWhen: "productIsNotJuul" }),
+        inst("prod-key-specs", "productKeySpecs", { showWhen: "productIsGeneric" }),
+        inst("prod-flavors", "productFlavors"),
+        inst("prod-reviews", "customerReviews"),
+        inst("prod-whatsapp", "whatsapp"),
+        inst("prod-related", "relatedProducts", { showWhen: "hasRelatedProducts" }),
+      ],
+    }),
+
+    /* ═══ Static pages ═══ */
+    "page:about-us": template({
+      type: "page",
+      label: "About Us",
+      handle: "about-us",
+      previewPath: "/about-us",
+      sections: [
+        inst("about-header", "pageHeader", {
+          settings: {
+            eyebrow: "Our Story",
+            heading: "About Vape Shop Dubai",
+            subheading:
+              "Dubai's trusted source for authentic vaping products, delivered in hours.",
+            centered: true,
+          },
+        }),
+        inst("about-body", "richText", {
+          settings: { heading: "", body: ABOUT_BODY, width: "narrow" },
+        }),
+        inst("about-whyshop", "whyShop"),
+        inst("about-whatsapp", "whatsapp"),
+      ],
+    }),
+
+    "page:contact": template({
+      type: "page",
+      label: "Contact",
+      handle: "contact",
+      previewPath: "/contact",
+      sections: [
+        inst("contact-header", "pageHeader", {
+          settings: {
+            eyebrow: "Get in Touch",
+            heading: "Contact Vape Shop Dubai",
+            subheading: "We reply on WhatsApp in under two minutes, around the clock.",
+            centered: true,
+          },
+        }),
+        inst("contact-form", "contactForm"),
+        inst("contact-details", "contactDetails"),
+        inst("contact-whatsapp", "whatsapp"),
+        inst("contact-faq", "faq"),
+      ],
+    }),
+
+    "page:shipping-delivery": template({
+      type: "page",
+      label: "Shipping & Delivery",
+      handle: "shipping-delivery",
+      previewPath: "/shipping-delivery",
+      sections: [
+        inst("ship-header", "pageHeader", {
+          settings: {
+            eyebrow: "Delivery",
+            heading: "Shipping & Delivery",
+            subheading: "Express delivery across Dubai and the UAE.",
+            centered: true,
+          },
+        }),
+        inst("ship-body", "richText", {
+          settings: { heading: "", body: SHIPPING_BODY, width: "narrow" },
+        }),
+        inst("ship-whatsapp", "whatsapp"),
+      ],
+    }),
+
+    "page:privacy-policy": template({
+      type: "page",
+      label: "Privacy Policy",
+      handle: "privacy-policy",
+      previewPath: "/privacy-policy",
+      sections: [
+        inst("privacy-header", "pageHeader", {
+          settings: {
+            eyebrow: "Legal",
+            heading: "Privacy Policy",
+            subheading: "How we handle your personal information.",
+            centered: true,
+          },
+        }),
+        inst("privacy-body", "richText", {
+          settings: { heading: "", body: PRIVACY_BODY, width: "narrow" },
+        }),
+      ],
+    }),
+
+    "page:terms-conditions": template({
+      type: "page",
+      label: "Terms & Conditions",
+      handle: "terms-conditions",
+      previewPath: "/terms-conditions",
+      sections: [
+        inst("terms-header", "pageHeader", {
+          settings: {
+            eyebrow: "Legal",
+            heading: "Terms & Conditions",
+            subheading: "The rules that apply when you buy from us.",
+            centered: true,
+          },
+        }),
+        inst("terms-body", "richText", {
+          settings: { heading: "", body: TERMS_BODY, width: "narrow" },
+        }),
+      ],
+    }),
+  };
+}
+
+/* ── Header & footer ──────────────────────────────────────────────── */
+
+const DEFAULT_HEADER: ThemeSettings["header"] = {
+  announcementEnabled: true,
+  announcementText:
+    "🚀 FREE DELIVERY ON ORDERS 300AED+  |  ⚡ SAME DAY DELIVERY  |  💳 COD & CREDIT CARD MACHINE ON DELIVERY",
+  logoText: "VAPE SHOP",
+  logoSubText: "DUBAI",
+  menu: [
+    { label: "HOME", href: "/", children: [] },
+    { label: "SHOP", href: "/shop", children: [] },
+    {
+      label: "JUUL",
+      href: "/collections/juul-vape-dubai",
+      children: [
+        { label: "JUUL 1 Series", href: "/collections/juul-1-series" },
+        { label: "JUUL 2 Series", href: "/collections/juul-2-series" },
+        { label: "JUUL Pods", href: "/collections/juul-pods-offers" },
+      ],
+    },
+    {
+      label: "MYLE",
+      href: "/collections/myle-vape-dubai",
+      children: [
+        { label: "Myle v5 Pods", href: "/collections/myle-v5-pods" },
+        { label: "Myle v5 Device", href: "/collections/myle-v5-device" },
+        { label: "Myle Disposable", href: "/collections/myle-disposable" },
+      ],
+    },
+    {
+      label: "DISPOSABLE",
+      href: "/collections/disposable-vape",
+      children: [
+        { label: "Al Fakher Vape", href: "/collections/al-fakher-vape" },
+        { label: "Elf Bar Vape", href: "/collections/elf-bar-vape" },
+        { label: "Fummo Vape", href: "/collections/fummo-vape" },
+        { label: "Pod Salt Vape", href: "/collections/pod-salt-vape" },
+        { label: "Vapes Bars", href: "/collections/vapes-bars" },
+        { label: "Vozol Vape", href: "/collections/vozol-vape" },
+        { label: "Tugboat Vape", href: "/collections/tugboat-vape" },
+        { label: "HQD Vape", href: "/collections/hqd-vape" },
+        { label: "Lost Mary", href: "/collections/lost-mary-disposable" },
+        { label: "Maskking Vape", href: "/collections/maskking-vape" },
+        { label: "Geek Bar", href: "/collections/geek-bar-disposable" },
+        { label: "Yuoto Vape", href: "/collections/yuoto-vape" },
+        { label: "Relx Vape", href: "/collections/relx-vape" },
+        { label: "Nerd Vape", href: "/collections/nerd-vape" },
+        { label: "Vgod Stig", href: "/collections/vgod-stig" },
+        { label: "Silvaper Vape", href: "/collections/silvaper-vape" },
+      ],
+    },
+    {
+      label: "E-JUICE",
+      href: "/collections/vape-e-juice",
+      children: [
+        { label: "Salt Nicotine", href: "/collections/salt-nicotine" },
+        { label: "Freebase e-liquid", href: "/collections/freebase-e-liquid" },
+      ],
+    },
+    {
+      label: "POD SYSTEM",
+      href: "/collections/pod-system",
+      children: [
+        { label: "Pod Kit", href: "/collections/pod-kit" },
+        { label: "Pod Cartridge", href: "/collections/pod-cartridge" },
+        { label: "Vape Coils", href: "/collections/vape-coils" },
+      ],
+    },
+    {
+      label: "BRAND",
+      href: "/collections/brand",
+      children: [
+        { label: "Oxva Vape", href: "/collections/oxva-vape" },
+        { label: "Uwell Vape", href: "/collections/uwell-vape" },
+        { label: "Vaporesso Vape", href: "/collections/vaporesso-vape" },
+        { label: "Smok Vape", href: "/collections/smok-vape" },
+        { label: "Geek Vape", href: "/collections/geek-vape" },
+        { label: "Voopoo Vape", href: "/collections/voopoo-vape" },
+      ],
+    },
+    { label: "BLOG", href: "/blog", children: [] },
   ],
-  sections: {
-    /* ── Hero ───────────────────────────────────────────────────── */
-    hero: {
-      enabled: true,
-      autoplaySeconds: 6,
-      slides: [
-        {
-          title: "MYLE Devices & Pods",
-          accent: "Premium Pod Systems",
-          description:
-            "Experience the ultimate in convenience and satisfaction. Official MYLE V5, V4, and Meta systems. Bold flavor profiles, smooth nicotine delivery, and long-lasting battery life.",
-          image:
-            "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/myle_slider.webp?v=1786640992",
-          fallbackImage: "/Slider/myle_slider.webp",
-          tag: "🔥 Premium Pod Systems",
-          buttonText: "Shop MYLE Collection",
-          ctaHref: "/collections/myle-vape-dubai",
-          stat1Value: "5%",
-          stat1Label: "Nicotine Strength",
-          stat2Value: "V5",
-          stat2Label: "Latest Series",
-        },
-        {
-          title: "Disposable Vapes",
-          accent: "Premium Disposables",
-          description:
-            "Lost Mary, Al Fakher Crown Bar, Tugboat, BECO, and more. Up to 15,000 puffs. From 40 AED. Cash on delivery available with instant delivery across Dubai.",
-          image:
-            "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/disposable_slider.webp?v=1786640994",
-          fallbackImage: "/Slider/disposable_slider.webp",
-          tag: "💰 From 40 AED Only",
-          buttonText: "Shop Disposables",
-          ctaHref: "/collections/disposable-vape",
-          stat1Value: "15K",
-          stat1Label: "Max Puffs",
-          stat2Value: "40",
-          stat2Label: "AED Starting",
-        },
-        {
-          title: "Pod Systems & Kits",
-          accent: "Vape Devices & Pods",
-          description:
-            "Refillable and pre-filled pod kits from top brands like Uwell, Geekvape, Vaporesso, OXVA, Voopoo. Compact, powerful, and designed for daily use.",
-          image:
-            "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/pod_kits_slider.webp?v=1786640996",
-          fallbackImage: "/Slider/pod_kits_slider.webp",
-          tag: "⚡ High Performance Kits",
-          buttonText: "Shop Pod Systems",
-          ctaHref: "/collections/pod-system",
-          stat1Value: "100%",
-          stat1Label: "Authentic",
-          stat2Value: "Top",
-          stat2Label: "Global Brands",
-        },
-        {
-          title: "Premium E-Liquids & Salts",
-          accent: "Nicotine Salts & Freebase",
-          description:
-            "Nasty Juice, Pod Salt, Tokyo, RufPuf, and more. 0mg to 50mg nicotine options. Over 80 premium flavors in stock with same-day 2-hour delivery.",
-          image:
-            "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/e_liquid_slider.webp?v=1786640998",
-          fallbackImage: "/Slider/e_liquid_slider.webp",
-          tag: "⭐ 80+ Flavors Available",
-          buttonText: "Shop E-Liquids",
-          ctaHref: "/collections/vape-e-juice",
-          stat1Value: "80+",
-          stat1Label: "Flavors",
-          stat2Value: "0-50mg",
-          stat2Label: "Nicotine Range",
-        },
-      ],
-      promoCards: [
-        {
-          eyebrow: "JUUL 1 Series",
-          title: "JUUL 1 Devices & Pods",
-          subtitle: "Original USA Stock · 3% & 5% Nic",
-          buttonText: "Shop JUUL 1",
-          href: "/collections/juul-1-series",
-          image:
-            "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/juul_1_slider.webp?v=1786641000",
-          style: "light",
-        },
-        {
-          eyebrow: "JUUL 2 Series",
-          title: "JUUL 2 Devices & Pods",
-          subtitle: "Authentic UK Stock · 18mg Nic",
-          buttonText: "Shop JUUL 2",
-          href: "/collections/juul-2-series",
-          image:
-            "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/juul_2_slider.webp?v=1786641001",
-          style: "primary",
-        },
-      ],
-    },
-
-    /* ── Categories ─────────────────────────────────────────────── */
-    categories: {
-      enabled: true,
-      eyebrow: "Browse Directory",
-      heading: "Shop by Categories",
-      seeAllLabel: "SEE ALL",
-      seeAllHref: "/shop",
-      items: [
-        { label: "JUUL 1 Series", image: "/juul_device.png", href: "/collections/juul-1-series" },
-        { label: "JUUL 2 Series", image: "/juul_device.png", href: "/collections/juul-2-series" },
-        { label: "JUUL Pods", image: "/juul_device.png", href: "/collections/juul-pods-offers" },
-        { label: "Myle v5 Pods", image: "/vape_kit.png", href: "/collections/myle-v5-pods" },
-        { label: "Myle v5 Kits", image: "/vape_kit.png", href: "/collections/myle-v5-device" },
-        { label: "Myle Disposables", image: "/vape_kit.png", href: "/collections/myle-disposable" },
-        { label: "Disposables", image: "/lost_mary.png", href: "/collections/disposable-vape" },
-        { label: "Salt Nicotine", image: "/premium_liquid.png", href: "/collections/salt-nicotine" },
-        { label: "Freebase Nic", image: "/premium_liquid.png", href: "/collections/freebase-e-liquid" },
-        { label: "Pod Kits", image: "/vape_kit.png", href: "/collections/pod-kit" },
-        { label: "Cartridges", image: "/vape_kit.png", href: "/collections/pod-cartridge" },
-        { label: "Vape Coils", image: "/vape_kit.png", href: "/collections/vape-coils" },
-        { label: "Uwell", image: "/vape_kit.png", href: "/collections/uwell-vape" },
-        { label: "Vaporesso", image: "/vape_kit.png", href: "/collections/vaporesso-vape" },
-        { label: "Geekvape", image: "/vape_kit.png", href: "/collections/geek-vape" },
-        { label: "OXVA", image: "/vape_kit.png", href: "/collections/oxva-vape" },
-      ],
-    },
-
-    /* ── Product feed ───────────────────────────────────────────── */
-    products: {
-      enabled: true,
-    },
-
-    /* ── Brands ─────────────────────────────────────────────────── */
-    brands: {
-      enabled: true,
-      eyebrow: "Trusted Brands",
-      heading: "Shop by Brands",
-      seeAllLabel: "SEE ALL",
-      seeAllHref: "/shop",
-      showFlavorWheel: true,
-      items: [
-        { name: "JUUL", image: "/juul_device.png", href: "/collections/juul-vape-dubai" },
-        { name: "MYLE", image: "/vape_kit.png", href: "/collections/myle-vape-dubai" },
-        { name: "GeekVape", image: "/vape_kit.png", href: "/collections/geek-vape" },
-        { name: "Uwell", image: "/vape_kit.png", href: "/collections/uwell-vape" },
-        { name: "Vaporesso", image: "/vape_kit.png", href: "/collections/vaporesso-vape" },
-        { name: "VooPoo", image: "/vape_kit.png", href: "/collections/voopoo-vape" },
-        { name: "Smok", image: "/vape_kit.png", href: "/collections/smok-vape" },
-        { name: "Oxva", image: "/vape_kit.png", href: "/collections/oxva-vape" },
-        { name: "Elf Bar", image: "/lost_mary.png", href: "/collections/elf-bar-vape" },
-        { name: "Lost Mary", image: "/lost_mary.png", href: "/collections/lost-mary-disposable" },
-        { name: "Tugboat", image: "/lost_mary.png", href: "/collections/tugboat-vape" },
-        { name: "SKE Crystal", image: "/lost_mary.png", href: "/collections/disposable-vape" },
-        { name: "Pod Salt", image: "/premium_liquid.png", href: "/collections/pod-salt-vape" },
-        { name: "Nasty Juice", image: "/premium_liquid.png", href: "/collections/salt-nicotine" },
-        { name: "IVG", image: "/premium_liquid.png", href: "/collections/salt-nicotine" },
-        { name: "Al Fakher", image: "/premium_liquid.png", href: "/collections/al-fakher-vape" },
-      ],
-    },
-
-    /* ── Why shop with us ───────────────────────────────────────── */
-    whyShop: {
-      enabled: true,
-      badgeText: "The Dubai Vape Standard",
-      headingLead: "Why Shop With",
-      headingHighlight: "Vape Shop Dubai?",
-      description:
-        "We are Dubai's most trusted online vape store delivering 100% authentic devices, Disposable Vapes, Pod Systems, JUUL, MYLE, and E-Liquids directly to your doorstep.",
-      pillTitle: "Licensed UAE Importer",
-      pillSubtitle: "Serving Dubai, Abu Dhabi, Sharjah & All Emirates",
-      footerNote: "Verified Service Commitment",
-      pillars: [
-        {
-          icon: "Truck",
-          title: "2-Hour Express Dubai Delivery",
-          subtitle:
-            "Order before 10:00 PM for guaranteed 2-hour express delivery anywhere in Dubai. Same-day delivery across Abu Dhabi & all UAE Emirates.",
-          badge: "Express Speed",
-        },
-        {
-          icon: "ShieldCheck",
-          title: "100% Guaranteed Authentic",
-          subtitle:
-            "Directly imported from official certified factory distributors. Every device and pod box includes QR scratch codes for instant genuine verification.",
-          badge: "Certified Original",
-        },
-        {
-          icon: "CreditCard",
-          title: "Cash & Card on Delivery",
-          subtitle:
-            "Pay conveniently at your door. Our delivery drivers carry mobile wireless POS terminals accepting Visa, Mastercard, Apple Pay, and cash.",
-          badge: "Flexible Payment",
-        },
-        {
-          icon: "Headphones",
-          title: "24/7 Dedicated WhatsApp Support",
-          subtitle:
-            "Need product advice or instant order tracking? Our Dubai vape specialists are available 24/7 on WhatsApp to assist you immediately.",
-          badge: "Always Available",
-        },
-        {
-          icon: "Tag",
-          title: "Direct Wholesale Pricing",
-          subtitle:
-            "Enjoy direct distributor wholesale prices, multi-pack bundle savings on JUUL & disposables, and exclusive seasonal promotions in Dubai.",
-          badge: "Best Value",
-        },
-        {
-          icon: "RefreshCw",
-          title: "Zero-Hassle Free Replacements",
-          subtitle:
-            "If any factory unit is defective upon unboxing, our express driver will replace it immediately with a brand new sealed box at no cost.",
-          badge: "Buyer Protection",
-        },
-      ],
-    },
-
-    /* ── FAQ ────────────────────────────────────────────────────── */
-    faq: {
-      enabled: true,
-      badgeText: "Customer Help & FAQs",
-      heading: "Frequently Asked Questions",
-      description:
-        "Find instant answers regarding 2-hour express delivery in Dubai, product authenticity, card payments on delivery, and vape device selection.",
-      deliveryBadge: "2-Hour Delivery",
-      searchPlaceholder: "Search FAQs (e.g. delivery, JUUL, card)...",
-      verifiedNote: "Verified Answer for Dubai & UAE Customers",
-      items: [
-        {
-          question: "How fast is vape delivery in Dubai and across the UAE?",
-          answer:
-            "We offer 2-Hour Express Delivery in Dubai for all orders placed before 10:00 PM. For Abu Dhabi, Sharjah, Ajman, RAK, Fujairah, and UAQ, we provide guaranteed same-day or next-day express delivery.",
-          category: "delivery",
-        },
-        {
-          question: "Are all vapes, pods, and devices 100% authentic?",
-          answer:
-            "Yes, 100%! All devices, disposable vapes, pods, and e-liquids sold at Vape Shop Dubai are directly imported from certified manufacturers and authorized regional distributors. Every product features a security seal and scannable QR verification code.",
-          category: "authenticity",
-        },
-        {
-          question: "Can I pay by card when the delivery driver arrives?",
-          answer:
-            "Yes! We support Cash on Delivery (COD) as well as Card Machine on Delivery. Our delivery riders carry mobile wireless card terminals accepting Visa, Mastercard, Apple Pay, and contactless payments.",
-          category: "payment",
-        },
-        {
-          question: "What is the difference between JUUL 1 and JUUL 2?",
-          answer:
-            "JUUL 2 is the next-generation pod system featuring enhanced airflow, smart LED battery level indicators, anti-counterfeit pod detection, and 18mg nicotine salt pods. JUUL 1 is the classic minimal device available in 3% and 5% USA nicotine strengths.",
-          category: "products",
-        },
-        {
-          question: "What is the difference between Nicotine Salt and Freebase E-Liquids?",
-          answer:
-            "Nicotine Salt e-liquids provide a smoother throat hit at higher nicotine concentrations (20mg to 50mg), making them ideal for pod systems like Caliburn, XROS, and MYLE. Freebase e-liquids have higher VG ratios designed for sub-ohm mod kits to produce thick vapor clouds.",
-          category: "products",
-        },
-        {
-          question: "What is the legal age to buy vape products in Dubai?",
-          answer:
-            "In accordance with UAE federal regulations, you must be at least 18 years of age or older to purchase electronic cigarettes, nicotine pods, or vaping accessories.",
-          category: "authenticity",
-        },
-        {
-          question: "What should I do if a disposable vape or device is defective?",
-          answer:
-            "All products are backed by our 100% Satisfaction Guarantee. If you receive a defective unit or damaged item, contact our customer support team via WhatsApp within 24 hours for an immediate free replacement.",
-          category: "delivery",
-        },
-      ],
-    },
-
-    /* ── WhatsApp CTA ───────────────────────────────────────────── */
-    whatsapp: {
-      enabled: true,
-      badgeText: "Live WhatsApp Support",
-      responseNote: "Avg Response < 2 Mins",
-      heading: "Need Help Choosing or Prefer Direct WhatsApp Ordering?",
-      description:
-        "Connect directly with our Dubai vape specialists. Get instant flavor recommendations, custom bundle discounts, or place your order directly via WhatsApp for 2-hour express delivery.",
-      features: [
-        { icon: "Zap", label: "2-Hour Express Delivery" },
-        { icon: "ShieldCheck", label: "100% Authentic Products" },
-        { icon: "MessageCircle", label: "Cash / Card on Delivery" },
-      ],
-      contactLabel: "Official Contact",
-      phoneNumber: "971582839787",
-      phoneDisplay: "+971 58 283 9787",
-      prefilledMessage:
-        "Hello Vape Shop Dubai, I need assistance or would like to place an order!",
-      buttonText: "Chat on WhatsApp",
-    },
-
-    /* ── Blog ───────────────────────────────────────────────────── */
-    blog: {
-      enabled: true,
-      badgeText: "Vape Dubai Journal & Guides",
-      heading: "Latest Vaping Guides & Insights",
-      description:
-        "Stay informed with authentic product reviews, JUUL 2 guides, disposable vape comparisons, and legal UAE regulations.",
-      viewAllLabel: "View All Articles",
-      viewAllHref: "/blog",
-      postCount: 3,
-    },
-  },
 };
 
-/** Human-friendly names for each section, shared by the admin sidebar. */
-export const SECTION_LABELS: Record<string, string> = {
-  hero: "Hero Slider",
-  categories: "Shop by Categories",
-  products: "Product Feed",
-  brands: "Shop by Brands",
-  whyShop: "Why Shop With Us",
-  faq: "FAQ",
-  whatsapp: "WhatsApp CTA",
-  blog: "Blog Section",
+const DEFAULT_FOOTER: ThemeSettings["footer"] = {
+  trustItems: [
+    { icon: "Truck", title: "1-2 Hr Express Delivery", subtitle: "Dubai, Sharjah & Ajman" },
+    { icon: "ShieldCheck", title: "100% Authentic UAE", subtitle: "Scratch-code verified" },
+    { icon: "CreditCard", title: "Cash & Card on Delivery", subtitle: "Pay at your doorstep" },
+    { icon: "Clock", title: "24/7 Instant Dispatch", subtitle: "365 days non-stop service" },
+  ],
+  description:
+    "Dubai's leading online vape store. Authorized retailer of 100% authentic JUUL pods, MYLE devices, high-puff disposable vapes, and premium nicotine salts with 1–2 hour delivery across UAE.",
+  whatsappLabel: "WhatsApp Order",
+  whatsappNumber: "971582839787",
+  ratingText: "4.9 / 5.0",
+  columns: [
+    {
+      heading: "Shop Categories",
+      links: [
+        { label: "Disposable Vapes", href: "/collections/disposables" },
+        { label: "JUUL 2 & JUUL Pods", href: "/collections/juul" },
+        { label: "MYLE V5 & Pod Kits", href: "/collections/myle" },
+        { label: "E-Liquids & Nic Salts", href: "/collections/e-liquids" },
+        { label: "Pod Systems & Coils", href: "/collections/accessories" },
+      ],
+    },
+    {
+      heading: "Top Brands",
+      links: [
+        { label: "Tugboat Vape Dubai", href: "/collections/disposables?brand=Tugboat" },
+        { label: "Elf Bar & Lost Mary", href: "/collections/disposables?brand=Elf+Bar" },
+        { label: "Al Fakher Crown Bar", href: "/collections/disposables?brand=Al+Fakher" },
+        { label: "JUUL Dubai UAE", href: "/collections/juul" },
+        { label: "MYLE Dubai Official", href: "/collections/myle" },
+      ],
+    },
+  ],
+  contactHeading: "Store & Support",
+  addressLabel: "Dubai Dispatch Center",
+  address: "International City, Dubai, UAE",
+  phone: "+971 58 283 9787",
+  email: "vapshopdubai@gmail.com",
+  hoursNote: "24/7 Delivery & Support across Dubai",
+  healthWarning:
+    "UAE 21+ ONLY: Products contain nicotine, an addictive chemical. For adult smokers (21+) in the UAE. Keep out of reach of children and pets.",
+  paymentBadges: [
+    { icon: "CreditCard", label: "Cash / Card on Delivery" },
+    { icon: "Link2", label: "Link Pay Accepted" },
+    { icon: "Award", label: "Licensed UAE" },
+  ],
+  copyright: "© 2026 Vape Shop Dubai. All rights reserved.",
+  poweredByLabel: "Webestone",
+  poweredByHref: "https://webestone.com",
+  bottomLinks: [
+    { label: "Terms", href: "/terms-conditions" },
+    { label: "Privacy", href: "/privacy-policy" },
+    { label: "Shipping", href: "/shipping-delivery" },
+  ],
 };
+
+export function createDefaultSettings(): ThemeSettings {
+  return {
+    version: THEME_VERSION,
+    header: structuredClone(DEFAULT_HEADER),
+    footer: structuredClone(DEFAULT_FOOTER),
+    templates: buildTemplates(),
+  };
+}
+
+/** Convenience singleton for read-only use (render fallbacks, tests). */
+export const DEFAULT_THEME_SETTINGS: ThemeSettings = createDefaultSettings();

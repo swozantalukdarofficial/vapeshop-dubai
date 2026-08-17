@@ -8,11 +8,20 @@ import { BLOG_POSTS, BlogPost } from "@/app/blog/page";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { useSectionSettings } from "@/context/ThemeSettingsContext";
 import { cn } from "@/lib/utils";
 
-export const BlogSection: React.FC = () => {
-  const settings = useSectionSettings("blog");
+export interface BlogSettings {
+  badgeText: string;
+  heading: string;
+  description: string;
+  viewAllLabel: string;
+  viewAllHref: string;
+  postCount: number;
+}
+
+export const BlogSection: React.FC<{ settings: BlogSettings }> = ({
+  settings,
+}) => {
   const postCount = Math.max(1, settings.postCount);
 
   const [posts, setPosts] = useState<BlogPost[]>(BLOG_POSTS.slice(0, postCount));

@@ -20,8 +20,10 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 ## Theme Customizer
 
-Homepage content is editable from a Shopify-style admin at **`/admin`** — live
-preview, drag-to-reorder sections, draft/publish, and multi-user sign-in.
+Every page is editable from a Shopify-style admin at **`/admin`** — live
+preview, drag-to-reorder sections, per-handle template overrides, draft/publish,
+and multi-user sign-in. Covers the homepage, collection and product templates,
+the static pages, and the shared header/footer.
 
 ```bash
 # one-time: create the first admin account

@@ -20,6 +20,17 @@
 - `/data`: Runtime JSON store for theme settings and admin users (gitignored)
 
 ## Theme Customizer
-Homepage section content is data-driven rather than hard-coded. Sections read
-from `useSectionSettings(<id>)`; order and visibility come from `sectionOrder`.
-See `docs/theme-customizer.md`.
+Page composition is data-driven rather than hard-coded, following Shopify's
+model: shared header/footer groups, plus one **template** per page type holding
+an ordered list of section **instances** (each with its own content).
+
+- Catalogue of section types, their admin fields and defaults: `src/lib/theme/sections.ts`
+- Factory content for every template: `src/lib/theme/defaults.ts`
+- The old handle-based display rules, now as data: `src/lib/theme/conditions.ts`
+- Migration, backfill and repair of saved settings: `src/lib/theme/normalize.ts`
+- Type → component mapping and the `slots` escape hatch: `src/components/sections/SectionRenderer.tsx`
+
+Pages render `<TemplateSections>`; those with heavy local state (collection,
+product) pass their own sections in as `slots` so the template still controls
+order and visibility. Per-handle overrides (`collection:juul-1-series`) take
+full manual control and switch conditions off. See `docs/theme-customizer.md`.

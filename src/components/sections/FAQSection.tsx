@@ -3,7 +3,21 @@
 import React, { useState } from "react";
 import { HelpCircle, ChevronDown, Search, Zap, CheckCircle2 } from "lucide-react";
 
-import { useSectionSettings } from "@/context/ThemeSettingsContext";
+export interface FaqItem {
+  question: string;
+  answer: string;
+  category: "delivery" | "authenticity" | "payment" | "products";
+}
+
+export interface FaqSettings {
+  badgeText: string;
+  heading: string;
+  description: string;
+  deliveryBadge: string;
+  searchPlaceholder: string;
+  verifiedNote: string;
+  items: FaqItem[];
+}
 
 const FILTER_TABS = [
   { label: "All Questions", id: "all" },
@@ -13,8 +27,7 @@ const FILTER_TABS = [
   { label: "Products", id: "products" },
 ];
 
-export function FAQSection() {
-  const settings = useSectionSettings("faq");
+export function FAQSection({ settings }: { settings: FaqSettings }) {
 
   const [openIndex, setOpenIndex] = useState<number | null>(0); // First open by default
   const [searchQuery, setSearchQuery] = useState("");

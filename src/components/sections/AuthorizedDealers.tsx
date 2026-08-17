@@ -4,21 +4,34 @@ import React from "react";
 import { useRouter, useParams } from "next/navigation";
 import { FlavorsWheel } from "./FlavorsWheel";
 
-import { useSectionSettings } from "@/context/ThemeSettingsContext";
-import type { BrandItem } from "@/lib/theme/types";
+export interface BrandItem {
+  name: string;
+  image: string;
+  href: string;
+}
+
+export interface BrandsSettings {
+  eyebrow: string;
+  heading: string;
+  seeAllLabel: string;
+  seeAllHref: string;
+  showFlavorWheel: boolean;
+  items: BrandItem[];
+}
 
 interface AuthorizedDealersProps {
+  settings: BrandsSettings;
   onBrandSelect?: (brand: string) => void;
   onFlavorSelect?: (flavor: string) => void;
 }
 
 export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
+  settings,
   onBrandSelect,
   onFlavorSelect,
 }) => {
   const router = useRouter();
   const params = useParams();
-  const settings = useSectionSettings("brands");
 
   const handle = (params?.handle as string) || "";
   const isJuul1Or2 =
