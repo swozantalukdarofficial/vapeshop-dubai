@@ -23,6 +23,8 @@ import { MyleVerificationSection } from "@/components/sections/MyleVerificationS
 import { DisposableComparisonSections } from "@/components/sections/DisposableComparisonSections";
 import { DisposableBrandsShowcase } from "@/components/sections/DisposableBrandsShowcase";
 import { EJuiceBrandsShowcase } from "@/components/sections/EJuiceBrandsShowcase";
+import { TemplateSections } from "@/components/sections/SectionRenderer";
+import { useResolvedTemplate } from "@/context/ThemeSettingsContext";
 import {
   Star,
   ShoppingCart,
@@ -341,6 +343,9 @@ function CollectionPageContent() {
   }, [searchParams]);
 
   // Collection info — use Shopify data if available, otherwise fallback
+  const { instances: templateInstances, isOverride: templateIsOverride } =
+    useResolvedTemplate("collection", handle);
+
   const collectionInfo = useMemo(() => {
     const defaultTitle = handle
       ? handle.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
@@ -1277,75 +1282,44 @@ function CollectionPageContent() {
           </div>
         )}
 
-        {/* Custom Disposable Comparison & Brands Showcase Sections */}
-        {(handle === "disposable-vape" || handle.includes("disposable")) && (
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 space-y-4 sm:space-y-6">
-            <DisposableBrandsShowcase />
-            <DisposableComparisonSections />
-          </div>
-        )}
-
-        {/* Custom E-Juice / E-Liquid Brands Showcase Section */}
-        {(handle === "e-liquids" || handle === "e-juice" || handle.includes("juice") || handle.includes("liquid") || handle.includes("salt")) && (
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
-            <EJuiceBrandsShowcase />
-          </div>
-        )}
-
-        {/* JUUL Signature Flavors Section (Exclusive for JUUL collection pages) */}
-        {Boolean(handle?.toLowerCase().includes("juul")) && (
-          <JuulSignatureFlavorsSection handle={handle} />
-        )}
-
-        {/* JUUL 1 Packaging: Old vs New Comparison (Exclusive for JUUL 1 collection pages) */}
-        {Boolean(handle?.toLowerCase().includes("juul") && !handle?.toLowerCase().includes("juul-2")) && (
-          <JuulPackagingCompareSection />
-        )}
-
-        {/* Technical Specifications Section (Exclusive for JUUL collection pages) */}
-        {Boolean(handle?.toLowerCase().includes("juul")) && (
-          <JuulTechSpecsSection handle={handle} />
-        )}
-
-        {/* Custom 5-Category Bottom Sub-Collection Recommendation Grid */}
-        {!(handle === "brand" || handle === "brands") && (
-          <BottomCollectionGrid handle={handle} />
-        )}
-
-        {/* JUUL 2 App Integration Section (Exclusive for JUUL 2 collection pages) */}
-        {Boolean(handle?.toLowerCase().includes("juul-2") || handle?.toLowerCase().includes("juul2")) && (
-          <JuulAppIntegrationSection />
-        )}
-
-        {/* MYLE Anti-Counterfeit Verification Guide (Exclusive for MYLE pages) */}
-        {Boolean(handle?.toLowerCase().includes("myle")) && (
-          <MyleVerificationSection />
-        )}
-
-        {/* Why Shop With Us Section */}
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
-          <WhyShopWithUs />
-        </div>
-
-        {/* Customer Help & Frequently Asked Questions Section */}
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
-          <FAQSection />
-        </div>
-
-        {/* Verified Customer Reviews Section */}
-        <CustomerReviewsSection collectionName={collectionInfo.title} />
-
-        {/* Shop by Brands & Authorized Dealers Section (Hidden on Brand Directory page) */}
-        {!(handle === "brand" || handle === "brands") && (
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
-            <AuthorizedDealers />
-          </div>
-        )}
-
-        {/* Direct WhatsApp Contact & Orders Section */}
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
-          <WhatsAppContactSection />
-        </div>
+        {/* Everything below the product grid is controlled by the collection
+            template in the theme customizer: order, visibility, and — via a
+            per-handle override — exactly which sections a given collection
+            gets. Sections needing page data are passed in as slots. */}
+        <TemplateSections
+          instances={templateInstances}
+          isOverride={templateIsOverride}
+          context={{ handle, collectionTitle: collectionInfo.title }}
+          containerClassName="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6"
+          slots={{
+            collectionMain: null,
+            disposableShowcase: (
+              <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
+                <DisposableBrandsShowcase />
+              </div>
+            ),
+            disposableComparison: (
+              <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
+                <DisposableComparisonSections />
+              </div>
+            ),
+            ejuiceShowcase: (
+              <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
+                <EJuiceBrandsShowcase />
+              </div>
+            ),
+            juulSignatureFlavors: <JuulSignatureFlavorsSection handle={handle} />,
+            juulPackagingCompare: <JuulPackagingCompareSection />,
+            juulTechSpecs: <JuulTechSpecsSection handle={handle} />,
+            bottomCollectionGrid: <BottomCollectionGrid handle={handle} />,
+            juulAppIntegration: <JuulAppIntegrationSection />,
+            myleVerification: <MyleVerificationSection />,
+            customerReviews: (
+              <CustomerReviewsSection collectionName={collectionInfo.title} />
+            ),
+            brandSphere: <BrandSphere3D />,
+          }}
+        />
 
       </main>
 

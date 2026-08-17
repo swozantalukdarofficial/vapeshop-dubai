@@ -15,11 +15,15 @@ import {
   Eye,
   EyeOff,
   GripVertical,
+  Info,
   Loader2,
+  Lock,
   Monitor,
+  PanelsTopLeft,
   RotateCcw,
   Smartphone,
   Tablet,
+  Trash2,
   Undo2,
 } from "lucide-react";
 
@@ -28,11 +32,19 @@ import {
   PREVIEW_PARAM,
 } from "@/context/ThemeSettingsContext";
 import type { PublicUser } from "@/lib/auth/users";
-import { SECTION_SCHEMA_BY_ID } from "@/lib/theme/schema";
-import type { SectionId, ThemeSettings } from "@/lib/theme/types";
+import { CONDITION_LABELS } from "@/lib/theme/conditions";
+import { SECTION_REGISTRY } from "@/lib/theme/sections";
+import type {
+  SectionInstance,
+  Template,
+  ThemeSettings,
+} from "@/lib/theme/types";
 
+import { AddSectionMenu } from "./AddSectionMenu";
 import { AdminUserMenu } from "./AdminUserMenu";
 import { FieldRenderer } from "./FieldRenderer";
+import { HeaderFooterPanel } from "./HeaderFooterPanel";
+import { TemplatePicker } from "./TemplatePicker";
 import { useDragList } from "./use-drag-list";
 
 const DEVICES = {
@@ -43,11 +55,28 @@ const DEVICES = {
 
 type DeviceKey = keyof typeof DEVICES;
 type SaveState = "idle" | "saving" | "saved" | "error";
+/** Which editor the sidebar is showing. */
+type Panel =
+  | { kind: "sections" }
+  | { kind: "instance"; id: string }
+  | { kind: "header" }
+  | { kind: "footer" };
 
 const AUTOSAVE_DELAY_MS = 1200;
 
 function sameSettings(a: ThemeSettings, b: ThemeSettings): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
+}
+
+/** Readable, collision-resistant instance id without pulling in a uuid dep. */
+function newInstanceId(type: string, taken: Set<string>): string {
+  let n = 1;
+  let id = `${type}-${n}`;
+  while (taken.has(id)) {
+    n += 1;
+    id = `${type}-${n}`;
+  }
+  return id;
 }
 
 export const Customizer: React.FC<{
@@ -57,7 +86,8 @@ export const Customizer: React.FC<{
 }> = ({ user, initialDraft, initialPublished }) => {
   const [settings, setSettings] = useState<ThemeSettings>(initialDraft);
   const [published, setPublished] = useState<ThemeSettings>(initialPublished);
-  const [selected, setSelected] = useState<SectionId | null>(null);
+  const [templateKey, setTemplateKey] = useState("index");
+  const [panel, setPanel] = useState<Panel>({ kind: "sections" });
   const [device, setDevice] = useState<DeviceKey>("desktop");
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -65,29 +95,31 @@ export const Customizer: React.FC<{
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Lets the long-lived `message` listener below read the newest settings
-  // without having to resubscribe on every keystroke.
+  // Lets the long-lived `message` listener read the newest settings without
+  // resubscribing on every keystroke.
   const settingsRef = useRef(settings);
   useEffect(() => {
     settingsRef.current = settings;
   }, [settings]);
 
-  const hasUnpublished = useMemo(
-    () => !sameSettings(settings, published),
-    [settings, published]
-  );
-
   // The storefront's age gate is a fixed overlay that would otherwise cover
-  // the whole preview. The admin shares an origin with the storefront, so
-  // setting the flag here also satisfies the gate inside the iframe.
+  // the preview. Admin and storefront share an origin, so setting the flag
+  // here also satisfies the gate inside the iframe.
   useEffect(() => {
     try {
       localStorage.setItem("vapedubai_age_verified", "true");
     } catch {
-      // Private browsing with storage disabled — the gate stays, which is
-      // inconvenient but not broken.
+      // Storage disabled (private browsing) — the gate stays. Inconvenient,
+      // not broken.
     }
   }, []);
+
+  const template: Template | undefined = settings.templates[templateKey];
+
+  const hasUnpublished = useMemo(
+    () => !sameSettings(settings, published),
+    [settings, published]
+  );
 
   /* ── Preview bridge ─────────────────────────────────────────────── */
 
@@ -99,8 +131,6 @@ export const Customizer: React.FC<{
   }, []);
 
   useEffect(() => {
-    // The frame re-announces itself on every load, including navigations
-    // inside the preview, so this is where we (re)seed it with the draft.
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
       if ((event.data as { type?: string })?.type === PREVIEW_MESSAGES.ready) {
@@ -115,9 +145,9 @@ export const Customizer: React.FC<{
     pushToPreview(settings);
   }, [settings, pushToPreview]);
 
-  const scrollPreviewTo = useCallback((sectionId: SectionId) => {
+  const scrollPreviewTo = useCallback((instanceId: string) => {
     iframeRef.current?.contentWindow?.postMessage(
-      { type: PREVIEW_MESSAGES.scrollTo, sectionId },
+      { type: PREVIEW_MESSAGES.scrollTo, sectionId: instanceId },
       window.location.origin
     );
   }, []);
@@ -142,8 +172,6 @@ export const Customizer: React.FC<{
     }
   }, []);
 
-  // Debounced autosave: the preview is already live, so persisting on every
-  // keystroke would only add write churn.
   const isFirstRender = useRef(true);
   useEffect(() => {
     if (isFirstRender.current) {
@@ -177,6 +205,7 @@ export const Customizer: React.FC<{
       if (data.draft?.settings) setSettings(data.draft.settings);
       if (data.published?.settings) setPublished(data.published.settings);
       setSaveState("saved");
+      setPanel({ kind: "sections" });
     } catch (err) {
       setSaveState("error");
       setErrorMessage((err as Error).message);
@@ -185,42 +214,137 @@ export const Customizer: React.FC<{
     }
   };
 
-  /* ── Editing helpers ────────────────────────────────────────────── */
+  /* ── Template editing ───────────────────────────────────────────── */
 
-  const updateSectionField = (sectionId: SectionId, key: string, value: unknown) => {
-    setSettings((prev) => ({
-      ...prev,
-      sections: {
-        ...prev.sections,
-        [sectionId]: { ...prev.sections[sectionId], [key]: value },
-      },
-    }));
+  const updateTemplate = (key: string, mutate: (t: Template) => Template) => {
+    setSettings((prev) => {
+      const current = prev.templates[key];
+      if (!current) return prev;
+      return {
+        ...prev,
+        templates: { ...prev.templates, [key]: mutate(current) },
+      };
+    });
   };
 
-  const toggleSection = (sectionId: SectionId) => {
-    setSettings((prev) => ({
-      ...prev,
-      sections: {
-        ...prev.sections,
-        [sectionId]: {
-          ...prev.sections[sectionId],
-          enabled: !prev.sections[sectionId].enabled,
+  const updateInstanceField = (instanceId: string, fieldKey: string, value: unknown) => {
+    updateTemplate(templateKey, (t) => ({
+      ...t,
+      instances: {
+        ...t.instances,
+        [instanceId]: {
+          ...t.instances[instanceId],
+          settings: { ...t.instances[instanceId].settings, [fieldKey]: value },
         },
       },
     }));
   };
 
-  const setOrder = (order: SectionId[]) => {
-    setSettings((prev) => ({ ...prev, sectionOrder: order }));
+  const toggleInstance = (instanceId: string) => {
+    updateTemplate(templateKey, (t) => ({
+      ...t,
+      instances: {
+        ...t.instances,
+        [instanceId]: {
+          ...t.instances[instanceId],
+          enabled: !t.instances[instanceId].enabled,
+        },
+      },
+    }));
   };
 
+  const removeInstance = (instanceId: string) => {
+    updateTemplate(templateKey, (t) => {
+      const instances = { ...t.instances };
+      delete instances[instanceId];
+      return { ...t, instances, order: t.order.filter((id) => id !== instanceId) };
+    });
+    setPanel({ kind: "sections" });
+  };
+
+  const addSection = (sectionType: string) => {
+    const def = SECTION_REGISTRY[sectionType];
+    if (!def || !template) return;
+
+    const id = newInstanceId(sectionType, new Set(Object.keys(template.instances)));
+    const instance: SectionInstance = {
+      id,
+      type: sectionType,
+      enabled: true,
+      settings: structuredClone(def.defaults),
+    };
+
+    updateTemplate(templateKey, (t) => ({
+      ...t,
+      instances: { ...t.instances, [id]: instance },
+      order: [...t.order, id],
+    }));
+    setPanel({ kind: "instance", id });
+  };
+
+  const setOrder = (order: string[]) => {
+    updateTemplate(templateKey, (t) => ({ ...t, order }));
+  };
+
+  const createOverride = (type: "collection" | "product", handle: string) => {
+    const base = settings.templates[type];
+    if (!base) return;
+    const key = `${type}:${handle}`;
+
+    setSettings((prev) => ({
+      ...prev,
+      templates: {
+        ...prev.templates,
+        [key]: {
+          ...structuredClone(base),
+          label: `${type === "collection" ? "Collection" : "Product"}: ${handle}`,
+          handle,
+          previewPath: `/${type === "collection" ? "collections" : "product"}/${handle}`,
+        },
+      },
+    }));
+    setTemplateKey(key);
+    setPanel({ kind: "sections" });
+  };
+
+  const deleteTemplate = (key: string) => {
+    const t = settings.templates[key];
+    if (!t?.handle) return;
+    if (
+      !window.confirm(
+        `Delete the override for "${t.handle}"? That page will fall back to the default ${t.type} template.`
+      )
+    ) {
+      return;
+    }
+    setSettings((prev) => {
+      const templates = { ...prev.templates };
+      delete templates[key];
+      return { ...prev, templates };
+    });
+    if (templateKey === key) setTemplateKey(t.type);
+    setPanel({ kind: "sections" });
+  };
+
+  const orderedIds = template?.order ?? [];
   const { overIndex, dragIndex, itemProps, handleProps } = useDragList(
-    settings.sectionOrder,
+    orderedIds,
     setOrder
   );
 
-  const previewSrc = `/?${PREVIEW_PARAM}=1`;
-  const selectedSchema = selected ? SECTION_SCHEMA_BY_ID[selected] : null;
+  /* ── Preview URL ────────────────────────────────────────────────── */
+
+  const previewSrc = useMemo(() => {
+    const path = template?.previewPath ?? "/";
+    const separator = path.includes("?") ? "&" : "?";
+    return `${path}${separator}${PREVIEW_PARAM}=1`;
+  }, [template?.previewPath]);
+
+  const activeInstance =
+    panel.kind === "instance" ? template?.instances[panel.id] : undefined;
+  const activeDef = activeInstance
+    ? SECTION_REGISTRY[activeInstance.type]
+    : undefined;
 
   /* ── Render ─────────────────────────────────────────────────────── */
 
@@ -232,15 +356,20 @@ export const Customizer: React.FC<{
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-orange-500 text-[13px] font-black text-white">
             V
           </span>
-          <div className="min-w-0">
-            <h1 className="truncate text-[13px] font-black tracking-tight text-slate-800">
-              Theme customizer
-            </h1>
-            <p className="truncate text-[11px] text-slate-400">Homepage</p>
+          <div className="w-56 shrink-0">
+            <TemplatePicker
+              templates={settings.templates}
+              activeKey={templateKey}
+              onSelect={(key) => {
+                setTemplateKey(key);
+                setPanel({ kind: "sections" });
+              }}
+              onCreateOverride={createOverride}
+              onDeleteTemplate={deleteTemplate}
+            />
           </div>
         </div>
 
-        {/* Device switcher */}
         <div className="hidden items-center gap-0.5 rounded-lg bg-slate-100 p-0.5 md:flex">
           {(Object.keys(DEVICES) as DeviceKey[]).map((key) => {
             const { label, icon: Icon } = DEVICES[key];
@@ -268,10 +397,10 @@ export const Customizer: React.FC<{
           <SaveIndicator state={saveState} hasUnpublished={hasUnpublished} />
 
           <a
-            href="/"
+            href={template?.previewPath ?? "/"}
             target="_blank"
             rel="noopener noreferrer"
-            title="Open live site in a new tab"
+            title="Open this page in a new tab"
             className="hidden cursor-pointer rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 sm:block"
           >
             <ExternalLink className="h-4 w-4" />
@@ -282,7 +411,7 @@ export const Customizer: React.FC<{
             onClick={() =>
               runAction(
                 "discard",
-                "Discard all unpublished changes and revert to the live version?"
+                "Discard all unpublished changes across every template and revert to the live version?"
               )
             }
             disabled={publishing || !hasUnpublished}
@@ -319,70 +448,92 @@ export const Customizer: React.FC<{
 
       {/* ── Body ──────────────────────────────────────────────────── */}
       <div className="flex min-h-0 flex-1">
-        {/* Sidebar */}
         <aside className="flex w-[340px] shrink-0 flex-col border-r border-slate-200 bg-white">
-          {selectedSchema ? (
+          {panel.kind === "instance" && activeInstance && activeDef ? (
             <>
               <div className="flex shrink-0 items-center gap-2 border-b border-slate-200 px-3 py-2.5">
                 <button
                   type="button"
-                  onClick={() => setSelected(null)}
+                  onClick={() => setPanel({ kind: "sections" })}
                   className="cursor-pointer rounded-md p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
                   aria-label="Back to sections"
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </button>
-                <div className="min-w-0 flex-1">
-                  <h2 className="truncate text-[13px] font-black text-slate-800">
-                    {selectedSchema.label}
-                  </h2>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => toggleSection(selectedSchema.id)}
-                  title={
-                    settings.sections[selectedSchema.id].enabled
-                      ? "Hide section"
-                      : "Show section"
-                  }
-                  className="cursor-pointer rounded-md p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
-                >
-                  {settings.sections[selectedSchema.id].enabled ? (
-                    <Eye className="h-4 w-4" />
-                  ) : (
-                    <EyeOff className="h-4 w-4 text-slate-300" />
-                  )}
-                </button>
+                <h2 className="min-w-0 flex-1 truncate text-[13px] font-black text-slate-800">
+                  {activeDef.label}
+                </h2>
+                {!activeDef.required && (
+                  <button
+                    type="button"
+                    onClick={() => toggleInstance(activeInstance.id)}
+                    title={activeInstance.enabled ? "Hide section" : "Show section"}
+                    className="cursor-pointer rounded-md p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                  >
+                    {activeInstance.enabled ? (
+                      <Eye className="h-4 w-4" />
+                    ) : (
+                      <EyeOff className="h-4 w-4 text-slate-300" />
+                    )}
+                  </button>
+                )}
               </div>
 
               <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-3.5 py-4">
                 <p className="text-[11px] leading-relaxed text-slate-400">
-                  {selectedSchema.description}
+                  {activeDef.description}
                 </p>
 
-                {selectedSchema.fields.length === 0 ? (
-                  <p className="rounded-lg border border-dashed border-slate-200 px-3 py-6 text-center text-[12px] text-slate-400">
-                    This section has no editable content.
+                {activeInstance.showWhen && !template?.handle && (
+                  <div className="flex items-start gap-2 rounded-lg border border-sky-200 bg-sky-50 px-2.5 py-2 text-[11px] leading-snug text-sky-800">
+                    <Info className="mt-px h-3.5 w-3.5 shrink-0" />
+                    <span>
+                      {CONDITION_LABELS[activeInstance.showWhen] ??
+                        "This section only appears on some pages."}{" "}
+                      Create an override for a specific handle to control it
+                      directly.
+                    </span>
+                  </div>
+                )}
+
+                {activeDef.fields.length === 0 ? (
+                  <p className="rounded-lg border border-dashed border-slate-200 px-3 py-6 text-center text-[12px] leading-relaxed text-slate-400">
+                    {activeDef.contentInCode
+                      ? "This section's content lives in code. You can still reorder, hide, or remove it here."
+                      : "This section has no editable content."}
                   </p>
                 ) : (
-                  selectedSchema.fields.map((field) => (
+                  activeDef.fields.map((field) => (
                     <FieldRenderer
                       key={field.key}
                       field={field}
-                      values={
-                        settings.sections[selectedSchema.id] as unknown as Record<
-                          string,
-                          unknown
-                        >
-                      }
+                      values={activeInstance.settings}
                       onChange={(key, value) =>
-                        updateSectionField(selectedSchema.id, key, value)
+                        updateInstanceField(activeInstance.id, key, value)
                       }
                     />
                   ))
                 )}
+
+                {!activeDef.required && (
+                  <button
+                    type="button"
+                    onClick={() => removeInstance(activeInstance.id)}
+                    className="inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-slate-200 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-500 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Remove section
+                  </button>
+                )}
               </div>
             </>
+          ) : panel.kind === "header" || panel.kind === "footer" ? (
+            <HeaderFooterPanel
+              which={panel.kind}
+              settings={settings}
+              onBack={() => setPanel({ kind: "sections" })}
+              onChange={setSettings}
+            />
           ) : (
             <>
               <div className="shrink-0 border-b border-slate-200 px-3.5 py-2.5">
@@ -392,61 +543,107 @@ export const Customizer: React.FC<{
                 </p>
               </div>
 
-              <div className="min-h-0 flex-1 space-y-1 overflow-y-auto p-2">
-                {settings.sectionOrder.map((id, index) => {
-                  const schema = SECTION_SCHEMA_BY_ID[id];
-                  const enabled = settings.sections[id].enabled;
+              <div className="min-h-0 flex-1 overflow-y-auto p-2">
+                {/* Shared across every page */}
+                <p className="px-1 pb-1 pt-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  All pages
+                </p>
+                {(["header", "footer"] as const).map((which) => (
+                  <button
+                    key={which}
+                    type="button"
+                    onClick={() => setPanel({ kind: which })}
+                    className="flex w-full cursor-pointer items-center gap-2 rounded-lg border border-transparent px-2 py-2 text-left transition-colors hover:border-slate-200 hover:bg-slate-50"
+                  >
+                    <PanelsTopLeft className="h-3.5 w-3.5 text-slate-400" />
+                    <span className="text-[13px] font-bold capitalize text-slate-700">
+                      {which}
+                    </span>
+                  </button>
+                ))}
 
-                  return (
-                    <div
-                      key={id}
-                      {...itemProps(index)}
-                      className={`flex items-center gap-1 rounded-lg border transition-colors ${
-                        overIndex === index && dragIndex !== null && dragIndex !== index
-                          ? "border-orange-400 bg-orange-50/40"
-                          : "border-transparent hover:border-slate-200 hover:bg-slate-50"
-                      } ${dragIndex === index ? "opacity-50" : ""}`}
-                    >
-                      <span
-                        {...handleProps(index)}
-                        className="cursor-grab rounded p-1.5 text-slate-300 transition-colors hover:text-slate-500 active:cursor-grabbing"
-                        aria-label={`Reorder ${schema.label}`}
-                      >
-                        <GripVertical className="h-3.5 w-3.5" />
-                      </span>
+                <p className="px-1 pb-1 pt-3 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  {template?.label ?? "Template"}
+                </p>
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelected(id);
-                          scrollPreviewTo(id);
-                        }}
-                        className="min-w-0 flex-1 cursor-pointer py-2 text-left"
+                <div className="space-y-1">
+                  {orderedIds.map((id, index) => {
+                    const instance = template?.instances[id];
+                    if (!instance) return null;
+                    const def = SECTION_REGISTRY[instance.type];
+                    if (!def) return null;
+
+                    return (
+                      <div
+                        key={id}
+                        {...itemProps(index)}
+                        className={`flex items-center gap-1 rounded-lg border transition-colors ${
+                          overIndex === index && dragIndex !== null && dragIndex !== index
+                            ? "border-orange-400 bg-orange-50/40"
+                            : "border-transparent hover:border-slate-200 hover:bg-slate-50"
+                        } ${dragIndex === index ? "opacity-50" : ""}`}
                       >
                         <span
-                          className={`block truncate text-[13px] font-bold ${
-                            enabled ? "text-slate-700" : "text-slate-300"
-                          }`}
+                          {...handleProps(index)}
+                          className="cursor-grab rounded p-1.5 text-slate-300 transition-colors hover:text-slate-500 active:cursor-grabbing"
+                          aria-label={`Reorder ${def.label}`}
                         >
-                          {schema.label}
+                          <GripVertical className="h-3.5 w-3.5" />
                         </span>
-                      </button>
 
-                      <button
-                        type="button"
-                        onClick={() => toggleSection(id)}
-                        title={enabled ? "Hide section" : "Show section"}
-                        className="cursor-pointer rounded p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
-                      >
-                        {enabled ? (
-                          <Eye className="h-3.5 w-3.5" />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPanel({ kind: "instance", id });
+                            scrollPreviewTo(id);
+                          }}
+                          className="min-w-0 flex-1 cursor-pointer py-2 text-left"
+                        >
+                          <span
+                            className={`block truncate text-[13px] font-bold ${
+                              instance.enabled ? "text-slate-700" : "text-slate-300"
+                            }`}
+                          >
+                            {def.label}
+                          </span>
+                          {instance.showWhen && !template?.handle && (
+                            <span className="block truncate text-[10px] font-semibold text-sky-600">
+                              conditional
+                            </span>
+                          )}
+                        </button>
+
+                        {def.required ? (
+                          <span
+                            title="This section is required on this template"
+                            className="p-1.5 text-slate-300"
+                          >
+                            <Lock className="h-3.5 w-3.5" />
+                          </span>
                         ) : (
-                          <EyeOff className="h-3.5 w-3.5 text-slate-300" />
+                          <button
+                            type="button"
+                            onClick={() => toggleInstance(id)}
+                            title={instance.enabled ? "Hide section" : "Show section"}
+                            className="cursor-pointer rounded p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                          >
+                            {instance.enabled ? (
+                              <Eye className="h-3.5 w-3.5" />
+                            ) : (
+                              <EyeOff className="h-3.5 w-3.5 text-slate-300" />
+                            )}
+                          </button>
                         )}
-                      </button>
-                    </div>
-                  );
-                })}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {template && (
+                  <div className="pt-2">
+                    <AddSectionMenu templateType={template.type} onAdd={addSection} />
+                  </div>
+                )}
               </div>
 
               <div className="shrink-0 border-t border-slate-200 p-2.5">
@@ -455,7 +652,7 @@ export const Customizer: React.FC<{
                   onClick={() =>
                     runAction(
                       "reset",
-                      "Replace every section with the original factory content? This affects the draft only — you still need to publish."
+                      "Restore every template, plus the header and footer, to their original content? This affects the draft only — you still need to publish."
                     )
                   }
                   disabled={publishing}
@@ -469,13 +666,15 @@ export const Customizer: React.FC<{
           )}
         </aside>
 
-        {/* Preview */}
         <main className="min-w-0 flex-1 overflow-auto bg-slate-200/70 p-4">
           <div
             className="mx-auto h-full overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm transition-[width] duration-300"
             style={{ width: DEVICES[device].width, maxWidth: "100%" }}
           >
             <iframe
+              // Remount when the template changes so the frame navigates to
+              // that template's preview URL.
+              key={previewSrc}
               ref={iframeRef}
               src={previewSrc}
               title="Storefront preview"

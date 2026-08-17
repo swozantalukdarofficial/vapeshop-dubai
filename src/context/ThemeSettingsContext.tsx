@@ -10,16 +10,21 @@ import React, {
 import { usePathname } from "next/navigation";
 
 import { DEFAULT_THEME_SETTINGS } from "@/lib/theme/defaults";
-import type { ThemeSections, ThemeSettings } from "@/lib/theme/types";
+import {
+  resolveTemplateKey,
+  type SectionInstance,
+  type TemplateType,
+  type ThemeSettings,
+} from "@/lib/theme/types";
 
 /**
- * Makes the published theme settings available to every storefront component,
- * and — when rendered inside the admin customizer's iframe — swaps in the
- * unsaved draft the merchant is currently editing.
+ * Makes published theme settings available to the storefront, and — inside the
+ * customizer's preview iframe — swaps in the unsaved draft the merchant is
+ * editing.
  *
- * The storefront itself never talks to the admin API. The parent window pushes
- * settings down over `postMessage`, so preview costs no extra requests and
- * updates on every keystroke.
+ * The storefront never calls the admin API. The parent window pushes settings
+ * down over `postMessage`, so preview costs no extra requests and updates on
+ * every keystroke.
  */
 
 /** Query flag the customizer appends to the iframe URL. */
@@ -70,7 +75,11 @@ export const ThemeSettingsProvider: React.FC<{
       // anyone, and this handler writes straight into rendered content.
       if (event.origin !== window.location.origin) return;
 
-      const data = event.data as { type?: string; settings?: ThemeSettings; sectionId?: string };
+      const data = event.data as {
+        type?: string;
+        settings?: ThemeSettings;
+        sectionId?: string;
+      };
       if (data?.type === PREVIEW_MESSAGES.settings && data.settings) {
         setSettings(data.settings);
       }
@@ -107,9 +116,42 @@ export function useThemeSettings(): ThemeSettings {
   return useContext(ThemeSettingsContext).settings;
 }
 
-/** Settings for one section, typed to that section. */
-export function useSectionSettings<K extends keyof ThemeSections>(
-  id: K
-): ThemeSections[K] {
-  return useContext(ThemeSettingsContext).settings.sections[id];
+export function useHeaderSettings() {
+  return useThemeSettings().header;
+}
+
+export function useFooterSettings() {
+  return useThemeSettings().footer;
+}
+
+export interface ResolvedTemplate {
+  key: string;
+  /** True when a per-handle override is in play — disables `showWhen` rules. */
+  isOverride: boolean;
+  instances: SectionInstance[];
+}
+
+/**
+ * The template a page should render: a per-handle override when the merchant
+ * created one, otherwise the type default.
+ */
+export function useResolvedTemplate(
+  type: TemplateType,
+  handle?: string
+): ResolvedTemplate {
+  const settings = useThemeSettings();
+
+  return useMemo(() => {
+    const key = resolveTemplateKey(settings.templates, type, handle);
+    const template = settings.templates[key];
+    if (!template) return { key, isOverride: false, instances: [] };
+
+    return {
+      key,
+      isOverride: Boolean(template.handle),
+      instances: template.order
+        .map((id) => template.instances[id])
+        .filter((instance): instance is SectionInstance => Boolean(instance)),
+    };
+  }, [settings.templates, type, handle]);
 }

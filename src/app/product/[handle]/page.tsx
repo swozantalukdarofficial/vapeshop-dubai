@@ -39,6 +39,8 @@ import { ProductAvailableFlavorsSection } from "@/components/sections/ProductAva
 import { CustomerReviewsSection } from "@/components/sections/CustomerReviewsSection";
 import { ProductKeySpecsSection } from "@/components/sections/ProductKeySpecsSection";
 import { WhyChooseProductSection } from "@/components/sections/WhyChooseProductSection";
+import { TemplateSections } from "@/components/sections/SectionRenderer";
+import { useResolvedTemplate } from "@/context/ThemeSettingsContext";
 import {
   getProductSchema,
   getBreadcrumbSchema,
@@ -98,6 +100,8 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<"description" | "shipping" | "returns">("description");
   const [similarProducts, setSimilarProducts] = useState<any[]>([]);
+  const { instances: templateInstances, isOverride: templateIsOverride } =
+    useResolvedTemplate("product", handle);
   const [isWishlist, setIsWishlist] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -778,115 +782,54 @@ export default function ProductPage() {
           </div>
         </div>
 
-        {/* JUUL Product Sections (For all JUUL Pods/Products) */}
-        {Boolean(
-          product.handle?.toLowerCase().includes("juul") ||
-          product.name?.toLowerCase().includes("juul")
-        ) && (
-            <JuulCrispMentholSections productName={product.name} />
-          )}
-
-        {/* Why Choose Product Value Section (Matches User Reference Mockup with Brand Theme) */}
-        {!Boolean(
-          product.handle?.toLowerCase().includes("juul") ||
-          product.name?.toLowerCase().includes("juul")
-        ) && (
-            <WhyChooseProductSection
-              productName={product.name}
-              brand={product.brand}
-              category={product.category}
-              puffs={product.puffs}
-            />
-          )}
-
-        {/* Key Features & Specifications Table Section (Hidden for JUUL and MYLE products) */}
-        {!Boolean(
-          product.handle?.toLowerCase().includes("juul") ||
-          product.name?.toLowerCase().includes("juul") ||
-          product.handle?.toLowerCase().includes("myle") ||
-          product.name?.toLowerCase().includes("myle")
-        ) && (
-            <ProductKeySpecsSection
-              productName={product.name}
-              category={product.category}
-              brand={product.brand}
-              puffs={product.puffs}
-              nicotine={product.nicotine}
-              battery={product.battery}
-              specsTable={product.specsTable}
-            />
-          )}
-
-        {/* Available Flavours Grid Section (Interactive Flavor Profiles Table) */}
-        <ProductAvailableFlavorsSection
-          variants={product.variants}
-          productName={product.name}
-          productCategory={product.category}
-          selectedVariantId={selectedVariant?.id}
-          onSelectVariant={(variant) => {
-            setSelectedVariant(variant);
+        {/* Everything below the buy box is controlled by the product template
+            in the theme customizer. Sections that need the live product are
+            passed in as slots. */}
+        <TemplateSections
+          instances={templateInstances}
+          isOverride={templateIsOverride}
+          context={{
+            handle: product.handle,
+            productName: product.name,
+            hasRelatedProducts: similarProducts.length > 0,
           }}
-        />
+          containerClassName="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16"
+          slots={{
+            productMain: null,
+            juulCrispMenthol: <JuulCrispMentholSections productName={product.name} />,
+            whyChooseProduct: (
+              <WhyChooseProductSection
+                productName={product.name}
+                brand={product.brand}
+                category={product.category}
+                puffs={product.puffs}
+              />
+            ),
+            productKeySpecs: (
+              <ProductKeySpecsSection
+                productName={product.name}
+                category={product.category}
+                brand={product.brand}
+                puffs={product.puffs}
+                nicotine={product.nicotine}
+                battery={product.battery}
+                specsTable={product.specsTable}
+              />
+            ),
+            productFlavors: (
+              <ProductAvailableFlavorsSection
+                variants={product.variants}
+                productName={product.name}
+                productCategory={product.category}
+                selectedVariantId={selectedVariant?.id}
+                onSelectVariant={(variant) => {
+                  setSelectedVariant(variant);
+                }}
+              />
+            ),
+            customerReviews: <CustomerReviewsSection collectionName={product.name} />,
+            relatedProducts: (
 
-        {/* Product & Delivery FAQ Section (Matches Screenshot 4) */}
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-          <div className="bg-card border border-border/40 rounded-[2.5rem] p-8 sm:p-14 shadow-sm text-center">
-
-            {/* Header */}
-            <div className="max-w-xl mx-auto flex flex-col items-center mb-10">
-              <span className="text-xs font-extrabold tracking-[0.25em] text-primary uppercase mb-1.5">F.A.Q.</span>
-              <h3 className="text-2xl sm:text-4xl lg:text-5xl font-serif font-black text-foreground tracking-tight leading-tight">Product &amp; Delivery FAQ</h3>
-              <div className="w-8 h-0.5 bg-primary/40 my-3" />
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                Everything you need to know about authenticity, UAE shipping, and warranty.
-              </p>
-            </div>
-
-            {/* FAQ Items */}
-            <div className="max-w-4xl mx-auto text-left space-y-4">
-              <details className="group border border-border/40 rounded-2xl p-5 bg-card/60 transition-all [&_summary::-webkit-details-marker]:hidden open:bg-card">
-                <summary className="flex items-center justify-between font-bold text-foreground text-sm sm:text-base cursor-pointer">
-                  <span>What is {product.name}?</span>
-                  <ChevronDown className="h-4 w-4 text-primary transition-transform duration-300 group-open:rotate-180" />
-                </summary>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mt-3 pt-3 border-t border-border/30">
-                  {product.name} is a premium vape product available in Dubai &amp; across the UAE. We guarantee 100% authentic devices and pods sourced directly from authorized brand distributors.
-                </p>
-              </details>
-
-              <details className="group border border-border/40 rounded-2xl p-5 bg-card/60 transition-all [&_summary::-webkit-details-marker]:hidden open:bg-card">
-                <summary className="flex items-center justify-between font-bold text-foreground text-sm sm:text-base cursor-pointer">
-                  <span>Where Can I Buy {product.name} in UAE?</span>
-                  <ChevronDown className="h-4 w-4 text-primary transition-transform duration-300 group-open:rotate-180" />
-                </summary>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mt-3 pt-3 border-t border-border/30">
-                  You can order online directly from Vape Shop Dubai with fast 2-hour delivery in Dubai and same-day delivery across Abu Dhabi, Sharjah, Ajman, and all UAE emirates.
-                </p>
-              </details>
-
-              <details className="group border border-border/40 rounded-2xl p-5 bg-card/60 transition-all [&_summary::-webkit-details-marker]:hidden open:bg-card">
-                <summary className="flex items-center justify-between font-bold text-foreground text-sm sm:text-base cursor-pointer">
-                  <span>Is this product original &amp; authentic?</span>
-                  <ChevronDown className="h-4 w-4 text-primary transition-transform duration-300 group-open:rotate-180" />
-                </summary>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mt-3 pt-3 border-t border-border/30">
-                  Yes, 100% original. Each product contains an authentic QR code / serial code that can be verified directly on the manufacturer website.
-                </p>
-              </details>
-            </div>
-          </div>
-        </div>
-
-        {/* Verified Customer Reviews Section */}
-        <CustomerReviewsSection collectionName={product.name} />
-
-        {/* Direct WhatsApp Contact Section */}
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-          <WhatsAppContactSection />
-        </div>
-
-        {/* Similar Products Recommendation Carousel (Same as Home Page) */}
-        {similarProducts.length > 0 && (
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
             <ProductSectionCarousel
               sectionName="You May Also Like"
@@ -919,7 +862,9 @@ export default function ProductPage() {
               }}
             />
           </div>
-        )}
+            ),
+          }}
+        />
 
       </main>
 

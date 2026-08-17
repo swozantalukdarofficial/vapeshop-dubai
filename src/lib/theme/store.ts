@@ -2,7 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 
 import { DEFAULT_THEME_SETTINGS } from "./defaults";
-import { normalizeSettings } from "./merge";
+import { normalizeSettings } from "./normalize";
 import type { ThemeSettings, ThemeSettingsRecord } from "./types";
 
 /**

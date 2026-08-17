@@ -4,10 +4,23 @@ import React from "react";
 import { MessageCircle, Clock, PhoneCall } from "lucide-react";
 
 import { ThemeIcon } from "@/components/ui/theme-icon";
-import { useSectionSettings } from "@/context/ThemeSettingsContext";
 
-export const WhatsAppContactSection: React.FC = () => {
-  const settings = useSectionSettings("whatsapp");
+export interface WhatsAppSettings {
+  badgeText: string;
+  responseNote: string;
+  heading: string;
+  description: string;
+  features: { icon: string; label: string }[];
+  contactLabel: string;
+  phoneNumber: string;
+  phoneDisplay: string;
+  prefilledMessage: string;
+  buttonText: string;
+}
+
+export const WhatsAppContactSection: React.FC<{
+  settings: WhatsAppSettings;
+}> = ({ settings }) => {
 
   const digits = settings.phoneNumber.replace(/\D/g, "");
   const whatsappUrl = `https://wa.me/${digits}?text=${encodeURIComponent(

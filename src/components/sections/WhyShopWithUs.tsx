@@ -4,10 +4,26 @@ import React from "react";
 import { Award, Building2, CheckCircle2, ShieldCheck } from "lucide-react";
 
 import { ThemeIcon } from "@/components/ui/theme-icon";
-import { useSectionSettings } from "@/context/ThemeSettingsContext";
 
-export function WhyShopWithUs() {
-  const settings = useSectionSettings("whyShop");
+export interface ValuePillarItem {
+  icon: string;
+  title: string;
+  subtitle: string;
+  badge: string;
+}
+
+export interface WhyShopSettings {
+  badgeText: string;
+  headingLead: string;
+  headingHighlight: string;
+  description: string;
+  pillTitle: string;
+  pillSubtitle: string;
+  footerNote: string;
+  pillars: ValuePillarItem[];
+}
+
+export function WhyShopWithUs({ settings }: { settings: WhyShopSettings }) {
 
   return (
     <div className="w-full bg-card border border-border/60 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md transition-all duration-300">

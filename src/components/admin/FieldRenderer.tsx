@@ -9,7 +9,7 @@ import {
   Trash2,
 } from "lucide-react";
 
-import type { FieldDef, RepeaterFieldDef } from "@/lib/theme/schema";
+import type { FieldDef, RepeaterFieldDef } from "@/lib/theme/field-types";
 
 import {
   IconInput,

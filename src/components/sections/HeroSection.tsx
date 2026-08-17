@@ -10,8 +10,38 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import { SmartImage } from "@/components/ui/smart-image";
-import { useSectionSettings } from "@/context/ThemeSettingsContext";
-import type { HeroPromoCard } from "@/lib/theme/types";
+
+export interface HeroSlide {
+  title: string;
+  accent: string;
+  description: string;
+  image: string;
+  fallbackImage: string;
+  tag: string;
+  buttonText: string;
+  ctaHref: string;
+  stat1Value: string;
+  stat1Label: string;
+  stat2Value: string;
+  stat2Label: string;
+}
+
+export interface HeroPromoCard {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  buttonText: string;
+  href: string;
+  image: string;
+  /** `light` = white card with orange CTA, `primary` = solid orange card. */
+  style: "light" | "primary";
+}
+
+export interface HeroSettings {
+  autoplaySeconds: number;
+  slides: HeroSlide[];
+  promoCards: HeroPromoCard[];
+}
 
 /** Renders the headline, colouring an `&` in the brand colour when present. */
 const SlideHeadline: React.FC<{ title: string; as: "h1" | "h2" }> = ({ title, as }) => {
@@ -114,9 +144,10 @@ const PromoCard: React.FC<{ card: HeroPromoCard }> = ({ card }) => {
   );
 };
 
-export const HeroSection: React.FC = () => {
+export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
+  settings: hero,
+}) => {
   const router = useRouter();
-  const hero = useSectionSettings("hero");
   const slides = hero.slides;
 
   const [api, setApi] = useState<CarouselApi>();

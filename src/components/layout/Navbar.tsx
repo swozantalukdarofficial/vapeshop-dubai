@@ -12,6 +12,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useHeaderSettings } from "@/context/ThemeSettingsContext";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -21,131 +22,12 @@ interface NavbarProps {
   activeCategory?: string;
 }
 
-const NAV_LINKS = [
-  { label: "HOME", id: "home" },
-  { label: "SHOP", id: "all" },
-  {
-    label: "JUUL",
-    id: "juul",
-    sub: ["JUUL 1 Series", "JUUL 2 Series", "JUUL Pods"],
-  },
-  {
-    label: "MYLE",
-    id: "myle",
-    sub: ["Myle v5 Pods", "Myle v5 Device", "Myle Disposable"],
-  },
-  {
-    label: "DISPOSABLE",
-    id: "disposables",
-    sub: [
-      "Al Fakher Vape",
-      "Elf Bar Vape",
-      "Fummo Vape",
-      "Pod Salt Vape",
-      "Vapes Bars",
-      "Vozol Vape",
-      "Tugboat Vape",
-      "HQD Vape",
-      "Lost Mary",
-      "Maskking Vape",
-      "Geek Bar",
-      "Yuoto Vape",
-      "Relx Vape",
-      "Nerd Vape",
-      "Vgod Stig",
-      "Silvaper Vape",
-    ],
-  },
-  {
-    label: "E-JUICE",
-    id: "e-liquids",
-    sub: ["Salt Nicotine", "Freebase e-liquid"],
-  },
-  {
-    label: "POD SYSTEM",
-    id: "accessories",
-    sub: ["Pod Kit", "Pod Cartridge", "Vape Coils"],
-  },
-  {
-    label: "BRAND",
-    id: "brand",
-    sub: [
-      "Oxva Vape",
-      "Uwell Vape",
-      "Vaporesso Vape",
-      "Smok Vape",
-      "Geek Vape",
-      "Voopoo Vape",
-    ],
-  },
-  { label: "BLOG", id: "blog" },
-];
-
-const SUB_HANDLE_MAP: Record<string, string> = {
-  // JUUL
-  "JUUL 1 Series": "juul-1-series",
-  "JUUL 2 Series": "juul-2-series",
-  "JUUL Pods": "juul-pods-offers",
-  "JUUL Pods Offers": "juul-pods-offers",
-
-  // MYLE
-  "Myle v5 Pods": "myle-v5-pods",
-  "Myle v5 Device": "myle-v5-device",
-  "Myle Disposable": "myle-disposable",
-
-  // DISPOSABLE
-  "Al Fakher Vape": "al-fakher-vape",
-  "Elf Bar Vape": "elf-bar-vape",
-  "Fummo Vape": "fummo-vape",
-  "Pod Salt Vape": "pod-salt-vape",
-  "Vapes Bars": "vapes-bars",
-  "Vozol Vape": "vozol-vape",
-  "Tugboat Vape": "tugboat-vape",
-  "HQD Vape": "hqd-vape",
-  "Lost Mary": "lost-mary-disposable",
-  "Maskking Vape": "maskking-vape",
-  "Geek Bar": "geek-bar-disposable",
-  "Yuoto Vape": "yuoto-vape",
-  "Relx Vape": "relx-vape",
-  "Nerd Vape": "nerd-vape",
-  "Vgod Stig": "vgod-stig",
-  "Silvaper Vape": "silvaper-vape",
-
-  // E-JUICE
-  "Salt Nicotine": "salt-nicotine",
-  "Freebase e-liquid": "freebase-e-liquid",
-
-  // POD SYSTEM
-  "Pod Kit": "pod-kit",
-  "Pod Cartridge": "pod-cartridge",
-  "Vape Coils": "vape-coils",
-
-  // BRAND
-  "Oxva Vape": "oxva-vape",
-  "Uwell Vape": "uwell-vape",
-  "Vaporesso Vape": "vaporesso-vape",
-  "Smok Vape": "smok-vape",
-  "Geek Vape": "geek-vape",
-  "Voopoo Vape": "voopoo-vape",
-};
-
-const MAIN_HANDLE_MAP: Record<string, string> = {
-  home: "/",
-  all: "all",
-  juul: "juul-vape-dubai",
-  myle: "myle-vape-dubai",
-  disposables: "disposable-vape",
-  "e-liquids": "vape-e-juice",
-  accessories: "pod-system",
-  brand: "brand",
-  blog: "blog",
-};
-
 const NavbarContent: React.FC<NavbarProps> = ({
   onSearchChange,
   onCategorySelect,
   activeCategory = "all",
 }) => {
+  const header = useHeaderSettings();
   const { cartCount, setIsCartOpen } = useCart();
   const pathname = usePathname();
   const router = useRouter();
@@ -258,45 +140,84 @@ const NavbarContent: React.FC<NavbarProps> = ({
     setIsMobileMenuOpen(false);
   };
 
+  /**
+   * Highlight the menu item matching the current URL.
+   *
+   * Derived from the menu itself rather than a hard-coded id list, so it keeps
+   * working when a merchant renames or re-points an item: a parent lights up
+   * when the URL is its own link *or* any of its dropdown links — which is how
+   * /collections/juul-1-series highlights "JUUL".
+   */
   const getActiveState = (linkId: string) => {
     const currentPath = pathname || (typeof window !== "undefined" ? window.location.pathname : "/");
     const normalizedPath = currentPath === "/" ? "/" : currentPath.replace(/\/$/, "");
 
-    if (normalizedPath === "/") {
-      return linkId === "home";
+    const href = hrefById[linkId];
+    if (!href) return activeCategory === linkId;
+
+    if (normalizedPath === "/") return href === "/";
+    if (href !== "/" && normalizedPath === href.replace(/\/$/, "")) return true;
+
+    // /shop and /collections/all are the same destination.
+    if (
+      (normalizedPath === "/shop" || normalizedPath === "/collections/all") &&
+      (href === "/shop" || href === "/collections/all")
+    ) {
+      return true;
     }
-    if (normalizedPath === "/shop" || normalizedPath === "/collections/all") {
-      return linkId === "all";
+
+    const childPrefix = `${linkId}::`;
+    for (const [key, childHref] of Object.entries(hrefBySubKey)) {
+      if (key.startsWith(childPrefix) && childHref.replace(/\/$/, "") === normalizedPath) {
+        return true;
+      }
     }
-    if (normalizedPath.startsWith("/collections/")) {
-      const collectionHandle = normalizedPath.replace("/collections/", "");
-      if (linkId === "juul" && (collectionHandle.includes("juul") || collectionHandle.includes("juul-vape-dubai"))) return true;
-      if (linkId === "myle" && (collectionHandle.includes("myle") || collectionHandle.includes("myle-vape-dubai"))) return true;
-      if (linkId === "disposables" && (collectionHandle.includes("disposable") || collectionHandle.includes("disposable-vape"))) return true;
-      if (linkId === "e-liquids" && (collectionHandle.includes("e-juice") || collectionHandle.includes("e-liquid") || collectionHandle.includes("vape-e-juice"))) return true;
-      if (linkId === "accessories" && (collectionHandle.includes("pod-system") || collectionHandle.includes("accessories") || collectionHandle.includes("pod-kit"))) return true;
-      return linkId === collectionHandle;
-    }
-    return activeCategory === linkId;
+
+    return false;
   };
 
-  const getNavLinkHref = (id: string, subItem?: string): string => {
-    if (id === "home") return "/";
-    if (id === "all") return "/shop";
-    if (id === "blog") return "/blog";
+  /**
+   * The menu is merchant-editable, but the rest of this component was built
+   * around `{ id, label, sub: string[] }` plus handle lookup maps. Deriving
+   * those shapes from settings keeps every existing behaviour — active-state
+   * highlighting, the "scroll to products" home/shop shortcuts, dropdown
+   * timers — working untouched.
+   */
+  const { navLinks, hrefById, hrefBySubKey } = useMemo(() => {
+    const deriveId = (href: string): string => {
+      if (href === "/") return "home";
+      if (href === "/shop") return "all";
+      if (href === "/blog") return "blog";
+      const collection = href.match(/^\/collections\/([^/?#]+)/);
+      return collection ? collection[1] : href;
+    };
 
-    if (subItem) {
-      if (SUB_HANDLE_MAP[subItem]) {
-        return `/collections/${SUB_HANDLE_MAP[subItem]}`;
+    const links: { label: string; id: string; sub?: string[] }[] = [];
+    const byId: Record<string, string> = {};
+    // Keyed by parent so two menus can reuse a child label without colliding.
+    const bySubKey: Record<string, string> = {};
+
+    for (const item of header.menu) {
+      const id = deriveId(item.href);
+      byId[id] = item.href;
+      for (const child of item.children) {
+        bySubKey[`${id}::${child.label}`] = child.href;
       }
-      return `/collections/${id}`;
+      links.push({
+        label: item.label,
+        id,
+        sub: item.children.length > 0 ? item.children.map((c) => c.label) : undefined,
+      });
     }
 
-    if (MAIN_HANDLE_MAP[id]) {
-      return `/collections/${MAIN_HANDLE_MAP[id]}`;
-    }
+    return { navLinks: links, hrefById: byId, hrefBySubKey: bySubKey };
+  }, [header.menu]);
 
-    return `/collections/${id}`;
+  const getNavLinkHref = (id: string, subItem?: string): string => {
+    if (subItem) {
+      return hrefBySubKey[`${id}::${subItem}`] ?? hrefById[id] ?? "/shop";
+    }
+    return hrefById[id] ?? "/shop";
   };
 
   const handleSubNavigate = (targetHref: string) => {
@@ -345,16 +266,18 @@ const NavbarContent: React.FC<NavbarProps> = ({
     >
 
       {/* ── Announcement Bar ──────────────────────────── */}
-      <div
-        suppressHydrationWarning
-        className={`hidden sm:block bg-primary text-white transition-all duration-300 overflow-hidden ${isScrolled ? "h-0 opacity-0" : "h-8 opacity-100"}`}
-      >
-        <div suppressHydrationWarning className="max-w-[1600px] mx-auto px-4 h-full flex items-center justify-center">
-          <p className="text-[10px] sm:text-xs font-semibold tracking-wider text-center">
-            🚀 FREE DELIVERY ON ORDERS 300AED+&nbsp;&nbsp;|&nbsp;&nbsp;⚡ SAME DAY DELIVERY&nbsp;&nbsp;|&nbsp;&nbsp;💳 COD & CREDIT CARD MACHINE ON DELIVERY
-          </p>
+      {header.announcementEnabled && (
+        <div
+          suppressHydrationWarning
+          className={`hidden sm:block bg-primary text-white transition-all duration-300 overflow-hidden ${isScrolled ? "h-0 opacity-0" : "h-8 opacity-100"}`}
+        >
+          <div suppressHydrationWarning className="max-w-[1600px] mx-auto px-4 h-full flex items-center justify-center">
+            <p className="text-[10px] sm:text-xs font-semibold tracking-wider text-center">
+              {header.announcementText}
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── Main Navbar ───────────────────────────────── */}
       <div className={`glass-strong border-b border-border transition-all duration-300 ${isScrolled ? "py-2.5" : "py-3"}`}>
@@ -383,7 +306,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
 
             {/* Desktop Nav Links */}
             <nav className="hidden lg:flex items-center gap-1 xl:gap-2" ref={dropdownRef}>
-              {NAV_LINKS.map((link) => {
+              {navLinks.map((link) => {
                 const mainHref = getNavLinkHref(link.id);
 
                 return (
@@ -689,7 +612,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
 
           {/* Nav items */}
           <nav className="px-4 py-2 space-y-1">
-            {NAV_LINKS.map((link) => {
+            {navLinks.map((link) => {
               const hasSub = !!link.sub;
               const isSubOpen = openDropdown === link.id;
               const mainHref = getNavLinkHref(link.id);
@@ -748,7 +671,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
                         <span>View All {link.label}</span>
                         <span>→</span>
                       </Link>
-                      {link.sub.map((s) => {
+                      {(link.sub ?? []).map((s) => {
                         const subHref = getNavLinkHref(link.id, s);
                         return (
                           <Link
