@@ -86,7 +86,7 @@ async function seedFirstUser(users: AdminUser[]): Promise<AdminUser[]> {
   if (users.length > 0) return users;
 
   const email = process.env.ADMIN_EMAIL || "kamran@codixel.tech";
-  const password = process.env.ADMIN_PASSWORD || "admin123456";
+  const password = process.env.ADMIN_PASSWORD || "TestAdmin1234";
 
   const seeded = await createUserRecord({
     email,

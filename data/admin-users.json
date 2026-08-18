@@ -4,7 +4,7 @@
     "email": "kamran@codixel.tech",
     "name": "Kamran",
     "role": "admin",
-    "passwordHash": "scrypt$ce63e0e9203c14fbd7e536f394325237$3af0ceecbc698be47d9d0e678058fe4d31d9884eb0351c81e5a9b2459f11d14ba6b85aa2ad10d2f3e19d83f7886e1b9ac6075c2026b76c7b5a65e787fcbc93b3",
+    "passwordHash": "scrypt$e677bf2be357671ac354c28f965ce628$811f2ab9a036d231456c15fe1013103f4c9163844ebaea80cec14a117c8a8d779ab76f9a12dbc2d7398421fbb9cbff029d050752945e6dec037d299e4657572c",
     "createdAt": "2026-08-18T20:25:34.425Z",
     "lastLoginAt": null
   }
