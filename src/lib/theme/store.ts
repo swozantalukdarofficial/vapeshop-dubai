@@ -32,40 +32,57 @@ export interface ThemeStorage {
  * included — into the server bundle. To store the data elsewhere, symlink
  * `./data` at the target, or swap the adapter below.
  */
-const DATA_DIR = path.join(process.cwd(), "data");
-const DRAFT_FILE = path.join(process.cwd(), "data", "theme-draft.json");
-const PUBLISHED_FILE = path.join(process.cwd(), "data", "theme-published.json");
+import os from "node:os";
+
+const IS_SERVERLESS = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+const WRITABLE_DIR = IS_SERVERLESS ? path.join(os.tmpdir(), "vape_shop_data") : path.join(process.cwd(), "data");
+const BUNDLED_DIR = path.join(process.cwd(), "data");
 
 const fileStorage: ThemeStorage = {
   async read(slot) {
+    const fileName = slot === "draft" ? "theme-draft.json" : "theme-published.json";
+
+    // 1. Try writable dir
     try {
-      const raw = await fs.readFile(
-        slot === "draft" ? DRAFT_FILE : PUBLISHED_FILE,
-        "utf8"
-      );
+      const raw = await fs.readFile(path.join(WRITABLE_DIR, fileName), "utf8");
       const parsed = JSON.parse(raw) as Partial<ThemeSettingsRecord>;
       return {
         settings: normalizeSettings(parsed.settings),
         updatedAt: parsed.updatedAt ?? new Date(0).toISOString(),
         updatedBy: parsed.updatedBy ?? null,
       };
-    } catch (err) {
-      const code = (err as NodeJS.ErrnoException).code;
-      if (code === "ENOENT") return null;
-      // A corrupt file should not take the storefront down — fall back to
-      // defaults and surface the problem in the server log.
-      console.error(`[theme] could not read ${slot} settings:`, err);
-      return null;
+    } catch {
+      // Ignore read miss
     }
+
+    // 2. Try bundled dir
+    try {
+      const raw = await fs.readFile(path.join(BUNDLED_DIR, fileName), "utf8");
+      const parsed = JSON.parse(raw) as Partial<ThemeSettingsRecord>;
+      return {
+        settings: normalizeSettings(parsed.settings),
+        updatedAt: parsed.updatedAt ?? new Date(0).toISOString(),
+        updatedBy: parsed.updatedBy ?? null,
+      };
+    } catch {
+      // Ignore read miss
+    }
+
+    return null;
   },
 
   async write(slot, record) {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-    const file = slot === "draft" ? DRAFT_FILE : PUBLISHED_FILE;
-    // Write-then-rename so a crash mid-write can't leave a truncated file.
-    const tmp = `${file}.${process.pid}.tmp`;
-    await fs.writeFile(tmp, JSON.stringify(record, null, 2), "utf8");
-    await fs.rename(tmp, file);
+    try {
+      await fs.mkdir(WRITABLE_DIR, { recursive: true });
+      const fileName = slot === "draft" ? "theme-draft.json" : "theme-published.json";
+      const file = path.join(WRITABLE_DIR, fileName);
+      // Write-then-rename so a crash mid-write can't leave a truncated file.
+      const tmp = `${file}.${process.pid}.${Date.now()}.tmp`;
+      await fs.writeFile(tmp, JSON.stringify(record, null, 2), "utf8");
+      await fs.rename(tmp, file);
+    } catch (err) {
+      console.warn(`[theme] could not write ${slot} settings to disk:`, err);
+    }
   },
 };
 

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "4376f05d63ad2b4f1ab897f8",
+    "email": "kamran@codixel.tech",
+    "name": "Kamran",
+    "role": "admin",
+    "passwordHash": "scrypt$ce63e0e9203c14fbd7e536f394325237$3af0ceecbc698be47d9d0e678058fe4d31d9884eb0351c81e5a9b2459f11d14ba6b85aa2ad10d2f3e19d83f7886e1b9ac6075c2026b76c7b5a65e787fcbc93b3",
+    "createdAt": "2026-08-18T20:25:34.425Z",
+    "lastLoginAt": null
+  }
+]
