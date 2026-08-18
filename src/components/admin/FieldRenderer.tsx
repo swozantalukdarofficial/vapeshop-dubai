@@ -12,6 +12,8 @@ import {
 import type { FieldDef, RepeaterFieldDef } from "@/lib/theme/field-types";
 
 import {
+  CollectionInput,
+  DateTimeInput,
   IconInput,
   ImageInput,
   NumberInput,
@@ -175,6 +177,13 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
   values,
   onChange,
 }) => {
+  // A field gated on a sibling's value simply isn't rendered when the gate
+  // is closed; its stored value is left untouched so switching back restores it.
+  if (field.showIf) {
+    const gate = String(values[field.showIf.key] ?? "");
+    if (!field.showIf.equals.includes(gate)) return null;
+  }
+
   const raw = values[field.key];
 
   switch (field.type) {
@@ -242,6 +251,27 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
           help={field.help}
           options={field.options}
           value={String(raw ?? field.options[0]?.value ?? "")}
+          onChange={(value) => onChange(field.key, value)}
+        />
+      );
+
+    case "collection":
+      return (
+        <CollectionInput
+          label={field.label}
+          help={field.help}
+          placeholder={field.placeholder}
+          value={String(raw ?? "")}
+          onChange={(value) => onChange(field.key, value)}
+        />
+      );
+
+    case "datetime":
+      return (
+        <DateTimeInput
+          label={field.label}
+          help={field.help}
+          value={String(raw ?? "")}
           onChange={(value) => onChange(field.key, value)}
         />
       );

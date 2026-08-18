@@ -2,7 +2,14 @@
 
 import React from "react";
 
-export function DisposableComparisonSections() {
+export interface DisposableComparisonSettings {
+  puffHeading: string;
+  deviceHeading: string;
+}
+
+export function DisposableComparisonSections({
+  settings,
+}: { settings?: DisposableComparisonSettings } = {}) {
   return (
     <div className="space-y-12 my-12">
       {/* ── SECTION 1: CHOOSING THE RIGHT PUFF COUNT ── */}
@@ -11,7 +18,7 @@ export function DisposableComparisonSections() {
         <div className="flex items-center gap-2">
           <span className="w-1 h-5 bg-primary rounded-full inline-block" />
           <h3 className="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-foreground">
-            CHOOSING THE RIGHT PUFF COUNT
+            {settings?.puffHeading || "CHOOSING THE RIGHT PUFF COUNT"}
           </h3>
         </div>
 
@@ -65,7 +72,7 @@ export function DisposableComparisonSections() {
         <div className="flex items-center gap-2">
           <span className="w-1 h-5 bg-primary rounded-full inline-block" />
           <h3 className="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-foreground">
-            SIDE-BY-SIDE COMPARISON
+            {settings?.deviceHeading || "SIDE-BY-SIDE COMPARISON"}
           </h3>
         </div>
 

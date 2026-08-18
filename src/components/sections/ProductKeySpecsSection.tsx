@@ -17,9 +17,15 @@ interface ProductKeySpecsSectionProps {
   battery?: string;
   specsTable?: SpecRow[] | Record<string, string>;
   className?: string;
+  settings?: ProductKeySpecsSettings;
+}
+
+export interface ProductKeySpecsSettings {
+  heading: string;
 }
 
 export function ProductKeySpecsSection({
+  settings,
   productName,
   category = "",
   brand = "",
@@ -106,7 +112,7 @@ export function ProductKeySpecsSection({
             <div className="w-1.5 h-7 bg-primary rounded-full shrink-0 shadow-sm" />
             <div>
               <h3 className="text-xl sm:text-2xl font-serif font-bold text-foreground tracking-tight flex items-center gap-2">
-                <span>Key Features &amp; Specifications</span>
+                <span>{settings?.heading || "Key Features & Specifications"}</span>
                 <Cpu className="w-5 h-5 text-primary opacity-80" />
               </h3>
               <p className="text-xs text-muted-foreground font-medium mt-0.5">

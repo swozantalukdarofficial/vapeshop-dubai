@@ -294,8 +294,204 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     description: "Live products from Shopify, grouped into rows.",
     templates: ["index"],
     contentInCode: true,
-    fields: [],
-    defaults: {},
+    fields: [
+      { type: "text", key: "eyebrow", label: "Eyebrow" },
+      { type: "text", key: "heading", label: "Heading" },
+      { type: "textarea", key: "description", label: "Description", rows: 2 },
+      {
+        type: "repeater",
+        key: "rows",
+        label: "Product rows",
+        itemNoun: "row",
+        itemLabelKey: "title",
+        max: 12,
+        help: "Each row shows one Shopify collection.",
+        defaultItem: {
+          title: "New Row",
+          collectionHandle: "",
+          viewAllHref: "",
+          limit: 10,
+          style: "standard",
+          flashBadgeText: "",
+          flashDescription: "",
+          showTimer: true,
+          timerLabel: "Flash Sale Ends In",
+          timerMode: "endOfDay",
+          timerEndsAt: "",
+          hideTimerWhenExpired: true,
+        },
+        fields: [
+          { type: "text", key: "title", label: "Row heading" },
+          {
+            type: "collection",
+            key: "collectionHandle",
+            label: "Collection",
+            help: "The row shows this collection's products and links to it.",
+          },
+          {
+            type: "number",
+            key: "limit",
+            label: "Products in this row",
+            min: 2,
+            max: 24,
+            step: 1,
+          },
+          {
+            type: "link",
+            key: "viewAllHref",
+            label: "'View all' link",
+            placeholder: "/collections/...",
+            help: "Leave blank to link to the collection above.",
+          },
+          {
+            type: "select",
+            key: "style",
+            label: "Row style",
+            options: [
+              { label: "Standard", value: "standard" },
+              { label: "Flash sale banner", value: "flashSale" },
+            ],
+          },
+          {
+            type: "text",
+            key: "flashBadgeText",
+            label: "Flash sale — badge",
+            placeholder: "⚡ Limited Time Dubai Flash Deals",
+            showIf: { key: "style", equals: ["flashSale"] },
+          },
+          {
+            type: "textarea",
+            key: "flashDescription",
+            label: "Flash sale — description",
+            rows: 2,
+            showIf: { key: "style", equals: ["flashSale"] },
+          },
+          {
+            type: "toggle",
+            key: "showTimer",
+            label: "Show countdown timer",
+            showIf: { key: "style", equals: ["flashSale"] },
+          },
+          {
+            type: "text",
+            key: "timerLabel",
+            label: "Timer label",
+            showIf: { key: "style", equals: ["flashSale"] },
+          },
+          {
+            type: "select",
+            key: "timerMode",
+            label: "Counts down to",
+            showIf: { key: "style", equals: ["flashSale"] },
+            options: [
+              { label: "Midnight tonight (restarts daily)", value: "endOfDay" },
+              { label: "A specific date & time", value: "fixedDate" },
+            ],
+          },
+          {
+            type: "datetime",
+            key: "timerEndsAt",
+            label: "Ends at",
+            showIf: { key: "timerMode", equals: ["fixedDate"] },
+            help: "Uses the visitor's local time zone.",
+          },
+          {
+            type: "toggle",
+            key: "hideTimerWhenExpired",
+            label: "Hide timer once it reaches zero",
+            showIf: { key: "timerMode", equals: ["fixedDate"] },
+          },
+        ],
+      },
+      {
+        type: "number",
+        key: "productsPerPage",
+        label: "Products per page",
+        min: 4,
+        max: 48,
+        step: 4,
+        help: "Used for the paged grid shown when a category or search is active.",
+      },
+    ],
+    defaults: {
+      eyebrow: "Live Catalog",
+      heading: "Explore Our Collection",
+      description: "Premium vape products. Authentic brands. 2-hour Dubai delivery.",
+      rows: [
+        {
+          title: "Flash Sale & Daily Steals",
+          collectionHandle: "flash-sale",
+          viewAllHref: "",
+          limit: 10,
+          style: "flashSale",
+          flashBadgeText: "⚡ Limited Time Dubai Flash Deals",
+          flashDescription:
+            "Exclusive wholesale price drops on JUUL, MYLE & top disposable vapes. 2-hour express Dubai delivery!",
+          showTimer: true,
+          timerLabel: "Flash Sale Ends In",
+          timerMode: "endOfDay",
+          timerEndsAt: "",
+          hideTimerWhenExpired: true,
+        },
+        {
+          title: "JUUL 1 Series",
+          collectionHandle: "juul-1-series",
+          viewAllHref: "",
+          limit: 10,
+          style: "standard",
+          flashBadgeText: "",
+          flashDescription: "",
+          showTimer: true,
+          timerLabel: "Flash Sale Ends In",
+          timerMode: "endOfDay",
+          timerEndsAt: "",
+          hideTimerWhenExpired: true,
+        },
+        {
+          title: "JUUL 2 Series",
+          collectionHandle: "juul-2-series",
+          viewAllHref: "",
+          limit: 10,
+          style: "standard",
+          flashBadgeText: "",
+          flashDescription: "",
+          showTimer: true,
+          timerLabel: "Flash Sale Ends In",
+          timerMode: "endOfDay",
+          timerEndsAt: "",
+          hideTimerWhenExpired: true,
+        },
+        {
+          title: "DISPOSABLE VAPE",
+          collectionHandle: "disposable-vape",
+          viewAllHref: "",
+          limit: 10,
+          style: "standard",
+          flashBadgeText: "",
+          flashDescription: "",
+          showTimer: true,
+          timerLabel: "Flash Sale Ends In",
+          timerMode: "endOfDay",
+          timerEndsAt: "",
+          hideTimerWhenExpired: true,
+        },
+        {
+          title: "Best Sellers",
+          collectionHandle: "best-seller-vape",
+          viewAllHref: "",
+          limit: 10,
+          style: "standard",
+          flashBadgeText: "",
+          flashDescription: "",
+          showTimer: true,
+          timerLabel: "Flash Sale Ends In",
+          timerMode: "endOfDay",
+          timerEndsAt: "",
+          hideTimerWhenExpired: true,
+        },
+      ],
+      productsPerPage: 12,
+    },
   },
 
   brands: {
@@ -756,19 +952,46 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     templates: ["collection"],
     required: true,
     contentInCode: true,
-    fields: [],
-    defaults: {},
+    fields: [
+      {
+        type: "number",
+        key: "itemsPerPage",
+        label: "Products per page",
+        min: 4,
+        max: 48,
+        step: 4,
+      },
+      {
+        type: "select",
+        key: "defaultSort",
+        label: "Default sort",
+        options: [
+          { label: "Popularity", value: "popular" },
+          { label: "Price: low to high", value: "price-low" },
+          { label: "Price: high to low", value: "price-high" },
+          { label: "Average rating", value: "rating" },
+        ],
+      },
+      {
+        type: "text",
+        key: "brandFlagshipHeading",
+        label: "Brand directory — flagship heading",
+        help: "Only shown on the brand directory page, which lists brands instead of products.",
+      },
+      {
+        type: "text",
+        key: "brandDirectoryHeading",
+        label: "Brand directory — all-brands heading",
+      },
+    ],
+    defaults: {
+      itemsPerPage: 12,
+      defaultSort: "popular",
+      brandFlagshipHeading: "Flagship Certified Brands",
+      brandDirectoryHeading: "All Certified Brands",
+    },
   },
 
-  brandSphere: {
-    type: "brandSphere",
-    label: "3D Brand Sphere",
-    description: "Rotating 3D brand globe.",
-    templates: ["collection"],
-    contentInCode: true,
-    fields: [],
-    defaults: {},
-  },
 
   disposableShowcase: {
     type: "disposableShowcase",
@@ -776,8 +999,16 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     description: "Disposable brand highlight strip.",
     templates: ["collection"],
     contentInCode: true,
-    fields: [],
-    defaults: {},
+    fields: [
+      { type: "text", key: "badgeText", label: "Badge text" },
+      { type: "text", key: "heading", label: "Heading" },
+      { type: "textarea", key: "description", label: "Description", rows: 3 },
+    ],
+    defaults: {
+      badgeText: "Disposable Brand Guide",
+      heading: "Popular Disposable Vape Brands in Dubai",
+      description: "Explore leading disposable vape manufacturers in the UAE. Compare flagship models, puff capacities, and signature nicotine salt flavor profiles.",
+    },
   },
 
   disposableComparison: {
@@ -786,8 +1017,14 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     description: "Side-by-side disposable comparison tables.",
     templates: ["collection"],
     contentInCode: true,
-    fields: [],
-    defaults: {},
+    fields: [
+      { type: "text", key: "puffHeading", label: "Puff-count table heading" },
+      { type: "text", key: "deviceHeading", label: "Comparison table heading" },
+    ],
+    defaults: {
+      puffHeading: "CHOOSING THE RIGHT PUFF COUNT",
+      deviceHeading: "SIDE-BY-SIDE COMPARISON",
+    },
   },
 
   ejuiceShowcase: {
@@ -796,8 +1033,16 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     description: "E-liquid brand highlight strip.",
     templates: ["collection"],
     contentInCode: true,
-    fields: [],
-    defaults: {},
+    fields: [
+      { type: "text", key: "badgeText", label: "Badge text" },
+      { type: "text", key: "heading", label: "Heading" },
+      { type: "textarea", key: "description", label: "Description", rows: 3 },
+    ],
+    defaults: {
+      badgeText: "E-Juice Brand Directory",
+      heading: "Popular E-Juice & Nicotine Salt Brands in Dubai",
+      description: "Explore authentic imported e-liquids across UAE. Compare nicotine strengths, VG/PG ratios, and signature fruit, menthol & tobacco flavors.",
+    },
   },
 
   juulSignatureFlavors: {
@@ -806,8 +1051,14 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     description: "JUUL flavour line-up.",
     templates: ["collection"],
     contentInCode: true,
-    fields: [],
-    defaults: {},
+    fields: [
+      { type: "text", key: "badgeText", label: "Badge text" },
+      { type: "text", key: "heading", label: "Heading" },
+    ],
+    defaults: {
+      badgeText: "Official JUUL Flavor Lineup",
+      heading: "Signature Flavors",
+    },
   },
 
   juulPackagingCompare: {
@@ -816,8 +1067,15 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     description: "Old vs new JUUL 1 packaging guide.",
     templates: ["collection"],
     contentInCode: true,
-    fields: [],
-    defaults: {},
+    fields: [
+      { type: "text", key: "heading", label: "Heading" },
+      { type: "textarea", key: "description", label: "Description", rows: 3 },
+    ],
+    defaults: {
+      heading: "JUUL 1 Packaging: Old vs New",
+      description:
+        "To make fake JUUL products harder to sell in the UAE, JUUL redesigned the box. Here is what changed and what to look for before you buy.",
+    },
   },
 
   juulTechSpecs: {
@@ -826,8 +1084,16 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     description: "Technical specification table.",
     templates: ["collection"],
     contentInCode: true,
-    fields: [],
-    defaults: {},
+    fields: [
+      { type: "text", key: "badgeText", label: "Badge text" },
+      {
+        type: "text",
+        key: "heading",
+        label: "Heading",
+        help: "Leave blank to keep the automatic JUUL 1 / JUUL 2 wording.",
+      },
+    ],
+    defaults: { badgeText: "Technical Specifications", heading: "" },
   },
 
   bottomCollectionGrid: {
@@ -836,8 +1102,17 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     description: "Five-category recommendation grid.",
     templates: ["collection"],
     contentInCode: true,
-    fields: [],
-    defaults: {},
+    fields: [
+      {
+        type: "text",
+        key: "badgeText",
+        label: "Badge text",
+        help: "Leave blank to keep the automatic per-category wording.",
+      },
+      { type: "text", key: "heading", label: "Heading" },
+      { type: "textarea", key: "description", label: "Description", rows: 2 },
+    ],
+    defaults: { badgeText: "", heading: "", description: "" },
   },
 
   juulAppIntegration: {
@@ -846,8 +1121,16 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     description: "JUUL 2 companion-app feature block.",
     templates: ["collection", "product"],
     contentInCode: true,
-    fields: [],
-    defaults: {},
+    fields: [
+      { type: "text", key: "badgeText", label: "Badge text" },
+      { type: "text", key: "heading", label: "Heading" },
+      { type: "textarea", key: "description", label: "Description", rows: 3 },
+    ],
+    defaults: {
+      badgeText: "JUUL 2 Smart App Integration",
+      heading: "Control Your JUUL 2 Directly From Your Phone",
+      description: "Discover the smart vaping era. Pair your JUUL 2 via Bluetooth to monitor your battery health, track puff counts, lock your device remotely, and secure age verification in one tap.",
+    },
   },
 
   myleVerification: {
@@ -856,8 +1139,14 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     description: "Anti-counterfeit verification steps.",
     templates: ["collection", "product"],
     contentInCode: true,
-    fields: [],
-    defaults: {},
+    fields: [
+      { type: "text", key: "badgeText", label: "Badge text" },
+      { type: "text", key: "heading", label: "Heading" },
+    ],
+    defaults: {
+      badgeText: "Official UAE Verification",
+      heading: "ANTI-COUNTERFEIT SYSTEM",
+    },
   },
 
   customerReviews: {
@@ -866,8 +1155,58 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     description: "Verified review carousel.",
     templates: ["index", "collection", "product"],
     contentInCode: true,
-    fields: [],
-    defaults: {},
+    fields: [
+      { type: "text", key: "badgeText", label: "Badge text" },
+      {
+        type: "text",
+        key: "headingTemplate",
+        label: "Heading",
+        help: "Use {collection} for the current collection or product name.",
+      },
+      { type: "textarea", key: "description", label: "Description", rows: 3 },
+      { type: "text", key: "ratingValue", label: "Overall rating" },
+      { type: "text", key: "ratingCountLabel", label: "Rating count label" },
+      {
+        type: "repeater",
+        key: "reviews",
+        label: "Reviews",
+        itemNoun: "review",
+        itemLabelKey: "title",
+        max: 60,
+        defaultItem: {
+          id: "rev-new",
+          author: "",
+          location: "",
+          rating: 5,
+          date: "",
+          verified: true,
+          productName: "",
+          title: "New review",
+          comment: "",
+          helpfulCount: 0,
+        },
+        fields: [
+          { type: "text", key: "title", label: "Headline" },
+          { type: "textarea", key: "comment", label: "Review", rows: 4 },
+          { type: "text", key: "author", label: "Author" },
+          { type: "text", key: "location", label: "Location" },
+          { type: "text", key: "productName", label: "Product" },
+          { type: "text", key: "date", label: "Date" },
+          { type: "number", key: "rating", label: "Rating", min: 1, max: 5, step: 1 },
+          { type: "number", key: "helpfulCount", label: "Helpful votes", min: 0, step: 1 },
+          { type: "toggle", key: "verified", label: "Verified buyer" },
+        ],
+      },
+    ],
+    defaults: {
+      badgeText: "Verified Customer Feedback",
+      headingTemplate: "Customer Reviews for {collection}",
+      description:
+        "Read authentic ratings and reviews from verified buyers across Dubai, Abu Dhabi, and the UAE.",
+      ratingValue: "4.9",
+      ratingCountLabel: "1,420+ Verified Reviews",
+      reviews: [],
+    },
   },
 
   /* ═══════════ Product template ═══════════ */
@@ -880,8 +1219,16 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     templates: ["product"],
     required: true,
     contentInCode: true,
-    fields: [],
-    defaults: {},
+    fields: [
+      { type: "text", key: "descriptionTabLabel", label: "Description tab label" },
+      { type: "text", key: "shippingTabLabel", label: "Shipping tab label" },
+      { type: "text", key: "returnsTabLabel", label: "Returns tab label" },
+    ],
+    defaults: {
+      descriptionTabLabel: "Product Description",
+      shippingTabLabel: "Shipping and Delivery",
+      returnsTabLabel: "Refund and Returns Policy",
+    },
   },
 
   productKeySpecs: {
@@ -890,8 +1237,8 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     description: "Spec highlights for the current product.",
     templates: ["product"],
     contentInCode: true,
-    fields: [],
-    defaults: {},
+    fields: [{ type: "text", key: "heading", label: "Heading" }],
+    defaults: { heading: "Key Features & Specifications" },
   },
 
   productFlavors: {
@@ -900,8 +1247,15 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     description: "Flavour options for the current product.",
     templates: ["product"],
     contentInCode: true,
-    fields: [],
-    defaults: {},
+    fields: [
+      { type: "text", key: "heading", label: "Heading" },
+      { type: "textarea", key: "footnote", label: "Footnote", rows: 2 },
+    ],
+    defaults: {
+      heading: "Available Flavours",
+      footnote:
+        "Each blend is crafted to replicate authentic shisha & vape flavours with rich flavor profiles, cooling sensation, and sweet notes.",
+    },
   },
 
   whyChooseProduct: {
@@ -910,8 +1264,15 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     description: "Product-level selling points.",
     templates: ["product"],
     contentInCode: true,
-    fields: [],
-    defaults: {},
+    fields: [
+      {
+        type: "text",
+        key: "headingTemplate",
+        label: "Heading",
+        help: "Use {product} for the product name.",
+      },
+    ],
+    defaults: { headingTemplate: "Why Choose the {product}?" },
   },
 
   juulCrispMenthol: {
@@ -920,8 +1281,15 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     description: "JUUL menthol feature block.",
     templates: ["product"],
     contentInCode: true,
-    fields: [],
-    defaults: {},
+    fields: [
+      {
+        type: "text",
+        key: "headingTemplate",
+        label: "Heading",
+        help: "Use {product} for the product name.",
+      },
+    ],
+    defaults: { headingTemplate: "Why Choose {product}" },
   },
 
   relatedProducts: {
@@ -930,8 +1298,11 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     description: "Recommendation carousels.",
     templates: ["product"],
     contentInCode: true,
-    fields: [],
-    defaults: {},
+    fields: [
+      { type: "text", key: "heading", label: "Heading" },
+      { type: "number", key: "maxProducts", label: "Products to show", min: 2, max: 20, step: 1 },
+    ],
+    defaults: { heading: "You May Also Like", maxProducts: 10 },
   },
 };
 

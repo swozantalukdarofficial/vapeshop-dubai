@@ -23,7 +23,10 @@ import { MyleVerificationSection } from "@/components/sections/MyleVerificationS
 import { DisposableComparisonSections } from "@/components/sections/DisposableComparisonSections";
 import { DisposableBrandsShowcase } from "@/components/sections/DisposableBrandsShowcase";
 import { EJuiceBrandsShowcase } from "@/components/sections/EJuiceBrandsShowcase";
-import { TemplateSections } from "@/components/sections/SectionRenderer";
+import {
+  instanceSettings,
+  TemplateSections,
+} from "@/components/sections/SectionRenderer";
 import { useResolvedTemplate } from "@/context/ThemeSettingsContext";
 import {
   Star,
@@ -717,7 +720,9 @@ function CollectionPageContent() {
     return result;
   }, [collectionProducts, selectedSeries, selectedNicotines, selectedPuffs, selectedBrands, selectedCategories, inStockOnly, maxPrice, sortBy, subFilter, searchQuery, activePillFilter]);
 
-  const ITEMS_PER_PAGE = 12;
+  // Both come from the collection template's Product Grid section.
+  const mainSettings = instanceSettings(templateInstances, "collectionMain");
+  const ITEMS_PER_PAGE = Number(mainSettings.itemsPerPage) || 12;
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -880,7 +885,12 @@ function CollectionPageContent() {
         {handle === "brand" || handle === "brands" ? (
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-12">
             {/* Brand Directory Showcase */}
-            <BrandSphere3D />
+            <BrandSphere3D
+              settings={{
+                flagshipHeading: String(mainSettings.brandFlagshipHeading ?? ""),
+                directoryHeading: String(mainSettings.brandDirectoryHeading ?? ""),
+              }}
+            />
           </div>
         ) : (
           <div id="catalog-top" className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12">
@@ -1293,31 +1303,45 @@ function CollectionPageContent() {
           containerClassName="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6"
           slots={{
             collectionMain: null,
-            disposableShowcase: (
+            disposableShowcase: (settings: Record<string, unknown>) => (
               <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
-                <DisposableBrandsShowcase />
+                <DisposableBrandsShowcase settings={settings as never} />
               </div>
             ),
-            disposableComparison: (
+            disposableComparison: (settings: Record<string, unknown>) => (
               <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
-                <DisposableComparisonSections />
+                <DisposableComparisonSections settings={settings as never} />
               </div>
             ),
-            ejuiceShowcase: (
+            ejuiceShowcase: (settings: Record<string, unknown>) => (
               <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
-                <EJuiceBrandsShowcase />
+                <EJuiceBrandsShowcase settings={settings as never} />
               </div>
             ),
-            juulSignatureFlavors: <JuulSignatureFlavorsSection handle={handle} />,
-            juulPackagingCompare: <JuulPackagingCompareSection />,
-            juulTechSpecs: <JuulTechSpecsSection handle={handle} />,
-            bottomCollectionGrid: <BottomCollectionGrid handle={handle} />,
-            juulAppIntegration: <JuulAppIntegrationSection />,
-            myleVerification: <MyleVerificationSection />,
-            customerReviews: (
-              <CustomerReviewsSection collectionName={collectionInfo.title} />
+            juulSignatureFlavors: (settings: Record<string, unknown>) => (
+              <JuulSignatureFlavorsSection handle={handle} settings={settings as never} />
             ),
-            brandSphere: <BrandSphere3D />,
+            juulPackagingCompare: (settings: Record<string, unknown>) => (
+              <JuulPackagingCompareSection settings={settings as never} />
+            ),
+            juulTechSpecs: (settings: Record<string, unknown>) => (
+              <JuulTechSpecsSection handle={handle} settings={settings as never} />
+            ),
+            bottomCollectionGrid: (settings: Record<string, unknown>) => (
+              <BottomCollectionGrid handle={handle} settings={settings as never} />
+            ),
+            juulAppIntegration: (settings: Record<string, unknown>) => (
+              <JuulAppIntegrationSection settings={settings as never} />
+            ),
+            myleVerification: (settings: Record<string, unknown>) => (
+              <MyleVerificationSection settings={settings as never} />
+            ),
+            customerReviews: (settings: Record<string, unknown>) => (
+              <CustomerReviewsSection
+                collectionName={collectionInfo.title}
+                settings={settings as never}
+              />
+            ),
           }}
         />
 

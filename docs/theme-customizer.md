@@ -61,13 +61,40 @@ each with its own question list.
 | --- | --- |
 | `index` | The homepage |
 | `collection` | Every `/collections/[handle]` (and `/shop`, `/brand`) |
-| `collection:<handle>` | One collection — overrides the above |
+| `collection:<rule>` | The collections matching a URL rule — overrides the above |
 | `product` | Every `/product/[handle]` |
-| `product:<handle>` | One product — overrides the above |
+| `product:<rule>` | The products matching a URL rule |
 | `page:<slug>` | A static page (`about-us`, `contact`, `privacy-policy`, `terms-conditions`, `shipping-delivery`) |
 
-Resolution is most-specific-wins: a page uses its handle override if one
-exists, otherwise the type default.
+### URL rules
+
+A collection or product template is bound to a **rule**, not a single handle,
+so one template can cover a whole family of URLs:
+
+| Rule | Matches | Example |
+| --- | --- | --- |
+| Is exactly | that one handle | `juul-1-series` |
+| Starts with | a shared prefix | `juul-` |
+| Ends with | a shared suffix | `-vape` |
+| Contains | anywhere in the handle | `juul` |
+| Matches pattern | glob — `*` any run, `?` one char | `juul-*-series` |
+
+Matching is case-insensitive and applies to the handle only (the part after
+`/collections/` or `/product/`).
+
+**When several rules match the same URL, the most specific wins:**
+
+```
+exact  >  pattern  >  starts/ends with  >  contains
+```
+
+Ties break on the longer rule value, then alphabetically by key, so the result
+never depends on the order templates happen to be stored in. If nothing
+matches, the type default applies.
+
+Create one from the template dropdown → **New collection template…**. The
+dialog lists which of your real URLs the rule captures as you type, and warns
+when another rule overlaps.
 
 ### Conditional sections
 
@@ -77,15 +104,16 @@ disposable ones. Those rules survive as **conditions** on the default
 templates, listed in `src/lib/theme/conditions.ts`. A conditional section shows
 a blue note in the customizer explaining when it appears.
 
-**Creating a per-handle override switches conditions off entirely for that
-page.** An override is an explicit statement of what the page should contain,
-so every enabled section in it renders. That's how you'd put the JUUL spec
-table on a non-JUUL collection, or strip a page back to just a grid and an FAQ.
+**A rule-based template switches conditions off entirely for the URLs it
+covers.** Creating one is an explicit statement of what those pages should
+contain, so every enabled section in it renders — that's how you'd put the JUUL
+spec table on a non-JUUL collection, or strip a family of pages back to just a
+grid and an FAQ.
 
-> One behaviour change worth knowing: conditions match on handle patterns, so a
-> *brand new* collection whose handle contains "disposable" will still pick up
-> the disposable sections automatically, but any collection you want to differ
-> from the default now needs an explicit override rather than a code change.
+Which means the two mechanisms compose the way you'd want: the default template
+keeps its automatic per-handle behaviour for everything you haven't spoken for,
+and the moment you create a rule you get full manual control over exactly the
+URLs that rule names.
 
 ---
 
@@ -100,8 +128,8 @@ table on a non-JUUL collection, or strip a page back to just a grid and an FAQ.
 | Show / hide | Eye icon |
 | Add a section | **Add section** at the bottom of the list |
 | Remove a section | Open it, then **Remove section** |
-| Per-handle layout | Template dropdown → **Create collection/product override…** |
-| Delete an override | Trash icon beside it in the template dropdown |
+| Layout for a set of URLs | Template dropdown → **New collection/product template…** |
+| Delete a template | Trash icon beside it in the template dropdown |
 | Preview on tablet / phone | Device buttons, top centre |
 | Undo unpublished work | **Discard** |
 | Restore original content | **Reset to defaults** |
@@ -123,18 +151,82 @@ The last remaining admin can't be deleted or demoted.
 
 ## What's editable
 
-**Full content editing** — hero slider, category tiles, brand tiles, why-shop
-pillars, FAQ, WhatsApp CTA, blog header, page header, text block, feature grid,
-contact form, contact details, header (announcement + full menu tree), footer
-(trust bar, link columns, contact, badges, legal).
+**Every section has settings** — there are no placement-only sections left.
 
-**Placement only** — the specialised commerce sections (product grid, buy box,
-3D brand sphere, JUUL/MYLE/disposable/e-juice blocks, reviews, related
-products). Their content is generated from live Shopify data or lives in the
-component. You can reorder, hide, remove and place them per template; the
-customizer says so explicitly when you open one.
+Sections whose content is entirely yours expose it in full: hero slider,
+category tiles, brand tiles, why-shop pillars, FAQ, WhatsApp CTA, blog header,
+page header, text block, feature grid, contact form, contact details, plus the
+header (announcement bar and the whole menu tree) and footer (trust bar, link
+columns, contact, payment badges, legal).
 
-Promoting any of those to full editing is additive — see below.
+Sections whose **body** is built from live store data still expose their
+wording, and say so when you open them:
+
+| Section | Settings |
+| --- | --- |
+| Product Feed | Eyebrow, heading, description, products per page, empty-state copy, **and fully merchant-defined product rows** — see below |
+| Product Grid & Filters | Products per page, default sort, brand-directory headings |
+| Disposable / E-Juice Brand Showcase | Badge, heading, description |
+| Disposable Comparison | Both table headings |
+| JUUL Signature Flavors | Badge, heading |
+| JUUL Packaging Comparison | Heading, description |
+| JUUL Tech Specs | Badge, heading (blank keeps the JUUL 1 / JUUL 2 wording) |
+| Related Collections Grid | Badge, heading, description (blank keeps the per-category wording) |
+| JUUL 2 App Integration | Badge, heading, description |
+| MYLE Verification Guide | Badge, heading |
+| Customer Reviews | Badge, heading, description, overall rating, rating count, **and the full review list** |
+| Product Details & Buy Box | The three tab labels |
+| Key Specifications | Heading |
+| Available Flavors | Heading, footnote |
+| Why Choose This Product | Heading (use `{product}`) |
+| JUUL Crisp Menthol | Heading (use `{product}`) |
+| Related Products | Heading, number to show |
+
+### Product Feed rows
+
+The homepage feed's rows are merchant-defined. **Each row is one Shopify
+collection**, chosen from a dropdown of your real collections — that single
+choice supplies both the products shown and the row's "view all" destination.
+
+| Field | Does |
+| --- | --- |
+| Row heading | The carousel title |
+| Collection | Which collection's products to show, and where "view all" goes |
+| Products in this row | 2–24 |
+| 'View all' link | Only if you want it to go somewhere other than the collection |
+| Row style | Standard, or the flash-sale banner below |
+
+Rows drag into any order, and a row with no collection chosen is skipped
+entirely rather than rendering an empty carousel.
+
+The collection list comes from `/api/admin/collections` (admin-only). Product
+membership is already included in `/api/products`, so a row costs no extra
+storefront request.
+
+### Flash sale rows
+
+Set **Row style** to *Flash sale banner* on any row — it is no longer tied to a
+row being named "Flash Sale", so renaming one keeps its banner. That unlocks:
+
+| Setting | Effect |
+| --- | --- |
+| Flash sale — badge | The pill above the heading |
+| Flash sale — description | The line under the heading |
+| Show countdown timer | Turns the clock on or off |
+| Timer label | Text above the digits |
+| Counts down to | *Midnight tonight* (restarts daily) or *A specific date & time* |
+| Ends at | The deadline, in the visitor's local time zone |
+| Hide timer once it reaches zero | Drops the clock but keeps the row |
+
+The heading is the row's own title, so there is one place to change it.
+
+Placeholders: `{product}` and `{collection}` are replaced with the current
+product or collection name, so a heading stays dynamic while you control the
+wording around it.
+
+Leaving a field blank generally means "keep the built-in behaviour" — that's
+how the JUUL spec table keeps switching between its JUUL 1 and JUUL 2 wording
+unless you override it.
 
 ---
 
@@ -165,10 +257,26 @@ It then appears in **Add section** for every template type you listed.
 
 ### Sections that need page data
 
-Pages pass pre-rendered nodes to `TemplateSections` via `slots`, keyed by
-section type. The template still controls order and visibility; the page owns
-the rendering. That's how the 1500-line collection page and 1000-line product
-page participate without being rewritten.
+Pages pass their own sections to `TemplateSections` via `slots`, keyed by
+section type. A slot is either a node or a function receiving that instance's
+saved settings:
+
+```tsx
+slots={{
+  customerReviews: (settings) => (
+    <CustomerReviewsSection collectionName={title} settings={settings as never} />
+  ),
+}}
+```
+
+The template still owns order and visibility; the page owns the rendering. That
+is how the 1500-line collection page and 1000-line product page participate
+without being rewritten — and how a page-rendered section still gets edited
+from the customizer.
+
+For a section the page renders inline rather than through a slot (the product
+grid, the buy box), `instanceSettings(instances, type)` reads its settings
+directly.
 
 ---
 
@@ -191,6 +299,10 @@ public/uploads/             ← uploaded images
 - **Sessions** are HMAC-signed cookies (`node:crypto`), verified in `proxy.ts`
   before any `/admin` or `/api/admin` route runs. Passwords use scrypt. No new
   dependencies were added for any of this.
+- **URL rules** live in `src/lib/theme/types.ts` — `matchesHandle()` for a
+  single rule, `resolveTemplateKey()` for precedence. Templates saved before
+  rules existed carry a bare `handle`; the normaliser promotes those to an
+  `exact` rule so both shapes resolve through one code path.
 - **Migration and repair** live in `src/lib/theme/normalize.ts`. Older saved
   settings are migrated forward on read, missing fields are backfilled from
   defaults, and unknown section types are dropped rather than reaching the

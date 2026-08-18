@@ -71,7 +71,15 @@ const EJUICE_BRANDS: EJuiceBrand[] = [
   },
 ];
 
-export function EJuiceBrandsShowcase() {
+export interface EJuiceShowcaseSettings {
+  badgeText: string;
+  heading: string;
+  description: string;
+}
+
+export function EJuiceBrandsShowcase({
+  settings,
+}: { settings?: EJuiceShowcaseSettings } = {}) {
   const sliderRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -160,15 +168,16 @@ export function EJuiceBrandsShowcase() {
         <div className="text-center flex flex-col items-center flex-1">
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-extrabold uppercase tracking-[0.2em] px-3.5 py-1 rounded-full mb-2">
             <Layers className="w-3.5 h-3.5 text-primary" />
-            <span>E-Juice Brand Directory</span>
+            <span>{settings?.badgeText || "E-Juice Brand Directory"}</span>
           </div>
 
           <h2 className="text-2xl sm:text-4xl font-serif font-black text-foreground tracking-tight leading-tight">
-            Popular E-Juice &amp; Nicotine Salt Brands in Dubai
+            {settings?.heading || "Popular E-Juice & Nicotine Salt Brands in Dubai"}
           </h2>
 
           <p className="text-xs sm:text-sm text-muted-foreground mt-1 font-semibold max-w-xl">
-            Explore authentic imported e-liquids across UAE. Compare nicotine strengths, VG/PG ratios, and signature fruit, menthol &amp; tobacco flavors.
+            {settings?.description ||
+              "Explore authentic imported e-liquids across UAE. Compare nicotine strengths, VG/PG ratios, and signature fruit, menthol & tobacco flavors."}
           </p>
 
           {/* Premium Centered Line Divider */}

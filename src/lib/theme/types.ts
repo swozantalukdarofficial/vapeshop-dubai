@@ -11,14 +11,17 @@
  *
  * Template keys
  * -------------
- *   index                      the homepage
- *   collection                 default for every /collections/[handle]
- *   collection:juul-1-series   override for one handle, falls back to above
- *   product                    default for every /product/[handle]
- *   product:<handle>           override for one product
- *   page:about-us              a static page
+ *   index                          the homepage
+ *   collection                     default for every /collections/[handle]
+ *   collection:juul-1-series       exact-handle override
+ *   collection:contains--juul      URL-rule override, covers a whole family
+ *   product                        default for every /product/[handle]
+ *   product:<rule>                 same rules, for product pages
+ *   page:about-us                  a static page
  *
- * Resolution is "most specific wins" — see `resolveTemplateKey()`.
+ * Overrides carry a `match` rule (exact / prefix / suffix / contains /
+ * wildcard). Resolution is "most specific rule wins" — see
+ * `resolveTemplateKey()`.
  */
 
 export type TemplateType = "index" | "collection" | "product" | "page";
@@ -43,11 +46,44 @@ export interface SectionInstance {
   settings: Record<string, unknown>;
 }
 
+/**
+ * How a template decides which URLs it applies to.
+ *
+ *   exact     handle === value                       juul-1-series
+ *   prefix    handle starts with value               juul-
+ *   suffix    handle ends with value                 -vape
+ *   contains  handle contains value                  juul
+ *   wildcard  glob against the whole handle          juul-*-series
+ *
+ * This is what lets one template cover a family of collections, the way the
+ * storefront's original hard-coded `handle.includes("juul")` rules did.
+ */
+export type TemplateMatchType =
+  | "exact"
+  | "prefix"
+  | "suffix"
+  | "contains"
+  | "wildcard";
+
+export interface TemplateMatch {
+  type: TemplateMatchType;
+  /** Compared against the collection/product handle, case-insensitively. */
+  value: string;
+}
+
 export interface Template {
   type: TemplateType;
   /** Shown in the customizer's template picker. */
   label: string;
-  /** Set on per-handle overrides; absent on defaults. */
+  /**
+   * URL rule. Present on every override; absent on the type defaults, which
+   * are the fallback when nothing matches.
+   */
+  match?: TemplateMatch;
+  /**
+   * Legacy exact-handle field, kept so older saved settings and existing
+   * template keys still read correctly. `match` is authoritative.
+   */
   handle?: string;
   /** URL the customizer previews this template at. */
   previewPath: string;
@@ -129,7 +165,7 @@ export interface ThemeSettingsRecord {
   updatedBy: string | null;
 }
 
-/* ── Template key helpers ─────────────────────────────────────────── */
+/* ── Template matching ────────────────────────────────────────────── */
 
 export const TEMPLATE_KEYS = {
   index: "index",
@@ -137,32 +173,112 @@ export const TEMPLATE_KEYS = {
   product: "product",
 } as const;
 
-export function collectionKey(handle: string): string {
-  return `collection:${handle}`;
-}
-
-export function productKey(handle: string): string {
-  return `product:${handle}`;
-}
-
 export function pageKey(slug: string): string {
   return `page:${slug}`;
 }
 
+/** More specific rules win when several match the same URL. */
+const MATCH_SPECIFICITY: Record<TemplateMatchType, number> = {
+  exact: 4,
+  wildcard: 3,
+  prefix: 2,
+  suffix: 2,
+  contains: 1,
+};
+
+const REGEX_META = new Set([
+  ".", "+", "^", "$", "{", "}", "(", ")", "|", "[", "]", "\\",
+]);
+
+function wildcardToRegExp(pattern: string): RegExp {
+  // Translated character by character: `*` and `?` become regex wildcards,
+  // every other metacharacter is escaped so it matches literally. Done as a
+  // loop rather than a chain of .replace() calls because the escaping there is
+  // notoriously easy to get subtly wrong.
+  let source = "";
+  for (const char of pattern) {
+    if (char === "*") source += ".*";
+    else if (char === "?") source += ".";
+    else if (REGEX_META.has(char)) source += `\\${char}`;
+    else source += char;
+  }
+  return new RegExp(`^${source}$`);
+}
+
+/** Does this rule apply to `handle`? Matching is case-insensitive. */
+export function matchesHandle(match: TemplateMatch, handle: string): boolean {
+  const value = match.value.trim().toLowerCase();
+  const target = handle.trim().toLowerCase();
+  if (!value) return false;
+
+  switch (match.type) {
+    case "exact":
+      return target === value;
+    case "prefix":
+      return target.startsWith(value);
+    case "suffix":
+      return target.endsWith(value);
+    case "contains":
+      return target.includes(value);
+    case "wildcard":
+      try {
+        return wildcardToRegExp(value).test(target);
+      } catch {
+        // A pattern that won't compile shouldn't take the storefront down.
+        return false;
+      }
+    default:
+      return false;
+  }
+}
+
+/** The rule a template matches by, falling back to its legacy handle. */
+export function templateMatch(template: Template): TemplateMatch | undefined {
+  if (template.match) return template.match;
+  if (template.handle) return { type: "exact", value: template.handle };
+  return undefined;
+}
+
 /**
- * Pick the template a page should render with: a handle-specific override if
- * the merchant created one, otherwise the type default.
+ * Pick the template a page renders with.
+ *
+ * Every rule for this template type is tested against the handle; the most
+ * specific match wins, then the longest pattern, then the key alphabetically
+ * so the outcome never depends on object insertion order. With no match, the
+ * type default applies.
  */
 export function resolveTemplateKey(
   templates: Record<string, Template>,
   type: TemplateType,
   handle?: string
 ): string {
-  if (handle) {
-    const specific = `${type}:${handle}`;
-    if (templates[specific]) return specific;
+  if (!handle) return type;
+
+  let bestKey: string = type;
+  let bestScore = -1;
+  let bestLength = -1;
+
+  for (const [key, template] of Object.entries(templates)) {
+    if (template.type !== type) continue;
+
+    const match = templateMatch(template);
+    if (!match || !matchesHandle(match, handle)) continue;
+
+    const score = MATCH_SPECIFICITY[match.type] ?? 0;
+    const length = match.value.length;
+
+    if (
+      score > bestScore ||
+      (score === bestScore && length > bestLength) ||
+      (score === bestScore && length === bestLength && key < bestKey)
+    ) {
+      bestKey = key;
+      bestScore = score;
+      bestLength = length;
+    }
   }
-  return type;
+
+  return bestKey;
 }
 
 /** Split `"collection:juul-1-series"` into its parts. */
@@ -175,4 +291,39 @@ export function parseTemplateKey(key: string): {
     type: type as TemplateType,
     handle: rest.length ? rest.join(":") : undefined,
   };
+}
+
+/** Human-readable summary of a rule, for the admin UI. */
+export function describeMatch(match: TemplateMatch): string {
+  switch (match.type) {
+    case "exact":
+      return `handle is “${match.value}”`;
+    case "prefix":
+      return `handle starts with “${match.value}”`;
+    case "suffix":
+      return `handle ends with “${match.value}”`;
+    case "contains":
+      return `handle contains “${match.value}”`;
+    case "wildcard":
+      return `handle matches “${match.value}”`;
+    default:
+      return match.value;
+  }
+}
+
+/** Stable, URL-safe key for a rule-based template. */
+export function templateKeyForMatch(
+  type: TemplateType,
+  match: TemplateMatch
+): string {
+  const slug = match.value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  // Exact rules keep the plain `type:handle` form used before rules existed,
+  // so existing overrides and their keys stay stable.
+  return match.type === "exact"
+    ? `${type}:${slug}`
+    : `${type}:${match.type}--${slug}`;
 }

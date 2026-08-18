@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ChevronDown, Plus, Trash2 } from "lucide-react";
 
-import { parseTemplateKey, type Template } from "@/lib/theme/types";
+import { describeMatch, templateMatch, type Template } from "@/lib/theme/types";
 
 /**
  * Template switcher, modelled on Shopify's: pick which page you're editing,
@@ -21,7 +21,7 @@ export const TemplatePicker: React.FC<{
   templates: Record<string, Template>;
   activeKey: string;
   onSelect: (key: string) => void;
-  onCreateOverride: (type: "collection" | "product", handle: string) => void;
+  onCreateOverride: (type: "collection" | "product") => void;
   onDeleteTemplate: (key: string) => void;
 }> = ({ templates, activeKey, onSelect, onCreateOverride, onDeleteTemplate }) => {
   const [open, setOpen] = useState(false);
@@ -44,26 +44,7 @@ export const TemplatePicker: React.FC<{
   }, [open]);
 
   const active = templates[activeKey];
-
-  const createOverride = (type: "collection" | "product") => {
-    const noun = type === "collection" ? "collection" : "product";
-    const raw = window.prompt(
-      `Which ${noun} handle should get its own layout?\n\n` +
-        `This is the part of the URL after /${type === "collection" ? "collections" : "product"}/ — ` +
-        `for example "juul-1-series".`
-    );
-    const handle = raw?.trim().toLowerCase().replace(/^\/+|\/+$/g, "");
-    if (!handle) return;
-
-    const key = `${type}:${handle}`;
-    if (templates[key]) {
-      onSelect(key);
-      setOpen(false);
-      return;
-    }
-    onCreateOverride(type, handle);
-    setOpen(false);
-  };
+  const activeRule = active ? templateMatch(active) : undefined;
 
   const entries = Object.entries(templates);
 
@@ -80,9 +61,9 @@ export const TemplatePicker: React.FC<{
           <span className="block truncate text-[13px] font-bold text-slate-800">
             {active?.label ?? "Select a template"}
           </span>
-          {active?.handle && (
+          {activeRule && (
             <span className="block truncate text-[10px] font-semibold text-orange-600">
-              override · {active.handle}
+              {describeMatch(activeRule)}
             </span>
           )}
         </span>
@@ -109,7 +90,7 @@ export const TemplatePicker: React.FC<{
                 </p>
 
                 {groupEntries.map(([key, t]) => {
-                  const { handle } = parseTemplateKey(key);
+                  const rule = templateMatch(t);
                   const isActive = key === activeKey;
 
                   return (
@@ -134,16 +115,16 @@ export const TemplatePicker: React.FC<{
                         >
                           {t.label}
                         </span>
-                        {handle && (
+                        {rule && (
                           <span className="block truncate text-[10px] text-slate-400">
-                            /{handle}
+                            {describeMatch(rule)}
                           </span>
                         )}
                       </button>
 
                       {/* Only overrides are deletable — the type defaults are
                           the fallback every page relies on. */}
-                      {handle && (t.type === "collection" || t.type === "product") && (
+                      {rule && (t.type === "collection" || t.type === "product") && (
                         <button
                           type="button"
                           onClick={() => onDeleteTemplate(key)}
@@ -160,11 +141,14 @@ export const TemplatePicker: React.FC<{
                 {(group.type === "collection" || group.type === "product") && (
                   <button
                     type="button"
-                    onClick={() => createOverride(group.type as "collection" | "product")}
+                    onClick={() => {
+                      onCreateOverride(group.type as "collection" | "product");
+                      setOpen(false);
+                    }}
                     className="flex w-full cursor-pointer items-center gap-1.5 px-3 py-2 text-left text-[12px] font-bold text-slate-500 transition-colors hover:bg-slate-50 hover:text-orange-600"
                   >
                     <Plus className="h-3.5 w-3.5" />
-                    Create {group.type} override…
+                    New {group.type} template…
                   </button>
                 )}
               </div>

@@ -3,7 +3,15 @@
 import React, { useState } from "react";
 import { AlertCircle, CheckCircle2, ChevronLeft, ChevronRight, Layers, ShieldCheck, Award } from "lucide-react";
 
-export function JuulPackagingCompareSection() {
+export interface SectionHeadingSettings {
+  badgeText: string;
+  heading: string;
+  description: string;
+}
+
+export function JuulPackagingCompareSection({
+  settings,
+}: { settings?: SectionHeadingSettings } = {}) {
   const [activeTab, setActiveTab] = useState<"old" | "new">("old");
 
   const isNew = activeTab === "new";
@@ -34,12 +42,13 @@ export function JuulPackagingCompareSection() {
                   <Layers className="w-5 h-5" />
                 </div>
                 <h2 className="text-2xl sm:text-4xl font-serif font-black tracking-tight text-foreground">
-                  JUUL 1 Packaging: <span className="text-primary">Old</span> vs <span className="text-emerald-500">New</span>
+                  {settings?.heading || "JUUL 1 Packaging: Old vs New"}
                 </h2>
               </div>
 
               <p className="text-sm sm:text-base text-muted-foreground font-medium leading-relaxed max-w-2xl">
-                To make fake JUUL products harder to sell in the UAE, JUUL redesigned the box. Here is what changed and what to look for before you buy.
+                {settings?.description ||
+                  "To make fake JUUL products harder to sell in the UAE, JUUL redesigned the box. Here is what changed and what to look for before you buy."}
               </p>
             </div>
 

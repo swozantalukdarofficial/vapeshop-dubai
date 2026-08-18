@@ -34,10 +34,14 @@ import {
 import type { PublicUser } from "@/lib/auth/users";
 import { CONDITION_LABELS } from "@/lib/theme/conditions";
 import { SECTION_REGISTRY } from "@/lib/theme/sections";
-import type {
-  SectionInstance,
-  Template,
-  ThemeSettings,
+import {
+  describeMatch,
+  templateKeyForMatch,
+  templateMatch,
+  type SectionInstance,
+  type Template,
+  type TemplateMatch,
+  type ThemeSettings,
 } from "@/lib/theme/types";
 
 import { AddSectionMenu } from "./AddSectionMenu";
@@ -45,6 +49,7 @@ import { AdminUserMenu } from "./AdminUserMenu";
 import { FieldRenderer } from "./FieldRenderer";
 import { HeaderFooterPanel } from "./HeaderFooterPanel";
 import { TemplatePicker } from "./TemplatePicker";
+import { TemplateRuleDialog } from "./TemplateRuleDialog";
 import { useDragList } from "./use-drag-list";
 
 const DEVICES = {
@@ -92,6 +97,7 @@ export const Customizer: React.FC<{
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
+  const [ruleDialogFor, setRuleDialogFor] = useState<"collection" | "product" | null>(null);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -115,6 +121,9 @@ export const Customizer: React.FC<{
   }, []);
 
   const template: Template | undefined = settings.templates[templateKey];
+  // Templates with a URL rule are overrides: their sections render
+  // unconditionally, so the “conditional” hints don't apply.
+  const templateRule = template ? templateMatch(template) : undefined;
 
   const hasUnpublished = useMemo(
     () => !sameSettings(settings, published),
@@ -286,33 +295,45 @@ export const Customizer: React.FC<{
     updateTemplate(templateKey, (t) => ({ ...t, order }));
   };
 
-  const createOverride = (type: "collection" | "product", handle: string) => {
+  /**
+   * Create a template driven by a URL rule, seeded from the type default so
+   * the merchant starts from what that page already looks like.
+   */
+  const createRuleTemplate = (
+    type: "collection" | "product",
+    match: TemplateMatch,
+    previewPath: string,
+    label: string
+  ) => {
     const base = settings.templates[type];
     if (!base) return;
-    const key = `${type}:${handle}`;
 
+    const key = templateKeyForMatch(type, match);
     setSettings((prev) => ({
       ...prev,
       templates: {
         ...prev.templates,
         [key]: {
           ...structuredClone(base),
-          label: `${type === "collection" ? "Collection" : "Product"}: ${handle}`,
-          handle,
-          previewPath: `/${type === "collection" ? "collections" : "product"}/${handle}`,
+          label,
+          match,
+          ...(match.type === "exact" ? { handle: match.value } : {}),
+          previewPath: previewPath || base.previewPath,
         },
       },
     }));
     setTemplateKey(key);
     setPanel({ kind: "sections" });
+    setRuleDialogFor(null);
   };
 
   const deleteTemplate = (key: string) => {
     const t = settings.templates[key];
-    if (!t?.handle) return;
+    const rule = t ? templateMatch(t) : undefined;
+    if (!t || !rule) return;
     if (
       !window.confirm(
-        `Delete the override for "${t.handle}"? That page will fall back to the default ${t.type} template.`
+        `Delete "${t.label}" (${describeMatch(rule)})? Those pages will fall back to the default ${t.type} template.`
       )
     ) {
       return;
@@ -364,7 +385,7 @@ export const Customizer: React.FC<{
                 setTemplateKey(key);
                 setPanel({ kind: "sections" });
               }}
-              onCreateOverride={createOverride}
+              onCreateOverride={setRuleDialogFor}
               onDeleteTemplate={deleteTemplate}
             />
           </div>
@@ -484,7 +505,7 @@ export const Customizer: React.FC<{
                   {activeDef.description}
                 </p>
 
-                {activeInstance.showWhen && !template?.handle && (
+                {activeInstance.showWhen && !templateRule && (
                   <div className="flex items-start gap-2 rounded-lg border border-sky-200 bg-sky-50 px-2.5 py-2 text-[11px] leading-snug text-sky-800">
                     <Info className="mt-px h-3.5 w-3.5 shrink-0" />
                     <span>
@@ -496,11 +517,16 @@ export const Customizer: React.FC<{
                   </div>
                 )}
 
+                {activeDef.contentInCode && activeDef.fields.length > 0 && (
+                  <p className="rounded-lg border border-dashed border-slate-200 px-3 py-2.5 text-[11px] leading-relaxed text-slate-400">
+                    This section&apos;s body is built from live store data. The
+                    settings below control its wording.
+                  </p>
+                )}
+
                 {activeDef.fields.length === 0 ? (
                   <p className="rounded-lg border border-dashed border-slate-200 px-3 py-6 text-center text-[12px] leading-relaxed text-slate-400">
-                    {activeDef.contentInCode
-                      ? "This section's content lives in code. You can still reorder, hide, or remove it here."
-                      : "This section has no editable content."}
+                    This section has no editable content.
                   </p>
                 ) : (
                   activeDef.fields.map((field) => (
@@ -606,7 +632,7 @@ export const Customizer: React.FC<{
                           >
                             {def.label}
                           </span>
-                          {instance.showWhen && !template?.handle && (
+                          {instance.showWhen && !templateRule && (
                             <span className="block truncate text-[10px] font-semibold text-sky-600">
                               conditional
                             </span>
@@ -683,6 +709,18 @@ export const Customizer: React.FC<{
           </div>
         </main>
       </div>
+
+      {ruleDialogFor && (
+        <TemplateRuleDialog
+          type={ruleDialogFor}
+          templates={settings.templates}
+          menu={settings.header.menu}
+          onCancel={() => setRuleDialogFor(null)}
+          onCreate={(match, previewPath, label) =>
+            createRuleTemplate(ruleDialogFor, match, previewPath, label)
+          }
+        />
+      )}
     </div>
   );
 };

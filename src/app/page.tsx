@@ -45,18 +45,22 @@ export default function Home() {
 
   // Sections whose content is live commerce data rather than saved settings.
   const slots = {
-    productFeed: (
+    productFeed: (settings: Record<string, unknown>) => (
       <div id="products-section" className={SECTION_CONTAINER}>
         <ProductFeed
           searchQuery={searchQuery}
           activeCategory={activeCategory}
           onCategorySelect={setActiveCategory}
+          settings={settings as never}
         />
       </div>
     ),
-    customerReviews: (
+    customerReviews: (settings: Record<string, unknown>) => (
       <div className={SECTION_CONTAINER}>
-        <CustomerReviewsSection collectionName="Vape Products" />
+        <CustomerReviewsSection
+          collectionName="Vape Products"
+          settings={settings as never}
+        />
       </div>
     ),
   };

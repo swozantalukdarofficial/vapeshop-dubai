@@ -7,7 +7,16 @@ interface JuulTechSpecsSectionProps {
   handle: string;
 }
 
-export function JuulTechSpecsSection({ handle }: JuulTechSpecsSectionProps) {
+export interface SectionHeadingSettings {
+  badgeText: string;
+  heading: string;
+  description: string;
+}
+
+export function JuulTechSpecsSection({
+  handle,
+  settings,
+}: JuulTechSpecsSectionProps & { settings?: SectionHeadingSettings }) {
   const isJuul2 = handle.toLowerCase().includes("juul-2");
 
   const specs = isJuul2
@@ -96,19 +105,12 @@ export function JuulTechSpecsSection({ handle }: JuulTechSpecsSectionProps) {
           <div className="lg:col-span-5 space-y-4">
             <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] px-3.5 py-1.5 rounded-full">
               <Zap className="w-4 h-4 text-primary" />
-              <span>Technical Specifications</span>
+              <span>{settings?.badgeText || "Technical Specifications"}</span>
             </div>
 
             <h2 className="text-3xl sm:text-5xl font-serif font-black text-foreground tracking-tight leading-tight">
-              {isJuul2 ? (
-                <>
-                  Next-Gen <span className="text-primary">Smart Tech</span>
-                </>
-              ) : (
-                <>
-                  Engineered for <span className="text-primary">Excellence</span>
-                </>
-              )}
+              {settings?.heading ||
+                (isJuul2 ? "Next-Gen Smart Tech" : "Engineered for Excellence")}
             </h2>
 
             <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">

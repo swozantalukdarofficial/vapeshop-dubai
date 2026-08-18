@@ -36,35 +36,50 @@ export interface Product {
 
 
 
-const CATEGORIES = [
-  { id: "all", label: "All" },
-  { id: "juul", label: "JUUL" },
-  { id: "disposables", label: "Disposable" },
-  { id: "e-liquids", label: "E-Juice" },
-  { id: "accessories", label: "Pod System" },
-];
 
-export const FlashSaleTimer: React.FC = () => {
+export interface FlashSaleTimerSettings {
+  label: string;
+  /** `endOfDay` restarts every midnight; `fixedDate` counts to one moment. */
+  mode: "endOfDay" | "fixedDate";
+  /** Local `YYYY-MM-DDTHH:mm`, used by `fixedDate`. */
+  endsAt: string;
+  /** Hide the whole block once the deadline passes. */
+  hideWhenExpired: boolean;
+}
+
+export const FlashSaleTimer: React.FC<{ settings?: FlashSaleTimerSettings }> = ({
+  settings,
+}) => {
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [isMounted, setIsMounted] = useState(false);
 
+  const mode = settings?.mode ?? "endOfDay";
+  const endsAt = settings?.endsAt ?? "";
+
   useEffect(() => {
     setIsMounted(true);
-    const calculateTimeLeft = () => {
-      const now = new Date();
-      const target = new Date();
-      target.setHours(23, 59, 59, 999);
-      
-      const diff = target.getTime() - now.getTime();
-      if (diff <= 0) {
-        return { hours: 0, minutes: 0, seconds: 0 };
+
+    const targetTime = () => {
+      if (mode === "fixedDate" && endsAt) {
+        const parsed = new Date(endsAt).getTime();
+        // An unparseable date falls back to end-of-day rather than freezing
+        // the countdown at zero.
+        if (!Number.isNaN(parsed)) return parsed;
       }
-      
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff / (1000 * 60)) % 60);
-      const seconds = Math.floor((diff / 1000) % 60);
-      
-      return { hours, minutes, seconds };
+      const endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999);
+      return endOfDay.getTime();
+    };
+
+    const calculateTimeLeft = () => {
+      const diff = targetTime() - Date.now();
+      if (diff <= 0) return { hours: 0, minutes: 0, seconds: 0 };
+      return {
+        // Hours accumulate past 24 so a multi-day countdown reads correctly.
+        hours: Math.floor(diff / (1000 * 60 * 60)),
+        minutes: Math.floor((diff / (1000 * 60)) % 60),
+        seconds: Math.floor((diff / 1000) % 60),
+      };
     };
 
     setTimeLeft(calculateTimeLeft());
@@ -73,7 +88,18 @@ export const FlashSaleTimer: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [mode, endsAt]);
+
+  // Derived rather than tracked in state: all-zero after mount *is* expiry,
+  // and the isMounted guard keeps the server render from hiding the block
+  // before the first tick has run.
+  const expired =
+    isMounted &&
+    timeLeft.hours === 0 &&
+    timeLeft.minutes === 0 &&
+    timeLeft.seconds === 0;
+
+  if (expired && settings?.hideWhenExpired !== false) return null;
 
   const format = (num: number) => String(num).padStart(2, "0");
 
@@ -81,7 +107,7 @@ export const FlashSaleTimer: React.FC = () => {
     <div className="flex flex-col items-start sm:items-center lg:items-end gap-2">
       <span className="text-[10px] font-black tracking-[0.25em] text-primary uppercase flex items-center gap-1.5">
         <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
-        Flash Sale Ends In
+        {settings?.label || "Flash Sale Ends In"}
       </span>
 
       {/* Timer digits */}
@@ -331,7 +357,57 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
   );
 }
 
-export const ProductFeed: React.FC<ProductFeedProps> = ({
+/**
+ * One merchant-defined row of the feed: a Shopify collection, shown as a
+ * carousel. The collection supplies both the products and the "view all"
+ * destination.
+ */
+export interface ProductFeedRow {
+  title: string;
+  collectionHandle: string;
+  /** Overrides the collection's own URL for "view all". */
+  viewAllHref: string;
+  limit: number;
+  /** `flashSale` swaps in the countdown banner. */
+  style: "standard" | "flashSale";
+  flashBadgeText: string;
+  flashDescription: string;
+  showTimer: boolean;
+  timerLabel: string;
+  timerMode: "endOfDay" | "fixedDate";
+  timerEndsAt: string;
+  hideTimerWhenExpired: boolean;
+}
+
+/** Where a row's "view all" goes: explicit link, else its own collection. */
+function rowViewAllHref(row: ProductFeedRow): string {
+  if (row.viewAllHref) return row.viewAllHref;
+  if (row.collectionHandle) return `/collections/${row.collectionHandle}`;
+  return "";
+}
+
+function productMatchesRow(product: Product, row: ProductFeedRow): boolean {
+  const handle = (row.collectionHandle || "").trim().toLowerCase();
+  // No collection picked yet — render nothing rather than the whole catalogue.
+  if (!handle) return false;
+  // /api/products already returns each product's collection handles, so this
+  // needs no extra request.
+  return (product.collections ?? []).some((c) => c.toLowerCase() === handle);
+}
+
+export interface ProductFeedSettings {
+  eyebrow: string;
+  heading: string;
+  description: string;
+  rows: ProductFeedRow[];
+  productsPerPage: number;
+}
+
+
+export const ProductFeed: React.FC<
+  ProductFeedProps & { settings?: ProductFeedSettings }
+> = ({
+  settings,
   searchQuery,
   activeCategory,
   onCategorySelect,
@@ -371,7 +447,7 @@ export const ProductFeed: React.FC<ProductFeedProps> = ({
     });
   }, [activeProductsList, activeCategory, searchQuery]);
 
-  const ITEMS_PER_PAGE = 12;
+  const ITEMS_PER_PAGE = Number(settings?.productsPerPage) || 12;
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -385,48 +461,20 @@ export const ProductFeed: React.FC<ProductFeedProps> = ({
     return filteredProducts.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredProducts, currentPage]);
 
-  // Group products by section in exact user-requested order
+  // Rows come from the section's settings; each one filters the live catalogue
+  // with its own rule. Falls back to nothing when a row matches no products,
+  // so an empty row never renders an empty carousel.
   const sections = useMemo(() => {
     if (activeCategory !== "all" || searchQuery) return null;
-    const groups: Record<string, Product[]> = {};
 
-    // 1. Flash Sale (Discounted items)
-    const flashSaleProds = activeProductsList.filter((p) => p.originalPrice && p.originalPrice > p.price);
-    if (flashSaleProds.length > 0) groups["Flash Sale"] = flashSaleProds;
-
-    // 2. JUUL 1 Series
-    const juul1Prods = activeProductsList.filter((p) => {
-      const nameL = p.name.toLowerCase();
-      const brandL = (p.brand || "").toLowerCase();
-      return (brandL.includes("juul") || nameL.includes("juul")) &&
-        !nameL.includes("juul 2") && !nameL.includes("juul2") && !nameL.includes(" 2");
-    });
-    if (juul1Prods.length > 0) groups["JUUL 1 Series"] = juul1Prods;
-
-    // 3. JUUL 2 Series
-    const juul2Prods = activeProductsList.filter((p) => {
-      const nameL = p.name.toLowerCase();
-      const brandL = (p.brand || "").toLowerCase();
-      return (brandL.includes("juul") || nameL.includes("juul")) &&
-        (nameL.includes("juul 2") || nameL.includes("juul2") || nameL.includes(" 2"));
-    });
-    if (juul2Prods.length > 0) groups["JUUL 2 Series"] = juul2Prods;
-
-    // 4. DISPOSABLE VAPE
-    const disposableProds = activeProductsList.filter((p) => {
-      const catL = (p.category || "").toLowerCase();
-      const secL = (p.section || "").toLowerCase();
-      const nameL = p.name.toLowerCase();
-      return catL.includes("disposable") || secL.includes("disposable") || nameL.includes("disposable") || nameL.includes("puffs") || nameL.includes("bar");
-    });
-    if (disposableProds.length > 0) groups["DISPOSABLE VAPE"] = disposableProds;
-
-    // 5. Best Sellers
-    const bestSellerProds = activeProductsList.filter((p) => p.isPopular || p.reviews > 40);
-    if (bestSellerProds.length > 0) groups["Best Sellers"] = bestSellerProds;
-
-    return groups;
-  }, [activeProductsList, activeCategory, searchQuery]);
+    const rows = settings?.rows ?? [];
+    return rows
+      .map((row) => ({
+        row,
+        products: activeProductsList.filter((p) => productMatchesRow(p, row)),
+      }))
+      .filter((entry) => entry.products.length > 0);
+  }, [activeProductsList, activeCategory, searchQuery, settings?.rows]);
 
   const handleAddToCart = (product: Product) => {
     addToCart({
@@ -478,11 +526,11 @@ export const ProductFeed: React.FC<ProductFeedProps> = ({
       <div className="text-center flex flex-col items-center justify-center px-4 sm:px-6 mb-8">
         <span className="text-xs font-extrabold tracking-[0.25em] text-primary uppercase mb-1.5 flex items-center gap-2 justify-center">
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          Live Catalog
+          {settings?.eyebrow || "Live Catalog"}
         </span>
         
         <h2 className="text-2xl sm:text-4xl lg:text-5xl font-serif font-black text-foreground tracking-tight leading-tight">
-          Explore Our Collection
+          {settings?.heading || "Explore Our Collection"}
         </h2>
 
         {/* Premium Divider */}
@@ -493,14 +541,16 @@ export const ProductFeed: React.FC<ProductFeedProps> = ({
         </div>
 
         <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 max-w-md mx-auto">
-          Premium vape products. Authentic brands. 2-hour Dubai delivery.
+          {settings?.description ||
+            "Premium vape products. Authentic brands. 2-hour Dubai delivery."}
         </p>
       </div>
 
       {searchQuery && (
         <div className="px-4 sm:px-6">
           <p className="text-xs text-muted-foreground">
-            Search results for <span className="font-semibold text-foreground">"{searchQuery}"</span> ({filteredProducts.length} items found)
+            Search results for{" "}
+            <span className="font-semibold text-foreground">&quot;{searchQuery}&quot;</span> ({filteredProducts.length} items found)
           </p>
         </div>
       )}
@@ -520,16 +570,32 @@ export const ProductFeed: React.FC<ProductFeedProps> = ({
             ))}
           </div>
         </div>
-      ) : sections ? (
+      ) : sections && sections.length > 0 ? (
         <div className="space-y-8 sm:space-y-10">
-          {Object.entries(sections).map(([sectionName, products]) => (
+          {sections.map(({ row, products }) => (
             <ProductSectionCarousel
-              key={sectionName}
-              sectionName={sectionName}
-              products={products.slice(0, 10)}
+              key={row.title}
+              sectionName={row.title}
+              products={products.slice(0, Math.max(1, Number(row.limit) || 10))}
               onAddToCart={handleAddToCart}
               onBuyNow={handleBuyNow}
-              onViewAll={handleViewAll}
+              onViewAll={(name, sectionProducts) => {
+                const href = rowViewAllHref(row);
+                if (href) router.push(href);
+                else handleViewAll(name, sectionProducts);
+              }}
+              flashSale={{
+                enabled: row.style === "flashSale",
+                badgeText: row.flashBadgeText,
+                description: row.flashDescription,
+                showTimer: row.showTimer !== false,
+                timer: {
+                  label: row.timerLabel,
+                  mode: row.timerMode ?? "endOfDay",
+                  endsAt: row.timerEndsAt ?? "",
+                  hideWhenExpired: row.hideTimerWhenExpired !== false,
+                },
+              }}
             />
           ))}
         </div>

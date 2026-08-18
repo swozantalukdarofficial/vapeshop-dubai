@@ -53,8 +53,19 @@ const FAQSection = dynamic(() => import("./FAQSection").then((m) => ({ default: 
 const WhatsAppContactSection = dynamic(() => import("./WhatsAppContactSection").then((m) => ({ default: m.WhatsAppContactSection })), { ssr: false });
 const BlogSection = dynamic(() => import("./BlogSection").then((m) => ({ default: m.BlogSection })), { ssr: false });
 
-/** Pre-rendered nodes supplied by the page, keyed by section type. */
-export type SectionSlots = Record<string, React.ReactNode>;
+/**
+ * Sections the page renders itself, keyed by section type.
+ *
+ * A slot may be a plain node, or a function receiving that instance's saved
+ * settings — the latter lets a page-owned section still be configured from the
+ * customizer. `null` means "this template lists the section, but the page
+ * renders it elsewhere" (the collection grid and product buy box).
+ */
+export type SectionSlot =
+  | React.ReactNode
+  | ((settings: Record<string, unknown>) => React.ReactNode);
+
+export type SectionSlots = Record<string, SectionSlot>;
 
 /** Standard page gutter shared by most sections. */
 export const SECTION_CONTAINER =
@@ -98,6 +109,20 @@ function renderRegistrySection(
   }
 }
 
+/**
+ * Settings of the first instance of `type` in a resolved template.
+ *
+ * For sections a page renders inline rather than through a slot — the
+ * collection grid and the product buy box — this is how the page reaches
+ * their saved settings.
+ */
+export function instanceSettings(
+  instances: SectionInstance[],
+  type: string
+): Record<string, unknown> {
+  return instances.find((i) => i.type === type)?.settings ?? {};
+}
+
 export interface TemplateSectionsProps {
   instances: SectionInstance[];
   /** True for per-handle overrides, which bypass `showWhen` conditions. */
@@ -129,7 +154,12 @@ export const TemplateSections: React.FC<TemplateSectionsProps> = ({
       // A slot wins over the registry: the page knows more about this section
       // than its stored settings do.
       const isSlot = instance.type in slots;
-      const node = isSlot ? slots[instance.type] : renderRegistrySection(instance);
+      const slot = slots[instance.type];
+      const node = isSlot
+        ? typeof slot === "function"
+          ? slot(instance.settings)
+          : slot
+        : renderRegistrySection(instance);
 
       if (!node) return null;
 
