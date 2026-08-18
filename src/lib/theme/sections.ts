@@ -1215,44 +1215,415 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     type: "productMain",
     label: "Product Details & Buy Box",
     description:
-      "Gallery, price, variants and add-to-cart. Always shown — it is the page.",
+      "Gallery, price, variants and add-to-cart. Always shown — it is the page. Every label around the live product data is editable here.",
     templates: ["product"],
     required: true,
     contentInCode: true,
     fields: [
+      /* ── Breadcrumb ── */
+      { type: "toggle", key: "showBreadcrumb", label: "Show breadcrumb bar" },
+      {
+        type: "text",
+        key: "breadcrumbHomeLabel",
+        label: "Breadcrumb — home label",
+        showIf: { key: "showBreadcrumb", equals: ["true"] },
+      },
+      {
+        type: "text",
+        key: "breadcrumbShopLabel",
+        label: "Breadcrumb — shop label",
+        showIf: { key: "showBreadcrumb", equals: ["true"] },
+      },
+      {
+        type: "link",
+        key: "breadcrumbShopHref",
+        label: "Breadcrumb — shop link",
+        showIf: { key: "showBreadcrumb", equals: ["true"] },
+      },
+
+      /* ── Title row ── */
+      { type: "toggle", key: "showRating", label: "Show star rating" },
+      {
+        type: "text",
+        key: "reviewCountTemplate",
+        label: "Review count text",
+        help: "Use {count} for the number of reviews.",
+        showIf: { key: "showRating", equals: ["true"] },
+      },
+      { type: "text", key: "inStockLabel", label: "In-stock badge" },
+      { type: "text", key: "soldOutLabel", label: "Sold-out badge" },
+      { type: "toggle", key: "showShareBar", label: "Show share buttons" },
+      {
+        type: "text",
+        key: "shareLabel",
+        label: "Share label",
+        showIf: { key: "showShareBar", equals: ["true"] },
+      },
+
+      /* ── Price ── */
+      { type: "text", key: "priceLabel", label: "Price label" },
+      {
+        type: "text",
+        key: "saveBadgeTemplate",
+        label: "Discount badge",
+        help: "Use {percent} for the percentage saved. Blank hides the badge.",
+      },
+
+      /* ── Specification card ── */
+      { type: "toggle", key: "showSpecCard", label: "Show specification card" },
+      {
+        type: "text",
+        key: "specCardHeading",
+        label: "Specification card heading",
+        showIf: { key: "showSpecCard", equals: ["true"] },
+      },
+      {
+        type: "repeater",
+        key: "specRows",
+        label: "Specification rows",
+        itemNoun: "row",
+        itemLabelKey: "label",
+        max: 12,
+        showIf: { key: "showSpecCard", equals: ["true"] },
+        defaultItem: { label: "New spec", source: "custom", value: "" },
+        fields: [
+          { type: "text", key: "label", label: "Label" },
+          {
+            type: "select",
+            key: "source",
+            label: "Value from",
+            options: [
+              { label: "Fixed text", value: "custom" },
+              { label: "Product brand", value: "brand" },
+              { label: "Product category", value: "category" },
+              { label: "Puff capacity", value: "puffs" },
+              { label: "Nicotine level", value: "nicotine" },
+              { label: "Battery spec", value: "battery" },
+            ],
+          },
+          {
+            type: "text",
+            key: "value",
+            label: "Value",
+            help: "Used as-is for fixed text, and as the fallback when the product has no value for the chosen field.",
+          },
+        ],
+      },
+
+      /* ── Variant & quantity ── */
+      { type: "text", key: "variantLabel", label: "Variant picker label" },
+      { type: "text", key: "variantPlaceholder", label: "Variant picker placeholder" },
+      { type: "text", key: "variantButtonLabel", label: "Variant picker button" },
+      { type: "text", key: "quantityLabel", label: "Quantity label" },
+      { type: "text", key: "totalPriceLabel", label: "Total price label" },
+
+      /* ── Actions ── */
+      { type: "text", key: "addToCartLabel", label: "Add to cart button" },
+      { type: "text", key: "buyNowLabel", label: "Buy now button" },
+      {
+        type: "text",
+        key: "selectVariantLabel",
+        label: "Button text before a variant is chosen",
+      },
+      { type: "toggle", key: "showWishlist", label: "Show wishlist button" },
+      {
+        type: "text",
+        key: "wishlistLabel",
+        label: "Wishlist button",
+        showIf: { key: "showWishlist", equals: ["true"] },
+      },
+      {
+        type: "text",
+        key: "wishlistSavedLabel",
+        label: "Wishlist button once saved",
+        showIf: { key: "showWishlist", equals: ["true"] },
+      },
+
+      /* ── Service cards ── */
+      { type: "toggle", key: "showServiceCards", label: "Show service cards" },
+      {
+        type: "repeater",
+        key: "serviceCards",
+        label: "Service cards",
+        itemNoun: "card",
+        itemLabelKey: "title",
+        max: 8,
+        showIf: { key: "showServiceCards", equals: ["true"] },
+        defaultItem: { icon: "Truck", title: "New card", subtitle: "" },
+        fields: [
+          { type: "icon", key: "icon", label: "Icon" },
+          { type: "text", key: "title", label: "Title" },
+          { type: "text", key: "subtitle", label: "Subtitle" },
+        ],
+      },
+
+      /* ── Tabs ── */
       { type: "text", key: "descriptionTabLabel", label: "Description tab label" },
-      { type: "text", key: "shippingTabLabel", label: "Shipping tab label" },
-      { type: "text", key: "returnsTabLabel", label: "Returns tab label" },
+      { type: "toggle", key: "showShippingTab", label: "Show shipping tab" },
+      {
+        type: "text",
+        key: "shippingTabLabel",
+        label: "Shipping tab label",
+        showIf: { key: "showShippingTab", equals: ["true"] },
+      },
+      {
+        type: "repeater",
+        key: "shippingBlocks",
+        label: "Shipping tab content",
+        itemNoun: "block",
+        itemLabelKey: "title",
+        max: 8,
+        showIf: { key: "showShippingTab", equals: ["true"] },
+        defaultItem: { title: "New block", body: "" },
+        fields: [
+          { type: "text", key: "title", label: "Heading" },
+          { type: "textarea", key: "body", label: "Body", rows: 4 },
+        ],
+      },
+      { type: "toggle", key: "showReturnsTab", label: "Show returns tab" },
+      {
+        type: "text",
+        key: "returnsTabLabel",
+        label: "Returns tab label",
+        showIf: { key: "showReturnsTab", equals: ["true"] },
+      },
+      {
+        type: "repeater",
+        key: "returnsBlocks",
+        label: "Returns tab content",
+        itemNoun: "block",
+        itemLabelKey: "title",
+        max: 8,
+        showIf: { key: "showReturnsTab", equals: ["true"] },
+        defaultItem: { title: "New block", body: "" },
+        fields: [
+          { type: "text", key: "title", label: "Heading" },
+          { type: "textarea", key: "body", label: "Body", rows: 4 },
+        ],
+      },
+
+      /* ── Variant modal ── */
+      { type: "text", key: "variantModalHeading", label: "Variant picker — modal heading" },
+      {
+        type: "text",
+        key: "variantSearchPlaceholder",
+        label: "Variant picker — search placeholder",
+      },
+      { type: "text", key: "variantInStockNote", label: "Variant picker — in-stock note" },
+      {
+        type: "text",
+        key: "variantOutOfStockNote",
+        label: "Variant picker — out-of-stock note",
+      },
+
+      /* ── Mobile bar ── */
+      { type: "toggle", key: "showMobileBar", label: "Show mobile sticky bar" },
+      {
+        type: "text",
+        key: "mobileBuyLabel",
+        label: "Mobile bar — buy button",
+        showIf: { key: "showMobileBar", equals: ["true"] },
+      },
     ],
     defaults: {
+      showBreadcrumb: true,
+      breadcrumbHomeLabel: "HOME",
+      breadcrumbShopLabel: "PRODUCTS",
+      breadcrumbShopHref: "/shop",
+
+      showRating: true,
+      reviewCountTemplate: "({count} reviews)",
+      inStockLabel: "In Stock",
+      soldOutLabel: "Sold Out",
+      showShareBar: true,
+      shareLabel: "SHARE:",
+
+      priceLabel: "PRICE:",
+      saveBadgeTemplate: "Save {percent}%",
+
+      showSpecCard: true,
+      specCardHeading: "Key Product Specifications",
+      specRows: [
+        { label: "Brand", source: "brand", value: "Vape Shop Dubai" },
+        { label: "Battery Spec", source: "battery", value: "Rechargeable Built-in" },
+        { label: "Puff Capacity", source: "puffs", value: "High Capacity" },
+        { label: "Nicotine Level", source: "nicotine", value: "5% (50mg)" },
+        { label: "Activation", source: "custom", value: "Draw-Activated" },
+        { label: "Charging", source: "custom", value: "Type-C Fast Charge" },
+      ],
+
+      variantLabel: "Flavor Option:",
+      variantPlaceholder: "Select Flavor",
+      variantButtonLabel: "Select",
+      quantityLabel: "Qty:",
+      totalPriceLabel: "Total Price:",
+
+      addToCartLabel: "Add to Cart",
+      buyNowLabel: "Buy It Now",
+      selectVariantLabel: "Select Flavor First",
+      showWishlist: true,
+      wishlistLabel: "Add to Wishlist",
+      wishlistSavedLabel: "Saved in Wishlist",
+
+      showServiceCards: true,
+      serviceCards: [
+        { icon: "Truck", title: "Free Shipping", subtitle: "ON ORDERS ABOVE 300 AED" },
+        {
+          icon: "CreditCard",
+          title: "Payment Methods",
+          subtitle: "CASH, CARD & APPLE PAY ON DELIVERY",
+        },
+        { icon: "Zap", title: "Fast Delivery", subtitle: "DUBAI EXPRESS WITHIN 2 HOURS" },
+        {
+          icon: "Package",
+          title: "Same Day Delivery",
+          subtitle: "ORDER BEFORE 6PM ALL EMIRATES",
+        },
+      ],
+
       descriptionTabLabel: "Product Description",
+      showShippingTab: true,
       shippingTabLabel: "Shipping and Delivery",
+      shippingBlocks: [
+        {
+          title: "⚡ Express 2-Hour Delivery in Dubai",
+          body: "Place your order before 10:00 PM for rapid express delivery directly to your door anywhere in Dubai (Downtown, Marina, JBR, Deira, Al Barsha, JLT & surrounding areas).",
+        },
+        {
+          title: "🚚 Same-Day UAE Shipping",
+          body: "Orders placed for Abu Dhabi, Sharjah, Ajman, Ras Al Khaimah, Fujairah & Umm Al Quwain are delivered same-day or next-day morning.",
+        },
+        {
+          title: "💵 Payment Options",
+          body: "We support Cash on Delivery (COD) and Card on Delivery for 100% risk-free shopping.",
+        },
+      ],
+      showReturnsTab: true,
       returnsTabLabel: "Refund and Returns Policy",
+      returnsBlocks: [
+        {
+          title: "🛡️ 7-Day Exchange & Replacement Policy",
+          body: "If your device arrives damaged or non-functional (Dead-On-Arrival), contact our customer support team within 24 hours for instant exchange or replacement.",
+        },
+        {
+          title: "📦 Product Return Eligibility",
+          body: "Due to health and hygiene safety regulations, consumable items (opened e-liquid bottles, unsealed pod packs, and used disposable vapes) cannot be returned once opened unless verified defective.",
+        },
+      ],
+
+      variantModalHeading: "Select Flavor Option",
+      variantSearchPlaceholder: "Search flavor name...",
+      variantInStockNote: "In Stock • Ready to ship",
+      variantOutOfStockNote: "Currently Out of Stock",
+
+      showMobileBar: true,
+      mobileBuyLabel: "Buy",
     },
   },
 
   productKeySpecs: {
     type: "productKeySpecs",
     label: "Key Specifications",
-    description: "Spec highlights for the current product.",
+    description:
+      "Spec table for the current product. Leave the rows empty to keep the automatic table built from the product's own data.",
     templates: ["product"],
     contentInCode: true,
-    fields: [{ type: "text", key: "heading", label: "Heading" }],
-    defaults: { heading: "Key Features & Specifications" },
+    fields: [
+      { type: "text", key: "heading", label: "Heading" },
+      {
+        type: "text",
+        key: "subheadingTemplate",
+        label: "Subheading",
+        help: "Use {product} for the product name.",
+      },
+      { type: "text", key: "badgeText", label: "Badge", help: "Blank hides the badge." },
+      { type: "text", key: "featureColumnLabel", label: "Left column heading" },
+      { type: "text", key: "detailsColumnLabel", label: "Right column heading" },
+      {
+        type: "repeater",
+        key: "rows",
+        label: "Specification rows",
+        help: "Leave empty to build the table from the product's own specs.",
+        itemNoun: "row",
+        itemLabelKey: "feature",
+        max: 24,
+        defaultItem: { feature: "New spec", details: "" },
+        fields: [
+          { type: "text", key: "feature", label: "Feature" },
+          { type: "textarea", key: "details", label: "Details", rows: 2 },
+        ],
+      },
+    ],
+    defaults: {
+      heading: "Key Features & Specifications",
+      subheadingTemplate: "Technical overview and hardware specs for {product}",
+      badgeText: "100% Authentic UAE Certified",
+      featureColumnLabel: "Feature",
+      detailsColumnLabel: "Details",
+      rows: [],
+    },
   },
 
   productFlavors: {
     type: "productFlavors",
     label: "Available Flavors",
-    description: "Flavour options for the current product.",
+    description:
+      "Flavour table for the current product, built from its Shopify variants. The wording is yours, and any variant can be given its own tasting note.",
     templates: ["product"],
     contentInCode: true,
     fields: [
       { type: "text", key: "heading", label: "Heading" },
+      {
+        type: "text",
+        key: "subheadingTemplate",
+        label: "Subheading",
+        help: "Use {product} for the product name.",
+      },
+      {
+        type: "text",
+        key: "countBadgeTemplate",
+        label: "Count badge",
+        help: "Use {count} for the number of flavours. Blank hides the badge.",
+      },
+      { type: "text", key: "nameColumnLabel", label: "Name column heading" },
+      { type: "text", key: "profileColumnLabel", label: "Profile column heading" },
+      { type: "text", key: "availabilityColumnLabel", label: "Availability column heading" },
+      { type: "text", key: "inStockLabel", label: "In-stock label" },
+      { type: "text", key: "outOfStockLabel", label: "Out-of-stock label" },
+      { type: "text", key: "selectedLabel", label: "Selected label" },
+      {
+        type: "toggle",
+        key: "showPrices",
+        label: "Show the variant price instead of the in-stock label",
+      },
+      {
+        type: "repeater",
+        key: "flavorNotes",
+        label: "Tasting notes",
+        help: "Overrides the built-in note for a flavour. Matched against the variant name.",
+        itemNoun: "note",
+        itemLabelKey: "flavor",
+        max: 60,
+        defaultItem: { flavor: "", description: "" },
+        fields: [
+          { type: "text", key: "flavor", label: "Flavour name" },
+          { type: "textarea", key: "description", label: "Tasting note", rows: 2 },
+        ],
+      },
       { type: "textarea", key: "footnote", label: "Footnote", rows: 2 },
     ],
     defaults: {
       heading: "Available Flavours",
+      subheadingTemplate: "Complete flavor profile spreadsheet table for {product}",
+      countBadgeTemplate: "{count} Signature Options",
+      nameColumnLabel: "Flavour Name",
+      profileColumnLabel: "Flavour Profile & Tasting Notes",
+      availabilityColumnLabel: "Availability",
+      inStockLabel: "IN STOCK",
+      outOfStockLabel: "OUT OF STOCK",
+      selectedLabel: "SELECTED",
+      showPrices: true,
+      flavorNotes: [],
       footnote:
         "Each blend is crafted to replicate authentic shisha & vape flavours with rich flavor profiles, cooling sensation, and sweet notes.",
     },
@@ -1261,9 +1632,8 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
   whyChooseProduct: {
     type: "whyChooseProduct",
     label: "Why Choose This Product",
-    description: "Product-level selling points.",
+    description: "Product-level selling points, written by you.",
     templates: ["product"],
-    contentInCode: true,
     fields: [
       {
         type: "text",
@@ -1271,16 +1641,73 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
         label: "Heading",
         help: "Use {product} for the product name.",
       },
+      {
+        type: "richtext",
+        key: "introTemplate",
+        label: "Intro paragraph",
+        rows: 4,
+        help: "Use {product} for the product name and {puffs} for its puff count.",
+      },
+      {
+        type: "repeater",
+        key: "items",
+        label: "Selling points",
+        itemNoun: "point",
+        itemLabelKey: "title",
+        max: 12,
+        defaultItem: { title: "New point", description: "" },
+        fields: [
+          { type: "text", key: "title", label: "Title" },
+          { type: "textarea", key: "description", label: "Description", rows: 2 },
+        ],
+      },
+      {
+        type: "textarea",
+        key: "footnoteTemplate",
+        label: "Footnote",
+        rows: 3,
+        help: "Use {product} for the product name. Blank hides the footnote.",
+      },
     ],
-    defaults: { headingTemplate: "Why Choose the {product}?" },
+    defaults: {
+      headingTemplate: "Why Choose the {product}?",
+      introTemplate:
+        "The {product} is a strong choice if you want an affordable disposable vape that still feels premium in everyday use. It's compact, easy to carry, rechargeable, and designed for a smooth draw with consistent taste—making it a great best vape for beginner and best vape for new user option.",
+      items: [
+        {
+          title: "Affordable vape",
+          description:
+            "Great value for users who want {puffs} in a compact disposable vape.",
+        },
+        {
+          title: "Rechargeable disposable vape",
+          description:
+            "Type C charging helps you finish the e-liquid instead of losing puffs to a dead battery.",
+        },
+        {
+          title: "Best disposable vape for flavor output",
+          description: "Mesh coil design supports richer taste and better flavour consistency.",
+        },
+        {
+          title: "Best disposable vape for vapor cloud",
+          description: "Balanced vapour production with smooth inhale feel.",
+        },
+        {
+          title: "Best portable vape",
+          description:
+            "Pocket-size vape build that's easy to hold (palm fit vape feel) and easy to travel with around Dubai.",
+        },
+      ],
+      footnoteTemplate:
+        "If you want a cheap one search for {product} best deal or {product} offer in Dubai and {product} cheap pricing during stock sale.",
+    },
   },
 
   juulCrispMenthol: {
     type: "juulCrispMenthol",
     label: "JUUL Crisp Menthol",
-    description: "JUUL menthol feature block.",
+    description: "The two JUUL feature blocks — selling points and ingredients.",
     templates: ["product"],
-    contentInCode: true,
     fields: [
       {
         type: "text",
@@ -1288,21 +1715,142 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
         label: "Heading",
         help: "Use {product} for the product name.",
       },
+      {
+        type: "richtext",
+        key: "bodyTemplate",
+        label: "Intro paragraph",
+        rows: 6,
+        help: "Use {product} for the product name.",
+      },
+      {
+        type: "repeater",
+        key: "points",
+        label: "Selling points",
+        help: "The first six also become the labels around the product image.",
+        itemNoun: "point",
+        itemLabelKey: "lead",
+        max: 12,
+        defaultItem: { lead: "New point", text: "" },
+        fields: [
+          { type: "text", key: "lead", label: "Lead-in", help: "Highlighted in the diagram." },
+          { type: "textarea", key: "text", label: "Rest of the line", rows: 2 },
+        ],
+      },
+      { type: "image", key: "image", label: "Product image" },
+      { type: "toggle", key: "showIngredients", label: "Show the ingredients block" },
+      {
+        type: "text",
+        key: "ingredientsHeadingTemplate",
+        label: "Ingredients — heading",
+        help: "Use {product} for the product name.",
+        showIf: { key: "showIngredients", equals: ["true"] },
+      },
+      {
+        type: "richtext",
+        key: "ingredientsBodyTemplate",
+        label: "Ingredients — intro",
+        rows: 4,
+        help: "Use {product} for the product name.",
+        showIf: { key: "showIngredients", equals: ["true"] },
+      },
+      {
+        type: "repeater",
+        key: "ingredients",
+        label: "Ingredients",
+        itemNoun: "ingredient",
+        itemLabelKey: "title",
+        max: 10,
+        showIf: { key: "showIngredients", equals: ["true"] },
+        defaultItem: { title: "New ingredient", description: "" },
+        fields: [
+          { type: "text", key: "title", label: "Name" },
+          { type: "textarea", key: "description", label: "Description", rows: 3 },
+        ],
+      },
+      {
+        type: "image",
+        key: "ingredientsImage",
+        label: "Ingredients — image",
+        showIf: { key: "showIngredients", equals: ["true"] },
+      },
     ],
-    defaults: { headingTemplate: "Why Choose {product}" },
+    defaults: {
+      headingTemplate: "Why Choose {product}",
+      bodyTemplate:
+        "If you're choosing a premium pod in the UAE, there are plenty of options to choose from. Not every pod delivers the flavor promise and not every brand meets standards. {product} breaks that pattern entirely. It is a precision developed blend that performs like a premium product should. Paired with the reliability of the JUUL 2 closed pod system, there is no match for it in the market. For adult smokers who relied on traditional cigarettes, or vapers who have cycled through disappointing pods without finding one worth sticking to, this is the one. Sharp, clean, and consistent in every single draw.",
+      points: [
+        {
+          lead: "Sharp and natural",
+          text: "authentic flavor that holds from first puff to last without drifting",
+        },
+        {
+          lead: "18mg salt nicotine",
+          text: "for smooth, efficient, and genuinely satisfying nicotine delivery",
+        },
+        {
+          lead: "Integrated microchip",
+          text: "in every pod for automatic authenticity verification and app tracking",
+        },
+        {
+          lead: "Leak resistant sealed pod",
+          text: "construction — stays clean in a pocket, bag, or car console",
+        },
+        {
+          lead: "No refilling, no coil changes",
+          text: "and absolutely no maintenance required at any stage",
+        },
+        {
+          lead: "Fully compliant",
+          text: "with UAE vape regulations and ESMA standards across every unit",
+        },
+        {
+          lead: "Consistent draw performance",
+          text: "maintained right across the full 300 to 400 puff capacity",
+        },
+      ],
+      image: "/juul_menthol_pack.png",
+      showIngredients: true,
+      ingredientsHeadingTemplate: "{product} Ingredients",
+      ingredientsBodyTemplate:
+        "The highly regulated {product} e-liquid is exclusively formulated in the USA using a patented mix of ingredients designed specifically for this exact pod and coil. Here is what is inside every genuinely sourced pod in your 2-pack kit:",
+      ingredients: [
+        {
+          title: "Propylene Glycol & Vegetable Glycerin",
+          description:
+            "The base liquids that retain flavor, dictate throat hit, and deliver a smooth and consistent cloud volume from start to finish.",
+        },
+        {
+          title: "Benzoic Acid",
+          description:
+            "The crucial component used to provide the signature JUUL satisfaction. It reacts with the nicotine to optimize it. This creates the salt nicotine compound, ensuring it hits smoothly and quickly.",
+        },
+        {
+          title: "Flavorings",
+          description:
+            "Proprietary artificial and natural flavorings are formulated to deliver a crisp, clean, and satisfying experience without leaving an artificial aftertaste.",
+        },
+        {
+          title: "Nicotine",
+          description:
+            "18mg/mL of pharmaceutical-grade, pure liquid nicotine. Specifically designed for adult smokers.",
+        },
+      ],
+      ingredientsImage: "/juul_menthol_pod.png",
+    },
   },
 
   relatedProducts: {
     type: "relatedProducts",
     label: "Related Products",
-    description: "Recommendation carousels.",
+    description: "Recommendation carousel, built from the store's own catalogue.",
     templates: ["product"],
     contentInCode: true,
     fields: [
       { type: "text", key: "heading", label: "Heading" },
       { type: "number", key: "maxProducts", label: "Products to show", min: 2, max: 20, step: 1 },
+      { type: "toggle", key: "showViewAll", label: "Show the 'view all' link" },
     ],
-    defaults: { heading: "You May Also Like", maxProducts: 10 },
+    defaults: { heading: "You May Also Like", maxProducts: 10, showViewAll: true },
   },
 };
 

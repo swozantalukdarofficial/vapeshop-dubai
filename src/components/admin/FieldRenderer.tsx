@@ -212,6 +212,20 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
         />
       );
 
+    // Multi-paragraph body copy. Still a plain textarea — merchant copy is
+    // rendered as text nodes, never as HTML — just a taller one by default.
+    case "richtext":
+      return (
+        <TextAreaInput
+          label={field.label}
+          help={field.help}
+          placeholder={field.placeholder}
+          rows={field.rows ?? 8}
+          value={String(raw ?? "")}
+          onChange={(value) => onChange(field.key, value)}
+        />
+      );
+
     case "link":
       return (
         <TextInput

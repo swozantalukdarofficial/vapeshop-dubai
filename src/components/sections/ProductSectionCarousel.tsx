@@ -23,7 +23,7 @@ interface ProductSectionCarouselProps {
   products: Product[];
   onAddToCart: (product: Product) => void;
   onBuyNow: (product: Product) => void;
-  onViewAll: (sectionName: string, products: Product[]) => void;
+  onViewAll?: (sectionName: string, products: Product[]) => void;
 }
 
 export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
@@ -184,12 +184,14 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
 
               {/* Actions */}
               <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end pt-1">
-                <button
-                  onClick={() => onViewAll(sectionName, products)}
-                  className="text-xs font-extrabold uppercase tracking-wider text-primary hover:text-foreground transition-colors underline decoration-primary/40 underline-offset-4 cursor-pointer"
-                >
-                  View All ({products.length})
-                </button>
+                {onViewAll && (
+                  <button
+                    onClick={() => onViewAll(sectionName, products)}
+                    className="text-xs font-extrabold uppercase tracking-wider text-primary hover:text-foreground transition-colors underline decoration-primary/40 underline-offset-4 cursor-pointer"
+                  >
+                    View All ({products.length})
+                  </button>
+                )}
                 <div className="flex items-center gap-2">
                   <CarouselPrevious className="relative left-auto right-auto top-auto bottom-auto translate-x-0 translate-y-0 w-8 h-8 border border-border/80 bg-card hover:bg-primary text-foreground hover:text-white active:scale-95 flex items-center justify-center rounded-full transition-all shadow-xs" />
                   <CarouselNext className="relative left-auto right-auto top-auto bottom-auto translate-x-0 translate-y-0 w-8 h-8 border border-border/80 bg-card hover:bg-primary text-foreground hover:text-white active:scale-95 flex items-center justify-center rounded-full transition-all shadow-xs" />
@@ -219,12 +221,14 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
             </div>
 
             <div className="flex items-center justify-center sm:justify-end gap-2.5 w-full sm:w-32">
-              <button
-                onClick={() => onViewAll(sectionName, products)}
-                className="text-[11px] font-bold text-primary hover:underline cursor-pointer mr-1 uppercase tracking-wider"
-              >
-                View All
-              </button>
+              {onViewAll && (
+                <button
+                  onClick={() => onViewAll(sectionName, products)}
+                  className="text-[11px] font-bold text-primary hover:underline cursor-pointer mr-1 uppercase tracking-wider"
+                >
+                  View All
+                </button>
+              )}
               <CarouselPrevious className="relative left-auto right-auto top-auto bottom-auto translate-x-0 translate-y-0 w-8 h-8 border border-border/60 bg-background/50 hover:bg-background text-muted-foreground hover:text-primary active:scale-95 flex items-center justify-center rounded-full" />
               <CarouselNext className="relative left-auto right-auto top-auto bottom-auto translate-x-0 translate-y-0 w-8 h-8 border border-border/60 bg-background/50 hover:bg-background text-muted-foreground hover:text-primary active:scale-95 flex items-center justify-center rounded-full" />
             </div>

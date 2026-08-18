@@ -160,7 +160,8 @@ header (announcement bar and the whole menu tree) and footer (trust bar, link
 columns, contact, payment badges, legal).
 
 Sections whose **body** is built from live store data still expose their
-wording, and say so when you open them:
+wording, and say so when you open them. On the product template that now means
+the labels *and*, in several cases, the content itself:
 
 | Section | Settings |
 | --- | --- |
@@ -175,12 +176,18 @@ wording, and say so when you open them:
 | JUUL 2 App Integration | Badge, heading, description |
 | MYLE Verification Guide | Badge, heading |
 | Customer Reviews | Badge, heading, description, overall rating, rating count, **and the full review list** |
-| Product Details & Buy Box | The three tab labels |
-| Key Specifications | Heading |
-| Available Flavors | Heading, footnote |
-| Why Choose This Product | Heading (use `{product}`) |
-| JUUL Crisp Menthol | Heading (use `{product}`) |
-| Related Products | Heading, number to show |
+| Product Details & Buy Box | Every label on the page — see [The product buy box](#the-product-buy-box) |
+| Key Specifications | Heading, subheading, badge, both column headings, **and your own spec rows** |
+| Available Flavors | Heading, subheading, count badge, all three column headings, stock labels, **and per-flavour tasting notes** |
+| Related Products | Heading, number to show, whether "view all" appears |
+
+Two product sections are now **entirely** merchant-written — no live store data
+left in them at all:
+
+| Section | Settings |
+| --- | --- |
+| Why Choose This Product | Heading, intro, the full list of selling points, footnote |
+| JUUL Crisp Menthol | Heading, intro, selling points, product image, and the whole ingredients block (which can be switched off) |
 
 ### Product Feed rows
 
@@ -219,6 +226,53 @@ row being named "Flash Sale", so renaming one keeps its banner. That unlocks:
 | Hide timer once it reaches zero | Drops the clock but keeps the row |
 
 The heading is the row's own title, so there is one place to change it.
+
+### The product buy box
+
+**Product Details & Buy Box** is the product page itself, so it stays locked in
+place — but every word around the live Shopify data is yours:
+
+| Group | Settings |
+| --- | --- |
+| Breadcrumb | Show or hide it, the "home" and "products" labels, where "products" links to |
+| Title row | Star rating on/off, review-count wording (`{count}`), in-stock and sold-out badges, share bar on/off and its label |
+| Price | Price label, and the discount badge (`{percent}`, blank hides it) |
+| Specification card | Show or hide, heading, **and the rows themselves** — see below |
+| Variant picker | Its label, placeholder, button, plus the modal heading, search placeholder and the two stock notes |
+| Quantity & total | Both labels |
+| Buttons | Add-to-cart, buy-now, the text shown before a variant is chosen, and the wishlist button (which can be switched off) |
+| Service cards | Show or hide, then any number of cards with an icon, title and subtitle |
+| Tabs | The three labels, whether the shipping and returns tabs appear at all, and **the full contents of both** as blocks of heading + body |
+| Mobile bar | Show or hide, and its buy button |
+
+The description tab still shows the product's own Shopify description — that is
+the one thing here that isn't merchant copy.
+
+**Specification card rows.** Each row is a label plus where its value comes
+from:
+
+| Value from | Shows |
+| --- | --- |
+| Fixed text | Exactly what you type |
+| Product brand / category / puff capacity / nicotine level / battery spec | That field from Shopify, falling back to what you type when the product leaves it blank |
+
+So "Brand → Product brand → Vape Shop Dubai" reads the brand off each product
+and only says *Vape Shop Dubai* on products that have none. Rows drag into any
+order, and the card disappears entirely if you delete them all.
+
+**Key Specifications rows** work the other way round: leave them empty and the
+table builds itself from the product's own specs, exactly as before. Add even
+one row and yours replaces the automatic table wholesale.
+
+**Available Flavors tasting notes** override the built-in description for a
+flavour. Match on the variant name — every flavour you don't name keeps its
+automatic note.
+
+### Previewing product pages
+
+The default product template previews at `/product/`, which renders the first
+product in your catalogue. Templates bound to a rule preview against a real URL
+that rule matches, picked when you create them.
 
 Placeholders: `{product}` and `{collection}` are replaced with the current
 product or collection name, so a heading stays dynamic while you control the

@@ -44,11 +44,32 @@ import {
   TemplateSections,
 } from "@/components/sections/SectionRenderer";
 import { useResolvedTemplate } from "@/context/ThemeSettingsContext";
+import { resolveIcon } from "@/lib/theme/icons";
 import {
   getProductSchema,
   getBreadcrumbSchema,
   getFAQSchema,
 } from "@/lib/seo-schemas";
+
+/** One row of the buy box's specification card. */
+interface SpecCardRow {
+  label: string;
+  /** Which product field supplies the value, or "custom" for fixed text. */
+  source: string;
+  /** Fixed text, and the fallback when the product field is empty. */
+  value: string;
+}
+
+interface ServiceCard {
+  icon: string;
+  title: string;
+  subtitle: string;
+}
+
+interface TabBlock {
+  title: string;
+  body: string;
+}
 
 interface Variant {
   id: string;
@@ -105,8 +126,22 @@ export default function ProductPage() {
   const [similarProducts, setSimilarProducts] = useState<any[]>([]);
   const { instances: templateInstances, isOverride: templateIsOverride } =
     useResolvedTemplate("product", handle);
-  // Buy-box labels come from the product template's Product Details section.
+  // Everything the buy box says comes from the product template's
+  // "Product Details & Buy Box" section; only the data is Shopify's.
   const mainSettings = instanceSettings(templateInstances, "productMain");
+  const relatedSettings = instanceSettings(templateInstances, "relatedProducts");
+  const text = (key: string, fallback = "") =>
+    typeof mainSettings[key] === "string" ? (mainSettings[key] as string) : fallback;
+  const flag = (key: string) => mainSettings[key] !== false;
+  const list = <T,>(key: string): T[] =>
+    Array.isArray(mainSettings[key]) ? (mainSettings[key] as T[]) : [];
+
+  const specCardRows = list<SpecCardRow>("specRows");
+  const serviceCards = list<ServiceCard>("serviceCards");
+  const shippingBlocks = list<TabBlock>("shippingBlocks");
+  const returnsBlocks = list<TabBlock>("returnsBlocks");
+  const showShippingTab = flag("showShippingTab");
+  const showReturnsTab = flag("showReturnsTab");
   const [isWishlist, setIsWishlist] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -117,6 +152,10 @@ export default function ProductPage() {
       setTimeout(() => setCopied(false), 2000);
     }
   };
+
+  const relatedLimit = Number(relatedSettings.maxProducts) || 10;
+  const relatedLimitRef = React.useRef(relatedLimit);
+  relatedLimitRef.current = relatedLimit;
 
   // For Navbar states
   const [searchQuery, setSearchQuery] = useState("");
@@ -164,7 +203,7 @@ export default function ProductPage() {
           const allData = await allRes.json();
           const filtered = allData
             .filter((p: any) => p.category === data.category && p.handle !== data.handle)
-            .slice(0, 4);
+            .slice(0, relatedLimitRef.current);
           setSimilarProducts(filtered);
         }
       } catch (err: any) {
@@ -276,6 +315,25 @@ export default function ProductPage() {
     );
   }
 
+  // A tab the merchant has since hidden must not leave the panel blank.
+  const effectiveTab =
+    (activeTab === "shipping" && !showShippingTab) ||
+    (activeTab === "returns" && !showReturnsTab)
+      ? "description"
+      : activeTab;
+
+  /** Value for one specification row: the product's own field, else the text. */
+  const specValue = (row: SpecCardRow) => {
+    const fromProduct: Record<string, string | undefined> = {
+      brand: product.brand,
+      category: product.category,
+      puffs: product.puffs,
+      nicotine: product.nicotine,
+      battery: product.battery,
+    };
+    return (row.source === "custom" ? "" : fromProduct[row.source] ?? "") || row.value;
+  };
+
   const isSale = selectedVariant && selectedVariant.compareAtPrice && selectedVariant.compareAtPrice > selectedVariant.price;
   const discountPercent = isSale && selectedVariant.compareAtPrice
     ? Math.round(((selectedVariant.compareAtPrice - selectedVariant.price) / selectedVariant.compareAtPrice) * 100)
@@ -349,19 +407,28 @@ export default function ProductPage() {
       />
       <main className="flex-grow pb-16 pt-[92px]">
         {/* Full-Width Header-Attached Breadcrumb Bar with Soft Lighter Tint */}
-        <div className="w-full bg-muted/40 dark:bg-card/50 border-b border-border/50 py-2.5 mb-6 sm:mb-8">
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-            <nav className="flex flex-wrap items-center gap-2 text-[11px] sm:text-xs font-semibold tracking-wide text-muted-foreground/80">
-              <Link href="/" className="hover:text-primary transition-colors shrink-0">HOME</Link>
-              <span className="text-muted-foreground/40 shrink-0 font-light">/</span>
-              <Link href="/shop" className="hover:text-primary transition-colors shrink-0">PRODUCTS</Link>
-              <span className="text-muted-foreground/40 shrink-0 font-light">/</span>
-              <Link href={`/collections/${product.category}`} className="hover:text-primary transition-colors capitalize shrink-0">{product.category}</Link>
-              <span className="text-muted-foreground/40 shrink-0 font-light">/</span>
-              <span className="text-foreground font-bold">{product.name}</span>
-            </nav>
+        {flag("showBreadcrumb") && (
+          <div className="w-full bg-muted/40 dark:bg-card/50 border-b border-border/50 py-2.5 mb-6 sm:mb-8">
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+              <nav className="flex flex-wrap items-center gap-2 text-[11px] sm:text-xs font-semibold tracking-wide text-muted-foreground/80">
+                <Link href="/" className="hover:text-primary transition-colors shrink-0">
+                  {text("breadcrumbHomeLabel", "HOME")}
+                </Link>
+                <span className="text-muted-foreground/40 shrink-0 font-light">/</span>
+                <Link
+                  href={text("breadcrumbShopHref", "/shop")}
+                  className="hover:text-primary transition-colors shrink-0"
+                >
+                  {text("breadcrumbShopLabel", "PRODUCTS")}
+                </Link>
+                <span className="text-muted-foreground/40 shrink-0 font-light">/</span>
+                <Link href={`/collections/${product.category}`} className="hover:text-primary transition-colors capitalize shrink-0">{product.category}</Link>
+                <span className="text-muted-foreground/40 shrink-0 font-light">/</span>
+                <span className="text-foreground font-bold">{product.name}</span>
+              </nav>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Product Details Hero Section */}
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -423,28 +490,45 @@ export default function ProductPage() {
                 {/* Compact Rating & In-Stock & Social Share Bar */}
                 <div className="flex flex-wrap items-center justify-between gap-3 mt-2.5 pb-3 border-b border-border/40">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex items-center gap-0.5">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-3.5 w-3.5 ${i < Math.floor(product.rating)
-                            ? "fill-amber-400 text-amber-400"
-                            : "text-muted-foreground/30"
-                            }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-[11px] font-black text-foreground">{product.rating}</span>
-                    <span className="text-[11px] text-muted-foreground font-normal">({product.reviews} reviews)</span>
-                    <span className="inline-flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      In Stock
-                    </span>
+                    {flag("showRating") && (
+                      <>
+                        <div className="flex items-center gap-0.5">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-3.5 w-3.5 ${i < Math.floor(product.rating)
+                                ? "fill-amber-400 text-amber-400"
+                                : "text-muted-foreground/30"
+                                }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-[11px] font-black text-foreground">{product.rating}</span>
+                        <span className="text-[11px] text-muted-foreground font-normal">
+                          {text("reviewCountTemplate", "({count} reviews)")
+                            .split("{count}")
+                            .join(String(product.reviews))}
+                        </span>
+                      </>
+                    )}
+                    {product.isSoldOut ? (
+                      <span className="inline-flex items-center gap-1 bg-muted border border-border/60 text-muted-foreground text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                        {text("soldOutLabel", "Sold Out")}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        {text("inStockLabel", "In Stock")}
+                      </span>
+                    )}
                   </div>
 
                   {/* Compact Social Share Buttons */}
+                  {flag("showShareBar") && (
                   <div className="flex items-center gap-1.5 text-[10px]">
-                    <span className="font-bold tracking-wider text-muted-foreground uppercase mr-0.5">SHARE:</span>
+                    <span className="font-bold tracking-wider text-muted-foreground uppercase mr-0.5">
+                      {text("shareLabel", "SHARE:")}
+                    </span>
 
                     <a
                       href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof window !== "undefined" ? window.location.href : "")}`}
@@ -489,13 +573,16 @@ export default function ProductPage() {
                       <span>{copied ? "Copied" : "Copy"}</span>
                     </button>
                   </div>
+                  )}
                 </div>
               </div>
 
               {/* Compact Clean Pricing Row */}
               <div className="flex items-center justify-between gap-4 py-2 border-b border-border/40">
                 <div className="flex items-baseline gap-2.5">
-                  <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">PRICE:</span>
+                  <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+                    {text("priceLabel", "PRICE:")}
+                  </span>
                   <span className="text-2xl sm:text-3xl font-serif font-black text-primary tracking-tight">
                     Dhs. {selectedVariant ? selectedVariant.price.toLocaleString() : product.price.toLocaleString()}
                   </span>
@@ -506,44 +593,34 @@ export default function ProductPage() {
                   )}
                 </div>
 
-                {isSale && discountPercent > 0 && (
+                {isSale && discountPercent > 0 && text("saveBadgeTemplate", "Save {percent}%") && (
                   <span className="bg-primary/10 text-primary border border-primary/20 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full">
-                    Save {discountPercent}%
+                    {text("saveBadgeTemplate", "Save {percent}%")
+                      .split("{percent}")
+                      .join(String(discountPercent))}
                   </span>
                 )}
               </div>
 
               {/* Two-Column Key Specifications Card */}
-              <div className="bg-card border border-border/80 rounded-2xl p-5 shadow-xs relative overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/20 via-primary to-primary/20" />
-                <h3 className="text-xs font-black uppercase tracking-wider text-primary mb-3.5">Key Product Specifications</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5 text-xs">
-                  <div className="flex items-center justify-between border-b border-border/40 pb-2">
-                    <span className="text-muted-foreground font-medium">Brand:</span>
-                    <span className="font-extrabold text-foreground">{product.brand || product.category || "Vape Shop Dubai"}</span>
-                  </div>
-                  <div className="flex items-center justify-between border-b border-border/40 pb-2">
-                    <span className="text-muted-foreground font-medium">Battery Spec:</span>
-                    <span className="font-extrabold text-foreground">{product.battery || "Rechargeable Built-in"}</span>
-                  </div>
-                  <div className="flex items-center justify-between border-b border-border/40 pb-2">
-                    <span className="text-muted-foreground font-medium">Puff Capacity:</span>
-                    <span className="font-extrabold text-foreground">{product.puffs || "High Capacity"}</span>
-                  </div>
-                  <div className="flex items-center justify-between border-b border-border/40 pb-2">
-                    <span className="text-muted-foreground font-medium">Nicotine Level:</span>
-                    <span className="font-extrabold text-foreground">{product.nicotine || "5% (50mg)"}</span>
-                  </div>
-                  <div className="flex items-center justify-between border-b border-border/40 pb-2">
-                    <span className="text-muted-foreground font-medium">Activation:</span>
-                    <span className="font-extrabold text-foreground">Draw-Activated</span>
-                  </div>
-                  <div className="flex items-center justify-between border-b border-border/40 pb-2">
-                    <span className="text-muted-foreground font-medium">Charging:</span>
-                    <span className="font-extrabold text-foreground">Type-C Fast Charge</span>
+              {flag("showSpecCard") && specCardRows.length > 0 && (
+                <div className="bg-card border border-border/80 rounded-2xl p-5 shadow-xs relative overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/20 via-primary to-primary/20" />
+                  {text("specCardHeading", "Key Product Specifications") && (
+                    <h3 className="text-xs font-black uppercase tracking-wider text-primary mb-3.5">
+                      {text("specCardHeading", "Key Product Specifications")}
+                    </h3>
+                  )}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5 text-xs">
+                    {specCardRows.map((row, idx) => (
+                      <div key={idx} className="flex items-center justify-between border-b border-border/40 pb-2">
+                        <span className="text-muted-foreground font-medium">{row.label}:</span>
+                        <span className="font-extrabold text-foreground">{specValue(row)}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Single Line Grid Row: Select Flavor & Quantity Selector */}
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-stretch">
@@ -554,10 +631,12 @@ export default function ProductPage() {
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                       <div className="text-left min-w-0">
                         <span className="text-[9px] font-black uppercase tracking-wider text-muted-foreground block leading-tight">
-                          Flavor Option:
+                          {text("variantLabel", "Flavor Option:")}
                         </span>
                         <span className="text-xs sm:text-sm font-extrabold text-foreground truncate block mt-0.5">
-                          {selectedVariant ? selectedVariant.title : "Select Flavor"}
+                          {selectedVariant
+                            ? selectedVariant.title
+                            : text("variantPlaceholder", "Select Flavor")}
                         </span>
                       </div>
                     </div>
@@ -567,7 +646,7 @@ export default function ProductPage() {
                       onClick={() => setIsFlavorModalOpen(true)}
                       className="bg-primary/10 hover:bg-primary text-primary hover:text-white border border-primary/25 text-[10px] sm:text-xs font-black uppercase tracking-wider px-3 py-2 rounded-xl transition-all duration-300 shrink-0 shadow-2xs cursor-pointer flex items-center gap-1"
                     >
-                      <span>Select</span>
+                      <span>{text("variantButtonLabel", "Select")}</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -575,7 +654,9 @@ export default function ProductPage() {
 
                 {/* Quantity Selector (takes 4 cols if variants exist, 12 if not) */}
                 <div className={`${product.variants && product.variants.length > 1 ? "sm:col-span-4" : "sm:col-span-12"} bg-card border border-border/80 rounded-2xl p-3.5 shadow-xs flex items-center justify-between gap-2`}>
-                  <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">Qty:</span>
+                  <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+                    {text("quantityLabel", "Qty:")}
+                  </span>
                   <div className="flex items-center border border-border rounded-xl bg-muted/30 overflow-hidden h-9">
                     <button
                       onClick={() => handleQuantityChange(quantity - 1)}
@@ -596,7 +677,9 @@ export default function ProductPage() {
 
               {/* Total Calculated Price Banner */}
               <div className="bg-card border border-border/80 rounded-2xl p-4 shadow-xs flex items-center justify-between gap-4">
-                <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">Total Price:</span>
+                <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                  {text("totalPriceLabel", "Total Price:")}
+                </span>
                 <p className="text-2xl sm:text-3xl font-serif font-black text-primary">
                   Dhs. {((selectedVariant ? selectedVariant.price : product.price) * quantity).toLocaleString()}
                 </p>
@@ -610,7 +693,10 @@ export default function ProductPage() {
                     disabled={!!product.isSoldOut || (selectedVariant !== null && !selectedVariant.availableForSale)}
                     className="bg-card hover:bg-primary/10 border-2 border-primary/60 text-foreground hover:text-primary font-black tracking-wider py-4 px-4 rounded-2xl text-xs sm:text-sm uppercase flex items-center justify-center gap-2.5 transition-all cursor-pointer active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                   >
-                    <ShoppingCart className="h-4.5 w-4.5 text-primary" /> {!selectedVariant ? "Select Flavor First" : "Add to Cart"}
+                    <ShoppingCart className="h-4.5 w-4.5 text-primary" />{" "}
+                    {!selectedVariant
+                      ? text("selectVariantLabel", "Select Flavor First")
+                      : text("addToCartLabel", "Add to Cart")}
                   </button>
 
                   <button
@@ -618,11 +704,15 @@ export default function ProductPage() {
                     disabled={!!product.isSoldOut || (selectedVariant !== null && !selectedVariant.availableForSale)}
                     className="bg-primary hover:bg-gold-shimmer text-white font-black tracking-wider py-4 px-4 rounded-2xl text-xs sm:text-sm uppercase flex items-center justify-center gap-2.5 transition-all cursor-pointer active:scale-98 shadow-lg shadow-primary/25 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
                   >
-                    <Truck className="h-4.5 w-4.5" /> {!selectedVariant ? "Select Flavor First" : "Buy It Now"}
+                    <Truck className="h-4.5 w-4.5" />{" "}
+                    {!selectedVariant
+                      ? text("selectVariantLabel", "Select Flavor First")
+                      : text("buyNowLabel", "Buy It Now")}
                   </button>
                 </div>
 
                 {/* Wishlist Toggle Button */}
+                {flag("showWishlist") && (
                 <button
                   type="button"
                   onClick={() => setIsWishlist(!isWishlist)}
@@ -632,95 +722,82 @@ export default function ProductPage() {
                     }`}
                 >
                   <Heart className={`h-4 w-4 ${isWishlist ? "fill-rose-500 text-rose-500" : ""}`} />
-                  <span>{isWishlist ? "Saved in Wishlist" : "Add to Wishlist"}</span>
+                  <span>
+                    {isWishlist
+                      ? text("wishlistSavedLabel", "Saved in Wishlist")
+                      : text("wishlistLabel", "Add to Wishlist")}
+                  </span>
                 </button>
+                )}
               </div>
 
             </div>
           </div>
         </div>
 
-        {/* 4 Service Feature Cards Grid (Matches Screenshot 2) */}
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-xs flex items-center gap-4 hover:border-primary/40 transition-all">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
-                <Truck className="h-6 w-6" />
-              </div>
-              <div>
-                <h4 className="text-xs font-black uppercase tracking-wider text-foreground">Free Shipping</h4>
-                <p className="text-[11px] text-muted-foreground font-semibold mt-0.5 uppercase">ON ORDERS ABOVE 300 AED</p>
-              </div>
-            </div>
-
-            <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-xs flex items-center gap-4 hover:border-primary/40 transition-all">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
-                <CreditCard className="h-6 w-6" />
-              </div>
-              <div>
-                <h4 className="text-xs font-black uppercase tracking-wider text-foreground">Payment Methods</h4>
-                <p className="text-[11px] text-muted-foreground font-semibold mt-0.5 uppercase">CASH, CARD &amp; APPLE PAY ON DELIVERY</p>
-              </div>
-            </div>
-
-            <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-xs flex items-center gap-4 hover:border-primary/40 transition-all">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
-                <Zap className="h-6 w-6" />
-              </div>
-              <div>
-                <h4 className="text-xs font-black uppercase tracking-wider text-foreground">Fast Delivery</h4>
-                <p className="text-[11px] text-muted-foreground font-semibold mt-0.5 uppercase">DUBAI EXPRESS WITHIN 2 HOURS</p>
-              </div>
-            </div>
-
-            <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-xs flex items-center gap-4 hover:border-primary/40 transition-all">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
-                <PackageCheck className="h-6 w-6" />
-              </div>
-              <div>
-                <h4 className="text-xs font-black uppercase tracking-wider text-foreground">Same Day Delivery</h4>
-                <p className="text-[11px] text-muted-foreground font-semibold mt-0.5 uppercase">ORDER BEFORE 6PM ALL EMIRATES</p>
-              </div>
+        {/* Service Feature Cards Grid — merchant-defined */}
+        {flag("showServiceCards") && serviceCards.length > 0 && (
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {serviceCards.map((card, idx) => {
+                const Icon = resolveIcon(card.icon);
+                return (
+                  <div
+                    key={idx}
+                    className="bg-card border border-border/50 rounded-2xl p-5 shadow-xs flex items-center gap-4 hover:border-primary/40 transition-all"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black uppercase tracking-wider text-foreground">
+                        {card.title}
+                      </h4>
+                      {card.subtitle && (
+                        <p className="text-[11px] text-muted-foreground font-semibold mt-0.5 uppercase">
+                          {card.subtitle}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Dynamic Product Tabs Section (Matches Screenshot 2: Product Description | Shipping and Delivery | Refund and Returns Policy) */}
+        {/* Product Tabs — labels, visibility and the shipping/returns copy all
+            come from the template's Product Details section. */}
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:mt-14">
           <div className="bg-card border border-border/50 rounded-[2.5rem] p-6 sm:p-12 shadow-sm">
 
             {/* Tab Headers */}
             <div className="flex border-b border-border/40 gap-8 sm:gap-12 pb-4 overflow-x-auto">
-              <button
-                onClick={() => setActiveTab("description")}
-                className={`text-xs sm:text-sm font-bold uppercase tracking-wider pb-2 transition-all cursor-pointer relative whitespace-nowrap ${activeTab === "description" ? "text-primary font-black" : "text-muted-foreground hover:text-foreground"
-                  }`}
-              >
-                {String(mainSettings.descriptionTabLabel ?? "Product Description")}
-                {activeTab === "description" && <div className="absolute -bottom-[17px] left-0 right-0 h-0.5 bg-primary" />}
-              </button>
-              <button
-                onClick={() => setActiveTab("shipping")}
-                className={`text-xs sm:text-sm font-bold uppercase tracking-wider pb-2 transition-all cursor-pointer relative whitespace-nowrap ${activeTab === "shipping" ? "text-primary font-black" : "text-muted-foreground hover:text-foreground"
-                  }`}
-              >
-                {String(mainSettings.shippingTabLabel ?? "Shipping and Delivery")}
-                {activeTab === "shipping" && <div className="absolute -bottom-[17px] left-0 right-0 h-0.5 bg-primary" />}
-              </button>
-              <button
-                onClick={() => setActiveTab("returns")}
-                className={`text-xs sm:text-sm font-bold uppercase tracking-wider pb-2 transition-all cursor-pointer relative whitespace-nowrap ${activeTab === "returns" ? "text-primary font-black" : "text-muted-foreground hover:text-foreground"
-                  }`}
-              >
-                {String(mainSettings.returnsTabLabel ?? "Refund and Returns Policy")}
-                {activeTab === "returns" && <div className="absolute -bottom-[17px] left-0 right-0 h-0.5 bg-primary" />}
-              </button>
+              {([
+                { key: "description" as const, label: text("descriptionTabLabel", "Product Description"), shown: true },
+                { key: "shipping" as const, label: text("shippingTabLabel", "Shipping and Delivery"), shown: showShippingTab },
+                { key: "returns" as const, label: text("returnsTabLabel", "Refund and Returns Policy"), shown: showReturnsTab },
+              ])
+                .filter((tab) => tab.shown && tab.label)
+                .map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`text-xs sm:text-sm font-bold uppercase tracking-wider pb-2 transition-all cursor-pointer relative whitespace-nowrap ${effectiveTab === tab.key ? "text-primary font-black" : "text-muted-foreground hover:text-foreground"
+                      }`}
+                  >
+                    {tab.label}
+                    {effectiveTab === tab.key && (
+                      <div className="absolute -bottom-[17px] left-0 right-0 h-0.5 bg-primary" />
+                    )}
+                  </button>
+                ))}
             </div>
 
             {/* Tab Contents */}
             <div className="mt-8">
 
-              {activeTab === "description" && (
+              {effectiveTab === "description" && (
                 <div className="product-description-content">
                   {product.shortDescription && (
                     <div
@@ -740,46 +817,33 @@ export default function ProductPage() {
                 </div>
               )}
 
-              {activeTab === "shipping" && (
+              {effectiveTab === "shipping" && (
                 <div className="max-w-3xl space-y-6 text-sm text-foreground/90 leading-relaxed">
-                  <div className="border border-border/40 rounded-2xl p-6 bg-card space-y-3">
-                    <h4 className="font-bold text-primary text-base uppercase tracking-wider">⚡ Express 2-Hour Delivery in Dubai</h4>
-                    <p className="text-muted-foreground">
-                      Place your order before 10:00 PM for rapid express delivery directly to your door anywhere in Dubai (Downtown, Marina, JBR, Deira, Al Barsha, JLT &amp; surrounding areas).
-                    </p>
-                  </div>
-
-                  <div className="border border-border/40 rounded-2xl p-6 bg-card space-y-3">
-                    <h4 className="font-bold text-foreground text-base uppercase tracking-wider">🚚 Same-Day UAE Shipping</h4>
-                    <p className="text-muted-foreground">
-                      Orders placed for Abu Dhabi, Sharjah, Ajman, Ras Al Khaimah, Fujairah &amp; Umm Al Quwain are delivered same-day or next-day morning.
-                    </p>
-                  </div>
-
-                  <div className="border border-border/40 rounded-2xl p-6 bg-card space-y-3">
-                    <h4 className="font-bold text-foreground text-base uppercase tracking-wider">💵 Payment Options</h4>
-                    <p className="text-muted-foreground">
-                      We support Cash on Delivery (COD) and Card on Delivery for 100% risk-free shopping.
-                    </p>
-                  </div>
+                  {shippingBlocks.map((block, idx) => (
+                    <div key={idx} className="border border-border/40 rounded-2xl p-6 bg-card space-y-3">
+                      <h4
+                        className={`font-bold text-base uppercase tracking-wider ${idx === 0 ? "text-primary" : "text-foreground"}`}
+                      >
+                        {block.title}
+                      </h4>
+                      <p className="text-muted-foreground">{block.body}</p>
+                    </div>
+                  ))}
                 </div>
               )}
 
-              {activeTab === "returns" && (
+              {effectiveTab === "returns" && (
                 <div className="max-w-3xl space-y-6 text-sm text-foreground/90 leading-relaxed">
-                  <div className="border border-border/40 rounded-2xl p-6 bg-card space-y-3">
-                    <h4 className="font-bold text-primary text-base uppercase tracking-wider">🛡️ 7-Day Exchange &amp; Replacement Policy</h4>
-                    <p className="text-muted-foreground">
-                      If your device arrives damaged or non-functional (Dead-On-Arrival), contact our customer support team within 24 hours for instant exchange or replacement.
-                    </p>
-                  </div>
-
-                  <div className="border border-border/40 rounded-2xl p-6 bg-card space-y-3">
-                    <h4 className="font-bold text-foreground text-base uppercase tracking-wider">📦 Product Return Eligibility</h4>
-                    <p className="text-muted-foreground">
-                      Due to health and hygiene safety regulations, consumable items (opened e-liquid bottles, unsealed pod packs, and used disposable vapes) cannot be returned once opened unless verified defective.
-                    </p>
-                  </div>
+                  {returnsBlocks.map((block, idx) => (
+                    <div key={idx} className="border border-border/40 rounded-2xl p-6 bg-card space-y-3">
+                      <h4
+                        className={`font-bold text-base uppercase tracking-wider ${idx === 0 ? "text-primary" : "text-foreground"}`}
+                      >
+                        {block.title}
+                      </h4>
+                      <p className="text-muted-foreground">{block.body}</p>
+                    </div>
+                  ))}
                 </div>
               )}
 
@@ -807,8 +871,6 @@ export default function ProductPage() {
             whyChooseProduct: (settings: Record<string, unknown>) => (
               <WhyChooseProductSection
                 productName={product.name}
-                brand={product.brand}
-                category={product.category}
                 puffs={product.puffs}
                 settings={settings as never}
               />
@@ -867,9 +929,13 @@ export default function ProductPage() {
                 }, 1);
                 router.push("/checkout");
               }}
-              onViewAll={() => {
-                router.push(`/collections/${product.category}`);
-              }}
+              onViewAll={
+                settings.showViewAll === false
+                  ? undefined
+                  : () => {
+                      router.push(`/collections/${product.category}`);
+                    }
+              }
             />
           </div>
             ),
@@ -890,7 +956,7 @@ export default function ProductPage() {
                   {product.name}
                 </span>
                 <h3 className="text-xl sm:text-2xl font-serif font-black text-foreground mt-0.5">
-                  Select Flavor Option
+                  {text("variantModalHeading", "Select Flavor Option")}
                 </h3>
               </div>
               <button
@@ -908,7 +974,7 @@ export default function ProductPage() {
                 <Search className="w-4 h-4 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
-                  placeholder="Search flavor name..."
+                  placeholder={text("variantSearchPlaceholder", "Search flavor name...")}
                   value={flavorSearchQuery}
                   onChange={(e) => setFlavorSearchQuery(e.target.value)}
                   className="w-full bg-muted/20 border border-border/60 rounded-2xl pl-10 pr-4 py-2.5 text-xs font-bold text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
@@ -948,7 +1014,9 @@ export default function ProductPage() {
                             {v.title}
                           </h4>
                           <span className="text-[10px] text-muted-foreground font-semibold">
-                            {v.availableForSale ? "In Stock • Ready to ship" : "Currently Out of Stock"}
+                            {v.availableForSale
+                              ? text("variantInStockNote", "In Stock • Ready to ship")
+                              : text("variantOutOfStockNote", "Currently Out of Stock")}
                           </span>
                         </div>
                       </div>
@@ -963,7 +1031,7 @@ export default function ProductPage() {
                           </span>
                         ) : (
                           <span className="text-xs font-bold text-muted-foreground group-hover:text-primary">
-                            Select
+                            {text("variantButtonLabel", "Select")}
                           </span>
                         )}
                       </div>
@@ -977,11 +1045,11 @@ export default function ProductPage() {
       )}
 
       {/* Mobile Sticky Quick Action Bar (Visible only on mobile lg:hidden) */}
-      {product && (
+      {product && flag("showMobileBar") && (
         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-md border-t border-border/80 p-3 px-4 flex items-center justify-between gap-3 shadow-2xl">
           <div>
             <span className="text-[9px] font-black uppercase tracking-wider text-muted-foreground block truncate max-w-[120px]">
-              {selectedVariant ? selectedVariant.title : "Total Price"}
+              {selectedVariant ? selectedVariant.title : text("totalPriceLabel", "Total Price:")}
             </span>
             <p className="text-lg font-serif font-black text-primary leading-tight">
               Dhs. {((selectedVariant ? selectedVariant.price : product.price) * quantity).toLocaleString()}
@@ -995,7 +1063,11 @@ export default function ProductPage() {
               className="bg-primary text-white text-xs font-black uppercase tracking-wider px-4 py-2.5 rounded-xl shadow-md shadow-primary/20 flex items-center gap-1.5 active:scale-95 transition-all"
             >
               <ShoppingCart className="w-3.5 h-3.5" />
-              <span>{!selectedVariant ? "Select Flavor" : "Add to Cart"}</span>
+              <span>
+                {!selectedVariant
+                  ? text("variantPlaceholder", "Select Flavor")
+                  : text("addToCartLabel", "Add to Cart")}
+              </span>
             </button>
 
             <button
@@ -1004,7 +1076,7 @@ export default function ProductPage() {
               className="bg-foreground text-background text-xs font-black uppercase tracking-wider px-3.5 py-2.5 rounded-xl shadow-md flex items-center gap-1 active:scale-95 transition-all"
             >
               <Truck className="w-3.5 h-3.5" />
-              <span>Buy</span>
+              <span>{text("mobileBuyLabel", "Buy")}</span>
             </button>
           </div>
         </div>
