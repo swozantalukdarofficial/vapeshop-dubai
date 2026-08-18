@@ -85,8 +85,9 @@ async function writeUsersFile(users: AdminUser[]): Promise<void> {
 async function seedFirstUser(users: AdminUser[]): Promise<AdminUser[]> {
   if (users.length > 0) return users;
 
-  const email = process.env.ADMIN_EMAIL || "kamran@codixel.tech";
-  const password = process.env.ADMIN_PASSWORD || "TestAdmin1234";
+  const email = process.env.ADMIN_EMAIL;
+  const password = process.env.ADMIN_PASSWORD;
+  if (!email || !password) return users;
 
   const seeded = await createUserRecord({
     email,
@@ -149,8 +150,8 @@ export async function authenticate(
     }
   }
 
-  // Direct environment variable fallback for emergency serverless access
-  const envEmail = normalizeEmail(process.env.ADMIN_EMAIL || "");
+  // Direct environment variable fallback when configured via .env / Vercel
+  const envEmail = process.env.ADMIN_EMAIL ? normalizeEmail(process.env.ADMIN_EMAIL) : "";
   const envPassword = process.env.ADMIN_PASSWORD || "";
   if (envEmail && envPassword && normalized === envEmail && password === envPassword) {
     return {
