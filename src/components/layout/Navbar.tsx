@@ -464,7 +464,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
                             ))
                           ) : (
                             <div className="px-4 py-3 text-xs text-muted-foreground text-center">
-                              No products found for "{searchQuery}"
+                              No products found for &quot;{searchQuery}&quot;
                             </div>
                           )}
                         </div>
@@ -472,7 +472,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
                           type="submit"
                           className="w-full text-center py-2.5 border-t border-border/40 text-xs font-bold text-primary hover:bg-primary/5 transition-all block cursor-pointer"
                         >
-                          View all results for "{searchQuery}"
+                          View all results for &quot;{searchQuery}&quot;
                         </button>
                       </div>
                     )}
@@ -595,7 +595,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
                       ))
                     ) : (
                       <div className="px-4 py-3 text-xs text-muted-foreground text-center">
-                        No products found for "{searchQuery}"
+                        No products found for &quot;{searchQuery}&quot;
                       </div>
                     )}
                   </div>
@@ -603,7 +603,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
                     type="submit"
                     className="w-full text-center py-2.5 border-t border-border/40 text-xs font-bold text-primary hover:bg-primary/5 transition-all block cursor-pointer"
                   >
-                    View all results for "{searchQuery}"
+                    View all results for &quot;{searchQuery}&quot;
                   </button>
                 </div>
               )}
