@@ -89,7 +89,15 @@ const DISPOSABLE_BRANDS: BrandInfo[] = [
   },
 ];
 
-export function DisposableBrandsShowcase() {
+export interface BrandShowcaseSettings {
+  badgeText: string;
+  heading: string;
+  description: string;
+}
+
+export function DisposableBrandsShowcase({
+  settings,
+}: { settings?: BrandShowcaseSettings } = {}) {
   const sliderRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -178,15 +186,16 @@ export function DisposableBrandsShowcase() {
         <div className="text-center flex flex-col items-center flex-1">
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-extrabold uppercase tracking-[0.2em] px-3.5 py-1 rounded-full mb-2">
             <Layers className="w-3.5 h-3.5 text-primary" />
-            <span>Disposable Brand Guide</span>
+            <span>{settings?.badgeText || "Disposable Brand Guide"}</span>
           </div>
 
           <h2 className="text-2xl sm:text-4xl font-serif font-black text-foreground tracking-tight leading-tight">
-            Popular Disposable Vape Brands in Dubai
+            {settings?.heading || "Popular Disposable Vape Brands in Dubai"}
           </h2>
 
           <p className="text-xs sm:text-sm text-muted-foreground mt-1 font-semibold max-w-xl">
-            Explore leading disposable vape manufacturers in the UAE. Compare flagship models, puff capacities, and signature nicotine salt flavor profiles.
+            {settings?.description ||
+              "Explore leading disposable vape manufacturers in the UAE. Compare flagship models, puff capacities, and signature nicotine salt flavor profiles."}
           </p>
 
           {/* Premium Centered Line Divider */}

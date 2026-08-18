@@ -79,12 +79,28 @@ const INITIAL_REVIEWS: Review[] = [
   },
 ];
 
-interface CustomerReviewsSectionProps {
-  collectionName?: string;
+export interface CustomerReviewsSettings {
+  badgeText: string;
+  /** `{collection}` is replaced with the current collection or product name. */
+  headingTemplate: string;
+  description: string;
+  ratingValue: string;
+  ratingCountLabel: string;
+  reviews: Review[];
 }
 
-export function CustomerReviewsSection({ collectionName = "Vape Products" }: CustomerReviewsSectionProps) {
-  const [reviews, setReviews] = useState<Review[]>(INITIAL_REVIEWS);
+interface CustomerReviewsSectionProps {
+  collectionName?: string;
+  settings?: CustomerReviewsSettings;
+}
+
+export function CustomerReviewsSection({
+  collectionName = "Vape Products",
+  settings,
+}: CustomerReviewsSectionProps) {
+  const [reviews, setReviews] = useState<Review[]>(
+    settings?.reviews?.length ? settings.reviews : INITIAL_REVIEWS
+  );
   const [filterRating, setFilterRating] = useState<number | "all">("all");
   const [helpfulLiked, setHelpfulLiked] = useState<Record<string, boolean>>({});
   const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
@@ -152,29 +168,35 @@ export function CustomerReviewsSection({ collectionName = "Vape Products" }: Cus
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] px-3.5 py-1 rounded-full">
               <UserCheck className="w-3.5 h-3.5 text-primary" />
-              <span>Verified Customer Feedback</span>
+              <span>{settings?.badgeText || "Verified Customer Feedback"}</span>
             </div>
 
             <h2 className="text-2xl sm:text-4xl font-serif font-black text-foreground tracking-tight leading-tight">
-              Customer Reviews for {collectionName}
+              {(settings?.headingTemplate || "Customer Reviews for {collection}").replace(
+                "{collection}",
+                collectionName
+              )}
             </h2>
 
             <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">
-              Read authentic ratings and reviews from verified buyers across Dubai, Abu Dhabi, and the UAE.
+              {settings?.description ||
+                "Read authentic ratings and reviews from verified buyers across Dubai, Abu Dhabi, and the UAE."}
             </p>
           </div>
 
           {/* Overall Rating Summary Card */}
           <div className="flex items-center gap-6 bg-background border border-border/80 p-5 rounded-3xl shadow-sm">
             <div className="text-center pr-5 border-r border-border/40">
-              <div className="text-4xl sm:text-5xl font-serif font-black text-foreground">4.9</div>
+              <div className="text-4xl sm:text-5xl font-serif font-black text-foreground">
+                {settings?.ratingValue || "4.9"}
+              </div>
               <div className="flex items-center justify-center gap-1 text-amber-500 mt-1">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-4 h-4 fill-amber-500 text-amber-500" />
                 ))}
               </div>
               <div className="text-[10px] font-extrabold text-muted-foreground mt-1 uppercase tracking-wider">
-                1,420+ Verified Reviews
+                {settings?.ratingCountLabel || "1,420+ Verified Reviews"}
               </div>
             </div>
 

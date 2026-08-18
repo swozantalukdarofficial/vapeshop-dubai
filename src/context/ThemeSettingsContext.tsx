@@ -12,6 +12,7 @@ import { usePathname } from "next/navigation";
 import { DEFAULT_THEME_SETTINGS } from "@/lib/theme/defaults";
 import {
   resolveTemplateKey,
+  templateMatch,
   type SectionInstance,
   type TemplateType,
   type ThemeSettings,
@@ -148,7 +149,9 @@ export function useResolvedTemplate(
 
     return {
       key,
-      isOverride: Boolean(template.handle),
+      // Any template with a URL rule is an override, so its sections render
+      // unconditionally — see `shouldRenderInstance`.
+      isOverride: Boolean(templateMatch(template)),
       instances: template.order
         .map((id) => template.instances[id])
         .filter((instance): instance is SectionInstance => Boolean(instance)),

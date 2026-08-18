@@ -39,7 +39,10 @@ import { ProductAvailableFlavorsSection } from "@/components/sections/ProductAva
 import { CustomerReviewsSection } from "@/components/sections/CustomerReviewsSection";
 import { ProductKeySpecsSection } from "@/components/sections/ProductKeySpecsSection";
 import { WhyChooseProductSection } from "@/components/sections/WhyChooseProductSection";
-import { TemplateSections } from "@/components/sections/SectionRenderer";
+import {
+  instanceSettings,
+  TemplateSections,
+} from "@/components/sections/SectionRenderer";
 import { useResolvedTemplate } from "@/context/ThemeSettingsContext";
 import {
   getProductSchema,
@@ -102,6 +105,8 @@ export default function ProductPage() {
   const [similarProducts, setSimilarProducts] = useState<any[]>([]);
   const { instances: templateInstances, isOverride: templateIsOverride } =
     useResolvedTemplate("product", handle);
+  // Buy-box labels come from the product template's Product Details section.
+  const mainSettings = instanceSettings(templateInstances, "productMain");
   const [isWishlist, setIsWishlist] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -691,7 +696,7 @@ export default function ProductPage() {
                 className={`text-xs sm:text-sm font-bold uppercase tracking-wider pb-2 transition-all cursor-pointer relative whitespace-nowrap ${activeTab === "description" ? "text-primary font-black" : "text-muted-foreground hover:text-foreground"
                   }`}
               >
-                Product Description
+                {String(mainSettings.descriptionTabLabel ?? "Product Description")}
                 {activeTab === "description" && <div className="absolute -bottom-[17px] left-0 right-0 h-0.5 bg-primary" />}
               </button>
               <button
@@ -699,7 +704,7 @@ export default function ProductPage() {
                 className={`text-xs sm:text-sm font-bold uppercase tracking-wider pb-2 transition-all cursor-pointer relative whitespace-nowrap ${activeTab === "shipping" ? "text-primary font-black" : "text-muted-foreground hover:text-foreground"
                   }`}
               >
-                Shipping and Delivery
+                {String(mainSettings.shippingTabLabel ?? "Shipping and Delivery")}
                 {activeTab === "shipping" && <div className="absolute -bottom-[17px] left-0 right-0 h-0.5 bg-primary" />}
               </button>
               <button
@@ -707,7 +712,7 @@ export default function ProductPage() {
                 className={`text-xs sm:text-sm font-bold uppercase tracking-wider pb-2 transition-all cursor-pointer relative whitespace-nowrap ${activeTab === "returns" ? "text-primary font-black" : "text-muted-foreground hover:text-foreground"
                   }`}
               >
-                Refund and Returns Policy
+                {String(mainSettings.returnsTabLabel ?? "Refund and Returns Policy")}
                 {activeTab === "returns" && <div className="absolute -bottom-[17px] left-0 right-0 h-0.5 bg-primary" />}
               </button>
             </div>
@@ -796,16 +801,19 @@ export default function ProductPage() {
           containerClassName="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16"
           slots={{
             productMain: null,
-            juulCrispMenthol: <JuulCrispMentholSections productName={product.name} />,
-            whyChooseProduct: (
+            juulCrispMenthol: (settings: Record<string, unknown>) => (
+              <JuulCrispMentholSections productName={product.name} settings={settings as never} />
+            ),
+            whyChooseProduct: (settings: Record<string, unknown>) => (
               <WhyChooseProductSection
                 productName={product.name}
                 brand={product.brand}
                 category={product.category}
                 puffs={product.puffs}
+                settings={settings as never}
               />
             ),
-            productKeySpecs: (
+            productKeySpecs: (settings: Record<string, unknown>) => (
               <ProductKeySpecsSection
                 productName={product.name}
                 category={product.category}
@@ -814,9 +822,9 @@ export default function ProductPage() {
                 nicotine={product.nicotine}
                 battery={product.battery}
                 specsTable={product.specsTable}
-              />
+              settings={settings as never} />
             ),
-            productFlavors: (
+            productFlavors: (settings: Record<string, unknown>) => (
               <ProductAvailableFlavorsSection
                 variants={product.variants}
                 productName={product.name}
@@ -825,14 +833,16 @@ export default function ProductPage() {
                 onSelectVariant={(variant) => {
                   setSelectedVariant(variant);
                 }}
-              />
+              settings={settings as never} />
             ),
-            customerReviews: <CustomerReviewsSection collectionName={product.name} />,
-            relatedProducts: (
+            customerReviews: (settings: Record<string, unknown>) => (
+              <CustomerReviewsSection collectionName={product.name} settings={settings as never} />
+            ),
+            relatedProducts: (settings: Record<string, unknown>) => (
 
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
             <ProductSectionCarousel
-              sectionName="You May Also Like"
+              sectionName={String(settings.heading ?? "You May Also Like")}
               products={similarProducts}
               onAddToCart={(item) => {
                 addToCart({

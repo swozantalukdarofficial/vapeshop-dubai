@@ -3,7 +3,15 @@
 import React from "react";
 import { ExternalLink, ShieldCheck, CheckCircle2 } from "lucide-react";
 
-export function MyleVerificationSection() {
+export interface SectionHeadingSettings {
+  badgeText: string;
+  heading: string;
+  description: string;
+}
+
+export function MyleVerificationSection({
+  settings,
+}: { settings?: SectionHeadingSettings } = {}) {
   return (
     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
       <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-10 lg:p-14 relative overflow-hidden shadow-md transition-all duration-300">
@@ -14,11 +22,11 @@ export function MyleVerificationSection() {
         <div className="text-center mb-10 sm:mb-12 space-y-3">
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-black uppercase tracking-[0.25em] px-4 py-1.5 rounded-full">
             <ShieldCheck className="w-4 h-4 text-primary" />
-            <span>Official UAE Verification</span>
+            <span>{settings?.badgeText || "Official UAE Verification"}</span>
           </div>
 
           <h2 className="text-2xl sm:text-4xl lg:text-5xl font-serif font-black tracking-[0.2em] uppercase text-foreground">
-            ANTI-COUNTERFEIT <span className="text-primary">SYSTEM</span>
+            {settings?.heading || "ANTI-COUNTERFEIT SYSTEM"}
           </h2>
         </div>
 

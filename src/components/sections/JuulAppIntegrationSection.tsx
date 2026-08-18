@@ -24,7 +24,16 @@ interface JuulAppIntegrationSectionProps {
   className?: string;
 }
 
-export function JuulAppIntegrationSection({ className = "" }: JuulAppIntegrationSectionProps) {
+export interface SectionHeadingSettings {
+  badgeText: string;
+  heading: string;
+  description: string;
+}
+
+export function JuulAppIntegrationSection({
+  className = "",
+  settings,
+}: JuulAppIntegrationSectionProps & { settings?: SectionHeadingSettings }) {
   const [activeFeature, setActiveFeature] = useState<string>("analytics");
   const [podHistoryRange, setPodHistoryRange] = useState<"7" | "30" | "90">("30");
   const [isDeviceLocked, setIsDeviceLocked] = useState<boolean>(true);
@@ -75,15 +84,16 @@ export function JuulAppIntegrationSection({ className = "" }: JuulAppIntegration
         <div className="max-w-3xl mx-auto text-center space-y-4 mb-10 sm:mb-14">
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-black uppercase tracking-[0.25em] px-4 py-1.5 rounded-full">
             <Smartphone className="w-4 h-4 text-primary" />
-            <span>JUUL 2 Smart App Integration</span>
+            <span>{settings?.badgeText || "JUUL 2 Smart App Integration"}</span>
           </div>
 
           <h2 className="text-3xl sm:text-5xl font-serif font-black text-foreground tracking-tight leading-tight">
-            Control Your JUUL 2 <span className="text-primary">Directly From Your Phone</span>
+            {settings?.heading || "Control Your JUUL 2 Directly From Your Phone"}
           </h2>
 
           <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed max-w-2xl mx-auto">
-            Discover the smart vaping era. Pair your JUUL 2 via Bluetooth to monitor your battery health, track puff counts, lock your device remotely, and secure age verification in one tap.
+            {settings?.description ||
+              "Discover the smart vaping era. Pair your JUUL 2 via Bluetooth to monitor your battery health, track puff counts, lock your device remotely, and secure age verification in one tap."}
           </p>
         </div>
 

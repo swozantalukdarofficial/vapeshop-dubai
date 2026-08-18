@@ -17,9 +17,16 @@ interface WhyChooseProductSectionProps {
   items?: WhyChooseItem[];
   footerNote?: string;
   className?: string;
+  settings?: WhyChooseProductSettings;
+}
+
+export interface WhyChooseProductSettings {
+  /** `{product}` is replaced with the product name. */
+  headingTemplate: string;
 }
 
 export function WhyChooseProductSection({
+  settings,
   productName,
   brand = "",
   category = "",
@@ -77,7 +84,10 @@ export function WhyChooseProductSection({
         <div className="flex items-start sm:items-center gap-3 sm:gap-3.5 mb-3.5 sm:mb-4">
           <span className="w-1.5 h-7 sm:h-8 bg-primary rounded-full inline-block shrink-0 shadow-xs mt-0.5 sm:mt-0" />
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-serif font-black text-foreground tracking-tight">
-            Why Choose the <span className="text-primary">{productName}</span>?
+            {(settings?.headingTemplate || "Why Choose the {product}?").replace(
+              "{product}",
+              productName
+            )}
           </h2>
         </div>
 

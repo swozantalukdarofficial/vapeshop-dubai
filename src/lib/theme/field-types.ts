@@ -11,6 +11,13 @@ export interface FieldBase {
   key: string;
   label: string;
   help?: string;
+  /**
+   * Show this field only when a sibling field holds one of these values.
+   *
+   * Keeps a form honest: a row filtering by collection has no business
+   * showing text-matching inputs it will never use.
+   */
+  showIf?: { key: string; equals: string[] };
 }
 
 export interface TextFieldDef extends FieldBase {
@@ -56,6 +63,17 @@ export interface IconFieldDef extends FieldBase {
   type: "icon";
 }
 
+/** Local date and time, stored as `YYYY-MM-DDTHH:mm`. */
+export interface DateTimeFieldDef extends FieldBase {
+  type: "datetime";
+}
+
+/** Picks one of the store's Shopify collections by handle. */
+export interface CollectionFieldDef extends FieldBase {
+  type: "collection";
+  placeholder?: string;
+}
+
 export interface NumberFieldDef extends FieldBase {
   type: "number";
   min?: number;
@@ -86,5 +104,7 @@ export type FieldDef =
   | ToggleFieldDef
   | SelectFieldDef
   | IconFieldDef
+  | CollectionFieldDef
+  | DateTimeFieldDef
   | NumberFieldDef
   | RepeaterFieldDef;

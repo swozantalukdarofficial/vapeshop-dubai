@@ -304,7 +304,14 @@ export const BRANDS_DATA: BrandData[] = [
   },
 ];
 
-export function BrandSphere3D() {
+export interface BrandSphereSettings {
+  flagshipHeading: string;
+  directoryHeading: string;
+}
+
+export function BrandSphere3D({
+  settings,
+}: { settings?: BrandSphereSettings } = {}) {
   const router = useRouter();
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -391,7 +398,7 @@ export function BrandSphere3D() {
           <div className="flex items-center justify-between px-2">
             <h2 className="text-xl sm:text-2xl font-serif font-black text-foreground flex items-center gap-2">
               <Award className="w-5 h-5 text-primary" />
-              Flagship Certified Brands
+              {settings?.flagshipHeading || "Flagship Certified Brands"}
             </h2>
             <span className="text-xs font-bold text-primary tracking-wider uppercase">
               Most Popular in Dubai
@@ -451,7 +458,7 @@ export function BrandSphere3D() {
         <div className="flex items-center justify-between px-2">
           <h2 className="text-xl sm:text-2xl font-serif font-black text-foreground flex items-center gap-2">
             <SlidersHorizontal className="w-5 h-5 text-primary" />
-            All Certified Brands ({filteredBrands.length})
+            {settings?.directoryHeading || "All Certified Brands"} ({filteredBrands.length})
           </h2>
           <span className="text-xs font-bold text-muted-foreground">
             Showing 100% Verified Importers

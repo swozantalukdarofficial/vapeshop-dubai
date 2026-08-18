@@ -20,6 +20,7 @@ interface ProductAvailableFlavorsSectionProps {
   selectedVariantId?: string | null;
   onSelectVariant?: (variant: any) => void;
   className?: string;
+  settings?: ProductFlavorsSettings;
 }
 
 // Preset flavor descriptions dictionary to match popular vape & shisha flavors in UAE
@@ -91,7 +92,13 @@ function getFlavorDescription(flavorTitle: string, productName: string): string 
   return `Authentic ${flavorTitle} blend with rich flavor profile, smooth throat hit, and refreshing finish.`;
 }
 
+export interface ProductFlavorsSettings {
+  heading: string;
+  footnote: string;
+}
+
 export function ProductAvailableFlavorsSection({
+  settings,
   variants = [],
   productName,
   productCategory,
@@ -135,7 +142,7 @@ export function ProductAvailableFlavorsSection({
             <div className="w-1.5 h-7 bg-primary rounded-full shrink-0 shadow-sm" />
             <div>
               <h3 className="text-xl sm:text-2xl font-serif font-bold text-foreground tracking-tight flex items-center gap-2">
-                <span>Available Flavours</span>
+                <span>{settings?.heading || "Available Flavours"}</span>
                 <Table className="w-5 h-5 text-primary opacity-80" />
               </h3>
               <p className="text-xs text-muted-foreground font-medium mt-0.5">
@@ -243,7 +250,10 @@ export function ProductAvailableFlavorsSection({
         {/* Section Footer Note */}
         <div className="mt-6 pt-5 border-t border-border/40 flex items-center gap-2.5 text-xs text-muted-foreground font-medium">
           <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-          <span>Each blend is crafted to replicate authentic shisha &amp; vape flavours with rich flavor profiles, cooling sensation, and sweet notes.</span>
+          <span>
+            {settings?.footnote ||
+              "Each blend is crafted to replicate authentic shisha & vape flavours with rich flavor profiles, cooling sensation, and sweet notes."}
+          </span>
         </div>
 
       </div>

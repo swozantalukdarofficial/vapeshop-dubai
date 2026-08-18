@@ -3,7 +3,18 @@
 import React from "react";
 import { Check } from "lucide-react";
 
-export function JuulCrispMentholSections({ productName = "JUUL 2 Pods" }: { productName?: string }) {
+export interface JuulCrispMentholSettings {
+  /** `{product}` is replaced with the product name. */
+  headingTemplate: string;
+}
+
+export function JuulCrispMentholSections({
+  productName = "JUUL 2 Pods",
+  settings,
+}: {
+  productName?: string;
+  settings?: JuulCrispMentholSettings;
+}) {
   // Try to extract just the flavor part if it's a long name, or use the whole name.
   const displayName = productName.replace(/JUUL\s*2/i, "").trim() || "JUUL 2 Pods";
 
@@ -16,8 +27,10 @@ export function JuulCrispMentholSections({ productName = "JUUL 2 Pods" }: { prod
           {/* Left Text */}
           <div className="space-y-6">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-black tracking-tight text-foreground leading-none">
-              Why Choose <br />
-              <span className="text-primary">{productName}</span>
+              {(settings?.headingTemplate || "Why Choose {product}").replace(
+                "{product}",
+                productName
+              )}
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
               If you're choosing a premium pod in the UAE, there are plenty of options to choose from. Not every pod delivers the flavor promise and not every brand meets standards. {productName} breaks that pattern entirely. It is a precision developed blend that performs like a premium product should. Paired with the reliability of the JUUL 2 closed pod system, there is no match for it in the market. For adult smokers who relied on traditional cigarettes, or vapers who have cycled through disappointing pods without finding one worth sticking to, this is the one. Sharp, clean, and consistent in every single draw.

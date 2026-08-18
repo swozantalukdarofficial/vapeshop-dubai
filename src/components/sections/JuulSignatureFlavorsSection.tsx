@@ -135,7 +135,16 @@ const JUUL2_FLAVORS: JuulFlavorItem[] = [
   },
 ];
 
-export function JuulSignatureFlavorsSection({ handle }: JuulSignatureFlavorsSectionProps) {
+export interface SectionHeadingSettings {
+  badgeText: string;
+  heading: string;
+  description: string;
+}
+
+export function JuulSignatureFlavorsSection({
+  handle,
+  settings,
+}: JuulSignatureFlavorsSectionProps & { settings?: SectionHeadingSettings }) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { addToCart, setIsCartOpen } = useCart();
   const isJuul2 = (handle || "").toLowerCase().includes("juul-2");
@@ -176,12 +185,11 @@ export function JuulSignatureFlavorsSection({ handle }: JuulSignatureFlavorsSect
           <div>
             <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] px-3.5 py-1.5 rounded-full mb-2">
               <Droplet className="w-4 h-4 text-primary" />
-              <span>Official JUUL Flavor Lineup</span>
+              <span>{settings?.badgeText || "Official JUUL Flavor Lineup"}</span>
             </div>
 
             <h2 className="text-3xl sm:text-5xl font-serif font-black text-foreground tracking-tight flex items-center gap-3">
-              <span>Signature</span>
-              <span className="text-primary">Flavors</span>
+              <span>{settings?.heading || "Signature Flavors"}</span>
             </h2>
           </div>
 

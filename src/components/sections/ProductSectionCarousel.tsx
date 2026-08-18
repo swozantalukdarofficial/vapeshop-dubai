@@ -2,9 +2,23 @@
 
 import React, { useEffect, useState } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, type CarouselApi } from "@/components/ui/carousel";
-import { ProductCard, type Product, FlashSaleTimer } from "./ProductFeed";
+import {
+  ProductCard,
+  type Product,
+  FlashSaleTimer,
+  type FlashSaleTimerSettings,
+} from "./ProductFeed";
+
+export interface FlashSaleSettings {
+  enabled: boolean;
+  badgeText: string;
+  description: string;
+  showTimer: boolean;
+  timer: FlashSaleTimerSettings;
+}
 
 interface ProductSectionCarouselProps {
+  flashSale?: FlashSaleSettings;
   sectionName: string;
   products: Product[];
   onAddToCart: (product: Product) => void;
@@ -18,6 +32,7 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
   onAddToCart,
   onBuyNow,
   onViewAll,
+  flashSale,
 }) => {
   const [api, setApi] = useState<CarouselApi>();
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -96,7 +111,9 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
     };
   }, [api]);
 
-  const isFlashSale = sectionName === "Flash Sale";
+  // Driven by the row's own setting rather than its title, so renaming a
+  // flash-sale row no longer silently drops the banner and countdown.
+  const isFlashSale = flashSale?.enabled ?? sectionName === "Flash Sale";
 
   return (
     <div
@@ -146,21 +163,24 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                 </span>
-                <span>⚡ Limited Time Dubai Flash Deals</span>
+                <span>{flashSale?.badgeText || "⚡ Limited Time Dubai Flash Deals"}</span>
               </div>
 
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-black text-foreground tracking-tight leading-tight">
-                Flash Sale &amp; <span className="text-primary">Daily Steals</span>
+                {sectionName}
               </h2>
 
               <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">
-                Exclusive wholesale price drops on JUUL, MYLE &amp; top disposable vapes. 2-hour express Dubai delivery!
+                {flashSale?.description ||
+                  "Exclusive wholesale price drops on JUUL, MYLE & top disposable vapes. 2-hour express Dubai delivery!"}
               </p>
             </div>
 
             {/* Right: Integrated Countdown & Controls */}
             <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end justify-between gap-4 z-10">
-              <FlashSaleTimer />
+              {flashSale?.showTimer !== false && (
+                <FlashSaleTimer settings={flashSale?.timer} />
+              )}
 
               {/* Actions */}
               <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end pt-1">

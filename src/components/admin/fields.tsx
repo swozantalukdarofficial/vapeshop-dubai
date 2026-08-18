@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useId, useRef, useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import { ImageIcon, Loader2, Upload, X } from "lucide-react";
 
 import { ThemeIcon } from "@/components/ui/theme-icon";
@@ -206,6 +206,112 @@ export const IconInput: React.FC<{
           ))}
         </select>
       </div>
+    </FieldShell>
+  );
+};
+
+export const DateTimeInput: React.FC<{
+  label: string;
+  help?: string;
+  value: string;
+  onChange: (value: string) => void;
+}> = ({ label, help, value, onChange }) => {
+  const id = useId();
+  return (
+    <FieldShell label={label} help={help} htmlFor={id}>
+      <input
+        id={id}
+        type="datetime-local"
+        className={inputClass}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </FieldShell>
+  );
+};
+
+/* ── Collection picker ────────────────────────────────────────────── */
+
+interface CollectionOption {
+  handle: string;
+  title: string;
+}
+
+/**
+ * The store's collections, fetched once and shared by every picker on screen —
+ * a repeater with ten rows shouldn't mean ten identical requests.
+ */
+let collectionsPromise: Promise<CollectionOption[]> | null = null;
+
+function loadCollections(): Promise<CollectionOption[]> {
+  if (!collectionsPromise) {
+    collectionsPromise = fetch("/api/admin/collections")
+      .then((res) => (res.ok ? res.json() : { collections: [] }))
+      .then((data) => (Array.isArray(data.collections) ? data.collections : []))
+      .catch(() => []);
+  }
+  return collectionsPromise;
+}
+
+export const CollectionInput: React.FC<{
+  label: string;
+  help?: string;
+  value: string;
+  placeholder?: string;
+  onChange: (value: string) => void;
+}> = ({ label, help, value, placeholder, onChange }) => {
+  const id = useId();
+  const [options, setOptions] = useState<CollectionOption[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadCollections().then((list) => {
+      if (!cancelled) setOptions(list);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // A handle saved earlier may not be in the list (renamed, or the store is
+  // unreachable) — keep it selectable so editing never silently drops it.
+  const known = options ?? [];
+  const missing = value && !known.some((c) => c.handle === value);
+
+  return (
+    <FieldShell label={label} help={help} htmlFor={id}>
+      {options === null ? (
+        <div className={`${inputClass} text-slate-400`}>Loading collections…</div>
+      ) : options.length === 0 ? (
+        <input
+          id={id}
+          type="text"
+          className={inputClass}
+          value={value}
+          placeholder={placeholder ?? "collection-handle"}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ) : (
+        <select
+          id={id}
+          className={`${inputClass} cursor-pointer`}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        >
+          <option value="">Choose a collection…</option>
+          {missing && <option value={value}>{value} (not found)</option>}
+          {options.map((option) => (
+            <option key={option.handle} value={option.handle}>
+              {option.title}
+            </option>
+          ))}
+        </select>
+      )}
+      {options !== null && options.length === 0 && (
+        <p className="text-[11px] text-amber-600">
+          Couldn&apos;t reach Shopify — type the handle manually.
+        </p>
+      )}
     </FieldShell>
   );
 };

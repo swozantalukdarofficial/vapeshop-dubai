@@ -21,8 +21,16 @@ interface CollectionCategorySection {
   cards: BottomCardItem[];
 }
 
+export interface BottomCollectionGridSettings {
+  /** Leave blank to keep the automatic per-category wording. */
+  badgeText: string;
+  heading: string;
+  description: string;
+}
+
 interface BottomCollectionGridProps {
   handle: string;
+  settings?: BottomCollectionGridSettings;
 }
 
 // Data definitions for all major categories
@@ -414,7 +422,7 @@ function SubCollectionSectionSlider({
   );
 }
 
-export function BottomCollectionGrid({ handle }: BottomCollectionGridProps) {
+export function BottomCollectionGrid({ handle, settings }: BottomCollectionGridProps) {
   const h = (handle || "").toLowerCase();
   const isShopPage = h === "all" || h === "shop" || h === "";
 
@@ -473,7 +481,8 @@ export function BottomCollectionGrid({ handle }: BottomCollectionGridProps) {
     );
   }
 
-  // Single Category Page behavior (JUUL, MYLE, DISPOSABLE, E-JUICE, POD SYSTEM)
+  // Single Category Page behavior (JUUL, MYLE, DISPOSABLE, E-JUICE, POD SYSTEM).
+  // The wording below adapts to the handle; a non-empty setting overrides it.
   let badgeText = "Sub-Categories";
   let sectionTitle = "Explore Related Collections";
   let sectionSub = "Browse complementary certified categories with 2-hour express delivery in Dubai.";
@@ -505,6 +514,11 @@ export function BottomCollectionGrid({ handle }: BottomCollectionGridProps) {
     sectionSub = "Explore long-lasting 10000+ puff rechargeable disposables in Dubai.";
     cards = DISPOSABLE_CARDS;
   }
+
+  // A non-empty setting wins over the handle-derived wording above.
+  if (settings?.badgeText) badgeText = settings.badgeText;
+  if (settings?.heading) sectionTitle = settings.heading;
+  if (settings?.description) sectionSub = settings.description;
 
   // Filter out the current collection to only show siblings
   cards = cards.filter((c) => {

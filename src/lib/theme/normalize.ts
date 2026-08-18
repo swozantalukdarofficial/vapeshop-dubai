@@ -3,8 +3,12 @@ import { SECTION_REGISTRY } from "./sections";
 import type {
   SectionInstance,
   Template,
+  TemplateMatch,
   ThemeSettings,
 } from "./types";
+
+/** Rule kinds the normaliser will accept from stored JSON. */
+const MATCH_TYPES = new Set(["exact", "prefix", "suffix", "contains", "wildcard"]);
 
 /**
  * Turns arbitrary stored JSON into a complete, renderable `ThemeSettings`.
@@ -125,6 +129,42 @@ function normalizeInstance(raw: unknown, fallbackId: string): SectionInstance | 
   };
 }
 
+/**
+ * Work out a template's URL rule.
+ *
+ * Overrides saved before rules existed only carried an exact `handle`; those
+ * are promoted to `{ type: "exact" }` so old and new data resolve through the
+ * same code path. Templates with neither are the type defaults, which match
+ * nothing and act as the fallback.
+ */
+function normalizeMatch(
+  raw: Record<string, unknown>,
+  fallback: Template | undefined
+): { match: TemplateMatch; handle?: string } | null {
+  const rawMatch = isPlainObject(raw.match) ? raw.match : null;
+  const legacyHandle =
+    typeof raw.handle === "string" && raw.handle
+      ? raw.handle
+      : fallback?.handle;
+
+  if (rawMatch) {
+    const type = rawMatch.type;
+    const value = rawMatch.value;
+    if (MATCH_TYPES.has(type as string) && typeof value === "string" && value.trim()) {
+      return {
+        match: { type: type as TemplateMatch["type"], value: value.trim() },
+        ...(type === "exact" ? { handle: value.trim() } : {}),
+      };
+    }
+  }
+
+  if (legacyHandle) {
+    return { match: { type: "exact", value: legacyHandle }, handle: legacyHandle };
+  }
+  if (fallback?.match) return { match: fallback.match };
+  return null;
+}
+
 function normalizeTemplate(raw: unknown, fallback: Template | undefined): Template | null {
   if (!isPlainObject(raw)) return fallback ?? null;
 
@@ -164,7 +204,7 @@ function normalizeTemplate(raw: unknown, fallback: Template | undefined): Templa
   return {
     type: type as Template["type"],
     label: typeof raw.label === "string" ? raw.label : (fallback?.label ?? type),
-    ...(typeof raw.handle === "string" ? { handle: raw.handle } : {}),
+    ...(normalizeMatch(raw, fallback) ?? {}),
     previewPath:
       typeof raw.previewPath === "string" && raw.previewPath
         ? raw.previewPath
