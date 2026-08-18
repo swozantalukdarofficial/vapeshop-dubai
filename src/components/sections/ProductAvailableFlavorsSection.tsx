@@ -73,9 +73,19 @@ const DEFAULT_FALLBACK_FLAVORS = [
   { title: "Watermelon Kiwi", desc: "Refreshing fusion of juicy watermelon and tangy kiwi for a balanced sweet-and-sour vape" }
 ];
 
-function getFlavorDescription(flavorTitle: string, productName: string): string {
+function getFlavorDescription(
+  flavorTitle: string,
+  productName: string,
+  notes: FlavorNote[] = []
+): string {
   const cleanTitle = flavorTitle.toLowerCase().trim();
-  
+
+  // A note typed in the customizer always wins over the built-in dictionary.
+  const authored = notes.find(
+    (note) => note.flavor?.toLowerCase().trim() === cleanTitle && note.description
+  );
+  if (authored) return authored.description;
+
   // Exact match
   if (KNOWN_FLAVOR_DESCRIPTIONS[cleanTitle]) {
     return KNOWN_FLAVOR_DESCRIPTIONS[cleanTitle];
@@ -92,8 +102,28 @@ function getFlavorDescription(flavorTitle: string, productName: string): string 
   return `Authentic ${flavorTitle} blend with rich flavor profile, smooth throat hit, and refreshing finish.`;
 }
 
+export interface FlavorNote {
+  /** Variant name this note belongs to. Matched case-insensitively. */
+  flavor: string;
+  description: string;
+}
+
 export interface ProductFlavorsSettings {
   heading: string;
+  /** `{product}` is replaced with the product name. */
+  subheadingTemplate: string;
+  /** `{count}` is replaced with the number of flavours. Blank hides the badge. */
+  countBadgeTemplate: string;
+  nameColumnLabel: string;
+  profileColumnLabel: string;
+  availabilityColumnLabel: string;
+  inStockLabel: string;
+  outOfStockLabel: string;
+  selectedLabel: string;
+  /** Show the variant price in place of the in-stock label. */
+  showPrices: boolean;
+  /** Merchant overrides for individual flavours. */
+  flavorNotes: FlavorNote[];
   footnote: string;
 }
 
@@ -107,6 +137,8 @@ export function ProductAvailableFlavorsSection({
   className = "",
 }: ProductAvailableFlavorsSectionProps) {
   
+  const notes = settings?.flavorNotes ?? [];
+
   // Filter valid variants (ignore single default variant if titled "Default Title")
   const validVariants = variants.filter((v) => v.title && v.title.toLowerCase() !== "default title" && v.title.toLowerCase() !== "default");
 
@@ -116,7 +148,7 @@ export function ProductAvailableFlavorsSection({
         id: v.id,
         variantObj: v,
         title: v.title,
-        desc: getFlavorDescription(v.title, productName),
+        desc: getFlavorDescription(v.title, productName, notes),
         available: v.availableForSale,
         price: v.price,
       }))
@@ -124,10 +156,24 @@ export function ProductAvailableFlavorsSection({
         id: `fallback-${i}`,
         variantObj: null as any,
         title: f.title,
-        desc: f.desc,
+        desc: getFlavorDescription(f.title, productName, notes),
         available: true,
         price: null,
       }));
+
+  const subheading = (
+    settings?.subheadingTemplate ?? "Complete flavor profile spreadsheet table for {product}"
+  )
+    .split("{product}")
+    .join(productName);
+  const countBadge = (settings?.countBadgeTemplate ?? "{count} Signature Options")
+    .split("{count}")
+    .join(String(flavorsList.length));
+  const inStockLabel = settings?.inStockLabel || "IN STOCK";
+  const outOfStockLabel = settings?.outOfStockLabel || "OUT OF STOCK";
+  const selectedLabel = settings?.selectedLabel || "SELECTED";
+  const showPrices = settings?.showPrices !== false;
+  const footnote = settings?.footnote ?? "";
 
   return (
     <section className={`max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16 ${className}`}>
@@ -145,16 +191,18 @@ export function ProductAvailableFlavorsSection({
                 <span>{settings?.heading || "Available Flavours"}</span>
                 <Table className="w-5 h-5 text-primary opacity-80" />
               </h3>
-              <p className="text-xs text-muted-foreground font-medium mt-0.5">
-                Complete flavor profile spreadsheet table for {productName}
-              </p>
+              {subheading && (
+                <p className="text-xs text-muted-foreground font-medium mt-0.5">{subheading}</p>
+              )}
             </div>
           </div>
 
-          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full self-start sm:self-auto">
-            <Flame className="w-3.5 h-3.5 text-primary" />
-            <span>{flavorsList.length} Signature Options</span>
-          </div>
+          {countBadge && (
+            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full self-start sm:self-auto">
+              <Flame className="w-3.5 h-3.5 text-primary" />
+              <span>{countBadge}</span>
+            </div>
+          )}
         </div>
 
         {/* Excel Spreadsheet-Style Table Container */}
@@ -167,13 +215,13 @@ export function ProductAvailableFlavorsSection({
                   #
                 </th>
                 <th scope="col" className="py-3.5 px-5 w-1/3 border-r border-white/20">
-                  Flavour Name
+                  {settings?.nameColumnLabel || "Flavour Name"}
                 </th>
                 <th scope="col" className="py-3.5 px-5 border-r border-white/20">
-                  Flavour Profile &amp; Tasting Notes
+                  {settings?.profileColumnLabel || "Flavour Profile & Tasting Notes"}
                 </th>
                 <th scope="col" className="py-3.5 px-5 text-center w-36">
-                  Availability
+                  {settings?.availabilityColumnLabel || "Availability"}
                 </th>
               </tr>
             </thead>
@@ -232,11 +280,15 @@ export function ProductAvailableFlavorsSection({
                             ? "bg-primary text-white shadow-xs"
                             : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-colors"
                         }`}>
-                          {isSelected ? "SELECTED" : flavor.price ? `Dhs. ${flavor.price}` : "IN STOCK"}
+                          {isSelected
+                            ? selectedLabel
+                            : showPrices && flavor.price
+                            ? `Dhs. ${flavor.price}`
+                            : inStockLabel}
                         </span>
                       ) : (
                         <span className="inline-block px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-[10px] font-bold uppercase tracking-wider line-through">
-                          OUT OF STOCK
+                          {outOfStockLabel}
                         </span>
                       )}
                     </td>
@@ -248,13 +300,12 @@ export function ProductAvailableFlavorsSection({
         </div>
 
         {/* Section Footer Note */}
-        <div className="mt-6 pt-5 border-t border-border/40 flex items-center gap-2.5 text-xs text-muted-foreground font-medium">
-          <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-          <span>
-            {settings?.footnote ||
-              "Each blend is crafted to replicate authentic shisha & vape flavours with rich flavor profiles, cooling sensation, and sweet notes."}
-          </span>
-        </div>
+        {footnote && (
+          <div className="mt-6 pt-5 border-t border-border/40 flex items-center gap-2.5 text-xs text-muted-foreground font-medium">
+            <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+            <span>{footnote}</span>
+          </div>
+        )}
 
       </div>
     </section>
