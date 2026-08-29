@@ -1,54 +1,34 @@
 import { cookies } from "next/headers";
-
-import {
-  signSessionToken,
-  verifySessionToken,
-  type SessionPayload,
-} from "./crypto";
+import { adminAuth } from "../firebase/admin";
 import type { PublicUser } from "./users";
 
 export const SESSION_COOKIE = "vs_admin_session";
 
 /** How long a login lasts before the user has to sign in again. */
-const SESSION_TTL_SECONDS = 60 * 60 * 12; // 12 hours
+const SESSION_TTL_SECONDS = 60 * 60 * 24 * 5; // 5 days, max allowed by Firebase is 14 days
+
+export interface SessionPayload {
+  sub: string;
+  email: string;
+  role: string;
+  exp: number;
+}
 
 /**
- * Secret used to sign session cookies.
- *
- * In production this must be set explicitly — a rotating fallback would sign
- * everyone out on every deploy, and a hard-coded one would let anyone forge a
- * session. In development we fall back so `npm run dev` works out of the box.
+ * We no longer use custom JWTs. Firebase creates the session cookie.
  */
-export function getSessionSecret(): string {
-  const secret = process.env.ADMIN_SESSION_SECRET;
-  if (secret && secret.length >= 16) return secret;
-
-  if (process.env.NODE_ENV === "production") {
-    throw new Error(
-      "ADMIN_SESSION_SECRET must be set (min 16 chars) to run the admin panel in production."
-    );
-  }
-  return "dev-only-insecure-admin-session-secret";
-}
-
-export function createSessionToken(user: PublicUser): string {
-  const payload: SessionPayload = {
-    sub: user.id,
-    email: user.email,
-    role: user.role,
-    exp: Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS,
-  };
-  return signSessionToken(payload, getSessionSecret());
-}
-
-export async function setSessionCookie(user: PublicUser): Promise<void> {
+export async function setSessionCookie(idToken: string): Promise<void> {
   const store = await cookies();
-  store.set(SESSION_COOKIE, createSessionToken(user), {
+  const expiresIn = SESSION_TTL_SECONDS * 1000;
+  
+  const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
+  
+  store.set(SESSION_COOKIE, sessionCookie, {
+    maxAge: SESSION_TTL_SECONDS,
     httpOnly: true,
-    sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: SESSION_TTL_SECONDS,
+    sameSite: "lax",
   });
 }
 
@@ -60,7 +40,21 @@ export async function clearSessionCookie(): Promise<void> {
 /** Read and verify the session on the server. Null when signed out. */
 export async function getSession(): Promise<SessionPayload | null> {
   const store = await cookies();
-  return verifySessionToken(store.get(SESSION_COOKIE)?.value, getSessionSecret());
+  const sessionCookie = store.get(SESSION_COOKIE)?.value;
+  if (!sessionCookie) return null;
+
+  try {
+    const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
+    return {
+      sub: decodedClaims.uid,
+      email: decodedClaims.email || "",
+      role: (decodedClaims.role as string) || "editor", // Fallback to editor if no role
+      exp: decodedClaims.exp,
+    };
+  } catch (error) {
+    // Invalid or expired session cookie
+    return null;
+  }
 }
 
 export async function requireSession(): Promise<SessionPayload> {

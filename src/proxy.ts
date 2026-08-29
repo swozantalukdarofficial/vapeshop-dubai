@@ -1,14 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
-
-import { verifySessionToken } from "@/lib/auth/crypto";
-import { SESSION_COOKIE, getSessionSecret } from "@/lib/auth/session";
-
-/**
- * Route guard for the theme customizer.
- *
- * Runs on the Node.js runtime (the Next 16 default for proxy), so the same
- * `node:crypto` HMAC verification used elsewhere works here unchanged.
- */
+import { SESSION_COOKIE } from "@/lib/auth/session";
+import { adminAuth } from "@/lib/firebase/admin";
 
 /** Reachable while signed out — everything else under /admin requires a session. */
 const PUBLIC_PATHS = new Set([
@@ -17,18 +9,16 @@ const PUBLIC_PATHS = new Set([
   "/api/admin/logout",
 ]);
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
   let session = null;
   try {
-    session = verifySessionToken(
-      request.cookies.get(SESSION_COOKIE)?.value,
-      getSessionSecret()
-    );
+    const sessionCookie = request.cookies.get(SESSION_COOKIE)?.value;
+    if (sessionCookie) {
+      session = await adminAuth.verifySessionCookie(sessionCookie, true);
+    }
   } catch (err) {
-    // Misconfigured ADMIN_SESSION_SECRET in production. Treat as signed out so
-    // the login route can surface the real error instead of a blank 500.
     console.error("[admin] session verification unavailable:", err);
   }
 

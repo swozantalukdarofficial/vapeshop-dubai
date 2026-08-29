@@ -14,5 +14,5 @@ export const metadata: Metadata = {
 export default function AdminLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return <div className="min-h-screen bg-slate-100 text-slate-900">{children}</div>;
+  return <div className="min-h-screen bg-slate-100 text-slate-900" suppressHydrationWarning>{children}</div>;
 }

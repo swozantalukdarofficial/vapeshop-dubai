@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle, Loader2, Lock } from "lucide-react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../../lib/firebase/client";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -17,10 +19,13 @@ export default function AdminLoginPage() {
     setError(null);
 
     try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const idToken = await userCredential.user.getIdToken();
+
       const res = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ idToken }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Sign-in failed.");
@@ -30,8 +35,8 @@ export default function AdminLoginPage() {
       const next = new URLSearchParams(window.location.search).get("next");
       router.replace(next?.startsWith("/admin") ? next : "/admin");
       router.refresh();
-    } catch (err) {
-      setError((err as Error).message);
+    } catch (err: any) {
+      setError(err.message || "Invalid credentials.");
       setSubmitting(false);
     }
   };
@@ -40,7 +45,7 @@ export default function AdminLoginPage() {
     "w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/15";
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4" suppressHydrationWarning>
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
           <span className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-orange-500 text-white">

@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 
 import { UsersManager } from "@/components/admin/UsersManager";
 import { getSession } from "@/lib/auth/session";
-import { findUserById, listUsers, toPublicUser } from "@/lib/auth/users";
+import { findUserById, listUsers } from "@/lib/auth/users";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +17,7 @@ export default async function AdminUsersPage() {
 
   return (
     <UsersManager
-      currentUser={toPublicUser(user)}
+      currentUser={user}
       initialUsers={await listUsers()}
     />
   );

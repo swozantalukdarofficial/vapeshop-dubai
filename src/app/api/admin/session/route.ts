@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getSession } from "@/lib/auth/session";
-import { findUserById, toPublicUser } from "@/lib/auth/users";
+import { findUserById } from "@/lib/auth/users";
 
 export async function GET() {
   const session = await getSession();
@@ -15,5 +15,5 @@ export async function GET() {
     return NextResponse.json({ user: null }, { status: 401 });
   }
 
-  return NextResponse.json({ user: toPublicUser(user) });
+  return NextResponse.json({ user });
 }
