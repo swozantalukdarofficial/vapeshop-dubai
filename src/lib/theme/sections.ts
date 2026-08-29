@@ -846,7 +846,7 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
         key: "body",
         label: "Body",
         rows: 10,
-        help: "Leave a blank line between paragraphs. Start a line with '- ' for a bullet.",
+        help: "Leave a blank line between paragraphs. Start a line with '- ' for a bullet. Start a line with '### ' for a heading. Wrap in **text** for bold.",
       },
       {
         type: "select",
@@ -857,8 +857,9 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
           { label: "Full width", value: "wide" },
         ],
       },
+      { type: "toggle", key: "collapsible", label: "Make content collapsible (Read More)" },
     ],
-    defaults: { heading: "", body: "", width: "narrow" },
+    defaults: { heading: "", body: "", width: "narrow", collapsible: false },
   },
 
   featureGrid: {
