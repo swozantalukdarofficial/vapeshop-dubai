@@ -122,29 +122,57 @@ export const RichTextSection: React.FC<{ settings: RichTextSettings }> = ({
   if (!settings.heading && !settings.body.trim()) return null;
 
   return (
-    <div className="w-full bg-card border border-border/60 rounded-[2rem] p-5 sm:p-7 lg:p-8 shadow-md relative">
-      <div className={settings.width === "narrow" ? "max-w-4xl mx-auto" : "w-full"}>
-        {settings.heading && (
-          <h2 className="text-2xl sm:text-3xl font-serif font-black text-foreground tracking-tight mb-4">
-            {settings.heading}
-          </h2>
-        )}
-        <div className={`relative ${isCollapsible && !expanded ? "max-h-[200px] overflow-hidden" : ""}`}>
-          <div className="space-y-1 pb-2">{renderBody(settings.body)}</div>
-          {isCollapsible && !expanded && (
-            <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-card to-transparent pointer-events-none" />
+    <div className="w-full relative group my-4">
+      {/* Premium Gradient Glow backdrop */}
+      <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 via-orange-500/20 to-primary/30 rounded-[2.5rem] blur-xl opacity-70 transition-all duration-700 group-hover:opacity-100 group-hover:blur-2xl" />
+      
+      <div className="relative w-full bg-card/80 backdrop-blur-2xl border border-primary/20 rounded-[2.5rem] p-6 sm:p-10 lg:p-12 shadow-2xl overflow-hidden">
+        
+        {/* Futuristic Background accents */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
+
+        <div className={`relative z-10 ${settings.width === "narrow" ? "max-w-4xl mx-auto" : "w-full"}`}>
+          {settings.heading && (
+            <div className="flex items-center justify-center gap-3 mb-8">
+              <div className="h-0.5 w-12 bg-gradient-to-r from-transparent to-primary" />
+              <h2 className="text-3xl sm:text-4xl font-serif font-black text-foreground tracking-tight text-center bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">
+                {settings.heading}
+              </h2>
+              <div className="h-0.5 w-12 bg-gradient-to-l from-transparent to-primary" />
+            </div>
+          )}
+          
+          <div className={`relative transition-all duration-700 ease-in-out ${isCollapsible && !expanded ? "max-h-[220px] overflow-hidden" : ""}`}>
+            <div className="space-y-3 pb-4 text-base sm:text-lg leading-relaxed">{renderBody(settings.body)}</div>
+            
+            {/* Elegant gradient fade for collapsed state */}
+            {isCollapsible && !expanded && (
+              <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-card via-card/90 to-transparent pointer-events-none" />
+            )}
+          </div>
+          
+          {isCollapsible && (
+            <div className="mt-8 flex justify-center relative z-20">
+              <button
+                onClick={() => setExpanded(!expanded)}
+                className="group/btn relative inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-primary via-orange-500 to-primary bg-[length:200%_auto] px-9 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/30 transition-all duration-300 hover:shadow-primary/50 hover:scale-105 active:scale-95"
+              >
+                {expanded ? (
+                  <>
+                    <span>Show Less</span>
+                    <ChevronUp className="w-4 h-4 transition-transform group-hover/btn:-translate-y-1" />
+                  </>
+                ) : (
+                  <>
+                    <span>Read Full Story</span>
+                    <ChevronDown className="w-4 h-4 transition-transform group-hover/btn:translate-y-1" />
+                  </>
+                )}
+              </button>
+            </div>
           )}
         </div>
-        {isCollapsible && (
-          <div className="mt-4 flex justify-center">
-            <button
-              onClick={() => setExpanded(!expanded)}
-              className="inline-flex h-9 items-center justify-center rounded-full bg-secondary px-6 py-2 text-sm font-medium text-secondary-foreground shadow-sm transition-colors hover:bg-secondary/80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              {expanded ? "Read Less" : "Read More"}
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
