@@ -36,40 +36,37 @@ const DATA_DIR = path.join(process.cwd(), "data");
 const DRAFT_FILE = path.join(process.cwd(), "data", "theme-draft.json");
 const PUBLISHED_FILE = path.join(process.cwd(), "data", "theme-published.json");
 
-const fileStorage: ThemeStorage = {
+import { adminDb } from "../firebase/admin";
+
+const firestoreStorage: ThemeStorage = {
   async read(slot) {
     try {
-      const raw = await fs.readFile(
-        slot === "draft" ? DRAFT_FILE : PUBLISHED_FILE,
-        "utf8"
-      );
-      const parsed = JSON.parse(raw) as Partial<ThemeSettingsRecord>;
+      const doc = await adminDb.collection("theme").doc(slot).get();
+      if (!doc.exists) return null;
+      
+      const parsed = doc.data() as Partial<ThemeSettingsRecord>;
       return {
         settings: normalizeSettings(parsed.settings),
         updatedAt: parsed.updatedAt ?? new Date(0).toISOString(),
         updatedBy: parsed.updatedBy ?? null,
       };
     } catch (err) {
-      const code = (err as NodeJS.ErrnoException).code;
-      if (code === "ENOENT") return null;
-      // A corrupt file should not take the storefront down — fall back to
-      // defaults and surface the problem in the server log.
-      console.error(`[theme] could not read ${slot} settings:`, err);
+      console.error(`[theme] could not read ${slot} settings from Firestore:`, err);
       return null;
     }
   },
 
   async write(slot, record) {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-    const file = slot === "draft" ? DRAFT_FILE : PUBLISHED_FILE;
-    // Write-then-rename so a crash mid-write can't leave a truncated file.
-    const tmp = `${file}.${process.pid}.tmp`;
-    await fs.writeFile(tmp, JSON.stringify(record, null, 2), "utf8");
-    await fs.rename(tmp, file);
+    try {
+      await adminDb.collection("theme").doc(slot).set(record);
+    } catch (err) {
+      console.error(`[theme] could not write ${slot} settings to Firestore:`, err);
+      throw err;
+    }
   },
 };
 
-const storage: ThemeStorage = fileStorage;
+const storage: ThemeStorage = firestoreStorage;
 
 /* ── Public API ───────────────────────────────────────────────────── */
 

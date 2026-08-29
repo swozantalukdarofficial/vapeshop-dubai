@@ -26,4 +26,7 @@ if (!getApps().length) {
   }
 }
 
+import { getFirestore } from "firebase-admin/firestore";
+
 export const adminAuth = getAuth();
+export const adminDb = getFirestore();
