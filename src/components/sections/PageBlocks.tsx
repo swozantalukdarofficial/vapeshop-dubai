@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Clock, Mail, MapPin, Phone } from "lucide-react";
+import { Clock, Mail, MapPin, Phone, ChevronDown, ChevronUp } from "lucide-react";
 
 import { ThemeIcon } from "@/components/ui/theme-icon";
 
