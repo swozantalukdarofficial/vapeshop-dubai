@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
+  serverExternalPackages: ["firebase-admin"],
 };
 
 export default nextConfig;
