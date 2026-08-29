@@ -84,9 +84,12 @@ function renderBody(body: string): React.ReactNode[] {
       
       if (lines.length === 1 && lines[0].startsWith("### ")) {
         return (
-          <h3 key={idx} className="text-xl sm:text-2xl font-serif font-black text-foreground tracking-tight mt-10 mb-4">
-            {parseInline(lines[0].slice(4))}
-          </h3>
+          <div key={idx} className="flex items-center gap-3 pt-6 pb-2 mt-6 first:mt-0 border-t border-border/40 first:border-t-0">
+            <span className="w-2 h-6 rounded-full bg-primary shrink-0" />
+            <h3 className="text-xl sm:text-2xl font-serif font-black text-foreground tracking-tight">
+              {parseInline(lines[0].slice(4))}
+            </h3>
+          </div>
         );
       }
 
@@ -96,7 +99,7 @@ function renderBody(body: string): React.ReactNode[] {
         return (
           <ul key={idx} className="space-y-2 pl-1 mb-4">
             {lines.map((line, i) => (
-              <li key={i} className="flex gap-2.5 text-sm sm:text-base text-muted-foreground leading-relaxed">
+              <li key={i} className="flex gap-2.5 text-sm sm:text-base text-muted-foreground leading-relaxed font-medium">
                 <span className="mt-[0.55em] h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
                 <span>{parseInline(line.slice(2))}</span>
               </li>
@@ -106,7 +109,7 @@ function renderBody(body: string): React.ReactNode[] {
       }
 
       return (
-        <p key={idx} className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-4">
+        <p key={idx} className="text-sm sm:text-base text-muted-foreground leading-relaxed font-medium mb-4">
           {parseInline(block)}
         </p>
       );
@@ -122,58 +125,43 @@ export const RichTextSection: React.FC<{ settings: RichTextSettings }> = ({
   if (!settings.heading && !settings.body.trim()) return null;
 
   return (
-    <div className="w-full relative group my-4">
-      {/* Premium Gradient Glow backdrop */}
-      <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 via-orange-500/20 to-primary/30 rounded-[2.5rem] blur-xl opacity-70 transition-all duration-700 group-hover:opacity-100 group-hover:blur-2xl" />
-      
-      <div className="relative w-full bg-card/80 backdrop-blur-2xl border border-primary/20 rounded-[2.5rem] p-6 sm:p-10 lg:p-12 shadow-2xl overflow-hidden">
-        
-        {/* Futuristic Background accents */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
-
-        <div className={`relative z-10 ${settings.width === "narrow" ? "max-w-4xl mx-auto" : "w-full"}`}>
-          {settings.heading && (
-            <div className="flex items-center justify-center gap-3 mb-8">
-              <div className="h-0.5 w-12 bg-gradient-to-r from-transparent to-primary" />
-              <h2 className="text-3xl sm:text-4xl font-serif font-black text-foreground tracking-tight text-center bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">
-                {settings.heading}
-              </h2>
-              <div className="h-0.5 w-12 bg-gradient-to-l from-transparent to-primary" />
-            </div>
-          )}
-          
-          <div className={`relative transition-all duration-700 ease-in-out ${isCollapsible && !expanded ? "max-h-[220px] overflow-hidden" : ""}`}>
-            <div className="space-y-3 pb-4 text-base sm:text-lg leading-relaxed">{renderBody(settings.body)}</div>
-            
-            {/* Elegant gradient fade for collapsed state */}
-            {isCollapsible && !expanded && (
-              <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-card via-card/90 to-transparent pointer-events-none" />
-            )}
-          </div>
-          
-          {isCollapsible && (
-            <div className="mt-8 flex justify-center relative z-20">
-              <button
-                onClick={() => setExpanded(!expanded)}
-                className="group/btn relative inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-primary via-orange-500 to-primary bg-[length:200%_auto] px-9 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/30 transition-all duration-300 hover:shadow-primary/50 hover:scale-105 active:scale-95"
-              >
-                {expanded ? (
-                  <>
-                    <span>Show Less</span>
-                    <ChevronUp className="w-4 h-4 transition-transform group-hover/btn:-translate-y-1" />
-                  </>
-                ) : (
-                  <>
-                    <span>Read Full Story</span>
-                    <ChevronDown className="w-4 h-4 transition-transform group-hover/btn:translate-y-1" />
-                  </>
-                )}
-              </button>
-            </div>
-          )}
+    <div className="w-full bg-card border border-border/60 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md transition-all duration-300">
+      {settings.heading && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/40 pb-5 mb-6">
+          <h2 className="text-2xl sm:text-4xl font-serif font-black text-foreground tracking-tight leading-tight">
+            {settings.heading}
+          </h2>
         </div>
+      )}
+      
+      <div className={`relative w-full ${isCollapsible && !expanded ? "max-h-[260px] overflow-hidden" : ""}`}>
+        <div className="w-full space-y-1 pb-2">{renderBody(settings.body)}</div>
+        
+        {isCollapsible && !expanded && (
+          <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-card via-card/90 to-transparent pointer-events-none" />
+        )}
       </div>
+
+      {isCollapsible && (
+        <div className="mt-6 pt-4 border-t border-border/30 flex justify-center relative z-10">
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-bold text-primary-foreground shadow-md shadow-primary/20 transition-all duration-300 hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/30 active:scale-95"
+          >
+            {expanded ? (
+              <>
+                <span>Read Less</span>
+                <ChevronUp className="w-4 h-4" />
+              </>
+            ) : (
+              <>
+                <span>Read More</span>
+                <ChevronDown className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 };
