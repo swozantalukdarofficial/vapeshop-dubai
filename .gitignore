@@ -43,5 +43,8 @@ next-env.d.ts
 # reports
 lighthouse-report.json
 
+# theme customizer — merchant-editable content and credentials live here, and
+# are environment-specific rather than part of the codebase
+/data
 # theme customizer — uploaded media
 /public/uploads

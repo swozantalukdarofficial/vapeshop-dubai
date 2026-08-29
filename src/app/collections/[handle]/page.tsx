@@ -268,7 +268,6 @@ function CollectionPageContent() {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [isGuideExpanded, setIsGuideExpanded] = useState(false);
   const [activePillFilter, setActivePillFilter] = useState<string>("all");
-  const [currentPage, setCurrentPage] = useState(1);
 
   // Shopify collection metadata
   const [collectionMeta, setCollectionMeta] = useState<{
@@ -402,7 +401,7 @@ function CollectionPageContent() {
       const seoTitle = collectionInfo.seo?.title || collectionInfo.title;
       const seoDesc = collectionInfo.seo?.description || collectionInfo.description;
       document.title = `${seoTitle} | Vape Shop Dubai`;
-      const metaDesc = document.querySelector('meta[name="description"]');
+      let metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) {
         metaDesc.setAttribute("content", seoDesc);
       }
@@ -626,7 +625,7 @@ function CollectionPageContent() {
 
   // Filter and Sort logic
   const filteredProducts = useMemo(() => {
-    const result = collectionProducts.filter((p) => {
+    let result = collectionProducts.filter((p) => {
       const prodNameLower = p.name.toLowerCase();
       const prodBrandLower = (p.brand || "").toLowerCase();
       const prodSectionLower = (p.section || "").toLowerCase();
@@ -724,6 +723,7 @@ function CollectionPageContent() {
   // Both come from the collection template's Product Grid section.
   const mainSettings = instanceSettings(templateInstances, "collectionMain");
   const ITEMS_PER_PAGE = Number(mainSettings.itemsPerPage) || 12;
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     setCurrentPage(1);

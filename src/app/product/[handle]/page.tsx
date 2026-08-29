@@ -155,9 +155,7 @@ export default function ProductPage() {
 
   const relatedLimit = Number(relatedSettings.maxProducts) || 10;
   const relatedLimitRef = React.useRef(relatedLimit);
-  useEffect(() => {
-    relatedLimitRef.current = relatedLimit;
-  }, [relatedLimit]);
+  relatedLimitRef.current = relatedLimit;
 
   // For Navbar states
   const [searchQuery, setSearchQuery] = useState("");
@@ -183,7 +181,7 @@ export default function ProductPage() {
           document.title = pageTitle;
 
           if (data.seoDescription) {
-            const metaDesc = document.querySelector('meta[name="description"]');
+            let metaDesc = document.querySelector('meta[name="description"]');
             if (metaDesc) {
               metaDesc.setAttribute("content", data.seoDescription);
             }
