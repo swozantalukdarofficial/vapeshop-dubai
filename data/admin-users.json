@@ -7,5 +7,14 @@
     "passwordHash": "scrypt$e677bf2be357671ac354c28f965ce628$811f2ab9a036d231456c15fe1013103f4c9163844ebaea80cec14a117c8a8d779ab76f9a12dbc2d7398421fbb9cbff029d050752945e6dec037d299e4657572c",
     "createdAt": "2026-08-18T20:25:34.425Z",
     "lastLoginAt": null
+  },
+  {
+    "id": "cb08fe7b79b76cb82508e07f",
+    "email": "shipontalukdar.webestone@gmail.com",
+    "name": "Shipon Talukdar",
+    "role": "admin",
+    "passwordHash": "scrypt$3f0e97fe312f07687049eae4475708c6$3af3d8096504823f154da3d1bdbb3a6d7d4c89b7da19c46ce97eb733c2f3b512913e82753223dadf2a516a00fd59bd95c66d01870d7bd82698718450dd24ce14",
+    "createdAt": "2026-08-29T18:38:19.695Z",
+    "lastLoginAt": "2026-08-29T18:38:41.328Z"
   }
 ]
