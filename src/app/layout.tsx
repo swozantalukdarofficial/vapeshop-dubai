@@ -35,10 +35,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Vape Shop Dubai | Premium Luxury Vape Store & 2-Hour Delivery",
+    default: "Vape Shop Dubai | Juul, MYLE, Disposable Vapes & Pod Kits",
     template: "%s | Vape Shop Dubai",
   },
-  description: "Experience premium luxury vaping in Dubai. 2-Hour Express Delivery across Dubai, same-day Abu Dhabi & UAE. 100% authentic JUUL, Myle, Disposables & E-Liquids.",
+  description: "Shop a trusted Vape Shop Dubai for Juul, MYLE, disposable vapes, pod kits, and nicotine salts with same-day delivery and cash on delivery across the UAE.",
   keywords: [
     "Vape Shop Dubai",
     "Buy Vape UAE",
