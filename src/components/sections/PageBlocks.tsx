@@ -84,7 +84,7 @@ function renderBody(body: string): React.ReactNode[] {
       
       if (lines.length === 1 && lines[0].startsWith("### ")) {
         return (
-          <h3 key={idx} className="text-lg sm:text-xl font-bold text-foreground mt-8 mb-3 uppercase tracking-wide">
+          <h3 key={idx} className="text-xl sm:text-2xl font-serif font-black text-foreground tracking-tight mt-10 mb-4">
             {parseInline(lines[0].slice(4))}
           </h3>
         );
@@ -123,7 +123,7 @@ export const RichTextSection: React.FC<{ settings: RichTextSettings }> = ({
 
   return (
     <div className="w-full bg-card border border-border/60 rounded-[2rem] p-5 sm:p-7 lg:p-8 shadow-md relative">
-      <div className={settings.width === "narrow" ? "max-w-3xl" : "w-full"}>
+      <div className={settings.width === "narrow" ? "max-w-4xl mx-auto" : "w-full"}>
         {settings.heading && (
           <h2 className="text-2xl sm:text-3xl font-serif font-black text-foreground tracking-tight mb-4">
             {settings.heading}
