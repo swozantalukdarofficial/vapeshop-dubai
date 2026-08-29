@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { NextResponse } from "next/server";
 
-import { randomId } from "@/lib/auth/crypto";
+import crypto from "node:crypto";
 
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     await fs.mkdir(UPLOAD_DIR, { recursive: true });
     // Random suffix keeps re-uploads of the same filename from clobbering each
     // other and busts any CDN cache on the old URL.
-    const filename = `${slugify(file.name)}-${randomId()}.${extension}`;
+    const filename = `${slugify(file.name)}-${crypto.randomUUID().slice(0, 8)}.${extension}`;
     const buffer = Buffer.from(await file.arrayBuffer());
     await fs.writeFile(path.join(UPLOAD_DIR, filename), buffer);
 
