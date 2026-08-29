@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
+  transpilePackages: ["firebase-admin", "jwks-rsa", "jose"],
 };
 
 export default nextConfig;
