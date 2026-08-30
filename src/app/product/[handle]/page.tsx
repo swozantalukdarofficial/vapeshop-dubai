@@ -37,8 +37,10 @@ import { JuulAppIntegrationSection } from "@/components/sections/JuulAppIntegrat
 import { JuulCrispMentholSections } from "@/components/sections/JuulCrispMentholSections";
 import { ProductAvailableFlavorsSection } from "@/components/sections/ProductAvailableFlavorsSection";
 import { CustomerReviewsSection } from "@/components/sections/CustomerReviewsSection";
+import { FAQSection } from "@/components/sections/FAQSection";
 import { ProductKeySpecsSection } from "@/components/sections/ProductKeySpecsSection";
 import { WhyChooseProductSection } from "@/components/sections/WhyChooseProductSection";
+import { ProductFinalThoughtsSection } from "@/components/sections/ProductFinalThoughtsSection";
 import {
   instanceSettings,
   TemplateSections,
@@ -102,6 +104,10 @@ interface ProductDetails {
   shortDescription?: string;
   specsTable?: any;
   faqAccordion?: any;
+  reviewsList?: any[];
+  flavorNotes?: any[];
+  whyChoose?: any;
+  finalThoughts?: any;
   variants: Variant[];
   section?: string;
   brand?: string;
@@ -126,6 +132,56 @@ export default function ProductPage() {
   const [similarProducts, setSimilarProducts] = useState<any[]>([]);
   const { instances: templateInstances, isOverride: templateIsOverride } =
     useResolvedTemplate("product", handle);
+
+  const effectiveTemplateInstances = React.useMemo(() => {
+    const list = [...templateInstances];
+
+    // 1. Ensure productFinalThoughts comes AFTER productFlavors
+    let flavorsIdx = list.findIndex((i) => i.type === "productFlavors");
+    let finalThoughtsIdx = list.findIndex((i) => i.type === "productFinalThoughts");
+
+    if (finalThoughtsIdx === -1) {
+      const ftInst = {
+        id: "prod-final-thoughts-fallback",
+        type: "productFinalThoughts",
+        enabled: true,
+        settings: {},
+      };
+      if (flavorsIdx !== -1) {
+        list.splice(flavorsIdx + 1, 0, ftInst);
+      } else {
+        list.push(ftInst);
+      }
+    } else if (flavorsIdx !== -1 && finalThoughtsIdx !== flavorsIdx + 1) {
+      const [ftInst] = list.splice(finalThoughtsIdx, 1);
+      const newFlavorsIdx = list.findIndex((i) => i.type === "productFlavors");
+      list.splice(newFlavorsIdx + 1, 0, ftInst);
+    }
+
+    // 2. Ensure FAQ section comes BEFORE customerReviews
+    let faqIdx = list.findIndex((i) => i.type === "faq");
+    let reviewsIdx = list.findIndex((i) => i.type === "customerReviews");
+
+    if (faqIdx === -1) {
+      const faqInst = {
+        id: "prod-faq-fallback",
+        type: "faq",
+        enabled: true,
+        settings: {},
+      };
+      if (reviewsIdx !== -1) {
+        list.splice(reviewsIdx, 0, faqInst);
+      } else {
+        list.push(faqInst);
+      }
+    } else if (reviewsIdx !== -1 && faqIdx > reviewsIdx) {
+      const [faqInst] = list.splice(faqIdx, 1);
+      const newReviewsIdx = list.findIndex((i) => i.type === "customerReviews");
+      list.splice(newReviewsIdx, 0, faqInst);
+    }
+
+    return list;
+  }, [templateInstances]);
   // Everything the buy box says comes from the product template's
   // "Product Details & Buy Box" section; only the data is Shopify's.
   const mainSettings = instanceSettings(templateInstances, "productMain");
@@ -855,7 +911,7 @@ export default function ProductPage() {
             in the theme customizer. Sections that need the live product are
             passed in as slots. */}
         <TemplateSections
-          instances={templateInstances}
+          instances={effectiveTemplateInstances}
           isOverride={templateIsOverride}
           context={{
             handle: product.handle,
@@ -872,6 +928,7 @@ export default function ProductPage() {
               <WhyChooseProductSection
                 productName={product.name}
                 puffs={product.puffs}
+                productWhyChoose={product.whyChoose}
                 settings={settings as never}
               />
             ),
@@ -892,13 +949,30 @@ export default function ProductPage() {
                 productName={product.name}
                 productCategory={product.category}
                 selectedVariantId={selectedVariant?.id}
+                productFlavorNotes={product.flavorNotes}
                 onSelectVariant={(variant) => {
                   setSelectedVariant(variant);
                 }}
               settings={settings as never} />
             ),
+            productFinalThoughts: (settings: Record<string, unknown>) => (
+              <ProductFinalThoughtsSection
+                productName={product.name}
+                productFinalThoughts={product.finalThoughts}
+                settings={settings as never}
+              />
+            ),
             customerReviews: (settings: Record<string, unknown>) => (
-              <CustomerReviewsSection collectionName={product.name} settings={settings as never} />
+              <CustomerReviewsSection
+                collectionName={product.name}
+                productRating={product.rating}
+                productReviewsCount={product.reviews}
+                productReviewsList={product.reviewsList}
+                settings={settings as never}
+              />
+            ),
+            faq: (settings: Record<string, unknown>) => (
+              <FAQSection settings={settings as never} productFaqs={product.faqAccordion} />
             ),
             relatedProducts: (settings: Record<string, unknown>) => (
 

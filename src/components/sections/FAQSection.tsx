@@ -27,17 +27,55 @@ const FILTER_TABS = [
   { label: "Products", id: "products" },
 ];
 
-export function FAQSection({ settings }: { settings: FaqSettings }) {
+const DEFAULT_FAQ_ITEMS: FaqItem[] = [
+  {
+    question: "How fast is vape delivery in Dubai and across the UAE?",
+    answer:
+      "We offer 2-Hour Express Delivery in Dubai for all orders placed before 10:00 PM. For Abu Dhabi, Sharjah, Ajman, RAK, Fujairah, and UAQ, we provide guaranteed same-day or next-day express delivery.",
+    category: "delivery",
+  },
+  {
+    question: "Are all vapes, pods, and devices 100% authentic?",
+    answer:
+      "Yes, 100%! All devices, disposable vapes, pods, and e-liquids sold at Vape Shop Dubai are directly imported from certified manufacturers and authorized regional distributors. Every product features a security seal and scannable QR verification code.",
+    category: "authenticity",
+  },
+  {
+    question: "Can I pay by card when the delivery driver arrives?",
+    answer:
+      "Yes! We support Cash on Delivery (COD) as well as Card Machine on Delivery. Our delivery riders carry mobile wireless card terminals accepting Visa, Mastercard, Apple Pay, and contactless payments.",
+    category: "payment",
+  },
+  {
+    question: "What is the legal age to buy vape products in Dubai?",
+    answer:
+      "In accordance with UAE federal regulations, you must be at least 18 years of age or older to purchase electronic cigarettes, nicotine pods, or vaping accessories.",
+    category: "authenticity",
+  },
+];
 
+export function FAQSection({ settings, productFaqs }: { settings?: FaqSettings; productFaqs?: FaqItem[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(0); // First open by default
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
-  const filteredFaqs = settings.items.filter((faq) => {
+  const badgeText = settings?.badgeText || "Customer Help & FAQs";
+  const heading = settings?.heading || "Frequently Asked Questions";
+  const description =
+    settings?.description ||
+    "Find instant answers regarding 2-hour express delivery in Dubai, product authenticity, card payments on delivery, and vape device selection.";
+  const deliveryBadge = settings?.deliveryBadge || "2-Hour Delivery";
+  const searchPlaceholder = settings?.searchPlaceholder || "Search FAQs (e.g. delivery, JUUL, card)...";
+  const verifiedNote = settings?.verifiedNote || "Verified Answer for Dubai & UAE Customers";
+
+  const rawItems = (settings?.items && settings.items.length > 0) ? settings.items : DEFAULT_FAQ_ITEMS;
+  const itemsToUse = (productFaqs && productFaqs.length > 0) ? productFaqs : rawItems;
+
+  const filteredFaqs = (itemsToUse || []).filter((faq) => {
     const matchCat = selectedCategory === "all" || faq.category === selectedCategory;
     const matchSearch =
-      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
+      (faq.question || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (faq.answer || "").toLowerCase().includes(searchQuery.toLowerCase());
     return matchCat && matchSearch;
   });
 
@@ -46,9 +84,10 @@ export function FAQSection({ settings }: { settings: FaqSettings }) {
   };
 
   return (
-    <div className="w-full bg-card border border-primary/20 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md transition-all duration-300">
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
-      {/* Section Header */}
+    <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+      <div className="w-full bg-card border border-primary/20 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md transition-all duration-300">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
+        {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/40 pb-5 mb-6 relative">
         {/* Spacer for desktop optical centering */}
         <div className="hidden sm:block w-48" />
@@ -57,15 +96,15 @@ export function FAQSection({ settings }: { settings: FaqSettings }) {
         <div className="text-center flex flex-col items-center flex-1">
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] px-3.5 py-1 rounded-full mb-2">
             <HelpCircle className="w-3.5 h-3.5 text-primary" />
-            <span>{settings.badgeText}</span>
+            <span>{badgeText}</span>
           </div>
 
           <h2 className="text-2xl sm:text-4xl font-serif font-black text-foreground tracking-tight leading-tight">
-            {settings.heading}
+            {heading}
           </h2>
 
           <p className="text-xs sm:text-sm text-muted-foreground mt-1 font-semibold max-w-xl">
-            {settings.description}
+            {description}
           </p>
 
           {/* Premium Centered Line Divider */}
@@ -78,10 +117,10 @@ export function FAQSection({ settings }: { settings: FaqSettings }) {
 
         {/* Right Delivery Badge */}
         <div className="flex items-center justify-center sm:justify-end gap-2.5 w-full sm:w-48">
-          {settings.deliveryBadge && (
+          {deliveryBadge && (
             <div className="hidden lg:flex items-center gap-1.5 text-[10px] font-extrabold text-primary uppercase tracking-wider bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-full shrink-0">
               <Zap className="w-3.5 h-3.5 text-primary" />
-              <span>{settings.deliveryBadge}</span>
+              <span>{deliveryBadge}</span>
             </div>
           )}
         </div>
@@ -94,7 +133,7 @@ export function FAQSection({ settings }: { settings: FaqSettings }) {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder={settings.searchPlaceholder}
+            placeholder={searchPlaceholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-11 pr-4 py-3 bg-background border border-border/80 rounded-2xl text-xs font-semibold text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-all shadow-inner"
@@ -178,10 +217,10 @@ export function FAQSection({ settings }: { settings: FaqSettings }) {
                       {faq.answer}
                     </p>
 
-                    {settings.verifiedNote && (
+                    {verifiedNote && (
                       <div className="mt-4 flex items-center gap-2 text-xs font-bold text-primary">
                         <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                        <span>{settings.verifiedNote}</span>
+                        <span>{verifiedNote}</span>
                       </div>
                     )}
                   </div>
@@ -192,5 +231,6 @@ export function FAQSection({ settings }: { settings: FaqSettings }) {
         </div>
       )}
     </div>
+  </section>
   );
 }

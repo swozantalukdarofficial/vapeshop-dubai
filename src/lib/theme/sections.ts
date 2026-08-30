@@ -1775,6 +1775,33 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     },
   },
 
+  productFinalThoughts: {
+    type: "productFinalThoughts",
+    label: "Final Thoughts",
+    description: "Product summary review card & final buying recommendations.",
+    templates: ["product"],
+    fields: [
+      {
+        type: "text",
+        key: "headingTemplate",
+        label: "Heading",
+        help: "Use {product} for the product name.",
+      },
+      {
+        type: "textarea",
+        key: "bodyText",
+        label: "Body content",
+        rows: 6,
+        help: "Use {product} for product name. Supports HTML/Markdown links.",
+      },
+    ],
+    defaults: {
+      headingTemplate: "FINAL THOUGHTS ON THE {product}",
+      bodyText:
+        "The {product} easily outperforms older hardware in everyday reliability, flavor output, and overall build quality. Whether you are an everyday vaper in Dubai or looking for a premium device with fast delivery across the UAE, this model sets the benchmark for satisfaction.\n\nIndependent user feedback and review tests show this model ranks among the top choices for taste variety, smooth draw, and sleek ergonomics. Engineered under strict quality standards to ensure total authenticity and complete peace of mind.",
+    },
+  },
+
   juulCrispMenthol: {
     type: "juulCrispMenthol",
     label: "JUUL Crisp Menthol",

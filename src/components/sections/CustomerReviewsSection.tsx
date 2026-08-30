@@ -91,16 +91,54 @@ export interface CustomerReviewsSettings {
 
 interface CustomerReviewsSectionProps {
   collectionName?: string;
+  productRating?: number;
+  productReviewsCount?: number;
+  productReviewsList?: Review[];
   settings?: CustomerReviewsSettings;
 }
 
 export function CustomerReviewsSection({
   collectionName = "Vape Products",
+  productRating,
+  productReviewsCount,
+  productReviewsList,
   settings,
 }: CustomerReviewsSectionProps) {
-  const [reviews, setReviews] = useState<Review[]>(
-    settings?.reviews?.length ? settings.reviews : INITIAL_REVIEWS
-  );
+  const initialList =
+    productReviewsList && productReviewsList.length > 0
+      ? productReviewsList
+      : settings?.reviews?.length
+      ? settings.reviews
+      : INITIAL_REVIEWS;
+
+  const [reviews, setReviews] = useState<Review[]>(initialList);
+
+  React.useEffect(() => {
+    if (productReviewsList && productReviewsList.length > 0) {
+      setReviews(productReviewsList);
+    } else if (settings?.reviews && settings.reviews.length > 0) {
+      setReviews(settings.reviews);
+    }
+  }, [productReviewsList, settings?.reviews]);
+
+  const ratingValueText = React.useMemo(() => {
+    if (productRating) return productRating.toFixed(1);
+    if (reviews && reviews.length > 0) {
+      const sum = reviews.reduce((acc, r) => acc + (Number(r.rating) || 5), 0);
+      const avg = sum / reviews.length;
+      return avg.toFixed(1);
+    }
+    return settings?.ratingValue || "4.9";
+  }, [productRating, reviews, settings?.ratingValue]);
+
+  const ratingCountText = React.useMemo(() => {
+    if (productReviewsCount) return `${productReviewsCount.toLocaleString()}+ Verified Reviews`;
+    if (reviews && reviews.length > 0) {
+      const cnt = reviews.length;
+      return `${cnt} ${cnt === 1 ? "Verified Review" : "Verified Reviews"}`;
+    }
+    return settings?.ratingCountLabel || "1,420+ Verified Reviews";
+  }, [productReviewsCount, reviews, settings?.ratingCountLabel]);
   const [filterRating, setFilterRating] = useState<number | "all">("all");
   const [helpfulLiked, setHelpfulLiked] = useState<Record<string, boolean>>({});
   const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
@@ -189,7 +227,7 @@ export function CustomerReviewsSection({
           <div className="flex items-center gap-6 bg-background border border-border/80 p-5 rounded-3xl shadow-sm">
             <div className="text-center pr-5 border-r border-border/40">
               <div className="text-4xl sm:text-5xl font-serif font-black text-foreground">
-                {settings?.ratingValue || "4.9"}
+                {ratingValueText}
               </div>
               <div className="flex items-center justify-center gap-1 text-amber-500 mt-1">
                 {[...Array(5)].map((_, i) => (
@@ -197,7 +235,7 @@ export function CustomerReviewsSection({
                 ))}
               </div>
               <div className="text-[10px] font-extrabold text-muted-foreground mt-1 uppercase tracking-wider">
-                {settings?.ratingCountLabel || "1,420+ Verified Reviews"}
+                {ratingCountText}
               </div>
             </div>
 

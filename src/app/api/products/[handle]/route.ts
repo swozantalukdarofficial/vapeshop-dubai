@@ -18,6 +18,21 @@ query getProductByHandle($handle: String!) {
       title
       description
     }
+    faqs: metafield(namespace: "custom", key: "faqs") {
+      references(first: 20) {
+        edges {
+          node {
+            ... on Metaobject {
+              fields {
+                key
+                value
+              }
+            }
+          }
+        }
+      }
+    }
+    faqAccordion: metafield(namespace: "custom", key: "faq_accordion") { value }
     images(first: 10) {
       edges {
         node {
@@ -59,15 +74,92 @@ query getProductByHandle($handle: String!) {
       title
       description
     }
+    faqs: metafield(namespace: "custom", key: "faqs") {
+      references(first: 20) {
+        edges {
+          node {
+            ... on Metaobject {
+              fields {
+                key
+                value
+              }
+            }
+          }
+        }
+      }
+    }
+    productReviewsMeta: metafield(namespace: "custom", key: "reviews") {
+      references(first: 30) {
+        edges {
+          node {
+            ... on Metaobject {
+              fields {
+                key
+                value
+              }
+            }
+          }
+        }
+      }
+    }
     puffs: metafield(namespace: "custom", key: "puffs") { value }
     nicotine: metafield(namespace: "custom", key: "nicotine") { value }
     badge: metafield(namespace: "custom", key: "badge_text") { value }
     rating: metafield(namespace: "custom", key: "rating_value") { value }
     reviews: metafield(namespace: "custom", key: "reviews_count") { value }
+    reviewsList: metafield(namespace: "custom", key: "reviews_list") { value }
+    reviewsJson: metafield(namespace: "custom", key: "reviews_json") { value }
     battery: metafield(namespace: "custom", key: "spec_battery") { value }
     shortDescription: metafield(namespace: "custom", key: "short_description") { value }
-    specsTable: metafield(namespace: "custom", key: "specifications_table") { value }
+    specsTable: metafield(namespace: "custom", key: "specifications_table") {
+      references(first: 30) {
+        edges {
+          node {
+            ... on Metaobject {
+              fields { key value }
+            }
+          }
+        }
+      }
+    }
     faqAccordion: metafield(namespace: "custom", key: "faq_accordion") { value }
+    finalThoughtsSectionMeta: metafield(namespace: "custom", key: "final_thoughts") {
+      reference {
+        ... on Metaobject {
+          fields { key value }
+        }
+      }
+    }
+    whyChooseSectionMeta: metafield(namespace: "custom", key: "why_choose") {
+      reference {
+        ... on Metaobject {
+          fields {
+            key
+            value
+            references(first: 30) {
+              edges {
+                node {
+                  ... on Metaobject {
+                    fields { key value }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    productFlavorNotesMeta: metafield(namespace: "custom", key: "flavor_notes") {
+      references(first: 50) {
+        edges {
+          node {
+            ... on Metaobject {
+              fields { key value }
+            }
+          }
+        }
+      }
+    }
     images(first: 10) {
       edges {
         node {
@@ -257,8 +349,58 @@ export async function GET(
     const images = node.images?.edges?.map((edge: any) => edge.node.url) || [];
     const image = images[0] || "/hero_vape.png";
 
-    let specsTable = null;
-    if (node.specsTable?.value) {
+    let specsTable: any = null;
+
+    if (!node.specsTable?.references?.edges?.length && ADMIN_API_TOKEN) {
+      try {
+        const adminUrl = `https://${SHOPIFY_STORE}/admin/api/2024-10/graphql.json`;
+        const adminRes = await fetch(adminUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": ADMIN_API_TOKEN,
+          },
+          body: JSON.stringify({
+            query: `
+              query GetSpecsMeta($handle: String!) {
+                productByHandle(handle: $handle) {
+                  specsTable: metafield(namespace: "custom", key: "specifications_table") {
+                    references(first: 30) {
+                      edges {
+                        node {
+                          ... on Metaobject {
+                            fields { key value }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `,
+            variables: { handle },
+          }),
+        });
+        if (adminRes.ok) {
+          const adminJson = await adminRes.json();
+          const adminMeta = adminJson?.data?.productByHandle?.specsTable;
+          if (adminMeta) node.specsTable = adminMeta;
+        }
+      } catch (e) {
+        // Ignore
+      }
+    }
+
+    if (node.specsTable?.references?.edges && node.specsTable.references.edges.length > 0) {
+      specsTable = node.specsTable.references.edges.map((edge: any) => {
+        const fields = edge.node.fields || [];
+        const getVal = (k: string) => fields.find((f: any) => f.key === k)?.value || "";
+        return {
+          feature: getVal("feature") || getVal("name") || "",
+          details: getVal("details") || getVal("value") || "",
+        };
+      });
+    } else if (node.specsTable?.value) {
       try {
         specsTable = JSON.parse(node.specsTable.value);
       } catch (e) {
@@ -267,12 +409,298 @@ export async function GET(
     }
 
     let faqAccordion = null;
-    if (node.faqAccordion?.value) {
+    if (node.faqs?.references?.edges && node.faqs.references.edges.length > 0) {
+      faqAccordion = node.faqs.references.edges.map((edge: any) => {
+        const fields = edge.node.fields || [];
+        const questionField = fields.find((f: any) => f.key === "question");
+        const answerField = fields.find((f: any) => f.key === "answer");
+        return {
+          category: "products",
+          question: questionField?.value || "",
+          answer: answerField?.value || "",
+        };
+      });
+    } else if (node.faqAccordion?.value) {
       try {
         faqAccordion = JSON.parse(node.faqAccordion.value);
       } catch (e) {
-        faqAccordion = node.faqAccordion.value;
+        faqAccordion = null;
       }
+    }
+
+    let reviewsList = null;
+
+    if (!node.productReviewsMeta?.references?.edges?.length && ADMIN_API_TOKEN) {
+      try {
+        const adminUrl = `https://${SHOPIFY_STORE}/admin/api/2024-10/graphql.json`;
+        const adminRes = await fetch(adminUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": ADMIN_API_TOKEN,
+          },
+          body: JSON.stringify({
+            query: `
+              query GetReviewsMeta($handle: String!) {
+                productByHandle(handle: $handle) {
+                  productReviewsMeta: metafield(namespace: "custom", key: "reviews") {
+                    references(first: 30) {
+                      edges {
+                        node {
+                          ... on Metaobject {
+                            fields { key value }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `,
+            variables: { handle },
+          }),
+        });
+        if (adminRes.ok) {
+          const adminJson = await adminRes.json();
+          const adminReviewsMeta = adminJson?.data?.productByHandle?.productReviewsMeta;
+          if (adminReviewsMeta) {
+            node.productReviewsMeta = adminReviewsMeta;
+          }
+        }
+      } catch (e) {
+        console.warn("Could not fetch reviews meta from Admin API:", e);
+      }
+    }
+
+    if (node.productReviewsMeta?.references?.edges && node.productReviewsMeta.references.edges.length > 0) {
+      reviewsList = node.productReviewsMeta.references.edges.map((edge: any, idx: number) => {
+        const fields = edge.node.fields || [];
+        const getVal = (k: string) => fields.find((f: any) => f.key === k)?.value || "";
+        const rawRating = getVal("rating_score") || getVal("rating");
+        let parsedRating = rawRating ? parseFloat(rawRating) : 5;
+        if (isNaN(parsedRating)) parsedRating = 5;
+        if (parsedRating > 5) {
+          if (parsedRating <= 50) {
+            parsedRating = Number((parsedRating / 10).toFixed(1));
+          } else {
+            parsedRating = 5;
+          }
+        }
+        if (parsedRating < 1) parsedRating = 1;
+
+        return {
+          id: `rev-metaobject-${idx}`,
+          author: getVal("author") || getVal("name") || "Verified Customer",
+          location: getVal("location") || "Dubai, UAE",
+          rating: isNaN(parsedRating) ? 5 : parsedRating,
+          date: getVal("date") || "Verified Purchase",
+          verified: getVal("verified") !== "false",
+          productName: getVal("product_name") || getVal("productName") || node.title,
+          title: getVal("title") || getVal("headline") || "Authentic Product",
+          comment: getVal("comment") || getVal("review") || getVal("body") || "",
+          helpfulCount: parseInt(getVal("helpful_count") || getVal("helpfulCount") || "0") || 0,
+        };
+      });
+    } else if (node.reviewsJson?.value || node.reviewsList?.value) {
+      const rawReviewsStr = node.reviewsJson?.value || node.reviewsList?.value;
+      try {
+        const parsed = JSON.parse(rawReviewsStr);
+        if (Array.isArray(parsed)) {
+          reviewsList = parsed.map((r: any, idx: number) => ({
+            id: r.id || `rev-json-${idx}`,
+            author: r.author || r.name || "Verified Customer",
+            location: r.location || "Dubai, UAE",
+            rating: typeof r.rating === "number" ? r.rating : parseInt(r.rating || "5"),
+            date: r.date || "Verified Purchase",
+            verified: r.verified !== false,
+            productName: r.productName || node.title,
+            title: r.title || "Authentic Product",
+            comment: r.comment || r.body || r.review || "",
+            helpfulCount: r.helpfulCount || 0,
+          }));
+        }
+      } catch (e) {
+        reviewsList = null;
+      }
+    }
+
+    let parsedFlavorNotes: any[] | null = null;
+
+    if (!node.productFlavorNotesMeta?.references?.edges?.length && ADMIN_API_TOKEN) {
+      try {
+        const adminUrl = `https://${SHOPIFY_STORE}/admin/api/2024-10/graphql.json`;
+        const adminRes = await fetch(adminUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": ADMIN_API_TOKEN,
+          },
+          body: JSON.stringify({
+            query: `
+              query GetFlavorNotesMeta($handle: String!) {
+                productByHandle(handle: $handle) {
+                  productFlavorNotesMeta: metafield(namespace: "custom", key: "flavor_notes") {
+                    references(first: 50) {
+                      edges {
+                        node {
+                          ... on Metaobject {
+                            fields { key value }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `,
+            variables: { handle },
+          }),
+        });
+        if (adminRes.ok) {
+          const adminJson = await adminRes.json();
+          const adminMeta = adminJson?.data?.productByHandle?.productFlavorNotesMeta;
+          if (adminMeta) node.productFlavorNotesMeta = adminMeta;
+        }
+      } catch (e) {
+        // Ignore
+      }
+    }
+
+    if (node.productFlavorNotesMeta?.references?.edges && node.productFlavorNotesMeta.references.edges.length > 0) {
+      parsedFlavorNotes = node.productFlavorNotesMeta.references.edges.map((edge: any) => {
+        const fields = edge.node.fields || [];
+        const getVal = (k: string) => fields.find((f: any) => f.key === k)?.value || "";
+        return {
+          flavor: getVal("flavor") || getVal("name") || "",
+          description: getVal("description") || getVal("body") || "",
+        };
+      });
+    }
+
+    let parsedWhyChoose: any = null;
+
+    if (!node.whyChooseSectionMeta?.reference && ADMIN_API_TOKEN) {
+      try {
+        const adminUrl = `https://${SHOPIFY_STORE}/admin/api/2024-10/graphql.json`;
+        const adminRes = await fetch(adminUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": ADMIN_API_TOKEN,
+          },
+          body: JSON.stringify({
+            query: `
+              query GetWhyChooseMeta($handle: String!) {
+                productByHandle(handle: $handle) {
+                  whyChooseSectionMeta: metafield(namespace: "custom", key: "why_choose") {
+                    reference {
+                      ... on Metaobject {
+                        fields {
+                          key
+                          value
+                          references(first: 30) {
+                            edges {
+                              node {
+                                ... on Metaobject {
+                                  fields { key value }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `,
+            variables: { handle },
+          }),
+        });
+        if (adminRes.ok) {
+          const adminJson = await adminRes.json();
+          const adminData = adminJson?.data?.productByHandle;
+          if (adminData?.whyChooseSectionMeta) {
+            node.whyChooseSectionMeta = adminData.whyChooseSectionMeta;
+          }
+        }
+      } catch (e) {
+        // Ignore
+      }
+    }
+
+    if (node.whyChooseSectionMeta?.reference?.fields) {
+      const secFields = node.whyChooseSectionMeta.reference.fields;
+      const getSecVal = (k: string) => secFields.find((f: any) => f.key === k)?.value || "";
+      const pointsRefField = secFields.find((f: any) => f.key === "points");
+
+      let points: any[] = [];
+      if (pointsRefField?.references?.edges) {
+        points = pointsRefField.references.edges.map((edge: any) => {
+          const fields = edge.node.fields || [];
+          const getVal = (k: string) => fields.find((f: any) => f.key === k)?.value || "";
+          return {
+            title: getVal("title") || getVal("name") || "",
+            description: getVal("description") || getVal("body") || "",
+          };
+        });
+      }
+
+      parsedWhyChoose = {
+        heading: getSecVal("heading"),
+        intro: getSecVal("intro"),
+        points,
+        footer: getSecVal("footer"),
+      };
+    }
+
+    let parsedFinalThoughts: any = null;
+
+    if (!node.finalThoughtsSectionMeta?.reference && ADMIN_API_TOKEN) {
+      try {
+        const adminUrl = `https://${SHOPIFY_STORE}/admin/api/2024-10/graphql.json`;
+        const adminRes = await fetch(adminUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": ADMIN_API_TOKEN,
+          },
+          body: JSON.stringify({
+            query: `
+              query GetFinalThoughtsMeta($handle: String!) {
+                productByHandle(handle: $handle) {
+                  finalThoughtsSectionMeta: metafield(namespace: "custom", key: "final_thoughts") {
+                    reference {
+                      ... on Metaobject {
+                        fields { key value }
+                      }
+                    }
+                  }
+                }
+              }
+            `,
+            variables: { handle },
+          }),
+        });
+        if (adminRes.ok) {
+          const adminJson = await adminRes.json();
+          const adminData = adminJson?.data?.productByHandle;
+          if (adminData?.finalThoughtsSectionMeta) {
+            node.finalThoughtsSectionMeta = adminData.finalThoughtsSectionMeta;
+          }
+        }
+      } catch (e) {
+        // Ignore
+      }
+    }
+
+    if (node.finalThoughtsSectionMeta?.reference?.fields) {
+      const ftFields = node.finalThoughtsSectionMeta.reference.fields;
+      const getFtVal = (k: string) => ftFields.find((f: any) => f.key === k)?.value || "";
+      parsedFinalThoughts = {
+        heading: getFtVal("heading"),
+        body: getFtVal("body"),
+      };
     }
 
     const cleanDesc = (node.descriptionHtml || "").replace(/<[^>]*>?/gm, "").trim();
@@ -289,8 +717,12 @@ export async function GET(
       category,
       price,
       originalPrice: comparePrice > price ? comparePrice : undefined,
-      rating: parseFloat(node.rating?.value || "4.8"),
-      reviews: parseInt(node.reviews?.value || "125"),
+      rating: node.rating?.value ? parseFloat(node.rating.value) : undefined,
+      reviews: node.reviews?.value ? parseInt(node.reviews.value) : undefined,
+      reviewsList,
+      flavorNotes: parsedFlavorNotes,
+      whyChoose: parsedWhyChoose,
+      finalThoughts: parsedFinalThoughts,
       image,
       images,
       tag: node.badge?.value || (isSoldOut ? "Sold Out" : comparePrice > price ? "Sale" : undefined),

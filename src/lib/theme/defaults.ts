@@ -146,6 +146,8 @@ function buildTemplates(): Record<string, Template> {
         inst("prod-why-choose", "whyChooseProduct", { showWhen: "productIsNotJuul" }),
         inst("prod-key-specs", "productKeySpecs", { showWhen: "productIsGeneric" }),
         inst("prod-flavors", "productFlavors"),
+        inst("prod-final-thoughts", "productFinalThoughts"),
+        inst("prod-faq", "faq"),
         inst("prod-reviews", "customerReviews"),
         inst("prod-whatsapp", "whatsapp"),
         inst("prod-related", "relatedProducts", { showWhen: "hasRelatedProducts" }),

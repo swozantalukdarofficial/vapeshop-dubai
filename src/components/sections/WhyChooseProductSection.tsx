@@ -8,11 +8,19 @@ export interface WhyChooseItem {
   description: string;
 }
 
+export interface ProductWhyChooseMeta {
+  heading?: string;
+  intro?: string;
+  points?: WhyChooseItem[];
+  footer?: string;
+}
+
 interface WhyChooseProductSectionProps {
   productName: string;
   puffs?: string;
   className?: string;
   settings?: WhyChooseProductSettings;
+  productWhyChoose?: ProductWhyChooseMeta;
 }
 
 export interface WhyChooseProductSettings {
@@ -27,15 +35,64 @@ export interface WhyChooseProductSettings {
 
 const FALLBACK_HEADING = "Why Choose the {product}?";
 
+function parseAstToHtml(nodes: any[]): string {
+  if (!Array.isArray(nodes)) return "";
+  return nodes
+    .map((node) => {
+      if (node.type === "text") {
+        let val = node.value || "";
+        if (node.bold) val = `<strong>${val}</strong>`;
+        if (node.italic) val = `<em>${val}</em>`;
+        return val;
+      }
+      if (node.type === "link") {
+        const inner = parseAstToHtml(node.children || []);
+        return `<a href="${node.url || "#"}" class="text-primary underline font-bold hover:opacity-80">${inner}</a>`;
+      }
+      if (node.type === "paragraph") {
+        return parseAstToHtml(node.children || []);
+      }
+      if (node.type === "list") {
+        const tag = node.listType === "ordered" ? "ol" : "ul";
+        return `<${tag}>${parseAstToHtml(node.children || [])}</${tag}>`;
+      }
+      if (node.type === "list-item") {
+        return `<li>${parseAstToHtml(node.children || [])}</li>`;
+      }
+      return parseAstToHtml(node.children || []);
+    })
+    .join("");
+}
+
+function formatText(text: string): string {
+  if (!text) return "";
+
+  // 1. If text is a Shopify Rich Text AST JSON string, parse AST to HTML
+  if (text.trim().startsWith("{")) {
+    try {
+      const ast = JSON.parse(text);
+      if (ast.type === "root" && Array.isArray(ast.children)) {
+        return parseAstToHtml(ast.children);
+      }
+    } catch (e) {
+      // Fallback to text
+    }
+  }
+
+  // 2. Convert simple markdown links [Word](URL) -> <a href="URL">Word</a>
+  return text.replace(
+    /\[([^\]]+)\]\(([^)]+)\)/g,
+    '<a href="$2" class="text-primary underline font-bold hover:opacity-80">$1</a>'
+  );
+}
+
 export function WhyChooseProductSection({
   settings,
   productName,
   puffs = "",
   className = "",
+  productWhyChoose,
 }: WhyChooseProductSectionProps) {
-  // Puff count is read off the product, falling back to whatever the title
-  // advertises ("8000 puffs") so merchant copy using {puffs} still reads well
-  // on products that never filled the field in.
   const puffCount =
     puffs ||
     productName.match(/\d+[\d,]*(?:\s*puffs|\s*puff|\s*k)/i)?.[0] ||
@@ -44,10 +101,26 @@ export function WhyChooseProductSection({
   const fill = (template: string) =>
     template.split("{product}").join(productName).split("{puffs}").join(puffCount);
 
-  const heading = fill(settings?.headingTemplate || FALLBACK_HEADING);
-  const intro = settings?.introTemplate ? fill(settings.introTemplate) : "";
-  const items = settings?.items ?? [];
-  const footnote = settings?.footnoteTemplate ? fill(settings.footnoteTemplate) : "";
+  const heading = productWhyChoose?.heading
+    ? fill(productWhyChoose.heading)
+    : fill(settings?.headingTemplate || FALLBACK_HEADING);
+
+  const intro = productWhyChoose?.intro
+    ? fill(productWhyChoose.intro)
+    : settings?.introTemplate
+    ? fill(settings.introTemplate)
+    : "";
+
+  const items =
+    productWhyChoose?.points && productWhyChoose.points.length > 0
+      ? productWhyChoose.points
+      : settings?.items ?? [];
+
+  const footnote = productWhyChoose?.footer
+    ? fill(productWhyChoose.footer)
+    : settings?.footnoteTemplate
+    ? fill(settings.footnoteTemplate)
+    : "";
 
   return (
     <section className={`max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:mt-14 ${className}`}>
@@ -66,9 +139,10 @@ export function WhyChooseProductSection({
 
         {/* Subtitle / Intro Paragraph */}
         {intro && (
-          <p className="text-xs sm:text-sm md:text-[15px] text-muted-foreground font-medium leading-relaxed max-w-5xl mb-6 sm:mb-8 pl-0.5">
-            {intro}
-          </p>
+          <div
+            className="text-xs sm:text-sm md:text-[15px] text-muted-foreground font-medium leading-relaxed max-w-5xl mb-6 sm:mb-8 pl-0.5 [&_a]:text-primary [&_a]:underline [&_a]:font-bold hover:[&_a]:opacity-80"
+            dangerouslySetInnerHTML={{ __html: formatText(intro) }}
+          />
         )}
 
         {/* Feature Cards Stack */}
@@ -84,7 +158,10 @@ export function WhyChooseProductSection({
                 </div>
                 <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
                   <strong className="font-extrabold text-foreground">{item.title}: </strong>
-                  <span className="text-muted-foreground font-medium">{fill(item.description)}</span>
+                  <span
+                    className="text-muted-foreground font-medium [&_a]:text-primary [&_a]:underline [&_a]:font-bold hover:[&_a]:opacity-80"
+                    dangerouslySetInnerHTML={{ __html: formatText(fill(item.description)) }}
+                  />
                 </p>
               </div>
             ))}
@@ -94,9 +171,10 @@ export function WhyChooseProductSection({
         {/* Footer Keyword & Value Note */}
         {footnote && (
           <div className="mt-6 sm:mt-8 pt-4 sm:pt-5 border-t border-border/40 pl-0.5">
-            <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">
-              {footnote}
-            </p>
+            <div
+              className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed [&_a]:text-primary [&_a]:underline [&_a]:font-bold hover:[&_a]:opacity-80"
+              dangerouslySetInnerHTML={{ __html: formatText(footnote) }}
+            />
           </div>
         )}
 

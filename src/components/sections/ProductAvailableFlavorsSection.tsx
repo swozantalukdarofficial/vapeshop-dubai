@@ -18,6 +18,7 @@ interface ProductAvailableFlavorsSectionProps {
   productName: string;
   productCategory?: string;
   selectedVariantId?: string | null;
+  productFlavorNotes?: FlavorNote[];
   onSelectVariant?: (variant: any) => void;
   className?: string;
   settings?: ProductFlavorsSettings;
@@ -133,11 +134,12 @@ export function ProductAvailableFlavorsSection({
   productName,
   productCategory,
   selectedVariantId,
+  productFlavorNotes,
   onSelectVariant,
   className = "",
 }: ProductAvailableFlavorsSectionProps) {
   
-  const notes = settings?.flavorNotes ?? [];
+  const notes = [...(productFlavorNotes || []), ...(settings?.flavorNotes ?? [])];
 
   // Filter valid variants (ignore single default variant if titled "Default Title")
   const validVariants = variants.filter((v) => v.title && v.title.toLowerCase() !== "default title" && v.title.toLowerCase() !== "default");

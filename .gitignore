@@ -48,3 +48,6 @@ lighthouse-report.json
 /data
 # theme customizer — uploaded media
 /public/uploads
+
+# scratch scripts
+scratch/

@@ -176,6 +176,15 @@ function normalizeTemplate(raw: unknown, fallback: Template | undefined): Templa
     if (instance) instances[instance.id] = instance;
   }
 
+  // Backfill missing fallback default instances (e.g. newly added system sections)
+  if (fallback) {
+    for (const [id, fallbackInst] of Object.entries(fallback.instances)) {
+      if (!instances[id]) {
+        instances[id] = structuredClone(fallbackInst);
+      }
+    }
+  }
+
   // `order` is the source of truth for what the template contains: keep its
   // sequence, drop ids with no matching instance, and prune instances the
   // order omits. Appending orphans instead would silently resurrect sections
@@ -187,6 +196,16 @@ function normalizeTemplate(raw: unknown, fallback: Template | undefined): Templa
     if (typeof id === "string" && instances[id] && !seen.has(id)) {
       seen.add(id);
       order.push(id);
+    }
+  }
+
+  // Backfill any missing default order items from fallback definition
+  if (fallback) {
+    for (const id of fallback.order) {
+      if (instances[id] && !seen.has(id)) {
+        seen.add(id);
+        order.push(id);
+      }
     }
   }
 
