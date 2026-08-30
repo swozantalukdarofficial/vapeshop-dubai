@@ -27,6 +27,7 @@ export function WhyShopWithUs({ settings }: { settings: WhyShopSettings }) {
 
   return (
     <div className="w-full bg-card border border-border/60 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md transition-all duration-300">
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
       {/* Section Header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pb-5 border-b border-border/40 mb-6">
         <div className="space-y-2 max-w-2xl">
@@ -70,7 +71,7 @@ export function WhyShopWithUs({ settings }: { settings: WhyShopSettings }) {
               <div>
                 {/* Top Badge & Icon */}
                 <div className="relative z-10 flex items-center justify-between mb-4">
-                  <div className="w-11 h-11 rounded-xl border p-2 flex items-center justify-center bg-primary/10 text-primary border-primary/20 shadow-xs group-hover:scale-105 transition-transform duration-300">
+                  <div className="w-11 h-11 rounded-xl border p-2 flex items-center justify-center bg-[#009966]/10 text-[#009966] border-[#009966]/20 shadow-xs transition-all duration-300 group-hover:scale-110 group-hover:bg-[#009966] group-hover:text-white">
                     <ThemeIcon name={pillar.icon} className="w-5 h-5" />
                   </div>
 

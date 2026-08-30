@@ -126,6 +126,7 @@ export const RichTextSection: React.FC<{ settings: RichTextSettings }> = ({
 
   return (
     <div className="w-full bg-card border border-border/60 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md transition-all duration-300">
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
       {settings.heading && (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/40 pb-5 mb-6">
           <h2 className="text-2xl sm:text-4xl font-serif font-black text-foreground tracking-tight leading-tight">
@@ -180,7 +181,8 @@ export const FeatureGridSection: React.FC<{ settings: FeatureGridSettings }> = (
   if (settings.items.length === 0) return null;
 
   return (
-    <div className="w-full bg-card border border-border/60 rounded-[2rem] p-5 sm:p-7 lg:p-8 shadow-md">
+    <div className="w-full bg-card border border-border/60 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md">
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
       {(settings.heading || settings.description) && (
         <div className="mb-6 pb-5 border-b border-border/40 space-y-2">
           {settings.heading && (
@@ -235,7 +237,8 @@ export interface ContactDetailsSettings {
 export const ContactDetailsSection: React.FC<{
   settings: ContactDetailsSettings;
 }> = ({ settings }) => (
-  <div className="w-full bg-card border border-border/60 rounded-[2rem] p-5 sm:p-7 lg:p-8 shadow-md">
+  <div className="w-full bg-card border border-border/60 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md">
+    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
     {settings.heading && (
       <h2 className="text-2xl sm:text-3xl font-serif font-black text-foreground tracking-tight mb-6 pb-5 border-b border-border/40">
         {settings.heading}

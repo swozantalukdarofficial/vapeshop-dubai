@@ -29,6 +29,7 @@ export const WhatsAppContactSection: React.FC<{
 
   return (
     <section className="relative overflow-hidden bg-card border border-border/60 rounded-[2rem] p-5 sm:p-7 lg:p-8 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300">
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
       <div className="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
 
         {/* Left Column: Info & Copy */}

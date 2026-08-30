@@ -26,18 +26,18 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-card border-t border-border/80 text-foreground font-sans">
+    <footer className="mt-4 sm:mt-6 lg:mt-8 bg-card border-t border-border/80 text-foreground font-sans">
       {/* ── 1. Top Trust Features (Symmetrical 4 Columns) ──── */}
-      <div className="border-b border-primary/60 bg-muted/20">
+      <div className="border-y border-primary/60 bg-muted/20">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-0 divide-y sm:divide-y-0 lg:divide-x divide-border/60">
             {settings.trustItems.map((item, idx) => {
               return (
                 <div
                   key={idx}
-                  className="flex items-center gap-3.5 py-2 lg:py-1 lg:px-6 first:pl-0 last:pr-0"
+                  className="group flex items-center gap-3.5 py-2 lg:py-1 lg:px-6 first:pl-0 last:pr-0 cursor-default"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-[#009966]/10 text-[#009966] flex items-center justify-center shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:bg-[#009966] group-hover:text-white">
                     <ThemeIcon name={item.icon} className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
