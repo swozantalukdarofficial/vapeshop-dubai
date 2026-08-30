@@ -147,9 +147,12 @@ export function ProductAvailableFlavorsSection({
   // Filter valid variants (ignore single default variant if titled "Default Title")
   const validVariants = variants.filter((v) => v.title && v.title.toLowerCase() !== "default title" && v.title.toLowerCase() !== "default");
 
-  // Group variants by base flavor name (strip "/ 1Pc/1Device", "/ 10Pc/1Box" etc.)
+  // Group variants by base flavor name (strip pack size suffixes)
+  // Handles: "/ 1Pc/1Device", "/ 10Pc/1Box", "/ SINGLE/1PC", "/ 1BOX/10PCS", "/ Single Pack", "/ 10Pack/1Box"
   function extractBaseFlavor(title: string): string {
-    return title.replace(/\s*\/\s*(1Pc|10Pc|5Pc|3Pc|20Pc|50Pc|100Pc)\/[^\s].*$/i, "").trim();
+    return title
+      .replace(/\s*\/\s*(SINGLE|1PC|1Pc|10Pc|5Pc|3Pc|20Pc|50Pc|100Pc|1BOX|10PCS|Single Pack|10Pack)[\s/]?.*/i, "")
+      .trim();
   }
 
   interface FlavorGroup {
@@ -319,7 +322,14 @@ export function ProductAvailableFlavorsSection({
                         <div className="flex flex-wrap items-center justify-center gap-1.5">
                           {flavor.allVariants && flavor.allVariants.length > 1 ? (
                             flavor.allVariants.map((v: any, vi: number) => {
-                              const packLabel = v.title.includes("10Pc") ? "10Pc" : v.title.includes("5Pc") ? "5Pc" : v.title.includes("3Pc") ? "3Pc" : "1Pc";
+                              // Extract pack label from variant title suffix
+                              let packLabel = "1Pc";
+                              const t = v.title || "";
+                              if (/1BOX|10PCS|10Pc|10Pack/i.test(t)) packLabel = "Box";
+                              else if (/SINGLE|1PC|1Pc|Single Pack/i.test(t)) packLabel = "1Pc";
+                              else if (/5Pc|5Pack/i.test(t)) packLabel = "5Pc";
+                              else if (/3Pc|3Pack/i.test(t)) packLabel = "3Pc";
+                              else if (/20Pc/i.test(t)) packLabel = "20Pc";
                               const isThisSelected = selectedVariantId === v.id;
                               return (
                                 <button
