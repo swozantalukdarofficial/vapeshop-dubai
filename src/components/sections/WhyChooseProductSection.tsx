@@ -50,7 +50,7 @@ function parseAstToHtml(nodes: any[]): string {
         return `<a href="${node.url || "#"}" class="text-primary underline font-bold hover:opacity-80">${inner}</a>`;
       }
       if (node.type === "paragraph") {
-        return `<p class="mb-4 last:mb-0">${parseAstToHtml(node.children || [])}</p>`;
+        return `<p>${parseAstToHtml(node.children || [])}</p>`;
       }
       if (node.type === "list") {
         const tag = node.listType === "ordered" ? "ol" : "ul";
@@ -108,8 +108,8 @@ export function WhyChooseProductSection({
   const intro = productWhyChoose?.intro
     ? fill(productWhyChoose.intro)
     : settings?.introTemplate
-    ? fill(settings.introTemplate)
-    : "";
+      ? fill(settings.introTemplate)
+      : "";
 
   const items =
     productWhyChoose?.points && productWhyChoose.points.length > 0
@@ -119,8 +119,8 @@ export function WhyChooseProductSection({
   const footnote = productWhyChoose?.footer
     ? fill(productWhyChoose.footer)
     : settings?.footnoteTemplate
-    ? fill(settings.footnoteTemplate)
-    : "";
+      ? fill(settings.footnoteTemplate)
+      : "";
 
   return (
     <section className={`max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:mt-14 ${className}`}>
@@ -137,38 +137,36 @@ export function WhyChooseProductSection({
           </h2>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 mt-6 sm:mt-8">
-          {/* Subtitle / Intro Paragraph */}
-          {intro ? (
-            <div
-              className="text-[13px] sm:text-sm md:text-[15px] text-muted-foreground font-medium leading-relaxed [&_a]:text-primary [&_a]:underline [&_a]:font-bold hover:[&_a]:opacity-80"
-              dangerouslySetInnerHTML={{ __html: formatText(intro) }}
-            />
-          ) : <div />}
+        {/* Subtitle / Intro Paragraph */}
+        {intro && (
+          <div
+            className="text-xs sm:text-sm md:text-[15px] text-muted-foreground font-medium leading-relaxed w-full mb-6 sm:mb-8 pl-0.5 [&_a]:text-primary [&_a]:underline [&_a]:font-bold hover:[&_a]:opacity-80 [&_p]:mb-3 [&_p:last-child]:mb-0"
+            dangerouslySetInnerHTML={{ __html: formatText(intro) }}
+          />
+        )}
 
-          {/* Feature Cards Stack */}
-          {items.length > 0 && (
-            <div className="space-y-3 sm:space-y-3.5">
-              {items.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-start sm:items-center gap-3 sm:gap-3.5 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-background/80 hover:bg-card border border-border/70 hover:border-primary/40 transition-all duration-200 shadow-2xs hover:shadow-xs group"
-                >
-                  <div className="w-5 h-5 rounded-full bg-primary/10 group-hover:bg-primary text-primary group-hover:text-white border border-primary/20 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 transition-colors duration-200 shadow-2xs">
-                    <Check className="w-3 h-3 stroke-[3]" />
-                  </div>
-                  <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
-                    <strong className="font-extrabold text-foreground">{item.title}: </strong>
-                    <span
-                      className="text-muted-foreground font-medium [&_a]:text-primary [&_a]:underline [&_a]:font-bold hover:[&_a]:opacity-80"
-                      dangerouslySetInnerHTML={{ __html: formatText(fill(item.description)) }}
-                    />
-                  </p>
+        {/* Feature Cards Stack */}
+        {items.length > 0 && (
+          <div className="space-y-3 sm:space-y-3.5">
+            {items.map((item, idx) => (
+              <div
+                key={idx}
+                className="flex items-start sm:items-center gap-3 sm:gap-3.5 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-background/80 hover:bg-card border border-border/70 hover:border-primary/40 transition-all duration-200 shadow-2xs hover:shadow-xs group"
+              >
+                <div className="w-5 h-5 rounded-full bg-primary/10 group-hover:bg-primary text-primary group-hover:text-white border border-primary/20 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 transition-colors duration-200 shadow-2xs">
+                  <Check className="w-3 h-3 stroke-[3]" />
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
+                  <strong className="font-extrabold text-foreground">{item.title}: </strong>
+                  <span
+                    className="text-muted-foreground font-medium [&_a]:text-primary [&_a]:underline [&_a]:font-bold hover:[&_a]:opacity-80"
+                    dangerouslySetInnerHTML={{ __html: formatText(fill(item.description)) }}
+                  />
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Footer Keyword & Value Note */}
         {footnote && (
