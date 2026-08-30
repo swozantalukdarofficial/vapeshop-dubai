@@ -55,6 +55,8 @@ export const SmartImage: React.FC<SmartImageProps> = ({
     [fallbackSrc]
   );
 
+  if (!src) return null;
+
   if (canOptimize(src)) {
     return (
       <Image
@@ -68,6 +70,7 @@ export const SmartImage: React.FC<SmartImageProps> = ({
         fetchPriority={fetchPriority}
         draggable={draggable}
         onError={handleError}
+        style={{ width: 'auto', height: 'auto', ...rest.style }}
         {...rest}
       />
     );
