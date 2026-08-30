@@ -120,7 +120,7 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
       className={`transition-all duration-300 relative overflow-hidden ${
         isFlashSale
           ? "bg-gradient-to-b from-amber-500/[0.08] via-card to-card border-2 border-primary/40 rounded-[2.5rem] p-4 sm:p-7 lg:p-8 shadow-2xl shadow-primary/10 ring-1 ring-primary/20"
-          : "bg-transparent sm:bg-card/70 backdrop-blur-none sm:backdrop-blur-md border-none sm:border sm:border-border/40 rounded-none sm:rounded-[2.2rem] p-0 sm:p-8 shadow-none sm:shadow-[var(--shadow-card)] hover:shadow-none sm:hover:shadow-[var(--shadow-hover)]"
+          : "bg-transparent sm:bg-card/70 backdrop-blur-none sm:backdrop-blur-md border-none sm:border sm:border-primary/20 rounded-none sm:rounded-[2.2rem] p-0 sm:p-8 shadow-none sm:shadow-[var(--shadow-card)] hover:shadow-none sm:hover:shadow-[var(--shadow-hover)]"
       }`}
     >
       {/* Ambient background light for Flash Sale */}

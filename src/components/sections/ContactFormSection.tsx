@@ -75,7 +75,7 @@ export const ContactFormSection: React.FC<{ settings: ContactFormSettings }> = (
   }
 
   return (
-    <div className="w-full bg-card border border-border/60 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md">
+    <div className="w-full bg-card border border-primary/20 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md">
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
       {(settings.heading || settings.description) && (
         <div className="mb-6 pb-5 border-b border-border/40 space-y-2">
