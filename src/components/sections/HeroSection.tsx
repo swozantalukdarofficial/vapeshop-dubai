@@ -227,7 +227,7 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
 
           {/* ── Left: Main Slide Panel ──────────── col 1-8 */}
-          <div className="lg:col-span-8 relative bg-card border border-border/60 rounded-[2.5rem] overflow-hidden card-shadow min-h-[500px] sm:min-h-[580px] lg:min-h-[640px] flex flex-col justify-between">
+          <div className="lg:col-span-8 relative bg-card border border-border/60 rounded-[2.5rem] overflow-hidden card-shadow min-h-[420px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-between">
             {/* BG glow */}
             <div className="absolute top-[-10%] right-[-5%] w-[450px] h-[450px] rounded-full bg-primary/8 filter blur-[100px] pointer-events-none" />
 
@@ -243,10 +243,10 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
                 {slides.map((slide, idx) => (
                   <CarouselItem
                     key={idx}
-                    className="basis-full p-6 sm:p-10 lg:p-12 min-h-[440px] sm:min-h-[520px] lg:min-h-[560px] flex flex-col justify-between"
+                    className="basis-full p-6 sm:p-8 lg:p-10 min-h-[360px] sm:min-h-[420px] lg:min-h-[460px] flex flex-col justify-between"
                   >
                     {/* Tag badge */}
-                    <div className="mb-4">
+                    <div className="mb-2 sm:mb-3">
                       <span className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-widest uppercase px-4 py-2 rounded-full">
                         <span className="w-2 h-2 rounded-full bg-primary badge-live flex-shrink-0" />
                         {slide.tag}
@@ -254,7 +254,7 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
                     </div>
 
                     {/* Center grid */}
-                    <div className="flex flex-col md:flex-row md:items-center gap-6 sm:gap-8 flex-grow py-2">
+                    <div className="flex flex-col md:flex-row md:items-center gap-4 sm:gap-6 flex-grow py-1">
                       {/* Product image (Placed TOP on mobile, RIGHT on desktop) */}
                       <div className="md:w-[45%] md:order-2 flex items-center justify-center relative min-h-[200px] sm:min-h-[320px] py-2 sm:py-4 select-none pointer-events-none">
                         <div className="absolute w-44 sm:w-56 h-44 sm:h-56 rounded-full bg-primary/8 filter blur-[60px] pointer-events-none" />
@@ -275,14 +275,14 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
                       </div>
 
                       {/* Text content (Placed BELOW image on mobile, LEFT on desktop) */}
-                      <div className="md:w-[55%] md:order-1 space-y-4 sm:space-y-5">
+                      <div className="md:w-[55%] md:order-1 space-y-3 sm:space-y-4">
                         <div>
                           <p className="text-[10px] sm:text-xs font-extrabold tracking-[0.25em] text-primary uppercase mb-1.5 sm:mb-2">
                             {slide.accent}
                           </p>
                           <SlideHeadline title={slide.title} as={idx === 0 ? "h1" : "h2"} />
                         </div>
-                        <p className="text-xs sm:text-base text-muted-foreground leading-relaxed font-normal min-h-[40px] sm:min-h-[64px]">
+                        <p className="text-xs sm:text-base text-muted-foreground leading-relaxed font-normal text-justify [text-align-last:left] whitespace-pre-line text-pretty max-w-xl min-h-[40px] sm:min-h-[64px]">
                           {slide.description}
                         </p>
 
@@ -324,7 +324,7 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
             </Carousel>
 
             {/* Progress dots */}
-            <div className="relative z-20 px-8 sm:px-12 pb-6 sm:pb-8 border-t border-border/60 pt-4 bg-card rounded-b-[2.5rem]">
+            <div className="relative z-20 px-8 sm:px-12 pb-4 sm:pb-5 border-t border-border/60 pt-3 bg-card rounded-b-[2.5rem]">
               <div className="flex items-center gap-4">
                 {slides.map((_, idx) => (
                   <button

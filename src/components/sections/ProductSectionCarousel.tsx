@@ -158,10 +158,10 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
 
             {/* Left: Branding & Copy */}
             <div className="space-y-2 max-w-xl z-10">
-              <div className="inline-flex items-center gap-2 bg-primary/15 border border-primary/30 text-primary text-[10px] sm:text-xs font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full shadow-xs">
+              <div className="inline-flex items-center gap-2 bg-primary border border-primary/80 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full shadow-sm">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
                 </span>
                 <span>{flashSale?.badgeText || "⚡ Limited Time Dubai Flash Deals"}</span>
               </div>

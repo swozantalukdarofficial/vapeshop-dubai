@@ -30,7 +30,7 @@ const replacements = [
     from: `"Nasty Juice, Pod Salt, Tokyo, RufPuf, and more. 0mg to 50mg nicotine options. Over 80 premium flavors in stock with same-day 2-hour delivery."`,
     to: `"Shop premium e-liquids and nicotine salt options from trusted brands like Nasty Juice, Pod Salt, Tokyo, and RufPuf at a reliable vape shop Dubai customers use for quality and choice. Choose from 0mg to 50mg nicotine strength, with over 80 flavors ready for adult vapers who want smooth flavor and solid performance.\\nIf you’re looking for a pod salt shop, a best vape pod salt selection, or a trusted online vape store UAE, this is a simple place to buy vape online Dubai with fast delivery across the UAE."`
   },
-  
+
   // Product Feed
   {
     from: `description: "Premium vape products. Authentic brands. 2-hour Dubai delivery."`,
@@ -44,7 +44,7 @@ const replacements = [
   // Brands (Flavours)
   {
     from: `eyebrow: "Trusted Brands",\n      heading: "Shop by Brands"`,
-    to: `eyebrow: "Taste the Difference",\n      heading: "Best Vape Flavours in Dubai"`
+    to: `eyebrow: "Taste the Difference",\n      heading: "Best Vape Brand in Dubai"`
   },
 
   // Dubai Vape Standard
@@ -82,7 +82,7 @@ const replacements = [
     from: `"Connect directly with our Dubai vape specialists. Get instant flavor recommendations, custom bundle discounts, or place your order directly via WhatsApp for 2-hour express delivery."`,
     to: `"Chat with our vape shop Dubai team for quick help with JUUL Dubai, MYLE devices, disposable vape Dubai, and pod kits. Get product advice, bundle offers, and fast checkout with 2-hour vape delivery Dubai."`
   },
-  
+
   // Blog
   {
     from: `heading: "Latest Vaping Guides & Insights",\n      description: ""`, // Need to see exact blog defaults

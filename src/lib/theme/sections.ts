@@ -526,7 +526,7 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     ],
     defaults: {
       eyebrow: "Taste the Difference",
-      heading: "Best Vape Flavours in Dubai",
+      heading: "Best Vape Brands in Dubai",
       seeAllLabel: "SEE ALL",
       seeAllHref: "/shop",
       showFlavorWheel: true,
