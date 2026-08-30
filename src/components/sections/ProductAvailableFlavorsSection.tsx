@@ -80,21 +80,24 @@ function getFlavorDescription(
   notes: FlavorNote[] = []
 ): string {
   const cleanTitle = flavorTitle.toLowerCase().trim();
+  // Strip pack size suffix for matching ("Grape Ice / 1Pc/1Device" -> "grape ice")
+  const baseFlavor = cleanTitle.replace(/\s*\/\s*(1pc|10pc|5pc|3pc|20pc|50pc|100pc)\/[^\s].*$/i, "").trim();
 
-  // A note typed in the customizer always wins over the built-in dictionary.
-  const authored = notes.find(
-    (note) => note.flavor?.toLowerCase().trim() === cleanTitle && note.description
-  );
+  // A note typed in the customizer or from metafield always wins over the built-in dictionary.
+  const authored = notes.find((note) => {
+    const noteKey = note.flavor?.toLowerCase().trim();
+    return noteKey && note.description && (noteKey === cleanTitle || noteKey === baseFlavor || baseFlavor.includes(noteKey) || noteKey.includes(baseFlavor));
+  });
   if (authored) return authored.description;
 
-  // Exact match
-  if (KNOWN_FLAVOR_DESCRIPTIONS[cleanTitle]) {
-    return KNOWN_FLAVOR_DESCRIPTIONS[cleanTitle];
+  // Exact match in known dictionary
+  if (KNOWN_FLAVOR_DESCRIPTIONS[baseFlavor]) {
+    return KNOWN_FLAVOR_DESCRIPTIONS[baseFlavor];
   }
 
   // Partial match search
   for (const [key, desc] of Object.entries(KNOWN_FLAVOR_DESCRIPTIONS)) {
-    if (cleanTitle.includes(key) || key.includes(cleanTitle)) {
+    if (baseFlavor.includes(key) || key.includes(baseFlavor)) {
       return desc;
     }
   }
@@ -144,19 +147,55 @@ export function ProductAvailableFlavorsSection({
   // Filter valid variants (ignore single default variant if titled "Default Title")
   const validVariants = variants.filter((v) => v.title && v.title.toLowerCase() !== "default title" && v.title.toLowerCase() !== "default");
 
+  // Group variants by base flavor name (strip "/ 1Pc/1Device", "/ 10Pc/1Box" etc.)
+  function extractBaseFlavor(title: string): string {
+    return title.replace(/\s*\/\s*(1Pc|10Pc|5Pc|3Pc|20Pc|50Pc|100Pc)\/[^\s].*$/i, "").trim();
+  }
+
+  interface FlavorGroup {
+    baseName: string;
+    variants: typeof validVariants;
+    desc: string;
+    anyAvailable: boolean;
+  }
+
+  const groupedFlavors: FlavorGroup[] = [];
+  const seenFlavors = new Map<string, FlavorGroup>();
+
+  for (const v of validVariants) {
+    const baseName = extractBaseFlavor(v.title);
+    const key = baseName.toLowerCase();
+
+    if (seenFlavors.has(key)) {
+      seenFlavors.get(key)!.variants.push(v);
+      if (v.availableForSale) seenFlavors.get(key)!.anyAvailable = true;
+    } else {
+      const group: FlavorGroup = {
+        baseName,
+        variants: [v],
+        desc: getFlavorDescription(baseName, productName, notes),
+        anyAvailable: v.availableForSale,
+      };
+      seenFlavors.set(key, group);
+      groupedFlavors.push(group);
+    }
+  }
+
   // Determine flavor list to display
-  const flavorsList = validVariants.length > 0
-    ? validVariants.map((v) => ({
-        id: v.id,
-        variantObj: v,
-        title: v.title,
-        desc: getFlavorDescription(v.title, productName, notes),
-        available: v.availableForSale,
-        price: v.price,
+  const flavorsList = groupedFlavors.length > 0
+    ? groupedFlavors.map((group, i) => ({
+        id: group.variants[0].id,
+        variantObj: group.variants[0],
+        allVariants: group.variants,
+        title: group.baseName,
+        desc: group.desc,
+        available: group.anyAvailable,
+        price: group.variants[0].price,
       }))
     : DEFAULT_FALLBACK_FLAVORS.map((f, i) => ({
         id: `fallback-${i}`,
         variantObj: null as any,
+        allVariants: [] as any[],
         title: f.title,
         desc: getFlavorDescription(f.title, productName, notes),
         available: true,
@@ -231,7 +270,7 @@ export function ProductAvailableFlavorsSection({
             {/* Excel Rows */}
             <tbody className="divide-y divide-border/50 text-xs font-medium text-foreground">
               {flavorsList.map((flavor, index) => {
-                const isSelected = selectedVariantId === flavor.id;
+                const isSelected = flavor.allVariants?.some((v: any) => selectedVariantId === v.id) || selectedVariantId === flavor.id;
 
                 return (
                   <tr
@@ -274,20 +313,48 @@ export function ProductAvailableFlavorsSection({
                       {flavor.desc}
                     </td>
 
-                    {/* Availability / Select Cell */}
+                    {/* Availability / Pack Options Cell */}
                     <td className="py-3.5 px-5 text-center">
                       {flavor.available ? (
-                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                          isSelected
-                            ? "bg-primary text-white shadow-xs"
-                            : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-colors"
-                        }`}>
-                          {isSelected
-                            ? selectedLabel
-                            : showPrices && flavor.price
-                            ? `Dhs. ${flavor.price}`
-                            : inStockLabel}
-                        </span>
+                        <div className="flex flex-wrap items-center justify-center gap-1.5">
+                          {flavor.allVariants && flavor.allVariants.length > 1 ? (
+                            flavor.allVariants.map((v: any, vi: number) => {
+                              const packLabel = v.title.includes("10Pc") ? "10Pc" : v.title.includes("5Pc") ? "5Pc" : v.title.includes("3Pc") ? "3Pc" : "1Pc";
+                              const isThisSelected = selectedVariantId === v.id;
+                              return (
+                                <button
+                                  key={v.id}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (v.availableForSale && onSelectVariant) onSelectVariant(v);
+                                  }}
+                                  disabled={!v.availableForSale}
+                                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider transition-colors whitespace-nowrap ${
+                                    isThisSelected
+                                      ? "bg-primary text-white shadow-xs"
+                                      : v.availableForSale
+                                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 hover:bg-primary hover:text-white hover:border-primary"
+                                      : "bg-muted text-muted-foreground line-through opacity-50 cursor-not-allowed"
+                                  }`}
+                                >
+                                  {isThisSelected ? `✓ ${packLabel}` : showPrices && v.price ? `${packLabel}: Dhs. ${v.price}` : `${packLabel}: ${inStockLabel}`}
+                                </button>
+                              );
+                            })
+                          ) : (
+                            <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                              isSelected
+                                ? "bg-primary text-white shadow-xs"
+                                : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-colors"
+                            }`}>
+                              {isSelected
+                                ? selectedLabel
+                                : showPrices && flavor.price
+                                ? `Dhs. ${flavor.price}`
+                                : inStockLabel}
+                            </span>
+                          )}
+                        </div>
                       ) : (
                         <span className="inline-block px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-[10px] font-bold uppercase tracking-wider line-through">
                           {outOfStockLabel}
