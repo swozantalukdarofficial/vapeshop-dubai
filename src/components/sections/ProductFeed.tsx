@@ -264,14 +264,14 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
 
         {/* Top-Left Tag / Sold Out Badge */}
         {(product.isSoldOut || product.tag) && (
-          <div className={`absolute top-3 left-3 text-[9px] sm:text-[10px] font-extrabold tracking-wider uppercase px-3 py-1.5 rounded-full pointer-events-none z-20 shadow-xs ${
+          <div className={`absolute top-3 left-3 text-[10px] font-bold tracking-wide px-3 py-1.5 rounded-full pointer-events-none z-20 shadow-xs ${
             product.isSoldOut
               ? "bg-[#2D2A26] text-white"
               : isSale
               ? "bg-primary text-white"
               : "bg-card/95 text-primary border border-primary/20"
           }`}>
-            {product.isSoldOut ? "SOLD OUT" : product.tag}
+            {product.isSoldOut ? "Sold out" : product.tag}
           </div>
         )}
 
@@ -288,15 +288,15 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
       </div>
 
       {/* Info Section */}
-      <div className="flex flex-col gap-2.5 flex-grow pt-4 px-1">
+      <div className="flex flex-col gap-2 flex-grow pt-4 px-1">
         {/* Section / Category tag */}
-        <span className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">
+        <span className="text-[10px] sm:text-[11px] font-bold tracking-wide text-primary">
           {product.section || product.category}
         </span>
 
         {/* Product Title */}
         <Link href={`/product/${product.handle}`} className="hover:text-primary transition-colors block">
-          <h3 className="text-sm sm:text-base font-serif font-black text-foreground group-hover:text-primary transition-colors leading-snug line-clamp-2 min-h-[44px]">
+          <h3 className="text-base sm:text-lg font-body text-foreground group-hover:text-primary transition-colors leading-snug line-clamp-2 min-h-[44px] sm:min-h-[50px]">
             {product.name}
           </h3>
         </Link>
@@ -305,10 +305,10 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
         {(product.puffs || product.nicotine) && (
           <div className="flex flex-wrap gap-1.5 my-0.5">
             {product.puffs && product.puffs !== "Refillable" && (
-              <span className="text-[9px] bg-muted/70 text-muted-foreground px-2.5 py-0.5 rounded-full font-semibold">{product.puffs}</span>
+              <span className="text-[10px] bg-muted/70 text-muted-foreground px-2.5 py-1 rounded-full font-semibold">{product.puffs}</span>
             )}
             {product.nicotine && product.nicotine !== "Universal" && (
-              <span className="text-[9px] bg-muted/70 text-muted-foreground px-2.5 py-0.5 rounded-full font-semibold">{product.nicotine}</span>
+              <span className="text-[10px] bg-muted/70 text-muted-foreground px-2.5 py-1 rounded-full font-semibold">{product.nicotine}</span>
             )}
           </div>
         )}
@@ -318,14 +318,14 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
           <div className="flex items-center gap-1">
             <Star className="h-4 w-4 fill-amber-400 text-amber-400 flex-shrink-0" />
             <span className="text-xs font-bold text-foreground">{product.rating}</span>
-            <span className="text-[10px] text-muted-foreground">({product.reviews})</span>
+            <span className="text-[11px] text-muted-foreground">({product.reviews})</span>
           </div>
 
           <div className="text-right">
             {product.originalPrice && (
-              <p className="text-[11px] text-muted-foreground line-through">Dhs. {product.originalPrice.toFixed(2)}</p>
+              <p className="text-[11px] text-muted-foreground line-through mb-1">Dhs. {product.originalPrice.toFixed(2)}</p>
             )}
-            <p className="text-base sm:text-lg font-serif font-black text-primary">
+            <p className="text-lg sm:text-xl font-serif text-primary leading-none tracking-tight">
               Dhs. {product.price.toFixed(2)}
             </p>
           </div>
@@ -334,20 +334,20 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
         {/* Full-width Action Pill Button (Matches Screenshot) */}
         <div className="pt-3 mt-1">
           {product.isSoldOut ? (
-            <div className="w-full py-3 rounded-full bg-[#E5DFD5] dark:bg-[#2A241E] text-muted-foreground text-xs font-bold uppercase tracking-wider text-center cursor-not-allowed border border-border/30">
+            <div className="w-full py-3 rounded-full bg-[#E5DFD5] dark:bg-[#2A241E] text-muted-foreground text-xs font-bold text-center cursor-not-allowed border border-border/30">
               Sold out
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => onAddToCart(product)}
-                className="py-3 rounded-full bg-card hover:bg-muted/40 border border-border/80 text-foreground text-xs font-bold uppercase tracking-wider text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 active:scale-98"
+                className="py-3 rounded-full bg-card hover:bg-muted/40 border border-border/80 text-foreground text-xs font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 active:scale-98"
               >
                 <ShoppingCart className="h-3.5 w-3.5" /> Cart
               </button>
               <button
                 onClick={() => onBuyNow(product)}
-                className="py-3 rounded-full bg-gradient-to-r from-primary to-orange-500 hover:brightness-105 text-white text-xs font-bold uppercase tracking-wider text-center shadow cursor-pointer transition-all flex items-center justify-center gap-1.5 active:scale-98"
+                className="py-3 rounded-full bg-gradient-to-r from-primary to-orange-500 hover:brightness-105 text-white text-xs font-bold text-center shadow cursor-pointer transition-all flex items-center justify-center gap-1.5 active:scale-98"
               >
                 <Zap className="h-3.5 w-3.5" /> Buy Now
               </button>
@@ -527,12 +527,12 @@ export const ProductFeed: React.FC<
 <div className="space-y-8 sm:space-y-10 relative">
       {/* Section header - clean and standalone */}
       <div className="text-center flex flex-col items-center justify-center px-4 sm:px-6 mb-8">
-        <span className="text-xs font-extrabold tracking-[0.25em] text-primary uppercase mb-1.5 flex items-center gap-2 justify-center">
+        <span className="text-[11px] sm:text-xs font-bold tracking-[0.22em] text-primary uppercase mb-2 flex items-center gap-2 justify-center">
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
           {settings?.eyebrow || "Live Catalog"}
         </span>
         
-        <h2 className="text-2xl sm:text-4xl lg:text-5xl font-serif font-black text-foreground tracking-tight leading-tight">
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-foreground tracking-tight leading-[0.95]">
           {settings?.heading || "Explore Our Collection"}
         </h2>
 
@@ -543,7 +543,7 @@ export const ProductFeed: React.FC<
           <div className="h-[1px] w-10 bg-gradient-to-l from-transparent to-primary/65" />
         </div>
 
-        <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 max-w-md mx-auto">
+        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mt-3 max-w-md mx-auto">
           {settings?.description ||
             "Premium vape products. Authentic brands. 2-hour Dubai delivery."}
         </p>

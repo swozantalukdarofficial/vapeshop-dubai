@@ -1,9 +1,10 @@
 "use client";
 
 import React from "react";
-import { MessageCircle, Clock, PhoneCall } from "lucide-react";
+import { Clock, PhoneCall } from "lucide-react";
 
 import { ThemeIcon } from "@/components/ui/theme-icon";
+import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 
 export interface WhatsAppSettings {
   badgeText: string;
@@ -47,7 +48,7 @@ export const WhatsAppContactSection: React.FC<{
             )}
           </div>
 
-          <h2 className="text-2xl sm:text-4xl font-serif font-black text-foreground tracking-tight leading-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-foreground tracking-tight leading-[0.95]">
             {settings.heading}
           </h2>
 
@@ -89,7 +90,7 @@ export const WhatsAppContactSection: React.FC<{
             rel="noopener noreferrer"
             className="w-full sm:w-auto lg:w-full inline-flex items-center justify-center gap-3 bg-primary hover:bg-gold-shimmer text-white font-extrabold text-xs uppercase tracking-wider px-8 py-4 rounded-2xl shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] active:scale-95 transition-all duration-300 cursor-pointer"
           >
-            <MessageCircle className="w-5 h-5 fill-current" />
+            <WhatsAppIcon className="w-5 h-5" />
             <span>{settings.buttonText}</span>
           </a>
         </div>

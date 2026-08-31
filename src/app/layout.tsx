@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
+import { Bebas_Neue, Inter } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -14,8 +14,9 @@ import {
   SITE_URL,
 } from "@/lib/seo-schemas";
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const bebasNeue = Bebas_Neue({
+  variable: "--font-bebas",
+  weight: "400",
   subsets: ["latin"],
   display: "swap",
 });
@@ -108,7 +109,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${inter.variable} h-full antialiased overflow-x-hidden max-w-full`}
+      className={`${bebasNeue.variable} ${inter.variable} h-full antialiased overflow-x-hidden max-w-full`}
       suppressHydrationWarning
     >
       <head>

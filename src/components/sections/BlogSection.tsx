@@ -65,16 +65,16 @@ export const BlogSection: React.FC<{ settings: BlogSettings }> = ({
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/60 pb-5">
           <div className="space-y-2">
-            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 gap-1.5 px-3.5 py-1 text-[10px] font-black uppercase tracking-widest">
+            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 gap-1.5 px-3.5 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.18em]">
               <BookOpen className="w-3.5 h-3.5" />
               <span>{settings.badgeText}</span>
             </Badge>
 
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-black text-foreground tracking-tight leading-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-foreground tracking-tight leading-[0.95]">
               {settings.heading}
             </h2>
 
-            <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl font-medium leading-relaxed">
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed">
               {settings.description}
             </p>
           </div>
@@ -93,10 +93,10 @@ export const BlogSection: React.FC<{ settings: BlogSettings }> = ({
           {posts.map((post) => (
             <Card
               key={post.slug}
-              className="group overflow-hidden bg-background/80 hover:bg-background border border-border/80 hover:border-primary/40 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 flex flex-col h-full rounded-[1.75rem]"
+              className="group overflow-hidden bg-background/80 hover:bg-background border border-border/80 hover:border-primary/40 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 flex flex-col gap-0 h-full rounded-[1.75rem]"
             >
               {/* Card Image Header */}
-              <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-gradient-to-br from-background via-muted/40 to-background flex items-center justify-center p-6 border-b border-border/40">
+              <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-gradient-to-br from-background via-muted/40 to-background flex items-center justify-center p-5 sm:p-6 border-b border-border/40">
                 {/* Subtle ambient glow */}
                 <div className="absolute w-28 h-28 rounded-full bg-primary/8 filter blur-xl pointer-events-none" />
                 
@@ -110,16 +110,16 @@ export const BlogSection: React.FC<{ settings: BlogSettings }> = ({
                 />
                 
                 {/* Category Badge */}
-                <div className="absolute top-3.5 left-3.5 z-10">
-                  <Badge className="bg-primary text-primary-foreground font-bold tracking-wider uppercase text-[9px] px-2.5 py-0.5 border-none shadow-xs">
+                <div className="absolute top-4 left-4 z-10">
+                  <Badge className="bg-primary text-primary-foreground font-bold tracking-[0.14em] uppercase text-[10px] px-2.5 py-1 border-none shadow-xs">
                     {post.category}
                   </Badge>
                 </div>
               </div>
 
               {/* Card Content & Body */}
-              <CardContent className="p-5 sm:p-6 flex flex-col flex-grow justify-between space-y-3">
-                <div className="space-y-2.5">
+              <CardContent className="p-5 sm:p-6 flex flex-col flex-grow">
+                <div className="space-y-3">
                   {/* Meta info: Date & Read Time */}
                   <div className="flex items-center gap-3.5 text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
                     <span className="flex items-center gap-1.5">
@@ -133,21 +133,21 @@ export const BlogSection: React.FC<{ settings: BlogSettings }> = ({
                   </div>
 
                   {/* Title */}
-                  <CardTitle className="text-lg sm:text-xl font-serif font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                  <CardTitle className="text-lg sm:text-xl font-sans text-foreground group-hover:text-primary transition-colors line-clamp-2">
                     <Link href={`/blog/${post.slug}`} className="hover:underline decoration-primary/30 underline-offset-4">
                       {post.title}
                     </Link>
                   </CardTitle>
 
                   {/* Excerpt */}
-                  <CardDescription className="line-clamp-2 text-xs sm:text-[13px] font-normal leading-relaxed text-muted-foreground">
+                  <CardDescription className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
                     {post.excerpt}
                   </CardDescription>
                 </div>
               </CardContent>
 
               {/* Card Footer: Author & Read Guide CTA */}
-              <CardFooter className="p-5 sm:p-6 pt-0 flex items-center justify-between mt-auto border-t border-border/30 pt-3.5">
+              <CardFooter className="px-5 sm:px-6 pt-4 pb-5 sm:pb-6 flex items-center justify-between mt-auto border-t border-border/30">
                 <span className="flex items-center gap-2 text-xs font-semibold text-foreground">
                   <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
                     <User className="w-3 h-3 text-primary" />

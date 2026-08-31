@@ -103,9 +103,11 @@
   --color-text-muted: var(--text-muted);
   --color-red: var(--destructive);
   --color-border-custom: var(--border-color);
-  --font-serif: var(--font-playfair);
+  /* Display/title face: Bebas Neue. `font-serif` is kept as the alias so the
+     existing title markup across the app keeps working. */
+  --font-serif: var(--font-bebas);
+  --font-heading: var(--font-bebas);
   --font-sans: var(--font-inter);
-  --font-heading: var(--font-inter);
   --radius-sm: calc(var(--radius) * 0.5);
   --radius-md: calc(var(--radius) * 0.75);
   --radius-lg: var(--radius);
@@ -173,7 +175,48 @@ body {
   }
 }
 
-h1, h2, h3, .font-serif { font-family: var(--font-playfair), Georgia, serif; }
+/* Bebas Neue ships only a 400 weight upstream, so 700 renders as synthetic
+   (browser-faked) bold. Pinned here so titles are uniform. */
+h1, h2, h3, .font-serif, .font-heading {
+  font-family: var(--font-bebas), "Arial Narrow", Impact, sans-serif;
+  font-weight: 700;
+}
+
+/* Opt-outs from the display rule above. Both need compound selectors: that rule
+   is unlayered, so Tailwind's `font-sans` / `font-normal` utilities cannot beat
+   it on their own.
+
+   `.font-body`    - set in Inter instead of Bebas. Use where a heading tag is
+                     structural rather than decorative and needs real lowercase
+                     (Bebas is caps-only) or real weights.
+   `.font-regular` - drop to weight 400. */
+h1.font-body,
+h2.font-body,
+h3.font-body,
+.font-serif.font-body,
+.font-heading.font-body {
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+h1.font-regular,
+h2.font-regular,
+h3.font-regular,
+.font-serif.font-regular,
+.font-heading.font-regular {
+  font-weight: 400;
+}
+
+/* The title markup carries `tracking-tight` in ~47 places, tuned for Playfair.
+   Bebas is already condensed, so that negative tracking reads cramped. Relax it
+   for display-font titles only - deliberate wide tracking on uppercase
+   treatments (`tracking-wider`, `tracking-[...]`) is left alone. */
+h1.tracking-tight,
+h2.tracking-tight,
+h3.tracking-tight,
+.font-serif.tracking-tight,
+.font-heading.tracking-tight {
+  letter-spacing: 0.02em;
+}
 
 ::selection { background-color: rgba(255,79,24,0.15); color: var(--foreground); }
 
@@ -189,10 +232,11 @@ h1, h2, h3, .font-serif { font-family: var(--font-playfair), Georgia, serif; }
 .product-description-content h4,
 .product-description-content h5 {
   color: #cf3e1b;
+  font-family: var(--font-bebas), "Arial Narrow", Impact, sans-serif;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   margin-top: 2rem;
   margin-bottom: 0.85rem;
   padding-bottom: 0.5rem;
@@ -372,10 +416,10 @@ html, body {
   -webkit-overflow-scrolling: touch;
 }
 
-img {
-  max-width: 100%;
-  height: auto;
-}
+/* NOTE: the `img { max-width: 100%; height: auto }` reset that used to live here
+   was removed. Tailwind's preflight already ships it inside `@layer base`; this
+   copy sat *outside* any layer, so it beat every utility regardless of
+   specificity and silently killed `h-*` / `w-*` classes on images. */
 
 /* ─── Tailwind Base ──────────────────────────────────── */
 @layer base {

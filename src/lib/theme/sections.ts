@@ -716,14 +716,13 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     type: "faq",
     label: "FAQ",
     description:
-      "Searchable questions and answers. On the homepage these also feed the FAQ structured data Google reads.",
+      "Questions and answers. On the homepage these also feed the FAQ structured data Google reads.",
     templates: ["index", "collection", "product", "page"],
     fields: [
       { type: "text", key: "badgeText", label: "Badge text" },
       { type: "text", key: "heading", label: "Heading" },
       { type: "textarea", key: "description", label: "Description", rows: 3 },
       { type: "text", key: "deliveryBadge", label: "Corner badge" },
-      { type: "text", key: "searchPlaceholder", label: "Search placeholder" },
       { type: "text", key: "verifiedNote", label: "Answer footer note" },
       {
         type: "repeater",
@@ -736,17 +735,6 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
         fields: [
           { type: "text", key: "question", label: "Question" },
           { type: "textarea", key: "answer", label: "Answer", rows: 5 },
-          {
-            type: "select",
-            key: "category",
-            label: "Filter tab",
-            options: [
-              { label: "Delivery", value: "delivery" },
-              { label: "Authenticity", value: "authenticity" },
-              { label: "Payment", value: "payment" },
-              { label: "Products", value: "products" },
-            ],
-          },
         ],
       },
     ],
@@ -756,7 +744,6 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
       description:
         "Find instant answers regarding 2-hour express delivery in Dubai, product authenticity, card payments on delivery, and vape device selection.",
       deliveryBadge: "2-Hour Delivery",
-      searchPlaceholder: "Search FAQs (e.g. delivery, JUUL, card)...",
       verifiedNote: "Verified Answer for Dubai & UAE Customers",
       items: [
         {

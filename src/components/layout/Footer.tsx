@@ -2,11 +2,11 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Phone,
   Mail,
   MapPin,
-  MessageCircle,
   Clock,
   ArrowUp,
   Star,
@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { ThemeIcon } from "@/components/ui/theme-icon";
+import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import { useFooterSettings } from "@/context/ThemeSettingsContext";
 
 export const Footer: React.FC = () => {
@@ -62,15 +63,16 @@ export const Footer: React.FC = () => {
           {/* Column 1: Brand & Contact CTA (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
             <Link href="/" className="inline-block">
-              <svg viewBox="0 0 220 48" className="h-9 w-auto cursor-pointer" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <text x="2" y="36" fontFamily="var(--font-serif), Georgia, serif" fontWeight="900" fontSize="36" fill="var(--primary)">V</text>
-                <text x="21" y="39" fontFamily="var(--font-serif), Georgia, serif" fontStyle="italic" fontWeight="400" fontSize="40" fill="var(--primary)">S</text>
-                <text x="65" y="22" fontFamily="var(--font-sans), sans-serif" fontWeight="800" fontSize="13" letterSpacing="0.18em" fill="currentColor" className="text-foreground">VAPE SHOP</text>
-                <text x="65" y="38" fontFamily="var(--font-sans), sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.38em" fill="var(--primary)">DUBAI</text>
-              </svg>
+              <Image
+                src="/Vape%20Shop%20Dubai%20logo%201.png"
+                alt="Vape Shop Dubai"
+                width={197}
+                height={36}
+                className="h-9 w-auto cursor-pointer"
+              />
             </Link>
 
-            <p className="text-[13px] leading-relaxed text-muted-foreground max-w-sm">
+            <p className="text-sm leading-relaxed text-muted-foreground max-w-sm">
               {settings.description}
             </p>
 
@@ -81,7 +83,7 @@ export const Footer: React.FC = () => {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-sm cursor-pointer"
               >
-                <MessageCircle className="h-4 w-4" />
+                <WhatsAppIcon className="h-4 w-4" />
                 <span>{settings.whatsappLabel}</span>
               </a>
 
@@ -102,15 +104,15 @@ export const Footer: React.FC = () => {
               key={idx}
               className={idx === 0 ? "lg:col-span-3 space-y-3.5" : "lg:col-span-2 space-y-3.5"}
             >
-              <h4 className="text-xs font-extrabold text-foreground uppercase tracking-widest pb-1 border-b border-border/60">
+              <h4 className="text-xs font-bold text-foreground uppercase tracking-widest pb-1 border-b border-border/60">
                 {column.heading}
               </h4>
-              <ul className="space-y-2.5 text-[13px]">
+              <ul className="space-y-3 text-sm">
                 {column.links.map((link) => (
                   <li key={`${link.label}-${link.href}`}>
                     <Link
                       href={link.href}
-                      className="text-muted-foreground hover:text-primary transition-colors block"
+                      className="text-muted-foreground hover:text-primary transition-colors block font-medium"
                     >
                       {link.label}
                     </Link>
@@ -122,14 +124,14 @@ export const Footer: React.FC = () => {
 
           {/* Column 4: Contact & Dubai Hub (3 cols) */}
           <div className="lg:col-span-3 space-y-3.5">
-            <h4 className="text-xs font-extrabold text-foreground uppercase tracking-widest pb-1 border-b border-border/60">
+            <h4 className="text-xs font-bold text-foreground uppercase tracking-widest pb-1 border-b border-border/60">
               {settings.contactHeading}
             </h4>
-            <ul className="space-y-3 text-[13px]">
+            <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2.5">
                 <MapPin className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                 <span className="text-muted-foreground leading-tight">
-                  <strong className="text-foreground block font-semibold text-xs">{settings.addressLabel}</strong>
+                  <strong className="text-foreground block font-bold text-xs">{settings.addressLabel}</strong>
                   {settings.address}
                 </span>
               </li>
@@ -174,7 +176,7 @@ export const Footer: React.FC = () => {
             {settings.paymentBadges.map((badge, idx) => (
               <span
                 key={idx}
-                className="px-2.5 py-1 rounded-md bg-muted text-[11px] font-semibold text-foreground border border-border/60 flex items-center gap-1.5"
+                className="px-2.5 py-1 rounded-md bg-muted text-[11px] font-medium text-foreground border border-border/60 flex items-center gap-1.5"
               >
                 <ThemeIcon name={badge.icon} className="h-3.5 w-3.5 text-primary" />
                 {badge.label}
