@@ -105,9 +105,12 @@ export const FlashSaleTimer: React.FC<{ settings?: FlashSaleTimerSettings }> = (
 
   return (
     <div className="flex flex-col items-start sm:items-center lg:items-end gap-2">
-      <span className="text-[10px] font-black tracking-[0.25em] text-primary uppercase flex items-center gap-1.5">
-        <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
-        {settings?.label || "Flash Sale Ends In"}
+      <span className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full shadow-sm">
+        <span className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+        </span>
+        <span>{settings?.label || "Flash Sale Ends In"}</span>
       </span>
 
       {/* Timer digits */}
