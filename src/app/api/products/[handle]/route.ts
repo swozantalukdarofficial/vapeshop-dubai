@@ -140,6 +140,9 @@ query getProductByHandle($handle: String!) {
               ... on MediaImage {
                 image { url }
               }
+              ... on GenericFile {
+                url
+              }
             }
             references(first: 30) {
               edges {
@@ -163,6 +166,9 @@ query getProductByHandle($handle: String!) {
             reference {
               ... on MediaImage {
                 image { url }
+              }
+              ... on GenericFile {
+                url
               }
             }
             references(first: 30) {
@@ -650,6 +656,9 @@ export async function GET(
                             ... on MediaImage {
                               image { url }
                             }
+                            ... on GenericFile {
+                              url
+                            }
                           }
                         }
                       }
@@ -664,6 +673,9 @@ export async function GET(
                           reference {
                             ... on MediaImage {
                               image { url }
+                            }
+                            ... on GenericFile {
+                              url
                             }
                           }
                         }
@@ -792,24 +804,27 @@ export async function GET(
       const fields = node.juulFeature1Meta.reference.fields;
       const getVal = (k: string) => fields.find((f: any) => f.key === k)?.value || "";
       const imgField = fields.find((f: any) => f.key === "image");
-      const imgUrl = imgField?.reference?.image?.url || getVal("image_url") || "";
+      const imgUrl = imgField?.reference?.image?.url || imgField?.reference?.url || getVal("image_url") || getVal("image") || "";
       
       const bpField = fields.find((f: any) => f.key === "bullet_points");
       let bulletPoints: any[] = [];
       if (bpField?.value) {
         try {
-          const arr = JSON.parse(bpField.value);
+          const raw = bpField.value.trim();
+          const arr = raw.startsWith("[") ? JSON.parse(raw) : raw.split("\n");
           if (Array.isArray(arr)) {
-            bulletPoints = arr.map(str => ({ text: str }));
+            bulletPoints = arr.map((item: any) => typeof item === "string" ? { text: item.trim() } : item).filter((b: any) => b?.text);
           }
-        } catch(e) {}
+        } catch(e) {
+          bulletPoints = String(bpField.value).split("\n").map(text => ({ text: text.trim() })).filter(b => b.text);
+        }
       }
 
       parsedJuulFeature1 = {
         title: getVal("title"),
         description: getVal("description"),
-        buttonText: getVal("button_text"),
-        buttonLink: getVal("button_link"),
+        buttonText: getVal("button_text") || getVal("buttonText"),
+        buttonLink: getVal("button_link") || getVal("buttonLink"),
         image: imgUrl,
         bulletPoints
       };
@@ -820,24 +835,27 @@ export async function GET(
       const fields = node.juulFeature2Meta.reference.fields;
       const getVal = (k: string) => fields.find((f: any) => f.key === k)?.value || "";
       const imgField = fields.find((f: any) => f.key === "image");
-      const imgUrl = imgField?.reference?.image?.url || getVal("image_url") || "";
+      const imgUrl = imgField?.reference?.image?.url || imgField?.reference?.url || getVal("image_url") || getVal("image") || "";
       
       const bpField = fields.find((f: any) => f.key === "bullet_points");
       let bulletPoints: any[] = [];
       if (bpField?.value) {
         try {
-          const arr = JSON.parse(bpField.value);
+          const raw = bpField.value.trim();
+          const arr = raw.startsWith("[") ? JSON.parse(raw) : raw.split("\n");
           if (Array.isArray(arr)) {
-            bulletPoints = arr.map(str => ({ text: str }));
+            bulletPoints = arr.map((item: any) => typeof item === "string" ? { text: item.trim() } : item).filter((b: any) => b?.text);
           }
-        } catch(e) {}
+        } catch(e) {
+          bulletPoints = String(bpField.value).split("\n").map(text => ({ text: text.trim() })).filter(b => b.text);
+        }
       }
 
       parsedJuulFeature2 = {
         title: getVal("title"),
         description: getVal("description"),
-        buttonText: getVal("button_text"),
-        buttonLink: getVal("button_link"),
+        buttonText: getVal("button_text") || getVal("buttonText"),
+        buttonLink: getVal("button_link") || getVal("buttonLink"),
         image: imgUrl,
         bulletPoints
       };

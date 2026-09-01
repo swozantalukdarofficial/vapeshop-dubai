@@ -1049,13 +1049,17 @@ export default function ProductPage() {
               />
             ),
             juulCollectionFeature1: (settings: Record<string, unknown>) => {
-              const mergedSettings = product.juulFeature1 || settings;
-              if (!mergedSettings || Object.keys(mergedSettings).length === 0) return null;
+              const mergedSettings = (product.juulFeature1 && (product.juulFeature1.title || product.juulFeature1.image)) 
+                ? product.juulFeature1 
+                : settings;
+              if (!mergedSettings || (!mergedSettings.title && !mergedSettings.image && !mergedSettings.description)) return null;
               return <JuulCustomFeatureSection settings={mergedSettings as never} />;
             },
             juulCollectionFeature2: (settings: Record<string, unknown>) => {
-              const mergedSettings = product.juulFeature2 || settings;
-              if (!mergedSettings || Object.keys(mergedSettings).length === 0) return null;
+              const mergedSettings = (product.juulFeature2 && (product.juulFeature2.title || product.juulFeature2.image)) 
+                ? product.juulFeature2 
+                : settings;
+              if (!mergedSettings || (!mergedSettings.title && !mergedSettings.image && !mergedSettings.description)) return null;
               return <JuulCustomFeatureSection settings={mergedSettings as never} reverseLayout />;
             },
             customerReviews: (settings: Record<string, unknown>) => (
