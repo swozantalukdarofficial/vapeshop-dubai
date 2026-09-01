@@ -1118,6 +1118,18 @@ export default function ProductPage() {
           }}
         />
 
+        {product.juulFeature1 && (product.juulFeature1.title || product.juulFeature1.image) && (
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+            <JuulCustomFeatureSection settings={product.juulFeature1} />
+          </div>
+        )}
+
+        {product.juulFeature2 && (product.juulFeature2.title || product.juulFeature2.image) && (
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+            <JuulCustomFeatureSection settings={product.juulFeature2} reverseLayout />
+          </div>
+        )}
+
       </main>
 
       {/* Flavor / Variant Selection Popup Modal */}
