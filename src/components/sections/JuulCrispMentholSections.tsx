@@ -172,44 +172,14 @@ export function JuulCrispMentholSections({
               )}
             </div>
 
-            {/* Right Diagram Card */}
-            <div className="bg-white border-2 border-zinc-100 rounded-[2rem] p-6 sm:p-8 shadow-xl relative min-h-[500px] flex flex-col justify-center">
-              <h3 className="text-center text-sm font-black tracking-widest uppercase mb-12 text-zinc-800">
-                {ingredientsHeading}
-              </h3>
-              <div className="relative flex justify-center items-center h-[350px]">
-                {/* Center Image */}
-                <div className="relative z-10 w-32 h-48 sm:w-40 sm:h-56 group">
-                  <img
-                    src={ingredientsImage}
-                    alt={productName}
-                    className="w-full h-full object-contain filter drop-shadow-2xl transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
-
-                {/* The four corners mirror the ingredient list beside them. */}
-                {ingredients.slice(0, 4).map((item, idx) => {
-                  const corner = [
-                    "top-10 left-0",
-                    "bottom-10 left-0",
-                    "top-10 right-0",
-                    "bottom-10 right-0",
-                  ][idx];
-                  const isRight = idx >= 2;
-                  return (
-                    <div
-                      key={idx}
-                      className={`absolute ${corner} bg-white/95 p-3 rounded-xl text-[10px] sm:text-xs w-40 border border-zinc-200 shadow-sm leading-snug z-20 transition-all hover:border-primary/50 ${
-                        isRight ? "text-right" : ""
-                      }`}
-                    >
-                      <strong className="text-primary block mb-1 uppercase">{item.title}</strong>
-                      <span className="text-[9px] sm:text-[10px] text-zinc-600 font-medium">
-                        {item.description}
-                      </span>
-                    </div>
-                  );
-                })}
+            {/* Right Column: Clean Image */}
+            <div className="relative flex justify-center items-center w-full">
+              <div className="relative z-10 w-full max-w-full lg:max-w-[450px] rounded-3xl overflow-hidden group shadow-xl border border-border/40 bg-white/50 backdrop-blur-sm p-4 sm:p-8 flex items-center justify-center">
+                <img
+                  src={ingredientsImage}
+                  alt={ingredientsHeading}
+                  className="max-h-[380px] w-auto object-contain filter drop-shadow-xl transition-transform duration-500 group-hover:scale-105"
+                />
               </div>
             </div>
           </div>
