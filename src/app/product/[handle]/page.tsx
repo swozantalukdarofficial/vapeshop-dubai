@@ -1002,9 +1002,52 @@ export default function ProductPage() {
           slots={{
             productMain: null,
             juulCrispMenthol: (settings: Record<string, unknown>) => {
-              if (product.juulFeature1 && (product.juulFeature1.title || product.juulFeature1.image || product.juulFeature1.description)) {
-                return <JuulCustomFeatureSection settings={product.juulFeature1} />;
+              const hasFeature1 = product.juulFeature1 && (product.juulFeature1.title || product.juulFeature1.image || product.juulFeature1.description);
+              const hasFeature2 = product.juulFeature2 && (product.juulFeature2.title || product.juulFeature2.image || product.juulFeature2.description);
+
+              if (hasFeature1 || hasFeature2) {
+                const customSettings: Record<string, any> = { ...settings };
+
+                if (hasFeature1) {
+                  customSettings.headingTemplate = product.juulFeature1.title || customSettings.headingTemplate;
+                  customSettings.bodyTemplate = product.juulFeature1.description || customSettings.bodyTemplate;
+                  if (product.juulFeature1.image) {
+                    customSettings.image = product.juulFeature1.image;
+                  }
+                  if (Array.isArray(product.juulFeature1.bulletPoints) && product.juulFeature1.bulletPoints.length > 0) {
+                    customSettings.points = product.juulFeature1.bulletPoints.map((bp: any) => {
+                      const str = typeof bp === "string" ? bp : bp?.text || "";
+                      const idx = str.indexOf(":");
+                      if (idx !== -1) {
+                        return { lead: str.substring(0, idx).trim(), text: str.substring(idx + 1).trim() };
+                      }
+                      return { lead: "", text: str };
+                    }).filter((p: any) => p.lead || p.text);
+                  }
+                }
+
+                if (hasFeature2) {
+                  customSettings.showIngredients = true;
+                  customSettings.ingredientsHeadingTemplate = product.juulFeature2.title || customSettings.ingredientsHeadingTemplate;
+                  customSettings.ingredientsBodyTemplate = product.juulFeature2.description || customSettings.ingredientsBodyTemplate;
+                  if (product.juulFeature2.image) {
+                    customSettings.ingredientsImage = product.juulFeature2.image;
+                  }
+                  if (Array.isArray(product.juulFeature2.bulletPoints) && product.juulFeature2.bulletPoints.length > 0) {
+                    customSettings.ingredients = product.juulFeature2.bulletPoints.map((bp: any) => {
+                      const str = typeof bp === "string" ? bp : bp?.text || "";
+                      const idx = str.indexOf(":");
+                      if (idx !== -1) {
+                        return { title: str.substring(0, idx).trim(), description: str.substring(idx + 1).trim() };
+                      }
+                      return { title: str, description: "" };
+                    });
+                  }
+                }
+
+                return <JuulCrispMentholSections productName={product.name} settings={customSettings as never} />;
               }
+
               return <JuulCrispMentholSections productName={product.name} settings={settings as never} />;
             },
             whyChooseProduct: (settings: Record<string, unknown>) => (
