@@ -18,6 +18,29 @@ export interface JuulCustomFeatureSettings {
   reverseLayout?: boolean; // We can use this to alternate layouts if needed
 }
 
+function renderFormattedText(text: string) {
+  if (!text) return null;
+
+  // 1. Parse Markdown links [Label](url) into HTML links
+  let html = text.replace(
+    /\[([^\]]+)\]\(([^)]+)\)/g,
+    '<a href="$2" class="text-primary font-bold underline hover:opacity-80 decoration-primary/50 underline-offset-4 transition-all">$1</a>'
+  );
+
+  // 2. Add styles to html <a> tags if present
+  html = html.replace(
+    /<a\s+([^>]*href=["'][^"']+["'][^>]*)>/gi,
+    (match) => {
+      if (!match.includes('class=')) {
+        return match.replace('<a ', '<a class="text-primary font-bold underline hover:opacity-80 decoration-primary/50 underline-offset-4 transition-all" ');
+      }
+      return match;
+    }
+  );
+
+  return <span dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
 export function JuulCustomFeatureSection({
   settings,
   className = "",
@@ -48,9 +71,9 @@ export function JuulCustomFeatureSection({
                 {title}
               </h2>
               {description && (
-                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                  {description}
-                </p>
+                <div className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                  {renderFormattedText(description)}
+                </div>
               )}
             </div>
 
@@ -62,7 +85,7 @@ export function JuulCustomFeatureSection({
                       <Check className="w-3.5 h-3.5 text-primary" />
                     </div>
                     <span className="text-sm font-medium text-foreground leading-relaxed">
-                      {point.text}
+                      {renderFormattedText(point.text)}
                     </span>
                   </li>
                 ))}
