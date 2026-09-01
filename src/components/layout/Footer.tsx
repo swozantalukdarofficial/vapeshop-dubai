@@ -2,11 +2,11 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Phone,
   Mail,
   MapPin,
-  MessageCircle,
   Clock,
   ArrowUp,
   Star,
@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { ThemeIcon } from "@/components/ui/theme-icon";
+import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import { useFooterSettings } from "@/context/ThemeSettingsContext";
 
 export const Footer: React.FC = () => {
@@ -26,10 +27,11 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="mt-4 sm:mt-6 lg:mt-8 bg-card border-t border-border/80 text-foreground font-sans">
+    <footer className="relative mt-4 sm:mt-6 lg:mt-8 bg-card text-foreground font-sans">
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
       {/* ── 1. Top Trust Features (Symmetrical 4 Columns) ──── */}
-      <div className="border-y border-primary/60 bg-muted/20">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-5">
+      <div className="border-b border-border/60 bg-muted/20">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-0 divide-y sm:divide-y-0 lg:divide-x divide-border/60">
             {settings.trustItems.map((item, idx) => {
               return (
@@ -56,21 +58,22 @@ export const Footer: React.FC = () => {
       </div>
 
       {/* ── 2. Main Footer Directory (4 Balanced Columns) ──── */}
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-12">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10">
 
           {/* Column 1: Brand & Contact CTA (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
             <Link href="/" className="inline-block">
-              <svg viewBox="0 0 220 48" className="h-9 w-auto cursor-pointer" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <text x="2" y="36" fontFamily="var(--font-serif), Georgia, serif" fontWeight="900" fontSize="36" fill="var(--primary)">V</text>
-                <text x="21" y="39" fontFamily="var(--font-serif), Georgia, serif" fontStyle="italic" fontWeight="400" fontSize="40" fill="var(--primary)">S</text>
-                <text x="65" y="22" fontFamily="var(--font-sans), sans-serif" fontWeight="800" fontSize="13" letterSpacing="0.18em" fill="currentColor" className="text-foreground">VAPE SHOP</text>
-                <text x="65" y="38" fontFamily="var(--font-sans), sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.38em" fill="var(--primary)">DUBAI</text>
-              </svg>
+              <Image
+                src="/Vape%20Shop%20Dubai%20logo%201.png"
+                alt="Vape Shop Dubai"
+                width={197}
+                height={36}
+                className="h-9 w-auto cursor-pointer"
+              />
             </Link>
 
-            <p className="text-[13px] leading-relaxed text-muted-foreground max-w-sm">
+            <p className="text-sm leading-relaxed text-muted-foreground max-w-sm">
               {settings.description}
             </p>
 
@@ -81,7 +84,7 @@ export const Footer: React.FC = () => {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-sm cursor-pointer"
               >
-                <MessageCircle className="h-4 w-4" />
+                <WhatsAppIcon className="h-4 w-4" />
                 <span>{settings.whatsappLabel}</span>
               </a>
 
@@ -100,17 +103,17 @@ export const Footer: React.FC = () => {
           {settings.columns.map((column, idx) => (
             <div
               key={idx}
-              className={idx === 0 ? "lg:col-span-3 space-y-3.5" : "lg:col-span-2 space-y-3.5"}
+              className={idx === 0 ? "lg:col-span-3 space-y-4" : "lg:col-span-2 space-y-4"}
             >
-              <h4 className="text-xs font-extrabold text-foreground uppercase tracking-widest pb-1 border-b border-border/60">
+              <h4 className="text-xs font-bold text-foreground uppercase tracking-widest pb-3 border-b border-border/50">
                 {column.heading}
               </h4>
-              <ul className="space-y-2.5 text-[13px]">
+              <ul className="space-y-3 text-sm">
                 {column.links.map((link) => (
                   <li key={`${link.label}-${link.href}`}>
                     <Link
                       href={link.href}
-                      className="text-muted-foreground hover:text-primary transition-colors block"
+                      className="text-muted-foreground hover:text-primary hover:translate-x-0.5 transition-all duration-200 block font-medium"
                     >
                       {link.label}
                     </Link>
@@ -121,15 +124,15 @@ export const Footer: React.FC = () => {
           ))}
 
           {/* Column 4: Contact & Dubai Hub (3 cols) */}
-          <div className="lg:col-span-3 space-y-3.5">
-            <h4 className="text-xs font-extrabold text-foreground uppercase tracking-widest pb-1 border-b border-border/60">
+          <div className="lg:col-span-3 space-y-4">
+            <h4 className="text-xs font-bold text-foreground uppercase tracking-widest pb-3 border-b border-border/50">
               {settings.contactHeading}
             </h4>
-            <ul className="space-y-3 text-[13px]">
+            <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2.5">
                 <MapPin className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                 <span className="text-muted-foreground leading-tight">
-                  <strong className="text-foreground block font-semibold text-xs">{settings.addressLabel}</strong>
+                  <strong className="text-foreground block font-bold text-xs">{settings.addressLabel}</strong>
                   {settings.address}
                 </span>
               </li>
@@ -162,9 +165,9 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* ── 3. Regulatory & Payment Badges (Clean Dual Box) ── */}
-        <div className="mt-10 pt-6 border-t border-border/60 grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+        <div className="mt-12 pt-8 border-t border-border/60 grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
           {/* Health Warning Banner */}
-          <div className="lg:col-span-8 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3.5 flex items-start gap-3 text-amber-800 dark:text-amber-200">
+          <div className="lg:col-span-8 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 flex items-start gap-3 text-amber-800 dark:text-amber-200">
             <ShieldAlert className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
             <p className="text-xs leading-snug">{settings.healthWarning}</p>
           </div>
@@ -174,7 +177,7 @@ export const Footer: React.FC = () => {
             {settings.paymentBadges.map((badge, idx) => (
               <span
                 key={idx}
-                className="px-2.5 py-1 rounded-md bg-muted text-[11px] font-semibold text-foreground border border-border/60 flex items-center gap-1.5"
+                className="px-3 py-1.5 rounded-full bg-muted/70 text-[11px] font-medium text-foreground border border-border/60 flex items-center gap-1.5"
               >
                 <ThemeIcon name={badge.icon} className="h-3.5 w-3.5 text-primary" />
                 {badge.label}
@@ -184,7 +187,7 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* ── 4. Bottom Copyright & Quick Links ───────────── */}
-        <div className="mt-6 pt-5 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground text-center sm:text-left">
+        <div className="mt-8 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground text-center sm:text-left">
           <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
             <p suppressHydrationWarning>{settings.copyright}</p>
             <span className="hidden sm:inline text-border">·</span>
@@ -213,7 +216,7 @@ export const Footer: React.FC = () => {
             ))}
             <button
               onClick={scrollToTop}
-              className="inline-flex items-center gap-1 text-primary hover:text-primary/80 font-bold cursor-pointer transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/60 text-primary hover:border-primary/40 hover:bg-primary/5 font-bold cursor-pointer transition-all"
               aria-label="Back to top"
             >
               Top <ArrowUp className="h-3.5 w-3.5" />

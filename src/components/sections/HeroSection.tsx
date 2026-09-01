@@ -47,7 +47,7 @@ export interface HeroSettings {
 const SlideHeadline: React.FC<{ title: string; as: "h1" | "h2" }> = ({ title, as }) => {
   const Tag = as;
   const className =
-    "text-3xl sm:text-5xl lg:text-[3.3rem] font-serif font-black text-foreground leading-[1.08] tracking-tight";
+    "text-4xl sm:text-5xl lg:text-[3.5rem] font-serif text-foreground leading-[0.95] tracking-tight";
 
   if (!title.includes("&")) {
     return <Tag className={className}>{title}</Tag>;
@@ -86,21 +86,21 @@ const PromoCard: React.FC<{ card: HeroPromoCard }> = ({ card }) => {
       <div className="flex flex-col justify-center flex-grow min-w-0 z-10 gap-4 py-1">
         <div>
           <span
-            className={`text-[10px] font-bold tracking-[0.2em] uppercase block mb-1.5 ${
+            className={`text-[10px] sm:text-[11px] font-bold tracking-[0.18em] uppercase block mb-2 ${
               isPrimary ? "text-white/80" : "text-primary"
             }`}
           >
             {card.eyebrow}
           </span>
           <h3
-            className={`text-lg sm:text-xl font-serif font-bold leading-snug ${
+            className={`text-xl sm:text-2xl font-serif leading-[1.05] tracking-tight ${
               isPrimary ? "text-white" : "text-foreground"
             }`}
           >
             {card.title}
           </h3>
           <p
-            className={`text-xs sm:text-sm mt-1.5 leading-relaxed ${
+            className={`text-sm mt-2 leading-relaxed ${
               isPrimary ? "text-white/85" : "text-muted-foreground"
             }`}
           >
@@ -277,7 +277,7 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
                       {/* Text content (Placed BELOW image on mobile, LEFT on desktop) */}
                       <div className="md:w-[55%] md:order-1 space-y-3 sm:space-y-4">
                         <div>
-                          <p className="text-[10px] sm:text-xs font-extrabold tracking-[0.25em] text-primary uppercase mb-1.5 sm:mb-2">
+                          <p className="text-[11px] sm:text-xs font-bold tracking-[0.22em] text-primary uppercase mb-2 sm:mb-2.5">
                             {slide.accent}
                           </p>
                           <SlideHeadline title={slide.title} as={idx === 0 ? "h1" : "h2"} />
@@ -289,7 +289,7 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
                         {/* Stats */}
                         <div className="flex gap-6 sm:gap-8 pt-1 sm:pt-2">
                           <div>
-                            <p className="text-2xl sm:text-4xl font-serif font-extrabold text-foreground">
+                            <p className="text-3xl sm:text-4xl font-serif text-foreground leading-none">
                               {slide.stat1Value}
                             </p>
                             <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider font-semibold mt-0.5 sm:mt-1">
@@ -298,7 +298,7 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
                           </div>
                           <div className="w-px bg-border/60" />
                           <div>
-                            <p className="text-2xl sm:text-4xl font-serif font-extrabold text-foreground">
+                            <p className="text-3xl sm:text-4xl font-serif text-foreground leading-none">
                               {slide.stat2Value}
                             </p>
                             <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider font-semibold mt-0.5 sm:mt-1">

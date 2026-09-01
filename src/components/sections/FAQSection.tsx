@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { HelpCircle, ChevronDown, Search, Zap, CheckCircle2 } from "lucide-react";
+import { HelpCircle, ChevronDown, Zap, CheckCircle2 } from "lucide-react";
 
 export interface FaqItem {
   question: string;
   answer: string;
-  category: "delivery" | "authenticity" | "payment" | "products";
+  category?: "delivery" | "authenticity" | "payment" | "products";
 }
 
 export interface FaqSettings {
@@ -14,18 +14,9 @@ export interface FaqSettings {
   heading: string;
   description: string;
   deliveryBadge: string;
-  searchPlaceholder: string;
   verifiedNote: string;
   items: FaqItem[];
 }
-
-const FILTER_TABS = [
-  { label: "All Questions", id: "all" },
-  { label: "Delivery", id: "delivery" },
-  { label: "Authenticity", id: "authenticity" },
-  { label: "Payment", id: "payment" },
-  { label: "Products", id: "products" },
-];
 
 const DEFAULT_FAQ_ITEMS: FaqItem[] = [
   {
@@ -56,8 +47,6 @@ const DEFAULT_FAQ_ITEMS: FaqItem[] = [
 
 export function FAQSection({ settings, productFaqs }: { settings?: FaqSettings; productFaqs?: FaqItem[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(0); // First open by default
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const badgeText = settings?.badgeText || "Customer Help & FAQs";
   const heading = settings?.heading || "Frequently Asked Questions";
@@ -65,26 +54,19 @@ export function FAQSection({ settings, productFaqs }: { settings?: FaqSettings; 
     settings?.description ||
     "Find instant answers regarding 2-hour express delivery in Dubai, product authenticity, card payments on delivery, and vape device selection.";
   const deliveryBadge = settings?.deliveryBadge || "2-Hour Delivery";
-  const searchPlaceholder = settings?.searchPlaceholder || "Search FAQs (e.g. delivery, JUUL, card)...";
   const verifiedNote = settings?.verifiedNote || "Verified Answer for Dubai & UAE Customers";
 
   const rawItems = (settings?.items && settings.items.length > 0) ? settings.items : DEFAULT_FAQ_ITEMS;
   const itemsToUse = (productFaqs && productFaqs.length > 0) ? productFaqs : rawItems;
 
-  const filteredFaqs = (itemsToUse || []).filter((faq) => {
-    const matchCat = selectedCategory === "all" || faq.category === selectedCategory;
-    const matchSearch =
-      (faq.question || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (faq.answer || "").toLowerCase().includes(searchQuery.toLowerCase());
-    return matchCat && matchSearch;
-  });
+  const faqs = itemsToUse || [];
 
   const toggleAccordion = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
   return (
-    <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+    <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
       <div className="w-full bg-card border border-primary/20 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md transition-all duration-300">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
         {/* Section Header */}
@@ -94,16 +76,16 @@ export function FAQSection({ settings, productFaqs }: { settings?: FaqSettings; 
 
         {/* Centered Title & Badge */}
         <div className="text-center flex flex-col items-center flex-1">
-          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] px-3.5 py-1 rounded-full mb-2">
+          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.18em] px-3.5 py-1 rounded-full mb-3">
             <HelpCircle className="w-3.5 h-3.5 text-primary" />
             <span>{badgeText}</span>
           </div>
 
-          <h2 className="text-2xl sm:text-4xl font-serif font-black text-foreground tracking-tight leading-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-foreground tracking-tight leading-[0.95]">
             {heading}
           </h2>
 
-          <p className="text-xs sm:text-sm text-muted-foreground mt-1 font-semibold max-w-xl">
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mt-3 max-w-xl">
             {description}
           </p>
 
@@ -126,63 +108,10 @@ export function FAQSection({ settings, productFaqs }: { settings?: FaqSettings; 
         </div>
       </div>
 
-      {/* Search & Category Filter Controls */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
-        {/* Search Input */}
-        <div className="relative w-full sm:w-80">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder={searchPlaceholder}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 bg-background border border-border/80 rounded-2xl text-xs font-semibold text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-all shadow-inner"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground hover:text-foreground"
-            >
-              Clear
-            </button>
-          )}
-        </div>
-
-        {/* Filter Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto no-scrollbar py-1">
-          {FILTER_TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setSelectedCategory(tab.id)}
-              className={`px-4 py-2 rounded-xl text-xs font-extrabold tracking-wide uppercase transition-all duration-300 cursor-pointer whitespace-nowrap ${
-                selectedCategory === tab.id
-                  ? "bg-primary text-white shadow-md shadow-primary/20 scale-105"
-                  : "bg-background border border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/40"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Accordion FAQ List */}
-      {filteredFaqs.length === 0 ? (
-        <div className="bg-background border border-border/60 rounded-3xl p-8 text-center space-y-2">
-          <p className="text-sm font-bold text-foreground">No questions found matching your search.</p>
-          <button
-            onClick={() => {
-              setSelectedCategory("all");
-              setSearchQuery("");
-            }}
-            className="text-xs font-extrabold text-primary uppercase underline"
-          >
-            Show All Questions
-          </button>
-        </div>
-      ) : (
+      {faqs.length > 0 && (
         <div className="space-y-4">
-          {filteredFaqs.map((faq, idx) => {
+          {faqs.map((faq, idx) => {
             const isOpen = openIndex === idx;
 
             return (
@@ -198,7 +127,7 @@ export function FAQSection({ settings, productFaqs }: { settings?: FaqSettings; 
                   onClick={() => toggleAccordion(idx)}
                   className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 cursor-pointer"
                 >
-                  <span className="font-serif font-bold text-base sm:text-lg text-foreground tracking-tight leading-snug">
+                  <span className="text-base sm:text-lg font-semibold text-foreground leading-snug">
                     {faq.question}
                   </span>
 

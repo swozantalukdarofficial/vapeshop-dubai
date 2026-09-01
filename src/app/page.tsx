@@ -80,7 +80,7 @@ export default function Home() {
 
       <Navbar onCategorySelect={setActiveCategory} activeCategory={activeCategory} />
 
-      <main className="flex-grow space-y-4 sm:space-y-6 pb-0">
+      <main className="flex-grow space-y-8 sm:space-y-12 lg:space-y-16 pb-0">
         <TemplateSections
           instances={instances}
           isOverride={isOverride}

@@ -75,10 +75,10 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
 
           {/* Centered Title */}
           <div className="text-center flex flex-col items-center flex-1">
-            <span className="text-xs font-extrabold tracking-[0.25em] text-primary uppercase mb-1.5">
+            <span className="text-[11px] sm:text-xs font-bold tracking-[0.22em] text-primary uppercase mb-2">
               {settings.eyebrow}
             </span>
-            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-serif font-black text-foreground tracking-tight leading-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-foreground tracking-tight leading-[0.95]">
               {settings.heading}
             </h2>
             {/* Premium Divider */}

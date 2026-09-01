@@ -86,7 +86,7 @@ function renderBody(body: string): React.ReactNode[] {
         return (
           <div key={idx} className="flex items-center gap-3 pt-6 pb-2 mt-6 first:mt-0 border-t border-border/40 first:border-t-0">
             <span className="w-2 h-6 rounded-full bg-primary shrink-0" />
-            <h3 className="text-xl sm:text-2xl font-serif font-black text-foreground tracking-tight">
+            <h3 className="text-xl sm:text-2xl font-serif text-foreground tracking-tight leading-[1.05]">
               {parseInline(lines[0].slice(4))}
             </h3>
           </div>
@@ -99,7 +99,7 @@ function renderBody(body: string): React.ReactNode[] {
         return (
           <ul key={idx} className="space-y-2 pl-1 mb-4">
             {lines.map((line, i) => (
-              <li key={i} className="flex gap-2.5 text-sm sm:text-base text-muted-foreground leading-relaxed font-medium">
+              <li key={i} className="flex gap-2.5 text-sm sm:text-base text-muted-foreground leading-relaxed">
                 <span className="mt-[0.55em] h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
                 <span>{parseInline(line.slice(2))}</span>
               </li>
@@ -109,7 +109,7 @@ function renderBody(body: string): React.ReactNode[] {
       }
 
       return (
-        <p key={idx} className="text-sm sm:text-base text-muted-foreground leading-relaxed font-medium mb-4">
+        <p key={idx} className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-5">
           {parseInline(block)}
         </p>
       );
@@ -129,7 +129,7 @@ export const RichTextSection: React.FC<{ settings: RichTextSettings }> = ({
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
       {settings.heading && (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/40 pb-5 mb-6">
-          <h2 className="text-2xl sm:text-4xl font-serif font-black text-foreground tracking-tight leading-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-foreground tracking-tight leading-[0.95]">
             {settings.heading}
           </h2>
         </div>

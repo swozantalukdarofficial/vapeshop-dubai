@@ -187,7 +187,7 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
                 {onViewAll && (
                   <button
                     onClick={() => onViewAll(sectionName, products)}
-                    className="text-xs font-extrabold uppercase tracking-wider text-primary hover:text-foreground transition-colors underline decoration-primary/40 underline-offset-4 cursor-pointer"
+                    className="text-xs font-bold uppercase tracking-[0.08em] text-foreground hover:text-primary transition-colors underline decoration-primary/40 hover:decoration-primary underline-offset-4 cursor-pointer"
                   >
                     View All ({products.length})
                   </button>
@@ -236,7 +236,13 @@ export const ProductSectionCarousel: React.FC<ProductSectionCarouselProps> = ({
         )}
 
         <div className="-mx-4 sm:mx-0">
-          <CarouselContent className="px-4 sm:px-0">
+          {/*
+            Embla's viewport is `overflow-hidden` (required to mask the
+            off-screen slides), and the cards sit flush against its top edge, so
+            ProductCard's `hover:-translate-y-1.5` lift was being sliced off.
+            Padding the track keeps the lift inside the clip box.
+          */}
+          <CarouselContent className="px-4 sm:px-0 py-3">
             {products.map((product) => (
               <CarouselItem key={product.id} className="pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 flex">
                 <ProductCard product={product} onAddToCart={onAddToCart} onBuyNow={onBuyNow} />

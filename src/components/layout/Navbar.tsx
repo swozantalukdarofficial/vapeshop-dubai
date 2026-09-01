@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, Suspense, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ShoppingBag,
   Menu,
@@ -296,12 +297,14 @@ const NavbarContent: React.FC<NavbarProps> = ({
                 }
               }}
             >
-              <svg viewBox="0 0 220 48" className="h-9 sm:h-10 w-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <text x="2" y="36" fontFamily="var(--font-serif), Georgia, serif" fontWeight="900" fontSize="36" fill="var(--primary)">V</text>
-                <text x="21" y="39" fontFamily="var(--font-serif), Georgia, serif" fontStyle="italic" fontWeight="400" fontSize="40" fill="var(--primary)">S</text>
-                <text x="65" y="22" fontFamily="var(--font-sans), sans-serif" fontWeight="800" fontSize="13" letterSpacing="0.18em" fill="currentColor" className="text-foreground">VAPE SHOP</text>
-                <text x="65" y="38" fontFamily="var(--font-sans), sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.38em" fill="var(--primary)">DUBAI</text>
-              </svg>
+              <Image
+                src="/Vape%20Shop%20Dubai%20logo%201.png"
+                alt="Vape Shop Dubai"
+                width={219}
+                height={40}
+                priority
+                className="h-8 w-auto sm:h-10"
+              />
             </div>
 
             {/* Desktop Nav Links */}

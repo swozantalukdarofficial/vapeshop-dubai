@@ -31,17 +31,17 @@ export function WhyShopWithUs({ settings }: { settings: WhyShopSettings }) {
       {/* Section Header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pb-5 border-b border-border/40 mb-6">
         <div className="space-y-2 max-w-2xl">
-          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] px-3.5 py-1 rounded-full">
+          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.18em] px-3.5 py-1 rounded-full">
             <Award className="w-3.5 h-3.5 text-primary" />
             <span>{settings.badgeText}</span>
           </div>
 
-          <h2 className="text-2xl sm:text-4xl font-serif font-black text-foreground tracking-tight leading-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-foreground tracking-tight leading-[0.95]">
             {settings.headingLead}{" "}
             <span className="text-primary">{settings.headingHighlight}</span>
           </h2>
 
-          <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
             {settings.description}
           </p>
         </div>
@@ -85,11 +85,11 @@ export function WhyShopWithUs({ settings }: { settings: WhyShopSettings }) {
 
                 {/* Title & Subtitle */}
                 <div className="relative z-10 space-y-1.5">
-                  <h3 className="text-lg sm:text-xl font-serif font-black text-foreground group-hover:text-primary transition-colors tracking-tight leading-snug">
+                  <h3 className="text-xl sm:text-2xl font-serif text-foreground group-hover:text-primary transition-colors tracking-tight leading-[1.05]">
                     {pillar.title}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     {pillar.subtitle}
                   </p>
                 </div>
