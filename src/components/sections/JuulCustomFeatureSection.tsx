@@ -83,14 +83,13 @@ export function JuulCustomFeatureSection({
           </div>
 
           {/* Image Column */}
-          <div className={`relative flex justify-center items-center ${reverseLayout ? "lg:order-1" : "lg:order-2"}`}>
+          <div className={`relative flex justify-center items-center w-full ${reverseLayout ? "lg:order-1" : "lg:order-2"}`}>
             {image ? (
-              <div className="relative z-10 w-full max-w-[400px] sm:max-w-[500px] aspect-square group">
-                <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700 -z-10" />
+              <div className="relative z-10 w-full max-w-full lg:max-w-[650px] rounded-3xl overflow-hidden group shadow-xl border border-border/40 bg-white/50 backdrop-blur-sm p-2 sm:p-4">
                 <img
                   src={image}
                   alt={title}
-                  className="w-full h-full object-contain filter drop-shadow-2xl transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-auto object-contain rounded-2xl filter drop-shadow-md transition-transform duration-500 group-hover:scale-[1.02]"
                 />
               </div>
             ) : (
