@@ -41,6 +41,7 @@ import { FAQSection } from "@/components/sections/FAQSection";
 import { ProductKeySpecsSection } from "@/components/sections/ProductKeySpecsSection";
 import { WhyChooseProductSection } from "@/components/sections/WhyChooseProductSection";
 import { ProductFinalThoughtsSection } from "@/components/sections/ProductFinalThoughtsSection";
+import { JuulCustomFeatureSection } from "@/components/sections/JuulCustomFeatureSection";
 import {
   instanceSettings,
   TemplateSections,
@@ -108,6 +109,8 @@ interface ProductDetails {
   flavorNotes?: any[];
   whyChoose?: any;
   finalThoughts?: any;
+  juulFeature1?: any;
+  juulFeature2?: any;
   variants: Variant[];
   section?: string;
   brand?: string;
@@ -1007,6 +1010,7 @@ export default function ProductPage() {
                 puffs={product.puffs}
                 productWhyChoose={product.whyChoose}
                 settings={settings as never}
+                hideIfEmpty={true}
               />
             ),
             productKeySpecs: (settings: Record<string, unknown>) => (
@@ -1018,7 +1022,9 @@ export default function ProductPage() {
                 nicotine={product.nicotine}
                 battery={product.battery}
                 specsTable={product.specsTable}
-              settings={settings as never} />
+                settings={settings as never}
+                hideIfEmpty={true}
+              />
             ),
             productFlavors: (settings: Record<string, unknown>) => (
               <ProductAvailableFlavorsSection
@@ -1030,15 +1036,28 @@ export default function ProductPage() {
                 onSelectVariant={(variant) => {
                   setSelectedVariant(variant);
                 }}
-              settings={settings as never} />
+                settings={settings as never}
+                hideIfEmpty={true}
+              />
             ),
             productFinalThoughts: (settings: Record<string, unknown>) => (
               <ProductFinalThoughtsSection
-                productName={product.name}
-                productFinalThoughts={product.finalThoughts}
+                productName={product.title || product.name || ""}
                 settings={settings as never}
+                productFinalThoughts={product.finalThoughts}
+                hideIfEmpty={true}
               />
             ),
+            juulCollectionFeature1: (settings: Record<string, unknown>) => {
+              const mergedSettings = product.juulFeature1 || settings;
+              if (!mergedSettings || Object.keys(mergedSettings).length === 0) return null;
+              return <JuulCustomFeatureSection settings={mergedSettings as never} />;
+            },
+            juulCollectionFeature2: (settings: Record<string, unknown>) => {
+              const mergedSettings = product.juulFeature2 || settings;
+              if (!mergedSettings || Object.keys(mergedSettings).length === 0) return null;
+              return <JuulCustomFeatureSection settings={mergedSettings as never} reverseLayout />;
+            },
             customerReviews: (settings: Record<string, unknown>) => (
               <CustomerReviewsSection
                 productHandle={product.handle || handle}
@@ -1047,10 +1066,11 @@ export default function ProductPage() {
                 productReviewsCount={product.reviews}
                 productReviewsList={product.reviewsList}
                 settings={settings as never}
+                hideIfEmpty={true}
               />
             ),
             faq: (settings: Record<string, unknown>) => (
-              <FAQSection settings={settings as never} productFaqs={product.faqAccordion} />
+              <FAQSection settings={settings as never} productFaqs={product.faqAccordion} hideIfEmpty={true} />
             ),
             relatedProducts: (settings: Record<string, unknown>) => (
 

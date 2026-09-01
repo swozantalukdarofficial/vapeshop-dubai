@@ -3,9 +3,11 @@
 import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight, Layers, ChevronLeft, ChevronRight, Truck } from "lucide-react";
+import { useCollectionImages, getHandleFromUrl } from "@/hooks/useCollectionImages";
 
 interface BrandInfo {
   id: string;
+  handle: string;
   name: string;
   tagline: string;
   image: string;
@@ -17,6 +19,7 @@ interface BrandInfo {
 const DISPOSABLE_BRANDS: BrandInfo[] = [
   {
     id: "al-fakher",
+    handle: "al-fakher-vape",
     name: "Al Fakher",
     tagline: "Authentic Shisha Flavors & Massive Puffs",
     image: "/premium_liquid.png",
@@ -26,6 +29,7 @@ const DISPOSABLE_BRANDS: BrandInfo[] = [
   },
   {
     id: "vozol",
+    handle: "vozol-vape",
     name: "Vozol",
     tagline: "Smart Display & Advanced Vapor Tech",
     image: "/lost_mary.png",
@@ -35,6 +39,7 @@ const DISPOSABLE_BRANDS: BrandInfo[] = [
   },
   {
     id: "tugboat",
+    handle: "tugboat-vape",
     name: "Tugboat",
     tagline: "Dependable Performance & Everyday Comfort",
     image: "/lost_mary.png",
@@ -44,6 +49,7 @@ const DISPOSABLE_BRANDS: BrandInfo[] = [
   },
   {
     id: "lost-mary",
+    handle: "lost-mary-disposable",
     name: "Lost Mary",
     tagline: "Compact Ergonomics & Rich Fruit Profiles",
     image: "/lost_mary.png",
@@ -53,6 +59,7 @@ const DISPOSABLE_BRANDS: BrandInfo[] = [
   },
   {
     id: "hqd",
+    handle: "hqd-vape",
     name: "HQD",
     tagline: "Ultra-Reliable Daily Vaping & Zero Upkeep",
     image: "/vape_kit.png",
@@ -62,6 +69,7 @@ const DISPOSABLE_BRANDS: BrandInfo[] = [
   },
   {
     id: "geek-bar",
+    handle: "geek-bar-disposable",
     name: "Geek Bar",
     tagline: "Pulse Boost Mode & Full Screen Displays",
     image: "/lost_mary.png",
@@ -71,6 +79,7 @@ const DISPOSABLE_BRANDS: BrandInfo[] = [
   },
   {
     id: "elf-bar",
+    handle: "elf-bar-vape",
     name: "Elf Bar",
     tagline: "World-Renowned Flavor Consistency & Quality",
     image: "/lost_mary.png",
@@ -80,6 +89,7 @@ const DISPOSABLE_BRANDS: BrandInfo[] = [
   },
   {
     id: "maskking",
+    handle: "maskking-vape",
     name: "Maskking",
     tagline: "Premium Metallic Finish & Intense Flavor Output",
     image: "/vape_kit.png",
@@ -105,6 +115,8 @@ export function DisposableBrandsShowcase({
   const [isHovered, setIsHovered] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
+  const collectionImages = useCollectionImages();
+
   // Auto-scroll loop (pauses on mouse hover or drag)
   useEffect(() => {
     if (isHovered || isDragging) return;
@@ -116,7 +128,7 @@ export function DisposableBrandsShowcase({
           sliderRef.current.scrollTo({ left: 0, behavior: "smooth" });
           setActiveIndex(0);
         } else {
-          sliderRef.current.scrollBy({ left: 320, behavior: "smooth" });
+          sliderRef.current.scrollBy({ left: 340, behavior: "smooth" });
         }
       }
     }, 4000);
@@ -127,26 +139,29 @@ export function DisposableBrandsShowcase({
   // Track active slide index on scroll
   const handleScrollTrack = () => {
     if (sliderRef.current) {
-      const { scrollLeft, clientWidth } = sliderRef.current;
-      const index = Math.round(scrollLeft / (clientWidth > 0 ? clientWidth * 0.75 : 300));
-      setActiveIndex(Math.min(DISPOSABLE_BRANDS.length - 1, Math.max(0, index)));
+      const scrollLeft = sliderRef.current.scrollLeft;
+      const index = Math.round(scrollLeft / 340);
+      if (index !== activeIndex && index < DISPOSABLE_BRANDS.length) {
+        setActiveIndex(index);
+      }
     }
   };
 
   const scrollToSlide = (index: number) => {
     if (sliderRef.current) {
-      const cardWidth = 320;
-      sliderRef.current.scrollTo({ left: index * cardWidth, behavior: "smooth" });
+      sliderRef.current.scrollTo({
+        left: index * 340,
+        behavior: "smooth",
+      });
       setActiveIndex(index);
     }
   };
 
   // Mouse Drag / Swipe Handlers
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (!sliderRef.current) return;
     setIsDragging(true);
-    setStartX(e.pageX - sliderRef.current.offsetLeft);
-    setScrollLeftPos(sliderRef.current.scrollLeft);
+    setStartX(e.pageX - sliderRef.current!.offsetLeft);
+    setScrollLeftPos(sliderRef.current!.scrollLeft);
   };
 
   const handleMouseLeave = () => {
@@ -262,7 +277,7 @@ export function DisposableBrandsShowcase({
             {/* Top Product Image Display Area - Full Cover Banner */}
             <div className="w-full h-40 sm:h-48 rounded-2xl bg-slate-950 border border-border/40 relative mb-3.5 overflow-hidden shrink-0 group-hover:border-primary/40 transition-all duration-300">
               <img
-                src={brand.image}
+                src={collectionImages[brand.handle] || brand.image}
                 alt={brand.name}
                 draggable={false}
                 className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 pointer-events-none opacity-90 group-hover:opacity-100"

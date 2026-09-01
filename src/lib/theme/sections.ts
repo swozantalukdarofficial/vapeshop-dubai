@@ -1796,6 +1796,76 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     },
   },
 
+  juulCollectionFeature1: {
+    type: "juulCollectionFeature1",
+    label: "JUUL Custom Feature 1",
+    description: "Configurable JUUL feature section with image, title, description, and list.",
+    templates: ["collection", "product"],
+    fields: [
+      { type: "text", key: "title", label: "Title" },
+      { type: "textarea", key: "description", label: "Description", rows: 4 },
+      { type: "text", key: "buttonText", label: "Button text" },
+      { type: "link", key: "buttonLink", label: "Button link" },
+      { type: "image", key: "image", label: "Image" },
+      {
+        type: "repeater",
+        key: "bulletPoints",
+        label: "Bullet points (Checkmarks)",
+        itemNoun: "point",
+        itemLabelKey: "text",
+        max: 8,
+        defaultItem: { text: "New point" },
+        fields: [{ type: "text", key: "text", label: "Text" }],
+      },
+    ],
+    defaults: {
+      title: "JUUL Vape Experience",
+      description: "Discover the ultimate JUUL experience tailored for you.",
+      buttonText: "Shop JUUL",
+      buttonLink: "/collections/juul-vape-dubai",
+      image: "/juul_device.png",
+      bulletPoints: [
+        { text: "Premium Quality" },
+        { text: "Authentic Products" }
+      ]
+    }
+  },
+
+  juulCollectionFeature2: {
+    type: "juulCollectionFeature2",
+    label: "JUUL Custom Feature 2",
+    description: "Configurable JUUL feature section with image, title, description, and list.",
+    templates: ["collection", "product"],
+    fields: [
+      { type: "text", key: "title", label: "Title" },
+      { type: "textarea", key: "description", label: "Description", rows: 4 },
+      { type: "text", key: "buttonText", label: "Button text" },
+      { type: "link", key: "buttonLink", label: "Button link" },
+      { type: "image", key: "image", label: "Image" },
+      {
+        type: "repeater",
+        key: "bulletPoints",
+        label: "Bullet points (Checkmarks)",
+        itemNoun: "point",
+        itemLabelKey: "text",
+        max: 8,
+        defaultItem: { text: "New point" },
+        fields: [{ type: "text", key: "text", label: "Text" }],
+      },
+    ],
+    defaults: {
+      title: "Why Choose JUUL",
+      description: "Sleek, satisfying, and simple to use.",
+      buttonText: "Learn More",
+      buttonLink: "/collections/juul-vape-dubai",
+      image: "/juul_menthol_pack.png",
+      bulletPoints: [
+        { text: "Easy to use" },
+        { text: "Consistent performance" }
+      ]
+    }
+  },
+
   productFinalThoughts: {
     type: "productFinalThoughts",
     label: "Final Thoughts",

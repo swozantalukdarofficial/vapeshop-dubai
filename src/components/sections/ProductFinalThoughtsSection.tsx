@@ -16,6 +16,7 @@ interface ProductFinalThoughtsSectionProps {
     bodyText?: string;
   };
   productFinalThoughts?: ProductFinalThoughtsMeta;
+  hideIfEmpty?: boolean;
 }
 
 function parseAstToHtml(nodes: any[]): string {
@@ -84,8 +85,17 @@ export function ProductFinalThoughtsSection({
   productName,
   className = "",
   productFinalThoughts,
+  hideIfEmpty = false,
 }: ProductFinalThoughtsSectionProps) {
   const fill = (template: string) => template.split("{product}").join(productName);
+
+  const hasMetafield = Boolean(
+    productFinalThoughts?.body?.trim() || productFinalThoughts?.heading?.trim()
+  );
+
+  if (hideIfEmpty && !hasMetafield) {
+    return null;
+  }
 
   const rawHeading =
     productFinalThoughts?.heading ||
@@ -95,7 +105,9 @@ export function ProductFinalThoughtsSection({
   const rawBody =
     productFinalThoughts?.body ||
     settings?.bodyText ||
-    `The ${productName} easily outperforms older hardware in everyday reliability, flavor output, and overall build quality. Whether you are an everyday vaper in Dubai or looking for a premium device with fast delivery across the UAE, this model sets the benchmark for satisfaction.\n\nIndependent user feedback and review tests show this model ranks among the top choices for taste variety, smooth draw, and sleek ergonomics. Engineered under strict quality standards to ensure total authenticity and complete peace of mind.\n\nReady to elevate your vaping experience? Order online today for express delivery across Dubai, Abu Dhabi, Sharjah, and the UAE!`;
+    (hideIfEmpty ? "" : `The ${productName} easily outperforms older hardware in everyday reliability, flavor output, and overall build quality. Whether you are an everyday vaper in Dubai or looking for a premium device with fast delivery across the UAE, this model sets the benchmark for satisfaction.\n\nIndependent user feedback and review tests show this model ranks among the top choices for taste variety, smooth draw, and sleek ergonomics. Engineered under strict quality standards to ensure total authenticity and complete peace of mind.\n\nReady to elevate your vaping experience? Order online today for express delivery across Dubai, Abu Dhabi, Sharjah, and the UAE!`);
+
+  if (!rawBody && !productFinalThoughts?.heading) return null;
 
   const heading = fill(rawHeading);
   const formattedBody = formatContent(fill(rawBody));

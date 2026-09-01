@@ -3,9 +3,11 @@
 import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight, Layers, ChevronLeft, ChevronRight, Truck } from "lucide-react";
+import { useCollectionImages } from "@/hooks/useCollectionImages";
 
 interface EJuiceBrand {
   id: string;
+  handle?: string;
   name: string;
   tagline: string;
   image: string;
@@ -17,6 +19,7 @@ interface EJuiceBrand {
 const EJUICE_BRANDS: EJuiceBrand[] = [
   {
     id: "pod-salt",
+    handle: "pod-salt-vape",
     name: "Pod Salt",
     tagline: "British Nicotine Salt Specialists & Hit Blends",
     image: "/premium_liquid.png",
@@ -26,6 +29,7 @@ const EJUICE_BRANDS: EJuiceBrand[] = [
   },
   {
     id: "vgod",
+    handle: "vgod-stig",
     name: "VGOD",
     tagline: "USA Premium SaltNic & Signature Cubano Tobaccos",
     image: "/premium_liquid.png",
@@ -35,6 +39,7 @@ const EJUICE_BRANDS: EJuiceBrand[] = [
   },
   {
     id: "dr-vapes",
+    handle: "dr-vapes",
     name: "Dr Vapes",
     tagline: "Panther Series & Award-Winning Fruit Liquids",
     image: "/premium_liquid.png",
@@ -44,6 +49,7 @@ const EJUICE_BRANDS: EJuiceBrand[] = [
   },
   {
     id: "nasty-juice",
+    handle: "nasty-juice",
     name: "Nasty Juice",
     tagline: "Low Mint Signature Aluminum Tin Liquids",
     image: "/premium_liquid.png",
@@ -53,6 +59,7 @@ const EJUICE_BRANDS: EJuiceBrand[] = [
   },
   {
     id: "silvaper",
+    handle: "silvaper-vape",
     name: "Silvaper",
     tagline: "Luxury Craft E-Liquids & Pure Flavor Extract",
     image: "/premium_liquid.png",
@@ -62,6 +69,7 @@ const EJUICE_BRANDS: EJuiceBrand[] = [
   },
   {
     id: "vape-pink",
+    handle: "vape-pink",
     name: "Vape Pink & Propaganda",
     tagline: "Gourmet Dessert & Candy Fruit E-Juice",
     image: "/premium_liquid.png",
@@ -87,6 +95,8 @@ export function EJuiceBrandsShowcase({
   const [isHovered, setIsHovered] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
+  const collectionImages = useCollectionImages();
+
   // Auto-scroll loop (pauses on mouse hover or drag)
   useEffect(() => {
     if (isHovered || isDragging) return;
@@ -98,7 +108,7 @@ export function EJuiceBrandsShowcase({
           sliderRef.current.scrollTo({ left: 0, behavior: "smooth" });
           setActiveIndex(0);
         } else {
-          sliderRef.current.scrollBy({ left: 320, behavior: "smooth" });
+          sliderRef.current.scrollBy({ left: 340, behavior: "smooth" });
         }
       }
     }, 4000);
@@ -109,26 +119,29 @@ export function EJuiceBrandsShowcase({
   // Track active slide index on scroll
   const handleScrollTrack = () => {
     if (sliderRef.current) {
-      const { scrollLeft, clientWidth } = sliderRef.current;
-      const index = Math.round(scrollLeft / (clientWidth > 0 ? clientWidth * 0.75 : 300));
-      setActiveIndex(Math.min(EJUICE_BRANDS.length - 1, Math.max(0, index)));
+      const scrollLeft = sliderRef.current.scrollLeft;
+      const index = Math.round(scrollLeft / 340);
+      if (index !== activeIndex && index < EJUICE_BRANDS.length) {
+        setActiveIndex(index);
+      }
     }
   };
 
   const scrollToSlide = (index: number) => {
     if (sliderRef.current) {
-      const cardWidth = 320;
-      sliderRef.current.scrollTo({ left: index * cardWidth, behavior: "smooth" });
+      sliderRef.current.scrollTo({
+        left: index * 340,
+        behavior: "smooth",
+      });
       setActiveIndex(index);
     }
   };
 
   // Mouse Drag / Swipe Handlers
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (!sliderRef.current) return;
     setIsDragging(true);
-    setStartX(e.pageX - sliderRef.current.offsetLeft);
-    setScrollLeftPos(sliderRef.current.scrollLeft);
+    setStartX(e.pageX - sliderRef.current!.offsetLeft);
+    setScrollLeftPos(sliderRef.current!.scrollLeft);
   };
 
   const handleMouseLeave = () => {
@@ -244,7 +257,7 @@ export function EJuiceBrandsShowcase({
             {/* Top Product Image Display Area - Full Cover Banner */}
             <div className="w-full h-40 sm:h-48 rounded-2xl bg-slate-950 border border-border/40 relative mb-3.5 overflow-hidden shrink-0 group-hover:border-primary/40 transition-all duration-300">
               <img
-                src={brand.image}
+                src={brand.handle && collectionImages[brand.handle] ? collectionImages[brand.handle] : brand.image}
                 alt={brand.name}
                 draggable={false}
                 className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 pointer-events-none opacity-90 group-hover:opacity-100"

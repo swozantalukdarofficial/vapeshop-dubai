@@ -96,6 +96,7 @@ interface CustomerReviewsSectionProps {
   productReviewsCount?: number;
   productReviewsList?: Review[];
   settings?: CustomerReviewsSettings;
+  hideIfEmpty?: boolean;
 }
 
 export function CustomerReviewsSection({
@@ -105,23 +106,26 @@ export function CustomerReviewsSection({
   productReviewsCount,
   productReviewsList,
   settings,
+  hideIfEmpty,
 }: CustomerReviewsSectionProps) {
-  const initialList =
-    productReviewsList && productReviewsList.length > 0
-      ? productReviewsList
-      : settings?.reviews?.length
-      ? settings.reviews
-      : INITIAL_REVIEWS;
+  const initialList = hideIfEmpty
+    ? (productReviewsList && productReviewsList.length > 0 ? productReviewsList : [])
+    : productReviewsList && productReviewsList.length > 0
+    ? productReviewsList
+    : settings?.reviews?.length
+    ? settings.reviews
+    : INITIAL_REVIEWS;
 
   const [reviews, setReviews] = useState<Review[]>(initialList);
 
   React.useEffect(() => {
-    let baseList =
-      productReviewsList && productReviewsList.length > 0
-        ? productReviewsList
-        : settings?.reviews?.length
-        ? settings.reviews
-        : INITIAL_REVIEWS;
+    let baseList = hideIfEmpty
+      ? (productReviewsList && productReviewsList.length > 0 ? productReviewsList : [])
+      : productReviewsList && productReviewsList.length > 0
+      ? productReviewsList
+      : settings?.reviews?.length
+      ? settings.reviews
+      : INITIAL_REVIEWS;
 
     const fetchApproved = async () => {
       try {
@@ -153,7 +157,11 @@ export function CustomerReviewsSection({
     };
 
     fetchApproved();
-  }, [productHandle, productReviewsList, settings?.reviews, collectionName]);
+  }, [productHandle, productReviewsList, settings?.reviews, collectionName, hideIfEmpty]);
+
+  if (hideIfEmpty && (!reviews || reviews.length === 0)) {
+    return null;
+  }
 
   const ratingValueText = React.useMemo(() => {
     if (productRating) return productRating.toFixed(1);

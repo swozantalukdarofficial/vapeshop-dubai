@@ -21,6 +21,7 @@ interface WhyChooseProductSectionProps {
   className?: string;
   settings?: WhyChooseProductSettings;
   productWhyChoose?: ProductWhyChooseMeta;
+  hideIfEmpty?: boolean;
 }
 
 export interface WhyChooseProductSettings {
@@ -92,7 +93,20 @@ export function WhyChooseProductSection({
   puffs = "",
   className = "",
   productWhyChoose,
+  hideIfEmpty = false,
 }: WhyChooseProductSectionProps) {
+  const hasMetafield =
+    Boolean(productWhyChoose) &&
+    Boolean(
+      productWhyChoose?.heading ||
+      productWhyChoose?.intro ||
+      (productWhyChoose?.points && productWhyChoose.points.length > 0) ||
+      productWhyChoose?.footer
+    );
+
+  if (hideIfEmpty && !hasMetafield) {
+    return null;
+  }
   const puffCount =
     puffs ||
     productName.match(/\d+[\d,]*(?:\s*puffs|\s*puff|\s*k)/i)?.[0] ||

@@ -22,6 +22,7 @@ interface ProductAvailableFlavorsSectionProps {
   onSelectVariant?: (variant: any) => void;
   className?: string;
   settings?: ProductFlavorsSettings;
+  hideIfEmpty?: boolean;
 }
 
 // Preset flavor descriptions dictionary to match popular vape & shisha flavors in UAE
@@ -140,12 +141,19 @@ export function ProductAvailableFlavorsSection({
   productFlavorNotes,
   onSelectVariant,
   className = "",
+  hideIfEmpty = false,
 }: ProductAvailableFlavorsSectionProps) {
   
   const notes = [...(productFlavorNotes || []), ...(settings?.flavorNotes ?? [])];
 
   // Filter valid variants (ignore single default variant if titled "Default Title")
   const validVariants = variants.filter((v) => v.title && v.title.toLowerCase() !== "default title" && v.title.toLowerCase() !== "default");
+
+  const hasFlavorData = validVariants.length > 1 || (productFlavorNotes && productFlavorNotes.length > 0);
+
+  if (hideIfEmpty && !hasFlavorData) {
+    return null;
+  }
 
   // Group variants by base flavor name (strip pack size suffixes)
   // Handles: "/ 1Pc/1Device", "/ 10Pc/1Box", "/ SINGLE/1PC", "/ 1BOX/10PCS", "/ Single Pack", "/ 10Pack/1Box"
@@ -184,7 +192,21 @@ export function ProductAvailableFlavorsSection({
     }
   }
 
+function extractFlavorFromProductName(name: string): string {
+  let cleaned = name
+    .replace(/juul\s*\d*\s*(pods|device|kit|starter kit)?/gi, "")
+    .replace(/myle\s*(meta|v5|v4|micro|drip)?\s*(pods|device|kit)?/gi, "")
+    .replace(/disposable\s*(vape|device|pod)?/gi, "")
+    .replace(/\d+\s*(mg|puffs|puff|k|ml|pack|pcs|pc)/gi, "")
+    .replace(/\|?\s*made in [a-z]+/gi, "")
+    .replace(/\b(in uae|dubai|uae|vape|pods|pod|kit|device)\b/gi, "")
+    .trim();
+
+  return cleaned || name;
+}
+
   // Determine flavor list to display
+  const singleFlavorTitle = extractFlavorFromProductName(productName);
   const flavorsList = groupedFlavors.length > 0
     ? groupedFlavors.map((group, i) => ({
         id: group.variants[0].id,
@@ -195,15 +217,17 @@ export function ProductAvailableFlavorsSection({
         available: group.anyAvailable,
         price: group.variants[0].price,
       }))
-    : DEFAULT_FALLBACK_FLAVORS.map((f, i) => ({
-        id: `fallback-${i}`,
-        variantObj: null as any,
-        allVariants: [] as any[],
-        title: f.title,
-        desc: getFlavorDescription(f.title, productName, notes),
-        available: true,
-        price: null,
-      }));
+    : [
+        {
+          id: variants[0]?.id || "single-flavor",
+          variantObj: variants[0] || null,
+          allVariants: variants,
+          title: singleFlavorTitle,
+          desc: getFlavorDescription(singleFlavorTitle, productName, notes),
+          available: variants[0]?.availableForSale ?? true,
+          price: variants[0]?.price ?? null,
+        },
+      ];
 
   const subheading = (
     settings?.subheadingTemplate ?? "Complete flavor profile spreadsheet table for {product}"

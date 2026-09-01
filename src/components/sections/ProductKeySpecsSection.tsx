@@ -18,6 +18,7 @@ interface ProductKeySpecsSectionProps {
   specsTable?: SpecRow[] | Record<string, string>;
   className?: string;
   settings?: ProductKeySpecsSettings;
+  hideIfEmpty?: boolean;
 }
 
 export interface ProductKeySpecsSettings {
@@ -45,60 +46,38 @@ function autoRows(
   nicotine: string,
   battery: string
 ): SpecRow[] {
-  const isMyle =
-    brand.toLowerCase().includes("myle") || productName.toLowerCase().includes("myle");
-  const isDisposable =
-    category.toLowerCase().includes("disposable") ||
-    productName.toLowerCase().includes("puffs") ||
-    puffs !== "";
-
   return [
     {
       feature: "Puff Count",
-      details: puffs
-        ? `${puffs} for extended longevity`
-        : isDisposable
-        ? "High capacity puffs for long-lasting performance"
-        : "Pre-filled high efficiency pod system",
+      details: puffs || "N/A",
     },
     {
       feature: "Nicotine Strength",
-      details:
-        nicotine || (isMyle ? "5% (50mg) & 2% (20mg) Salt Nicotine" : "5% (50mg) Salt Nicotine"),
+      details: nicotine || "N/A",
     },
     {
       feature: "E-Liquid Capacity",
-      details: isMyle
-        ? "2.0ml - 4.5ml Pre-filled Pods"
-        : "High capacity pre-filled premium salt nic e-liquid",
+      details: "N/A",
     },
     {
       feature: "Battery Capacity",
-      details: battery || "High-density rechargeable built-in battery",
+      details: battery || "N/A",
     },
-    { feature: "Charging System", details: "USB Type-C ultra-fast charging port" },
+    {
+      feature: "Charging System",
+      details: "N/A",
+    },
     {
       feature: "Display",
-      details: "LED screen indicator for battery & e-liquid monitoring",
+      details: "N/A",
     },
     {
       feature: "Coil Type",
-      details: "Advanced Dual Mesh Coil Technology for rich flavor",
-    },
-    { feature: "Coil Resistance", details: "Optimized 0.6 - 1.0 ohm sub-ohm coil" },
-    {
-      feature: "Air Intake System",
-      details: "Adjustable airflow control slider for custom draw",
-    },
-    { feature: "Vaping Style", details: "True MTL (Mouth-to-Lung) & RDTL experience" },
-    {
-      feature: "Experience",
-      details:
-        "Bold shisha style flavour delivery, cooling sensation, smooth inhale/exhale, and rich vapor production",
+      details: "N/A",
     },
     {
-      feature: "Convenience",
-      details: `Premium authentic ${productName} with sleek ergonomic design and maximum portability`,
+      feature: "Coil Resistance",
+      details: "N/A",
     },
   ];
 }
@@ -113,21 +92,35 @@ export function ProductKeySpecsSection({
   battery = "",
   specsTable,
   className = "",
+  hideIfEmpty = false,
 }: ProductKeySpecsSectionProps) {
   // Precedence: what the merchant typed in the customizer, then what Shopify
   // holds on the product, then the generated fallback.
   const authored = (settings?.rows ?? []).filter((row) => row.feature || row.details);
 
-  let rows: SpecRow[];
-  if (authored.length > 0) {
-    rows = authored;
-  } else if (Array.isArray(specsTable) && specsTable.length > 0) {
-    rows = specsTable;
-  } else if (specsTable && typeof specsTable === "object") {
-    rows = Object.entries(specsTable).map(([feature, details]) => ({ feature, details }));
-  } else {
-    rows = autoRows(productName, category, brand, puffs, nicotine, battery);
+  const hasShopifySpecs =
+    (Array.isArray(specsTable) && specsTable.length > 0 && specsTable.some((r) => r.details && r.details.trim() !== "" && r.details.trim().toUpperCase() !== "N/A")) ||
+    (specsTable && typeof specsTable === "object" && !Array.isArray(specsTable) && Object.keys(specsTable).length > 0);
+
+  if (hideIfEmpty && !hasShopifySpecs && authored.length === 0) {
+    return null;
   }
+
+  let rawRows: SpecRow[];
+  if (authored.length > 0) {
+    rawRows = authored;
+  } else if (Array.isArray(specsTable) && specsTable.length > 0) {
+    rawRows = specsTable;
+  } else if (specsTable && typeof specsTable === "object") {
+    rawRows = Object.entries(specsTable).map(([feature, details]) => ({ feature, details }));
+  } else {
+    rawRows = autoRows(productName, category, brand, puffs, nicotine, battery);
+  }
+
+  const rows = rawRows.map((row) => ({
+    feature: row.feature,
+    details: row.details && row.details.trim() !== "" ? row.details : "N/A",
+  }));
 
   const heading = settings?.heading || "Key Features & Specifications";
   const subheading = (

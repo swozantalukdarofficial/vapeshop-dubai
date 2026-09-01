@@ -45,7 +45,7 @@ const DEFAULT_FAQ_ITEMS: FaqItem[] = [
   },
 ];
 
-export function FAQSection({ settings, productFaqs }: { settings?: FaqSettings; productFaqs?: FaqItem[] }) {
+export function FAQSection({ settings, productFaqs, hideIfEmpty }: { settings?: FaqSettings; productFaqs?: FaqItem[]; hideIfEmpty?: boolean }) {
   const [openIndex, setOpenIndex] = useState<number | null>(0); // First open by default
 
   const badgeText = settings?.badgeText || "Customer Help & FAQs";
@@ -56,10 +56,19 @@ export function FAQSection({ settings, productFaqs }: { settings?: FaqSettings; 
   const deliveryBadge = settings?.deliveryBadge || "2-Hour Delivery";
   const verifiedNote = settings?.verifiedNote || "Verified Answer for Dubai & UAE Customers";
 
-  const rawItems = (settings?.items && settings.items.length > 0) ? settings.items : DEFAULT_FAQ_ITEMS;
-  const itemsToUse = (productFaqs && productFaqs.length > 0) ? productFaqs : rawItems;
+  const itemsToUse = hideIfEmpty
+    ? (productFaqs && productFaqs.length > 0 ? productFaqs : [])
+    : (productFaqs && productFaqs.length > 0)
+    ? productFaqs
+    : (settings?.items && settings.items.length > 0)
+    ? settings.items
+    : DEFAULT_FAQ_ITEMS;
 
   const faqs = itemsToUse || [];
+
+  if (hideIfEmpty && faqs.length === 0) {
+    return null;
+  }
 
   const toggleAccordion = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);

@@ -148,8 +148,20 @@ async function fetchCollection(handle: string): Promise<CollectionMeta | null> {
  * Super-easy All-in-One Combined Parser:
  * Allows a non-coder merchant to put EVERYTHING into 1 single multi-line text field (`custom.collection_details`) or standard Description box!
  */
-function parseCombinedBlock(text: string) {
-  if (!text || !text.trim()) return null;
+function cleanRawCss(input: string): string {
+  if (!input) return "";
+  let s = input;
+  s = s.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");
+  s = s.replace(/&lt;style[^>]*&gt;[\s\S]*?&lt;\/style&gt;/gi, "");
+  s = s.replace(/(?:PRODUCTS\s+AFTER|:AFTER|\.[a-z0-9_-]+|#[a-z0-9_-]+|:[a-z_-]+)[^{]*\{[^}]+\}/gi, "");
+  return s.trim();
+}
+
+function parseCombinedBlock(rawText: string) {
+  if (!rawText || !rawText.trim()) return null;
+
+  const text = cleanRawCss(rawText);
+  if (!text) return null;
 
   let eyebrow: string | null = null;
   let heading: string | null = null;
@@ -159,11 +171,15 @@ function parseCombinedBlock(text: string) {
 
   // Sheet format: TAG = ... or EYEBROW = ... or Eyebrow: ...
   const tagMatch = text.match(/(?:TAG|EYEBROW)\s*[:=]\s*([^\n]+)/i);
-  if (tagMatch) eyebrow = tagMatch[1].trim();
+  if (tagMatch && !tagMatch[1].includes("{") && tagMatch[1].length < 100) {
+    eyebrow = tagMatch[1].trim();
+  }
 
   // Sheet format: TITLE = ... or HEADING = ... or Title: ...
   const titleMatch = text.match(/(?:TITLE|HEADING)\s*[:=]\s*([^\n]+)/i);
-  if (titleMatch) heading = titleMatch[1].trim();
+  if (titleMatch && !titleMatch[1].includes("{") && titleMatch[1].length < 150) {
+    heading = titleMatch[1].trim();
+  }
 
   // Sheet format: FLAVORS = Mango, Strawberry, Mint or Flavors: ...
   const flavorsMatch = text.match(/(?:FLAVORS|FLAVOURS|FLAVOR_LIST)\s*[:=]\s*([^\n]+)/i);
@@ -204,19 +220,12 @@ function parseFlavorsSimpleText(val: unknown) {
   const names = str.split(/,|\n/).map((s) => s.trim()).filter(Boolean);
   if (names.length === 0) return null;
 
-  const defaultImages = [
-    "https://images.unsplash.com/photo-1553279768-865429fa0078?w=200&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=200&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1595855759920-86582396756a?w=200&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=200&h=200&fit=crop",
-  ];
-  const defaultColors = ["#f59e0b", "#ef4444", "#3b82f6", "#ec4899", "#06b6d4"];
+  const defaultColors = ["#f59e0b", "#ef4444", "#3b82f6", "#ec4899", "#06b6d4", "#10b981", "#8b5cf6", "#f97316"];
 
   return names.map((name, idx) => ({
     name,
     query: name.split("&")[0].trim(),
     color: defaultColors[idx % defaultColors.length],
-    img: defaultImages[idx % defaultImages.length],
   }));
 }
 
@@ -295,6 +304,11 @@ function mapCollection(col: Record<string, unknown>): CollectionMeta {
   // Smart combined block parsing for 1-field easy setup
   const combinedParsed = parseCombinedBlock(combinedDetailsMeta || (col.description as string) || "");
 
+  let headingVal = customHeading || combinedParsed?.heading || null;
+  if (headingVal && (headingVal.includes("{") || headingVal.includes(":") || headingVal.length > 120)) {
+    headingVal = null;
+  }
+
   return {
     title: (col.title as string) || "",
     description: (col.description as string) || "",
@@ -315,7 +329,7 @@ function mapCollection(col: Record<string, unknown>): CollectionMeta {
       : null,
     bannerImage,
     eyebrowText: eyebrowText || combinedParsed?.eyebrow || null,
-    customHeading: customHeading || combinedParsed?.heading || null,
+    customHeading: headingVal,
     flavorsWheelJson: parseFlavorsSimpleText(flavorsWheelMeta) || combinedParsed?.flavors || null,
     faqsJson: parseFaqsSimpleText(faqsMeta) || combinedParsed?.faqs || null,
     seoGuideHtml: seoGuideMeta || combinedParsed?.guideHtml || null,

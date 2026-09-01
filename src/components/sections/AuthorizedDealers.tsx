@@ -3,6 +3,7 @@
 import React from "react";
 import { useRouter, useParams } from "next/navigation";
 import { FlavorsWheel } from "./FlavorsWheel";
+import { useCollectionImages, getHandleFromUrl } from "@/hooks/useCollectionImages";
 
 export interface BrandItem {
   name: string;
@@ -64,6 +65,8 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
 }) => {
   const router = useRouter();
   const params = useParams();
+  
+  const collectionImages = useCollectionImages();
 
   const handle = (params?.handle as string) || "";
   const isJuul1Or2 =
@@ -134,7 +137,7 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
               {/* Image Container */}
               <div className="relative w-10 h-10 sm:w-16 sm:h-16 flex items-center justify-center bg-muted/20 border border-primary/15 group-hover:border-primary/40 rounded-xl p-1 sm:p-2 mb-2 transition-colors">
                 <img
-                  src={brand.image}
+                  src={(getHandleFromUrl(brand.href) ? collectionImages[getHandleFromUrl(brand.href)!] : undefined) || brand.image}
                   alt={brand.name}
                   className="w-full h-full object-contain filter drop-shadow-xs transition-transform duration-300 group-hover:scale-110"
                   onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
