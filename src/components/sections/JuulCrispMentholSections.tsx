@@ -42,10 +42,12 @@ export function JuulCrispMentholSections({
   productName = "JUUL 2 Pods",
   settings,
   showWhyChoose = true,
+  showIngredients = true,
 }: {
   productName?: string;
   settings?: JuulCrispMentholSettings;
   showWhyChoose?: boolean;
+  showIngredients?: boolean;
 }) {
   const fill = (template: string) =>
     (template ?? "").split("{product}").join(productName);
@@ -55,7 +57,7 @@ export function JuulCrispMentholSections({
   const points = settings?.points ?? [];
   const image = settings?.image || "/juul_menthol_pack.png";
 
-  const showIngredients = settings?.showIngredients !== false;
+  const renderIngredients = showIngredients && settings?.showIngredients !== false;
   const ingredientsHeading = fill(
     settings?.ingredientsHeadingTemplate || "{product} Ingredients"
   );
@@ -137,7 +139,7 @@ export function JuulCrispMentholSections({
       )}
 
       {/* Section 2: Ingredients */}
-      {showIngredients && (
+      {renderIngredients && (
         <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-12 shadow-md overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
