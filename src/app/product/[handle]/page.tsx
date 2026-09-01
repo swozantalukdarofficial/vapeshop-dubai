@@ -1001,9 +1001,12 @@ export default function ProductPage() {
           containerClassName="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16"
           slots={{
             productMain: null,
-            juulCrispMenthol: (settings: Record<string, unknown>) => (
-              <JuulCrispMentholSections productName={product.name} settings={settings as never} />
-            ),
+            juulCrispMenthol: (settings: Record<string, unknown>) => {
+              if (product.juulFeature1 && (product.juulFeature1.title || product.juulFeature1.image || product.juulFeature1.description)) {
+                return <JuulCustomFeatureSection settings={product.juulFeature1} />;
+              }
+              return <JuulCrispMentholSections productName={product.name} settings={settings as never} />;
+            },
             whyChooseProduct: (settings: Record<string, unknown>) => (
               <WhyChooseProductSection
                 productName={product.name}
@@ -1049,14 +1052,14 @@ export default function ProductPage() {
               />
             ),
             juulCollectionFeature1: (settings: Record<string, unknown>) => {
-              const mergedSettings = (product.juulFeature1 && (product.juulFeature1.title || product.juulFeature1.image)) 
-                ? product.juulFeature1 
-                : settings;
-              if (!mergedSettings || (!mergedSettings.title && !mergedSettings.image && !mergedSettings.description)) return null;
-              return <JuulCustomFeatureSection settings={mergedSettings as never} />;
+              if (product.juulFeature1 && (product.juulFeature1.title || product.juulFeature1.image || product.juulFeature1.description)) {
+                return null; // Already rendered in juulCrispMenthol slot above
+              }
+              if (!settings || (!settings.title && !settings.image && !settings.description)) return null;
+              return <JuulCustomFeatureSection settings={settings as never} />;
             },
             juulCollectionFeature2: (settings: Record<string, unknown>) => {
-              const mergedSettings = (product.juulFeature2 && (product.juulFeature2.title || product.juulFeature2.image)) 
+              const mergedSettings = (product.juulFeature2 && (product.juulFeature2.title || product.juulFeature2.image || product.juulFeature2.description)) 
                 ? product.juulFeature2 
                 : settings;
               if (!mergedSettings || (!mergedSettings.title && !mergedSettings.image && !mergedSettings.description)) return null;
