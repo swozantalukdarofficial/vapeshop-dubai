@@ -1002,10 +1002,22 @@ export default function ProductPage() {
           slots={{
             productMain: null,
             juulCrispMenthol: (settings: Record<string, unknown>) => {
-              if (product.juulFeature1 && (product.juulFeature1.title || product.juulFeature1.image || product.juulFeature1.description)) {
-                return <JuulCustomFeatureSection settings={product.juulFeature1} />;
+              const hasFeature1 = product.juulFeature1 && (product.juulFeature1.title || product.juulFeature1.image || product.juulFeature1.description);
+              const hasFeature2 = product.juulFeature2 && (product.juulFeature2.title || product.juulFeature2.image || product.juulFeature2.description);
+
+              if (hasFeature1 || hasFeature2) {
+                return (
+                  <div className="space-y-12 sm:space-y-16">
+                    {hasFeature1 && <JuulCustomFeatureSection settings={product.juulFeature1} />}
+                    {hasFeature2 ? (
+                      <JuulCustomFeatureSection settings={product.juulFeature2} reverseLayout />
+                    ) : (
+                      <JuulCrispMentholSections productName={product.name} settings={settings as never} showWhyChoose={false} />
+                    )}
+                  </div>
+                );
               }
-              return <JuulCrispMentholSections productName={product.name} settings={settings as never} showWhyChoose={true} showIngredients={false} />;
+              return <JuulCrispMentholSections productName={product.name} settings={settings as never} />;
             },
             whyChooseProduct: (settings: Record<string, unknown>) => (
               <WhyChooseProductSection
@@ -1053,19 +1065,17 @@ export default function ProductPage() {
             ),
             juulCollectionFeature1: (settings: Record<string, unknown>) => {
               if (product.juulFeature1 && (product.juulFeature1.title || product.juulFeature1.image || product.juulFeature1.description)) {
-                return null; // Already rendered in juulCrispMenthol slot
+                return null; // Already rendered in juulCrispMenthol slot above
               }
               if (!settings || (!settings.title && !settings.image && !settings.description)) return null;
               return <JuulCustomFeatureSection settings={settings as never} />;
             },
             juulCollectionFeature2: (settings: Record<string, unknown>) => {
               if (product.juulFeature2 && (product.juulFeature2.title || product.juulFeature2.image || product.juulFeature2.description)) {
-                return <JuulCustomFeatureSection settings={product.juulFeature2} reverseLayout />;
+                return null; // Already rendered in juulCrispMenthol slot above
               }
-              if (settings && (settings.title || settings.image || settings.description)) {
-                return <JuulCustomFeatureSection settings={settings as never} reverseLayout />;
-              }
-              return <JuulCrispMentholSections productName={product.name} showWhyChoose={false} showIngredients={true} />;
+              if (!settings || (!settings.title && !settings.image && !settings.description)) return null;
+              return <JuulCustomFeatureSection settings={settings as never} reverseLayout />;
             },
             customerReviews: (settings: Record<string, unknown>) => (
               <CustomerReviewsSection
