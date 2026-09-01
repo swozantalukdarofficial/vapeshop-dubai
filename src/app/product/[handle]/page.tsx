@@ -1003,7 +1003,12 @@ export default function ProductPage() {
             productMain: null,
             juulCrispMenthol: (settings: Record<string, unknown>) => {
               if (product.juulFeature1 && (product.juulFeature1.title || product.juulFeature1.image || product.juulFeature1.description)) {
-                return <JuulCustomFeatureSection settings={product.juulFeature1} />;
+                return (
+                  <div className="space-y-12 sm:space-y-16">
+                    <JuulCustomFeatureSection settings={product.juulFeature1} />
+                    <JuulCrispMentholSections productName={product.name} settings={settings as never} showWhyChoose={false} />
+                  </div>
+                );
               }
               return <JuulCrispMentholSections productName={product.name} settings={settings as never} />;
             },

@@ -41,9 +41,11 @@ const DIAGRAM_POSITIONS = [
 export function JuulCrispMentholSections({
   productName = "JUUL 2 Pods",
   settings,
+  showWhyChoose = true,
 }: {
   productName?: string;
   settings?: JuulCrispMentholSettings;
+  showWhyChoose?: boolean;
 }) {
   const fill = (template: string) =>
     (template ?? "").split("{product}").join(productName);
@@ -68,7 +70,8 @@ export function JuulCrispMentholSections({
   return (
     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16 space-y-12 sm:space-y-16">
       {/* Section 1: Why Choose */}
-      <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-12 shadow-md overflow-hidden">
+      {showWhyChoose && (
+        <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-12 shadow-md overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
           {/* Left Text */}
@@ -131,6 +134,7 @@ export function JuulCrispMentholSections({
           </div>
         </div>
       </div>
+      )}
 
       {/* Section 2: Ingredients */}
       {showIngredients && (
