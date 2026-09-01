@@ -200,12 +200,75 @@ export default function ProductPage() {
   const showReturnsTab = flag("showReturnsTab");
   const [isWishlist, setIsWishlist] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      const domain = isLocal ? "https://vapeshopdubai.net" : window.location.origin;
+      setShareUrl(`${domain}/product/${handle}`);
+    }
+  }, [handle]);
 
   const handleCopyLink = () => {
     if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(window.location.href);
+      const urlToCopy = shareUrl || window.location.href;
+      navigator.clipboard.writeText(urlToCopy);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleNativeShare = async () => {
+    const urlToShare = getProductShareUrl();
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: product?.name || "Vape Shop Dubai",
+          text: `Check out ${product?.name || "this product"} on Vape Shop Dubai!`,
+          url: urlToShare,
+        });
+        return true;
+      } catch (err) {
+        // User cancelled or share failed
+      }
+    }
+    return false;
+  };
+
+  const getProductShareUrl = () => {
+    if (typeof window !== "undefined") {
+      const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      const domain = isLocal ? "https://vapeshopdubai.net" : window.location.origin;
+      return `${domain}/product/${handle}`;
+    }
+    return `https://vapeshopdubai.net/product/${handle}`;
+  };
+
+  const handleFacebookShare = async () => {
+    const shared = await handleNativeShare();
+    if (!shared && typeof window !== "undefined") {
+      const urlToShare = getProductShareUrl();
+      const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(urlToShare)}`;
+      window.open(fbUrl, "_blank", "width=600,height=500,location=yes,resizable=yes,scrollbars=yes");
+    }
+  };
+
+  const handleTwitterShare = async () => {
+    const shared = await handleNativeShare();
+    if (!shared && typeof window !== "undefined") {
+      const urlToShare = getProductShareUrl();
+      const twUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(urlToShare)}&text=${encodeURIComponent(product?.name || "")}`;
+      window.open(twUrl, "_blank", "width=600,height=500,location=yes,resizable=yes,scrollbars=yes");
+    }
+  };
+
+  const handleWhatsAppShare = async () => {
+    const shared = await handleNativeShare();
+    if (!shared && typeof window !== "undefined") {
+      const urlToShare = getProductShareUrl();
+      const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent((product?.name || "") + " - " + urlToShare)}`;
+      window.open(waUrl, "_blank");
     }
   };
 
@@ -539,9 +602,9 @@ export default function ProductPage() {
                   {product.section || product.category}
                 </span>
 
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-serif font-black text-foreground mt-1.5 leading-tight tracking-tight">
+                <h3 className="text-xl sm:text-2xl lg:text-3xl font-serif font-black text-foreground mt-1.5 leading-tight tracking-tight">
                   {product.name}
-                </h1>
+                </h3>
 
                 {/* Compact Rating & In-Stock & Social Share Bar */}
                 <div className="flex flex-wrap items-center justify-between gap-3 mt-2.5 pb-3 border-b border-border/40">
@@ -586,39 +649,49 @@ export default function ProductPage() {
                       {text("shareLabel", "SHARE:")}
                     </span>
 
-                    <a
-                      href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof window !== "undefined" ? window.location.href : "")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={handleFacebookShare}
                       className="p-1.5 rounded-lg bg-card border border-border/60 text-foreground hover:text-blue-600 hover:border-blue-600/40 transition-all cursor-pointer shadow-2xs"
                       title="Share on Facebook"
                     >
                       <svg className="w-3 h-3 fill-current text-blue-600" viewBox="0 0 24 24">
                         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                       </svg>
-                    </a>
+                    </button>
 
-                    <a
-                      href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(typeof window !== "undefined" ? window.location.href : "")}&text=${encodeURIComponent(product.name)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={handleTwitterShare}
                       className="p-1.5 rounded-lg bg-card border border-border/60 text-foreground hover:text-sky-500 hover:border-sky-500/40 transition-all cursor-pointer shadow-2xs"
                       title="Share on Twitter"
                     >
                       <svg className="w-3 h-3 fill-current text-sky-500" viewBox="0 0 24 24">
                         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                       </svg>
-                    </a>
+                    </button>
 
-                    <a
-                      href={`https://api.whatsapp.com/send?text=${encodeURIComponent(product.name + " " + (typeof window !== "undefined" ? window.location.href : ""))}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={handleWhatsAppShare}
                       className="p-1.5 rounded-lg bg-card border border-border/60 text-foreground hover:text-emerald-500 hover:border-emerald-500/40 transition-all cursor-pointer shadow-2xs"
                       title="Share on WhatsApp"
                     >
                       <MessageCircle className="h-3 w-3 text-emerald-500" />
-                    </a>
+                    </button>
+
+                    <button
+                      onClick={async () => {
+                        const shared = await handleNativeShare();
+                        if (!shared) {
+                          handleCopyLink();
+                          window.open("https://www.instagram.com/direct/inbox/", "_blank");
+                        }
+                      }}
+                      className="p-1.5 rounded-lg bg-card border border-border/60 text-foreground hover:text-pink-500 hover:border-pink-500/40 transition-all cursor-pointer shadow-2xs"
+                      title="Share on Instagram (Copies product link to clipboard)"
+                    >
+                      <svg className="w-3 h-3 fill-current text-pink-500" viewBox="0 0 24 24">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                      </svg>
+                    </button>
 
                     <button
                       onClick={handleCopyLink}
@@ -626,7 +699,7 @@ export default function ProductPage() {
                       title="Copy Product Link"
                     >
                       {copied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
-                      <span>{copied ? "Copied" : "Copy"}</span>
+                      <span>{copied ? "Copied!" : "Copy"}</span>
                     </button>
                   </div>
                   )}
@@ -800,13 +873,13 @@ export default function ProductPage() {
                 return (
                   <div
                     key={idx}
-                    className="bg-card border border-border/50 rounded-2xl p-5 shadow-xs flex items-center gap-4 hover:border-primary/40 transition-all"
+                    className="bg-card border border-emerald-500/20 rounded-2xl p-5 shadow-xs flex items-center gap-4 hover:border-emerald-500/50 hover:bg-emerald-500/[0.02] hover:shadow-md hover:-translate-y-1 transition-all duration-300 group cursor-default"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 flex-shrink-0 group-hover:bg-emerald-500 group-hover:text-white group-hover:scale-110 transition-all duration-300 shadow-2xs">
                       <Icon className="h-6 w-6" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-black uppercase tracking-wider text-foreground">
+                      <h4 className="text-xs font-black uppercase tracking-wider text-foreground group-hover:text-emerald-600 transition-colors">
                         {card.title}
                       </h4>
                       {card.subtitle && (
@@ -825,25 +898,26 @@ export default function ProductPage() {
         {/* Product Tabs — labels, visibility and the shipping/returns copy all
             come from the template's Product Details section. */}
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:mt-14">
-          <div className="bg-card border border-border/50 rounded-[2.5rem] p-6 sm:p-12 shadow-sm">
+          <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-10 lg:p-12 shadow-sm relative overflow-hidden transition-all duration-300">
+            {/* Top subtle brand accent bar */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/20 via-primary to-primary/20" />
 
             {/* Tab Headers */}
             <div className="flex border-b border-border/40 gap-8 sm:gap-12 pb-4 overflow-x-auto">
               {([
                 { key: "description" as const, label: text("descriptionTabLabel", "Product Description"), shown: true },
-                { key: "shipping" as const, label: text("shippingTabLabel", "Shipping and Delivery"), shown: showShippingTab },
-                { key: "returns" as const, label: text("returnsTabLabel", "Refund and Returns Policy"), shown: showReturnsTab },
+                { key: "shipping" as const, label: "Shipping & Return", shown: showShippingTab },
               ])
                 .filter((tab) => tab.shown && tab.label)
                 .map((tab) => (
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`text-xs sm:text-sm font-bold uppercase tracking-wider pb-2 transition-all cursor-pointer relative whitespace-nowrap ${effectiveTab === tab.key ? "text-primary font-black" : "text-muted-foreground hover:text-foreground"
+                    className={`text-xs sm:text-sm font-bold uppercase tracking-wider pb-2 transition-all cursor-pointer relative whitespace-nowrap ${effectiveTab === tab.key || (tab.key === "shipping" && effectiveTab === "returns") ? "text-primary font-black" : "text-muted-foreground hover:text-foreground"
                       }`}
                   >
                     {tab.label}
-                    {effectiveTab === tab.key && (
+                    {(effectiveTab === tab.key || (tab.key === "shipping" && effectiveTab === "returns")) && (
                       <div className="absolute -bottom-[17px] left-0 right-0 h-0.5 bg-primary" />
                     )}
                   </button>
@@ -864,40 +938,43 @@ export default function ProductPage() {
                   {product.descriptionHtml && (
                     <div
                       dangerouslySetInnerHTML={{
-                        __html: product.descriptionHtml
-                          .replace(/<h1/gi, "<h2")
-                          .replace(/<\/h1>/gi, "</h2>"),
+                        __html: product.descriptionHtml,
                       }}
                     />
                   )}
                 </div>
               )}
 
-              {effectiveTab === "shipping" && (
-                <div className="max-w-3xl space-y-6 text-sm text-foreground/90 leading-relaxed">
-                  {shippingBlocks.map((block, idx) => (
-                    <div key={idx} className="border border-border/40 rounded-2xl p-6 bg-card space-y-3">
-                      <h4
-                        className={`font-bold text-base uppercase tracking-wider ${idx === 0 ? "text-primary" : "text-foreground"}`}
-                      >
+              {(effectiveTab === "shipping" || effectiveTab === "returns") && (
+                <div className="max-w-4xl space-y-6 text-sm text-foreground/90 leading-relaxed">
+                  {(shippingBlocks.length > 0 && !shippingBlocks[0].title.includes("Express 2-Hour Delivery")
+                    ? shippingBlocks
+                    : [
+                        {
+                          title: "🚚 FREE DELIVERY AND MINIMUM ORDER",
+                          body: "• Delivery country: We are able to deliver all over the UAE. Note: We are unable for international deliveries due to custom restrictions.\n• Minimum order: A minimum 85 AED required to place an order.\n• Free Delivery: Enjoy complimentary shipping for orders valued at AED 300 or more.\n• Delivery Charge: A delivery charge of AED 30 applies to orders below AED 300.",
+                        },
+                        {
+                          title: "⚡ SHIPPING & DELIVERY IN DUBAI AND SHARJAH",
+                          body: "• Same Day Delivery: Place your order before 9pm and we will deliver at your doorstep the same day.\n• Next Day Delivery: Place your order after 9pm and we will deliver it the next morning.\n• Operational Days: Our deliveries run 7 days a week.\n• Prompt Dispatch: We aim to dispatch your order by courier or private car the following business day. Unforeseen circumstances like severe weather or traffic might cause occasional delays.\n• Reception Of Package: We ship it without requiring signatures. Ensure someone is there to collect your parcel.\n• Our Responsibility: We take great care in shipping until you receive it & ensure you are satisfied with the product.\n• Pre-orders: For items on Pre-order you can contact us by email or WhatsApp. Also you can give us details on the order note.\n• Address Finality: Once placed, orders are shipped to the provided address. If you change location let us know by WhatsApp or Email. If a refund is necessary, the initial shipping fee will be excluded.\n• Payment & ID: Delivery will be handed over upon presenting your Emirates ID/Passport and clearing the invoice amount by Cash or Card Payment.\n• Age Restriction: Buyers must be 18 or older. Orders placed by minors will not be handed over or refunded.\n• Delivery Update: After placing an order, expect a confirmation email from info.vapeshopdubai@gmail.com",
+                        },
+                        {
+                          title: "📦 OUTSIDE DUBAI AND SHARJAH",
+                          body: "• 6 working day delivery (Sunday closed).\n• Any order placed after 2:00 PM will be delivered the next day.\n• Orders placed before 2 PM will be delivered same day.\n• Orders placed after 2 PM on Saturday will be delivered on Monday.\n• Cash on delivery only (card payment not acceptable).\n• Orders over 200 AED are free delivery.\n• Minimum order 85 AED required to place an order.\n• Orders under 200 AED: delivery charge is 30 AED.\n• Age Restriction: Buyers must be 18 or older. Orders placed by minors will not be handed over or refunded.",
+                        },
+                        {
+                          title: "📍 OUTSIDE CITY AREA",
+                          body: "• Delivery within 2 working days (Sunday closed).\n• Areas far from the city: 35 AED additional charge.\n• Orders over 200 AED: 35 AED delivery charge only.",
+                        },
+                      ]
+                  ).map((block, idx) => (
+                    <div key={`ship-${idx}`} className="border border-border/50 rounded-2xl p-6 bg-card space-y-3 shadow-xs hover:border-primary/30 transition-colors">
+                      <h4 className="font-sans font-body font-extrabold text-base sm:text-lg text-primary tracking-tight">
                         {block.title}
                       </h4>
-                      <p className="text-muted-foreground">{block.body}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {effectiveTab === "returns" && (
-                <div className="max-w-3xl space-y-6 text-sm text-foreground/90 leading-relaxed">
-                  {returnsBlocks.map((block, idx) => (
-                    <div key={idx} className="border border-border/40 rounded-2xl p-6 bg-card space-y-3">
-                      <h4
-                        className={`font-bold text-base uppercase tracking-wider ${idx === 0 ? "text-primary" : "text-foreground"}`}
-                      >
-                        {block.title}
-                      </h4>
-                      <p className="text-muted-foreground">{block.body}</p>
+                      <p className="text-muted-foreground whitespace-pre-line leading-relaxed text-xs sm:text-sm font-medium">
+                        {block.body}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -964,6 +1041,7 @@ export default function ProductPage() {
             ),
             customerReviews: (settings: Record<string, unknown>) => (
               <CustomerReviewsSection
+                productHandle={product.handle || handle}
                 collectionName={product.name}
                 productRating={product.rating}
                 productReviewsCount={product.reviews}

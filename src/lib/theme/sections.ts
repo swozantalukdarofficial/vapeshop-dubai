@@ -288,6 +288,45 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     },
   },
 
+  flavorsWheel: {
+    type: "flavorsWheel",
+    label: "Interactive Flavours Wheel",
+    description: "Interactive 3D rotating flavour wheel with circular fruit images and quick filter links.",
+    templates: ["index", "collection", "product", "page"],
+    fields: [
+      ...headingFields(),
+      { type: "text", key: "buttonText", label: "Button text" },
+      { type: "link", key: "buttonHref", label: "Button link" },
+      {
+        type: "repeater",
+        key: "flavors",
+        label: "Flavour items",
+        itemNoun: "flavour",
+        itemLabelKey: "name",
+        max: 16,
+        defaultItem: {
+          name: "New Flavour",
+          color: "#f59e0b",
+          img: "https://images.unsplash.com/photo-1553279768-865429fa0078?w=200&h=200&fit=crop",
+          query: "Flavour",
+        },
+        fields: [
+          { type: "text", key: "name", label: "Flavour Name" },
+          { type: "text", key: "color", label: "Accent Color Hex" },
+          { type: "image", key: "img", label: "Flavour Image" },
+          { type: "text", key: "query", label: "Filter Query / Search keyword" },
+        ],
+      },
+    ],
+    defaults: {
+      eyebrow: "AUTHENTIC VAPE BRANDS",
+      heading: "SHOP BY AUTHORIZED VAPE BRANDS",
+      description: "From premium pod systems to disposable vapes and salt e-liquids, shop trusted global vape brands in Dubai.",
+      buttonText: "SEE ALL",
+      buttonHref: "/shop",
+    },
+  },
+
   productFeed: {
     type: "productFeed",
     label: "Product Feed",
@@ -1159,7 +1198,7 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
     type: "bottomCollectionGrid",
     label: "Related Collections Grid",
     description: "Five-category recommendation grid.",
-    templates: ["collection"],
+    templates: ["index", "collection", "product", "page"],
     contentInCode: true,
     fields: [
       {
@@ -1542,33 +1581,28 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
 
       descriptionTabLabel: "Product Description",
       showShippingTab: true,
-      shippingTabLabel: "Shipping and Delivery",
+      shippingTabLabel: "Shipping & Return",
       shippingBlocks: [
         {
-          title: "⚡ Express 2-Hour Delivery in Dubai",
-          body: "Place your order before 10:00 PM for rapid express delivery directly to your door anywhere in Dubai (Downtown, Marina, JBR, Deira, Al Barsha, JLT & surrounding areas).",
+          title: "🚚 FREE DELIVERY AND MINIMUM ORDER",
+          body: "• Delivery country: We are able to deliver all over the UAE. Note: We are unable for international deliveries due to custom restrictions.\n• Minimum order: A minimum 85 AED required to place an order.\n• Free Delivery: Enjoy complimentary shipping for orders valued at AED 300 or more.\n• Delivery Charge: A delivery charge of AED 30 applies to orders below AED 300.",
         },
         {
-          title: "🚚 Same-Day UAE Shipping",
-          body: "Orders placed for Abu Dhabi, Sharjah, Ajman, Ras Al Khaimah, Fujairah & Umm Al Quwain are delivered same-day or next-day morning.",
+          title: "⚡ SHIPPING & DELIVERY IN DUBAI AND SHARJAH",
+          body: "• Same Day Delivery: Place your order before 9pm and we will deliver at your doorstep the same day.\n• Next Day Delivery: Place your order after 9pm and we will deliver it the next morning.\n• Operational Days: Our deliveries run 7 days a week.\n• Prompt Dispatch: We aim to dispatch your order by courier or private car the following business day. Unforeseen circumstances like severe weather or traffic might cause occasional delays.\n• Reception Of Package: We ship it without requiring signatures. Ensure someone is there to collect your parcel.\n• Our Responsibility: We take great care in shipping until you receive it & ensure you are satisfied with the product.\n• Pre-orders: For items on Pre-order you can contact us by email or WhatsApp. Also you can give us details on the order note.\n• Address Finality: Once placed, orders are shipped to the provided address. If you change location let us know by WhatsApp or Email. If a refund is necessary, the initial shipping fee will be excluded.\n• Payment & ID: Delivery will be handed over upon presenting your Emirates ID/Passport and clearing the invoice amount by Cash or Card Payment.\n• Age Restriction: Buyers must be 18 or older. Orders placed by minors will not be handed over or refunded.\n• Delivery Update: After placing an order, expect a confirmation email from info.vapeshopdubai@gmail.com",
         },
         {
-          title: "💵 Payment Options",
-          body: "We support Cash on Delivery (COD) and Card on Delivery for 100% risk-free shopping.",
+          title: "📦 OUTSIDE DUBAI AND SHARJAH",
+          body: "• 6 working day delivery (Sunday closed).\n• Any order placed after 2:00 PM will be delivered the next day.\n• Orders placed before 2 PM will be delivered same day.\n• Orders placed after 2 PM on Saturday will be delivered on Monday.\n• Cash on delivery only (card payment not acceptable).\n• Orders over 200 AED are free delivery.\n• Minimum order 85 AED required to place an order.\n• Orders under 200 AED: delivery charge is 30 AED.\n• Age Restriction: Buyers must be 18 or older. Orders placed by minors will not be handed over or refunded.",
+        },
+        {
+          title: "📍 OUTSIDE CITY AREA",
+          body: "• Delivery within 2 working days (Sunday closed).\n• Areas far from the city: 35 AED additional charge.\n• Orders over 200 AED: 35 AED delivery charge only.",
         },
       ],
-      showReturnsTab: true,
+      showReturnsTab: false,
       returnsTabLabel: "Refund and Returns Policy",
-      returnsBlocks: [
-        {
-          title: "🛡️ 7-Day Exchange & Replacement Policy",
-          body: "If your device arrives damaged or non-functional (Dead-On-Arrival), contact our customer support team within 24 hours for instant exchange or replacement.",
-        },
-        {
-          title: "📦 Product Return Eligibility",
-          body: "Due to health and hygiene safety regulations, consumable items (opened e-liquid bottles, unsealed pod packs, and used disposable vapes) cannot be returned once opened unless verified defective.",
-        },
-      ],
+      returnsBlocks: [],
 
       variantModalHeading: "Select Flavor Option",
       variantSearchPlaceholder: "Search flavor name...",

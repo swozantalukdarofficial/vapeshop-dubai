@@ -52,6 +52,7 @@ const WhyShopWithUs = dynamic(() => import("./WhyShopWithUs").then((m) => ({ def
 const FAQSection = dynamic(() => import("./FAQSection").then((m) => ({ default: m.FAQSection })), { ssr: false });
 const WhatsAppContactSection = dynamic(() => import("./WhatsAppContactSection").then((m) => ({ default: m.WhatsAppContactSection })), { ssr: false });
 const BlogSection = dynamic(() => import("./BlogSection").then((m) => ({ default: m.BlogSection })), { ssr: false });
+const FlavorsWheel = dynamic(() => import("./FlavorsWheel").then((m) => ({ default: m.FlavorsWheel })), { ssr: false });
 
 /**
  * Sections the page renders itself, keyed by section type.
@@ -86,6 +87,8 @@ function renderRegistrySection(
       return <Categories settings={s as unknown as CategoriesSettings} />;
     case "brands":
       return <AuthorizedDealers settings={s as unknown as BrandsSettings} />;
+    case "flavorsWheel":
+      return <FlavorsWheel {...(s as any)} />;
     case "whyShop":
       return <WhyShopWithUs settings={s as unknown as WhyShopSettings} />;
     case "faq":

@@ -11,6 +11,7 @@ import { Product, ProductCard } from "@/components/sections/ProductFeed";
 import { AuthorizedDealers } from "@/components/sections/AuthorizedDealers";
 import { WhatsAppContactSection } from "@/components/sections/WhatsAppContactSection";
 import { BrandSphere3D } from "@/components/sections/BrandSphere3D";
+import { FlavorsWheel } from "@/components/sections/FlavorsWheel";
 import { BottomCollectionGrid } from "@/components/sections/BottomCollectionGrid";
 import { FAQSection } from "@/components/sections/FAQSection";
 import { WhyShopWithUs } from "@/components/sections/WhyShopWithUs";
@@ -221,6 +222,17 @@ function getSubPillsForHandle(h: string) {
       { label: "Vozol", query: "vozol" },
     ];
   }
+  if (handleLower.includes("freebase")) {
+    return [
+      { label: "All Freebase", query: "all" },
+      { label: "3mg Strength", query: "3mg" },
+      { label: "6mg Strength", query: "6mg" },
+      { label: "VGOD Freebase", query: "vgod" },
+      { label: "Nasty Juice", query: "nasty" },
+      { label: "Dr Vapes", query: "dr vapes" },
+      { label: "High VG 70/30", query: "70/30" },
+    ];
+  }
   if (handleLower.includes("juice") || handleLower.includes("liquid")) {
     return [
       { label: "All E-Liquids", query: "all" },
@@ -311,7 +323,7 @@ function CollectionPageContent() {
     if (!handle) return;
     async function loadCollectionMeta() {
       try {
-        const res = await fetch(`/api/collections/${encodeURIComponent(handle)}`);
+        const res = await fetch(`/api/collections/${encodeURIComponent(handle)}`, { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           setCollectionMeta(data);
@@ -363,7 +375,10 @@ function CollectionPageContent() {
     else if (hLower.includes("e-juice") || hLower.includes("e-liquid") || hLower.includes("salt-nicotine") || hLower.includes("freebase")) categoryKey = "e-liquids";
     else if (hLower.includes("pod-system") || hLower.includes("pod-kit") || hLower.includes("pod-cartridge") || hLower.includes("vape-coils")) categoryKey = "accessories";
 
-    // If Shopify data loaded, use it
+    // Read collectionMain settings from Admin Customizer
+    const mainSettings = instanceSettings(templateInstances, "collectionMain");
+
+    // If Shopify data loaded, use it merged with customizer overrides
     if (collectionMeta && collectionMeta.title) {
       let shortDesc = `Shop authentic ${collectionMeta.title} devices, pods, and e-liquids at Vape Shop Dubai. 2-Hour fast delivery in Dubai.`;
       if (collectionMeta.description) {
@@ -376,20 +391,193 @@ function CollectionPageContent() {
       }
 
       return {
-        title: collectionMeta.title,
+        title: (collectionMeta as any).customHeading || (mainSettings.customHeading as string) || collectionMeta.title,
         description: shortDesc,
-        descriptionHtml: collectionMeta.descriptionHtml || "",
+        descriptionHtml: (collectionMeta as any).seoGuideHtml || (mainSettings.seoGuideContent as string) || collectionMeta.descriptionHtml || "",
         image: collectionMeta.image,
+        bannerImage: (collectionMeta as any).bannerImage || collectionMeta.image?.url || null,
+        eyebrowText: (collectionMeta as any).eyebrowText || (mainSettings.customEyebrow as string) || null,
+        flavorsWheelJson: (collectionMeta as any).flavorsWheelJson || (mainSettings.flavorsList ? (mainSettings.flavorsList as string).split(",").map(s => ({ name: s.trim(), query: s.trim() })) : null),
+        faqsJson: (collectionMeta as any).faqsJson || null,
         seo: collectionMeta.seo,
         categoryKey,
       };
     }
 
-    // Fallback: hardcoded defaults
+    // Fallback: hardcoded defaults per collection
+    let fallbackTitle = defaultTitle;
+    let fallbackDesc = `Shop authentic ${defaultTitle} devices, pods, and e-liquids at Vape Shop Dubai. 2-Hour fast delivery in Dubai.`;
+    let fallbackDescHtml = "";
+    let fallbackFaqsJson: Array<{ question: string; answer: string }> | null = null;
+
+    if (hLower.includes("freebase")) {
+      fallbackTitle = "Buy Freebase E-Liquid in UAE | Best High-VG Vape Juice | Vape Dubai";
+      fallbackDesc = "Buy freebase e-liquid in UAE with competitive prices. Enjoy the day with Nasty Juice, Ripe Vapes, premium 3mg and 6mg high-VG vape juice, and quick delivery throughout Dubai and the UAE.";
+      fallbackFaqsJson = [
+        {
+          question: "What devices work best with freebase e-liquid?",
+          answer: "Most of all, Sub ohm tank, box mod, RDA, and RTA are suitable. Recommended for any kind of equipment uses less than 1.0 ohm and over 30 watt. It has great capacity for the juice, and also it's compatible with any kind of thickness of juice. Also, it produces huge vapor!"
+        },
+        {
+          question: "What nicotine strengths are available in freebase e-liquid?",
+          answer: "The majority of our freebase juices come in at 3mg, which is ideal for higher wattage devices. 6mg is available if you want a harder nicotine hit. We also have a nicotine free 0mg version for pure cloud chasing."
+        },
+        {
+          question: "What are the most popular freebase e-liquid flavors?",
+          answer: "Fruit, menthol ice, dessert, and custard tobacco lead the market. Blends like Nasty Cush Man and Ripe Vapes VCT consistently rank highest for taste and vapor quality."
+        },
+        {
+          question: "Is freebase e-liquid good for Sub-Ohm tanks?",
+          answer: "Yes. It is the ideal match. The high- VG freebase functions well in a sub- ohm coil. It is drip resistant, and enhances flavor and vapour at higher wattage."
+        },
+        {
+          question: "Why does freebase e-liquid give a stronger throat hit?",
+          answer: "Freebase nicotine is naturally more acidic than salt nicotines. It provides a sharper throat feel. With 3mg, you’re still getting that smooth, pleasant throat hit without any burn."
+        },
+        {
+          question: "What is the difference between freebase e-liquid and nicotine salts?",
+          answer: "Freebase uses pure nicotine at low strengths (0mg–6mg) for high-power, direct-lung devices. Salt nic adds benzoic acid to smooth out high strengths (20mg–50mg) for low-power pod systems and tight MTL draws."
+        }
+      ];
+      fallbackDescHtml = `
+        <div className="space-y-8 text-foreground/90">
+          {/* Intro Header Box */}
+          <div className="border-l-4 border-primary pl-4 sm:pl-5 py-3 bg-primary/5 rounded-r-2xl border border-border/40">
+            <h2 className="text-xl sm:text-2xl font-sans font-body font-extrabold text-foreground tracking-tight mb-2">Buy Freebase E-Liquid in UAE: Premium High-VG Vape Juice for Sub-Ohm Devices</h2>
+            <p className="text-sm sm:text-base text-foreground/95 leading-relaxed">Freebase nicotine built the vaping industry, and it remains the top choice for adult users who want big clouds, rich flavor, and intense throat hit. When you buy freebase e-liquid in UAE from our store, you get authentic, high-VG formulas made for direct-lung vaping. We have reputable brands in 60ml, 100ml, and 120ml bottles, including Nasty Juice, Ruthless, Loaded, and Ripe Vapes. Enjoy fast vape juice delivery UAE-wide, including same-day vape juice delivery Abu Dhabi, Dubai, and Sharjah. Whether you are a beginner or a seasoned vaper, our freebase e-liquid shop in UAE has the right bottle for your device and budget.</p>
+          </div>
+
+          {/* H2: What Is Freebase E-Liquid? */}
+          <div className="space-y-4">
+            <h2 className="text-lg sm:text-xl font-sans font-body font-extrabold text-foreground tracking-tight border-b border-border/40 pb-2">What Is Freebase E-Liquid?</h2>
+            <p className="text-sm sm:text-base text-foreground/95 leading-relaxed">Freebase e-liquid is the original vaping format. Pure freebase nicotine mixed with propylene glycol (PG) and vegetable glycerin (VG). It’s like the standard e-liquid but, unlike nic salt where an acid is introduced to blunt any harshness from high strength nicotine, When used at a low strength, it keeps it in its natural form, giving it a cleaner flavor and a much more prominent throat hit. Here is why vapers choose freebase:</p>
+            <ul className="space-y-2.5 text-sm sm:text-base text-foreground/90 pl-1">
+              <li className="flex items-start gap-2.5"><span className="text-primary font-bold mt-0.5">✓</span><span><strong>High VG for Big Clouds:</strong> Generally all freebase juices are a 70VG/30PG or higher mixture. More VG results in a smoother and more vapor in every puff.</span></li>
+              <li className="flex items-start gap-2.5"><span className="text-primary font-bold mt-0.5">✓</span><span><strong>Low Nicotine for High Power:</strong> 3mg freebase e-liquids will also do quite well on a high-wattage mod. They'll offer you lots of nicotine without making your throat hurt.</span></li>
+              <li className="flex items-start gap-2.5"><span className="text-primary font-bold mt-0.5">✓</span><span><strong>Richer Flavor:</strong> Direct-lung setups pull more vapor through the coil. This unlocks the full taste profile of every blend.</span></li>
+              <li className="flex items-start gap-2.5"><span className="text-primary font-bold mt-0.5">✓</span><span><strong>Bigger Bottles:</strong> Sub-ohm vapers use more juice daily. Our 60ml, 100ml vape juice UAE, and cheap 120ml freebase e-liquid UAE options keep you stocked longer.</span></li>
+            </ul>
+          </div>
+
+          {/* H2: Our Freebase E-Liquid UAE Collection */}
+          <div className="space-y-4">
+            <h2 className="text-lg sm:text-xl font-sans font-body font-extrabold text-foreground tracking-tight border-b border-border/40 pb-2">Our Freebase E-Liquid UAE Collection</h2>
+            <p className="text-sm sm:text-base text-foreground/95 leading-relaxed">How do you know what you’ll enjoy? Our catalog’s got all your major category needs in one convenient list:</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+              <div className="bg-card border border-border/60 rounded-2xl p-5 shadow-xs space-y-1.5">
+                <h4 className="font-bold text-primary text-sm sm:text-base">Nasty Juice Freebase</h4>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">High-VG freebase format featuring Nasty's distinctive, bold fruit profiles. Vivid, accurate flavor in the most accessible bottle size in our collection.</p>
+              </div>
+              <div className="bg-card border border-border/60 rounded-2xl p-5 shadow-xs space-y-1.5">
+                <h4 className="font-bold text-primary text-sm sm:text-base">Ruthless Clear</h4>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">An entry-level freebase variety of Ruthless flavors. Simple, well-done profiles for vapers who prefer simplicity over complication.</p>
+              </div>
+              <div className="bg-card border border-border/60 rounded-2xl p-5 shadow-xs space-y-1.5">
+                <h4 className="font-bold text-primary text-sm sm:text-base">Ruthless Essentials</h4>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">Ruthless's core flavor lineup scaled to the 100ml daily-driver format. For seasoned sub-ohm vapers in Dubai, this is the ideal mix of affordability and diversity.</p>
+              </div>
+              <div className="bg-card border border-border/60 rounded-2xl p-5 shadow-xs space-y-1.5">
+                <h4 className="font-bold text-primary text-sm sm:text-base">Ruthless Freeze Edition</h4>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">Ruthless's dedicated menthol and iced collection in maximum volume. Cooling profiles designed especially for freeze-focused vapers who just vape.</p>
+              </div>
+              <div className="bg-card border border-border/60 rounded-2xl p-5 shadow-xs space-y-1.5">
+                <h4 className="font-bold text-primary text-sm sm:text-base">Ruthless Vape Juice Freebase</h4>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">The whole Ruthless flavor line at the lowest price per milliliter and biggest bottle volume. The smart Buy freebase e-liquid in UAE for vapers who have identified their preferred Ruthless profile.</p>
+              </div>
+              <div className="bg-card border border-border/60 rounded-2xl p-5 shadow-xs space-y-1.5">
+                <h4 className="font-bold text-primary text-sm sm:text-base">Loaded 120ml Vape E-Liquid</h4>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">Loaded's dessert and candy-forward profiles in the 120ml format. Sweet, complex, and designed for vapers who desire richness and decadence from their regular e-liquid.</p>
+              </div>
+            </div>
+            <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5">
+              <h4 className="font-bold text-primary text-sm sm:text-base">Ripe Vapes VCT Freebase</h4>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mt-1">The benchmark premium freebase in our collection. A vanilla custard tobacco blend with amazing depth. It showcases the peak of e-liquid craftsmanship. All products are 100% authentic, leak-resistant, and formulated for optimal wicking in sub-ohm setups.</p>
+            </div>
+          </div>
+
+          {/* H2: Popular Freebase E-Liquid Flavors in the UAE */}
+          <div className="space-y-4">
+            <h2 className="text-lg sm:text-xl font-sans font-body font-extrabold text-foreground tracking-tight border-b border-border/40 pb-2">Popular Freebase E-Liquid Flavors in the UAE</h2>
+            <p className="text-sm sm:text-base text-foreground/95 leading-relaxed">Finding the right taste is easy when you know what you like. Our catalog covers every major category:</p>
+            <ul className="space-y-2 text-sm sm:text-base text-foreground/90 pl-1">
+              <li className="flex items-start gap-2.5"><span className="text-primary font-bold">🍓</span><span><strong>Fruit Blends:</strong> Bright, juicy, and refreshing. Managed by Nasty Vape Juice Cush Man 3mg freebase striking mango and citrus in high VG base.</span></li>
+              <li className="flex items-start gap-2.5"><span className="text-primary font-bold">❄️</span><span><strong>Menthol & Ice:</strong> Sweet fruit and cool crispness. The Ruthless Freeze Edition is built for vapers who want a sharp, clean finish on every exhale.</span></li>
+              <li className="flex items-start gap-2.5"><span className="text-primary font-bold">🍩</span><span><strong>Dessert & Candy:</strong> Rich, sweet, and layered. Loaded and Ruthless craft creamy custards, baked goods, and candy mixes.</span></li>
+              <li className="flex items-start gap-2.5"><span className="text-primary font-bold">🍂</span><span><strong>Premium Tobacco & Custard:</strong> Ripe Vapes VCT 3mg Freebase. Rich custard, silky vanilla, and warm tobacco blend for a complex all-day vape.</span></li>
+            </ul>
+          </div>
+
+          {/* H2: Best Devices for Freebase Vape Juice */}
+          <div className="space-y-4">
+            <h2 className="text-lg sm:text-xl font-sans font-body font-extrabold text-foreground tracking-tight border-b border-border/40 pb-2">Best Devices for Freebase Vape Juice</h2>
+            <p className="text-sm sm:text-base text-foreground/95 leading-relaxed">Freebase is made for UAE setups that use direct-to-lung vape juice. These devices use low-resistance coils and higher power to create large vapor clouds.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 my-3">
+              <div className="bg-card border border-border/60 rounded-xl p-4 text-xs sm:text-sm"><strong>✅ Sub-Ohm Tanks:</strong> 30–80 watt coils with resistance under 1.0 ohm.</div>
+              <div className="bg-card border border-border/60 rounded-xl p-4 text-xs sm:text-sm"><strong>✅ Box Mods & Advanced Mods:</strong> USB-C 30W to 100W rechargeable mods paired with sub-ohm tanks.</div>
+              <div className="bg-card border border-border/60 rounded-xl p-4 text-xs sm:text-sm"><strong>✅ RDAs & RTAs:</strong> Rebuildable atomizers built below 1.0 ohm for peak flavor.</div>
+              <div className="bg-card border border-border/60 rounded-xl p-4 text-xs sm:text-sm"><strong>✅ Mesh Coil Tanks:</strong> Single, dual or triple mesh coils for even heating and consistent taste.</div>
+            </div>
+            <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 text-xs sm:text-sm text-foreground/90">
+              💡 <strong>Simple Compatibility Check:</strong> If you are using a coil under 0.5 ohm and device above 30 watts, choose freebase high VG e-liquids! For small low-wattage pods under 20W, check our Salt Nicotine range.
+            </div>
+          </div>
+
+          {/* H2: Devices to Avoid */}
+          <div className="space-y-4">
+            <h2 className="text-lg sm:text-xl font-sans font-body font-extrabold text-foreground tracking-tight border-b border-border/40 pb-2">Devices to Avoid with High-VG Freebase</h2>
+            <p className="text-sm text-muted-foreground">High-VG juice is thick and needs large wicking ports and high heat. Do not use freebase in these devices:</p>
+            <ul className="space-y-1.5 text-xs sm:text-sm text-muted-foreground pl-1">
+              <li>❌ <strong>Pod Kits & Systems:</strong> Coils too small, causes dry hits and burnt taste.</li>
+              <li>❌ <strong>MTL Tanks:</strong> Designed for high nicotine; freebase will flood coils.</li>
+              <li>❌ <strong>Disposable Vapes:</strong> Pre-filled with salt nic and non-refillable.</li>
+              <li>❌ <strong>Low-Wattage Starter Kits:</strong> Under 20 watts lacks heat to vaporize high-VG correctly.</li>
+            </ul>
+          </div>
+
+          {/* H2: Bottle Size Guide */}
+          <div className="space-y-4">
+            <h2 className="text-lg sm:text-xl font-sans font-body font-extrabold text-foreground tracking-tight border-b border-border/40 pb-2">How to Choose the Right Bottle Size</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-card border border-border/60 rounded-2xl p-4 space-y-1">
+                <div className="text-primary font-extrabold text-base">60ml Bottles</div>
+                <p className="text-xs text-muted-foreground">Great for beginners or flavor testing. Try new brands without wasting money.</p>
+              </div>
+              <div className="bg-card border border-border/60 rounded-2xl p-4 space-y-1">
+                <div className="text-primary font-extrabold text-base">100ml Bottles</div>
+                <p className="text-xs text-muted-foreground">The everyday standard for regular sub-ohm vapers seeking steady supply and fair pricing.</p>
+              </div>
+              <div className="bg-card border border-border/60 rounded-2xl p-4 space-y-1">
+                <div className="text-primary font-extrabold text-base">120ml Bottles</div>
+                <p className="text-xs text-muted-foreground">Maximum volume for heavy vapers (8ml+ daily). Lasts 2–3 weeks at best value per ml.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* H2: Why 3mg Works Best */}
+          <div className="space-y-3">
+            <h2 className="text-lg sm:text-xl font-sans font-body font-extrabold text-foreground tracking-tight border-b border-border/40 pb-2">Why 3mg Freebase E-Liquid Works Best</h2>
+            <p className="text-sm sm:text-base text-foreground/95 leading-relaxed">We concentrate on 3mg freebase e-liquid because this combination is ideal for the majority of sub-ohm devices. A high wattage device means bigger clouds. With each puff you get more vapour, providing nicotine satisfaction without harshness. 6mg options are available for a harder hit, and 0mg options for pure cloud chasers.</p>
+          </div>
+
+          {/* H2: Why Order From Vape Shop Dubai */}
+          <div className="bg-primary/10 border border-primary/20 rounded-2xl p-6 space-y-3">
+            <h3 className="text-base sm:text-lg font-sans font-body font-extrabold text-primary uppercase tracking-wider">Why Order Freebase E-Liquid From Vape Shop Dubai</h3>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm text-foreground/90">
+              <li className="flex items-center gap-2"><span>🛡️</span> <span><strong>Authentic Vape Juice Only:</strong> Straight from official brands.</span></li>
+              <li className="flex items-center gap-2"><span>💰</span> <span><strong>Fair & Transparent Pricing:</strong> Best rates per ml in UAE.</span></li>
+              <li className="flex items-center gap-2"><span>🚀</span> <span><strong>Fast & Reliable Delivery:</strong> Same-day in Dubai, Abu Dhabi & Sharjah.</span></li>
+              <li className="flex items-center gap-2"><span>💳</span> <span><strong>Secure Checkout Options:</strong> Online payment or Cash on Delivery.</span></li>
+            </ul>
+          </div>
+        </div>
+      `;
+    }
+
     return {
-      title: defaultTitle,
-      description: `Shop authentic ${defaultTitle} devices, pods, and e-liquids at Vape Shop Dubai. 2-Hour fast delivery in Dubai.`,
-      descriptionHtml: "",
+      title: fallbackTitle,
+      description: fallbackDesc,
+      descriptionHtml: fallbackDescHtml,
+      faqsJson: (collectionMeta as any)?.faqsJson || fallbackFaqsJson,
       image: null as { url: string; altText: string; width: number; height: number } | null,
       seo: null as { title: string; description: string } | null,
       categoryKey,
@@ -1329,6 +1517,26 @@ function CollectionPageContent() {
             ),
             bottomCollectionGrid: (settings: Record<string, unknown>) => (
               <BottomCollectionGrid handle={handle} settings={settings as never} />
+            ),
+            flavorsWheel: (settings: Record<string, unknown>) => (
+              <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
+                <FlavorsWheel
+                  eyebrow={typeof settings?.eyebrow === "string" ? settings.eyebrow : undefined}
+                  heading={typeof settings?.heading === "string" ? settings.heading : undefined}
+                  description={typeof settings?.description === "string" ? settings.description : undefined}
+                  buttonText={typeof settings?.buttonText === "string" ? settings.buttonText : undefined}
+                  buttonHref={typeof settings?.buttonHref === "string" ? settings.buttonHref : undefined}
+                  flavors={Array.isArray((collectionInfo as any)?.flavorsWheelJson) ? (collectionInfo as any).flavorsWheelJson : Array.isArray(settings?.flavors) ? (settings.flavors as any) : undefined}
+                />
+              </div>
+            ),
+            faq: (settings: Record<string, unknown>) => (
+              <FAQSection
+                settings={{
+                  ...settings,
+                  faqs: Array.isArray((collectionInfo as any)?.faqsJson) ? (collectionInfo as any).faqsJson : undefined,
+                } as never}
+              />
             ),
             juulAppIntegration: (settings: Record<string, unknown>) => (
               <JuulAppIntegrationSection settings={settings as never} />

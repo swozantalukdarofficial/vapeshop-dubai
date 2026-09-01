@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Star, ShieldCheck, ThumbsUp, MessageSquare, Plus, CheckCircle2, UserCheck, Filter } from "lucide-react";
+import { Star, ShieldCheck, ThumbsUp, MessageSquare, Plus, CheckCircle2, UserCheck, Filter, ChevronDown } from "lucide-react";
 
 export interface Review {
   id: string;
@@ -90,6 +90,7 @@ export interface CustomerReviewsSettings {
 }
 
 interface CustomerReviewsSectionProps {
+  productHandle?: string;
   collectionName?: string;
   productRating?: number;
   productReviewsCount?: number;
@@ -98,6 +99,7 @@ interface CustomerReviewsSectionProps {
 }
 
 export function CustomerReviewsSection({
+  productHandle,
   collectionName = "Vape Products",
   productRating,
   productReviewsCount,
@@ -114,12 +116,44 @@ export function CustomerReviewsSection({
   const [reviews, setReviews] = useState<Review[]>(initialList);
 
   React.useEffect(() => {
-    if (productReviewsList && productReviewsList.length > 0) {
-      setReviews(productReviewsList);
-    } else if (settings?.reviews && settings.reviews.length > 0) {
-      setReviews(settings.reviews);
-    }
-  }, [productReviewsList, settings?.reviews]);
+    let baseList =
+      productReviewsList && productReviewsList.length > 0
+        ? productReviewsList
+        : settings?.reviews?.length
+        ? settings.reviews
+        : INITIAL_REVIEWS;
+
+    const fetchApproved = async () => {
+      try {
+        const handleToUse = productHandle || "all";
+        const res = await fetch(`/api/reviews?productHandle=${encodeURIComponent(handleToUse)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.reviews && data.reviews.length > 0) {
+            const approvedList = data.reviews.map((r: any) => ({
+              id: r.id,
+              author: r.author,
+              location: r.location,
+              rating: r.rating,
+              date: r.date,
+              verified: r.verified ?? true,
+              productName: r.productName || collectionName,
+              title: r.title,
+              comment: r.comment,
+              helpfulCount: r.helpfulCount || 0,
+            }));
+            setReviews([...approvedList, ...baseList]);
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch approved reviews", err);
+      }
+      setReviews(baseList);
+    };
+
+    fetchApproved();
+  }, [productHandle, productReviewsList, settings?.reviews, collectionName]);
 
   const ratingValueText = React.useMemo(() => {
     if (productRating) return productRating.toFixed(1);
@@ -139,6 +173,7 @@ export function CustomerReviewsSection({
     }
     return settings?.ratingCountLabel || "1,420+ Verified Reviews";
   }, [productReviewsCount, reviews, settings?.ratingCountLabel]);
+
   const [filterRating, setFilterRating] = useState<number | "all">("all");
   const [helpfulLiked, setHelpfulLiked] = useState<Record<string, boolean>>({});
   const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
@@ -151,11 +186,17 @@ export function CustomerReviewsSection({
   const [newComment, setNewComment] = useState("");
   const [newProduct, setNewProduct] = useState("");
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submissionMessage, setSubmissionMessage] = useState("");
+
+  const [visibleCount, setVisibleCount] = useState(4);
 
   const filteredReviews = reviews.filter((r) => {
     if (filterRating === "all") return true;
     return r.rating === filterRating;
   });
+
+  const visibleReviews = filteredReviews.slice(0, visibleCount);
 
   const toggleHelpful = (id: string) => {
     setHelpfulLiked((prev) => {
@@ -167,90 +208,108 @@ export function CustomerReviewsSection({
     });
   };
 
-  const handleAddReview = (e: React.FormEvent) => {
+  const handleAddReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newAuthor || !newTitle || !newComment) return;
 
-    const createdReview: Review = {
-      id: `rev-${Date.now()}`,
-      author: newAuthor,
-      location: newLocation || "Dubai, UAE",
-      rating: newRating,
-      date: "Just now",
-      verified: true,
-      productName: newProduct || collectionName,
-      title: newTitle,
-      comment: newComment,
-      helpfulCount: 0,
-    };
+    setSubmitting(true);
+    try {
+      const handleToUse = productHandle || "all";
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productHandle: handleToUse,
+          productName: newProduct || collectionName,
+          author: newAuthor,
+          location: newLocation || "Dubai, UAE",
+          rating: newRating,
+          title: newTitle,
+          comment: newComment,
+        }),
+      });
 
-    setReviews([createdReview, ...reviews]);
-    setFormSubmitted(true);
+      const data = await res.json();
+      if (res.ok) {
+        setSubmissionMessage(
+          data.message ||
+            "Thank you! Your review has been submitted for admin verification. It will appear once approved by our team."
+        );
+        setFormSubmitted(true);
 
-    setTimeout(() => {
-      setIsWriteModalOpen(false);
-      setFormSubmitted(false);
-      setNewAuthor("");
-      setNewLocation("");
-      setNewTitle("");
-      setNewComment("");
-      setNewProduct("");
-    }, 1500);
+        setTimeout(() => {
+          setIsWriteModalOpen(false);
+          setFormSubmitted(false);
+          setSubmissionMessage("");
+          setNewAuthor("");
+          setNewLocation("");
+          setNewTitle("");
+          setNewComment("");
+          setNewProduct("");
+        }, 3000);
+      } else {
+        alert(data.error || "Submission failed");
+      }
+    } catch (err) {
+      console.error("Error submitting review", err);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
-      <div className="bg-card border border-primary/20 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md transition-all duration-300">
+      <div className="bg-card border border-primary/20 rounded-2xl sm:rounded-[2rem] p-4 sm:p-7 lg:p-8 relative overflow-hidden shadow-md transition-all duration-300">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
+        
         {/* Section Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pb-5 border-b border-border/40 mb-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] px-3.5 py-1 rounded-full">
-              <UserCheck className="w-3.5 h-3.5 text-primary" />
-              <span>{settings?.badgeText || "Verified Customer Feedback"}</span>
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 pb-5 border-b border-border/40 mb-6">
+          <div className="space-y-2.5 max-w-2xl">
+            <div className="inline-flex items-center gap-2 bg-primary text-white text-[10px] sm:text-xs font-extrabold uppercase tracking-wider px-3.5 py-1 rounded-full shadow-xs">
+              <MessageSquare className="w-3.5 h-3.5 text-white" />
+              <span>{settings?.badgeText || "Customer Reviews & Ratings"}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl font-serif font-black text-foreground tracking-tight leading-tight">
-              {(settings?.headingTemplate || "Customer Reviews for {collection}").replace(
-                "{collection}",
-                collectionName
-              )}
-            </h2>
-
-            <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">
-              {settings?.description ||
-                "Read authentic ratings and reviews from verified buyers across Dubai, Abu Dhabi, and the UAE."}
-            </p>
+            <div className="space-y-1">
+              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-sans font-body font-extrabold text-foreground tracking-tight">
+                Customer Reviews
+              </h3>
+              <p className="text-sm sm:text-base text-muted-foreground font-semibold">
+                Verified customer ratings & feedback for <span className="text-foreground font-bold">{collectionName}</span>
+              </p>
+            </div>
           </div>
 
           {/* Overall Rating Summary Card */}
-          <div className="flex items-center gap-6 bg-background border border-border/80 p-5 rounded-3xl shadow-sm">
-            <div className="text-center pr-5 border-r border-border/40">
-              <div className="text-4xl sm:text-5xl font-serif font-black text-foreground">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-background border border-border/80 p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-sm w-full lg:w-auto">
+            <div className="flex sm:flex-col items-center justify-center gap-3 sm:gap-1 pr-0 sm:pr-5 border-b sm:border-b-0 sm:border-r border-border/40 pb-3 sm:pb-0 w-full sm:w-auto">
+              <div className="text-3xl sm:text-5xl font-sans font-black text-foreground">
                 {ratingValueText}
               </div>
-              <div className="flex items-center justify-center gap-1 text-amber-500 mt-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-amber-500 text-amber-500" />
-                ))}
-              </div>
-              <div className="text-[10px] font-extrabold text-muted-foreground mt-1 uppercase tracking-wider">
-                {ratingCountText}
+              <div className="flex flex-col items-center">
+                <div className="flex items-center justify-center gap-1 text-amber-500">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-amber-500 text-amber-500" />
+                  ))}
+                </div>
+                <div className="text-[10px] font-extrabold text-muted-foreground mt-1 uppercase tracking-wider">
+                  {ratingCountText}
+                </div>
               </div>
             </div>
 
-            <div className="space-y-1 text-xs font-bold text-foreground">
+            <div className="flex flex-col items-center sm:items-start gap-1.5 text-xs font-bold text-foreground w-full sm:w-auto">
               <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-                <ShieldCheck className="w-4.5 h-4.5" />
+                <ShieldCheck className="w-4 h-4 shrink-0" />
                 <span>100% Genuine Buyers</span>
               </div>
               <div className="flex items-center gap-2 text-primary">
-                <UserCheck className="w-4.5 h-4.5" />
+                <UserCheck className="w-4 h-4 shrink-0" />
                 <span>2-Hour Express Delivery</span>
               </div>
               <button
                 onClick={() => setIsWriteModalOpen(true)}
-                className="mt-2 inline-flex items-center gap-1.5 bg-primary text-white hover:bg-gold-shimmer px-4 py-2 rounded-full text-xs font-extrabold uppercase tracking-wider transition-all duration-300 shadow-md hover:scale-105 cursor-pointer"
+                className="mt-2 w-full sm:w-auto inline-flex items-center justify-center gap-1.5 bg-primary text-white hover:bg-gold-shimmer px-5 py-2.5 rounded-full text-xs font-extrabold uppercase tracking-wider transition-all duration-300 shadow-md hover:scale-105 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" /> Write a Review
               </button>
@@ -259,30 +318,30 @@ export function CustomerReviewsSection({
         </div>
 
         {/* Filter Controls Bar */}
-        <div className="flex items-center justify-between gap-4 mb-8 flex-wrap">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-            <span className="text-xs font-extrabold text-muted-foreground uppercase tracking-wider flex items-center gap-1 mr-2">
+        <div className="mb-6">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 pt-1 -mx-1 px-1">
+            <span className="hidden sm:inline-flex text-xs font-extrabold text-muted-foreground uppercase tracking-wider items-center gap-1 mr-1 shrink-0">
               <Filter className="w-3.5 h-3.5" /> Filter Ratings:
             </span>
 
             <button
               onClick={() => setFilterRating("all")}
-              className={`px-4 py-2 rounded-xl text-xs font-extrabold uppercase transition-all cursor-pointer ${
+              className={`px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold uppercase transition-all cursor-pointer shrink-0 ${
                 filterRating === "all"
-                  ? "bg-primary text-white shadow-md shadow-primary/20"
+                  ? "bg-primary text-white shadow-xs"
                   : "bg-background border border-border/60 text-muted-foreground hover:text-foreground"
               }`}
             >
-              All Reviews ({reviews.length})
+              All ({reviews.length})
             </button>
 
             {[5, 4].map((starCount) => (
               <button
                 key={starCount}
                 onClick={() => setFilterRating(starCount)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-extrabold uppercase flex items-center gap-1 transition-all cursor-pointer ${
+                className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold uppercase flex items-center gap-1 transition-all cursor-pointer shrink-0 ${
                   filterRating === starCount
-                    ? "bg-primary text-white shadow-md shadow-primary/20"
+                    ? "bg-primary text-white shadow-xs"
                     : "bg-background border border-border/60 text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -294,67 +353,66 @@ export function CustomerReviewsSection({
         </div>
 
         {/* Review Cards Grid */}
-        <div className="space-y-5">
-          {filteredReviews.map((rev) => (
+        <div className="space-y-4 sm:space-y-5">
+          {visibleReviews.map((rev) => (
             <div
               key={rev.id}
-              className="bg-card border border-border/80 hover:border-primary/50 rounded-3xl p-6 sm:p-8 transition-all duration-300 shadow-sm hover:shadow-md"
+              className="bg-card border border-border/80 hover:border-primary/50 rounded-2xl sm:rounded-3xl p-4 sm:p-7 transition-all duration-300 shadow-xs hover:shadow-md"
             >
               {/* Review Card Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border/40 mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-border/40 mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-full bg-primary/10 border border-primary/20 text-primary font-serif font-black text-lg flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-primary/10 border border-primary/20 text-primary font-sans font-bold text-sm sm:text-lg flex items-center justify-center shrink-0">
                     {rev.author.charAt(0)}
                   </div>
 
                   <div>
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-serif font-black text-base sm:text-lg text-foreground">{rev.author}</h4>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className="font-sans font-bold text-sm sm:text-base text-foreground">{rev.author}</h4>
                       {rev.verified && (
-                        <span className="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                        <span className="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[9px] sm:text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-emerald-500/30">
                           <CheckCircle2 className="w-3 h-3" /> Verified Buyer
                         </span>
                       )}
                     </div>
 
-                    <div className="text-xs text-muted-foreground font-medium">{rev.location}</div>
+                    <div className="text-[11px] sm:text-xs text-muted-foreground font-medium">{rev.location}</div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 self-start sm:self-auto">
+                <div className="flex items-center justify-between sm:justify-start gap-3 pt-1 sm:pt-0 border-t sm:border-t-0 border-border/20">
                   <div className="flex items-center gap-1 text-amber-500">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-4 h-4 ${
+                        className={`w-3.5 h-3.5 ${
                           i < rev.rating ? "fill-amber-500 text-amber-500" : "fill-muted text-muted"
                         }`}
                       />
                     ))}
                   </div>
-                  <span className="text-xs text-muted-foreground font-semibold">{rev.date}</span>
+                  <span className="text-[11px] sm:text-xs text-muted-foreground font-medium">{rev.date}</span>
                 </div>
               </div>
 
               {/* Product Badge Tag */}
-              <div className="inline-flex items-center gap-1.5 bg-muted/40 border border-border/50 text-foreground/80 text-[11px] font-bold px-3 py-1 rounded-lg mb-3">
-                <span>Purchased:</span>
-                <span className="text-primary font-black">{rev.productName}</span>
+              <div className="text-[11px] font-medium text-muted-foreground bg-muted/30 border border-border/40 px-3 py-1 rounded-lg mb-2.5 inline-block max-w-full truncate">
+                Purchased: <span className="text-primary font-bold">{rev.productName}</span>
               </div>
 
               {/* Title & Comment */}
-              <h5 className="text-lg font-serif font-black text-foreground mb-2">{rev.title}</h5>
-              <p className="text-sm text-foreground/90 leading-relaxed font-medium mb-6">{rev.comment}</p>
+              <h5 className="text-sm sm:text-base font-sans font-bold text-foreground tracking-tight mb-1">{rev.title}</h5>
+              <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed font-normal mb-4">{rev.comment}</p>
 
               {/* Review Card Footer */}
-              <div className="flex items-center justify-between text-xs pt-3 border-t border-border/30">
-                <span className="text-muted-foreground font-semibold">Was this review helpful?</span>
+              <div className="flex items-center justify-between text-xs pt-2.5 border-t border-border/30">
+                <span className="text-[11px] sm:text-xs text-muted-foreground font-semibold">Was this review helpful?</span>
 
                 <button
                   onClick={() => toggleHelpful(rev.id)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                     helpfulLiked[rev.id]
-                      ? "bg-primary text-white shadow-sm"
+                      ? "bg-primary text-white shadow-xs"
                       : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/40"
                   }`}
                 >
@@ -365,6 +423,23 @@ export function CustomerReviewsSection({
             </div>
           ))}
         </div>
+
+        {/* See More Reviews Button */}
+        {filteredReviews.length > visibleCount && (
+          <div className="mt-8 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setVisibleCount((prev) => prev + 5)}
+              className="inline-flex items-center gap-2 bg-primary hover:bg-gold-shimmer text-white px-8 py-3.5 rounded-full text-xs font-sans font-extrabold uppercase tracking-wider transition-all duration-300 shadow-md hover:scale-105 cursor-pointer"
+            >
+              <MessageSquare className="w-4 h-4 text-white" />
+              <span>
+                See More Reviews ({filteredReviews.length - visibleCount} Remaining)
+              </span>
+              <ChevronDown className="w-4 h-4 animate-bounce" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Write a Review Modal */}
@@ -379,7 +454,7 @@ export function CustomerReviewsSection({
             </button>
 
             <div className="space-y-1">
-              <h3 className="text-2xl font-serif font-black text-foreground">Write a Verified Review</h3>
+              <h3 className="text-lg sm:text-2xl font-sans font-body font-extrabold text-foreground tracking-tight">Write a Verified Review</h3>
               <p className="text-xs text-muted-foreground font-medium">
                 Share your experience with Vape Shop Dubai products and express delivery.
               </p>
@@ -443,10 +518,9 @@ export function CustomerReviewsSection({
                   <label className="block text-xs font-bold text-foreground mb-1">Product Purchased</label>
                   <input
                     type="text"
-                    placeholder={`e.g. ${collectionName}`}
-                    value={newProduct}
-                    onChange={(e) => setNewProduct(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-background border border-border/80 rounded-xl text-xs font-semibold text-foreground focus:outline-none focus:border-primary"
+                    readOnly
+                    value={collectionName}
+                    className="w-full px-4 py-2.5 bg-muted/60 border border-border/60 rounded-xl text-xs font-bold text-foreground/80 cursor-not-allowed select-none focus:outline-none"
                   />
                 </div>
 

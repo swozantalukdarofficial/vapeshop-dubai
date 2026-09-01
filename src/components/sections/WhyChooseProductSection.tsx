@@ -132,7 +132,7 @@ export function WhyChooseProductSection({
         {/* Section Header with Left Vertical Accent Bar */}
         <div className="flex items-start sm:items-center gap-3 sm:gap-3.5 mb-3.5 sm:mb-4">
           <span className="w-1.5 h-7 sm:h-8 bg-primary rounded-full inline-block shrink-0 shadow-xs mt-0.5 sm:mt-0" />
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-serif font-black text-foreground tracking-tight">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-sans font-body font-extrabold text-foreground tracking-tight">
             {heading}
           </h2>
         </div>
@@ -140,7 +140,7 @@ export function WhyChooseProductSection({
         {/* Subtitle / Intro Paragraph */}
         {intro && (
           <div
-            className="text-xs sm:text-sm md:text-[15px] text-muted-foreground font-medium leading-relaxed w-full mb-6 sm:mb-8 pl-0.5 [&_a]:text-primary [&_a]:underline [&_a]:font-bold hover:[&_a]:opacity-80 [&_p]:mb-3 [&_p:last-child]:mb-0"
+            className="text-sm sm:text-base md:text-lg text-muted-foreground font-medium leading-relaxed w-full mb-6 sm:mb-8 pl-0.5 [&_a]:text-primary [&_a]:underline [&_a]:font-bold hover:[&_a]:opacity-80 [&_p]:mb-3 [&_p:last-child]:mb-0"
             dangerouslySetInnerHTML={{ __html: formatText(intro) }}
           />
         )}

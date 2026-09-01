@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { CheckCircle2, Flame, Check, Table, HelpCircle } from "lucide-react";
+import React, { useState } from "react";
+import { CheckCircle2, Flame, Check, Table, HelpCircle, ChevronDown } from "lucide-react";
 
 export interface FlavorVariant {
   id: string;
@@ -219,6 +219,9 @@ export function ProductAvailableFlavorsSection({
   const showPrices = settings?.showPrices !== false;
   const footnote = settings?.footnote ?? "";
 
+  const [showAllFlavors, setShowAllFlavors] = useState(false);
+  const visibleFlavors = showAllFlavors ? flavorsList : flavorsList.slice(0, 5);
+
   return (
     <section className={`max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16 ${className}`}>
       <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-10 lg:p-12 shadow-sm relative overflow-hidden transition-all duration-300">
@@ -231,12 +234,12 @@ export function ProductAvailableFlavorsSection({
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-7 bg-primary rounded-full shrink-0 shadow-sm" />
             <div>
-              <h3 className="text-xl sm:text-2xl font-serif font-bold text-foreground tracking-tight flex items-center gap-2">
+              <h3 className="text-xl sm:text-2xl lg:text-3xl font-sans font-body font-extrabold text-foreground tracking-tight flex items-center gap-2">
                 <span>{settings?.heading || "Available Flavours"}</span>
-                <Table className="w-5 h-5 text-primary opacity-80" />
+                <Table className="w-5 h-5 sm:w-6 sm:h-6 text-primary opacity-80" />
               </h3>
               {subheading && (
-                <p className="text-xs text-muted-foreground font-medium mt-0.5">{subheading}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground font-semibold mt-0.5">{subheading}</p>
               )}
             </div>
           </div>
@@ -272,7 +275,7 @@ export function ProductAvailableFlavorsSection({
 
             {/* Excel Rows */}
             <tbody className="divide-y divide-border/50 text-xs font-medium text-foreground">
-              {flavorsList.map((flavor, index) => {
+              {visibleFlavors.map((flavor, index) => {
                 const isSelected = flavor.allVariants?.some((v: any) => selectedVariantId === v.id) || selectedVariantId === flavor.id;
 
                 return (
@@ -377,6 +380,25 @@ export function ProductAvailableFlavorsSection({
             </tbody>
           </table>
         </div>
+
+        {/* See More Flavors Button */}
+        {flavorsList.length > 5 && (
+          <div className="mt-6 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setShowAllFlavors((prev) => !prev)}
+              className="inline-flex items-center gap-2 bg-primary hover:bg-gold-shimmer text-white px-8 py-3.5 rounded-full text-xs font-sans font-extrabold uppercase tracking-wider transition-all duration-300 shadow-md hover:scale-105 cursor-pointer"
+            >
+              <Flame className="w-4 h-4 text-white" />
+              <span>
+                {showAllFlavors
+                  ? "Show Less Flavors"
+                  : `See More Flavors (${flavorsList.length - 5} More)`}
+              </span>
+              <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${showAllFlavors ? "rotate-180" : ""}`} />
+            </button>
+          </div>
+        )}
 
         {/* Section Footer Note */}
         {footnote && (

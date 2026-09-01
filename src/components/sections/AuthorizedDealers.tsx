@@ -38,6 +38,25 @@ interface AuthorizedDealersProps {
   onFlavorSelect?: (flavor: string) => void;
 }
 
+const DEFAULT_BRANDS: BrandItem[] = [
+  { name: "JUUL", image: "/juul_device.png", href: "/collections/juul-vape-dubai" },
+  { name: "MYLE", image: "/vape_kit.png", href: "/collections/myle-vape-dubai" },
+  { name: "GeekVape", image: "/vape_kit.png", href: "/collections/geek-vape" },
+  { name: "Uwell", image: "/vape_kit.png", href: "/collections/uwell-vape" },
+  { name: "Vaporesso", image: "/vape_kit.png", href: "/collections/vaporesso-vape" },
+  { name: "VooPoo", image: "/vape_kit.png", href: "/collections/voopoo-vape" },
+  { name: "Smok", image: "/vape_kit.png", href: "/collections/smok-vape" },
+  { name: "Oxva", image: "/vape_kit.png", href: "/collections/oxva-vape" },
+  { name: "Elf Bar", image: "/lost_mary.png", href: "/collections/elf-bar-vape" },
+  { name: "Lost Mary", image: "/lost_mary.png", href: "/collections/lost-mary-disposable" },
+  { name: "Tugboat", image: "/lost_mary.png", href: "/collections/tugboat-vape" },
+  { name: "Maskking Vape", image: "/lost_mary.png", href: "/collections/maskking-vape" },
+  { name: "Pod Salt", image: "/premium_liquid.png", href: "/collections/pod-salt-vape" },
+  { name: "Yuoto", image: "/lost_mary.png", href: "/collections/yuoto-vape" },
+  { name: "Silvaper", image: "/premium_liquid.png", href: "/collections/silvaper-vape" },
+  { name: "Al Fakher", image: "/lost_mary.png", href: "/collections/al-fakher-vape" },
+];
+
 export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
   settings,
   onBrandSelect,
@@ -52,6 +71,10 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
     handle.toLowerCase().includes("juul-2") ||
     handle.toLowerCase().includes("juul1") ||
     handle.toLowerCase().includes("juul2");
+
+  const eyebrow = settings?.eyebrow || "Taste the Difference";
+  const heading = settings?.heading || "Best Vape Brands in Dubai";
+  const items = Array.isArray(settings?.items) && settings.items.length > 0 && !settings.items.some(i => i.image === "/vape_kit.png") ? settings.items : DEFAULT_BRANDS;
 
   const handleBrandClick = (brand: BrandItem) => {
     if (onBrandSelect) {
@@ -76,11 +99,11 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
           {/* Centered Title */}
           <div className="text-center flex flex-col items-center flex-1">
             <span className="text-[11px] sm:text-xs font-bold tracking-[0.22em] text-primary uppercase mb-2">
-              {settings.eyebrow}
+              TASTE THE DIFFERENCE
             </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-foreground tracking-tight leading-[0.95]">
-              {settings.heading}
-            </h2>
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight font-sans">
+              Best Vape Brands in Dubai
+            </h3>
             {/* Premium Divider */}
             <div className="flex items-center justify-center gap-2 mt-2">
               <div className="h-[1px] w-10 bg-gradient-to-r from-transparent to-primary/65" />
@@ -90,21 +113,19 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-center sm:justify-end gap-2.5 w-full sm:w-32">
-            {settings.seeAllLabel && (
-              <button
-                onClick={() => router.push(settings.seeAllHref || "/shop")}
-                className="text-[10px] sm:text-xs font-bold text-muted-foreground hover:text-primary border border-border px-3 py-1.5 rounded-md hover:border-primary/30 transition-all cursor-pointer uppercase tracking-wider"
-              >
-                {settings.seeAllLabel}
-              </button>
-            )}
+          <div className="flex justify-center sm:justify-end">
+            <button
+              onClick={() => router.push(settings?.seeAllHref || "/shop")}
+              className="rounded-full border border-border px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground transition-all hover:bg-foreground hover:text-background active:scale-95 cursor-pointer"
+            >
+              {settings?.seeAllLabel || "SEE ALL"}
+            </button>
           </div>
         </div>
 
         {/* Grid matching category style */}
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2.5 sm:gap-3.5">
-          {settings.items.map((brand, idx) => (
+          {items.map((brand, idx) => (
             <div
               key={`${brand.name}-${idx}`}
               onClick={() => handleBrandClick(brand)}
@@ -131,7 +152,7 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
       {/* ── Shop by Flavor — Interactive Rotating Wheel ──
           Hidden on JUUL 1 & 2 collection pages, and switchable from the
           theme customizer. */}
-      {settings.showFlavorWheel && !isJuul1Or2 && (
+      {settings?.showFlavorWheel === true && !isJuul1Or2 && (
         <div className="bg-card border border-border/40 rounded-[2.5rem] p-2 sm:p-6 md:p-8 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300 relative overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
           <FlavorsWheel 

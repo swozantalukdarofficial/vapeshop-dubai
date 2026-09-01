@@ -36,12 +36,12 @@ export function WhyShopWithUs({ settings }: { settings: WhyShopSettings }) {
             <span>{settings.badgeText}</span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-foreground tracking-tight leading-[0.95]">
+          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-sans font-body font-extrabold text-foreground tracking-tight leading-snug">
             {settings.headingLead}{" "}
             <span className="text-primary">{settings.headingHighlight}</span>
-          </h2>
+          </h3>
 
-          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+          <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
             {settings.description}
           </p>
         </div>

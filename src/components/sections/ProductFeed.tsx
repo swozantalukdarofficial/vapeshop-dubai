@@ -532,9 +532,9 @@ export const ProductFeed: React.FC<
           {settings?.eyebrow || "Live Catalog"}
         </span>
         
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-foreground tracking-tight leading-[0.95]">
+        <h3 className="text-2xl sm:text-3xl lg:text-4xl font-sans font-body font-extrabold text-foreground tracking-tight leading-snug">
           {settings?.heading || "Explore Our Collection"}
-        </h2>
+        </h3>
 
         {/* Premium Divider */}
         <div className="flex items-center justify-center gap-2 mt-2">

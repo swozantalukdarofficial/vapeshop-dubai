@@ -111,15 +111,15 @@ export function ProductFinalThoughtsSection({
         {/* Header with left vertical accent bar */}
         <div className="flex items-start sm:items-center gap-3 sm:gap-3.5 mb-6 sm:mb-8 pb-4 border-b border-border/40">
           <span className="w-1.5 h-7 sm:h-8 bg-primary rounded-full inline-block shrink-0 shadow-xs mt-0.5 sm:mt-0" />
-          <h2 className="text-lg sm:text-xl lg:text-2xl font-serif font-black text-primary uppercase tracking-wider flex items-center gap-2.5">
+          <h3 className="text-xl sm:text-2xl lg:text-3xl font-sans font-body font-extrabold text-foreground tracking-tight flex items-center gap-2.5">
             <span>{heading}</span>
-            <MessageSquareText className="w-5 h-5 text-primary opacity-80 shrink-0" />
-          </h2>
+            <MessageSquareText className="w-5 h-5 sm:w-6 sm:h-6 text-foreground/80 shrink-0" />
+          </h3>
         </div>
 
         {/* Content Body */}
         <div
-          className="text-xs sm:text-sm md:text-[15px] text-foreground/90 font-normal leading-relaxed space-y-4 [&_p]:leading-relaxed [&_a]:text-primary [&_a]:underline [&_a]:font-bold hover:[&_a]:opacity-80"
+          className="text-sm sm:text-base md:text-lg text-foreground/90 font-normal leading-relaxed space-y-4 [&_p]:leading-relaxed [&_a]:text-primary [&_a]:underline [&_a]:font-bold hover:[&_a]:opacity-80"
           dangerouslySetInnerHTML={{ __html: formattedBody }}
         />
       </div>

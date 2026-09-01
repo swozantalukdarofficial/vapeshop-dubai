@@ -36,7 +36,7 @@ const DEFAULT_FLAVORS: FlavorItem[] = [
   {
     name: "Blue Razz & Ice",
     color: "#3b82f6",
-    img: "https://images.unsplash.com/photo-1595855759920-86582396756a?w=200&h=200&fit=crop",
+    img: "https://images.unsplash.com/photo-1498557850523-fd3d118b962e?w=200&h=200&fit=crop",
     query: "Blueberry",
   },
   {
@@ -48,7 +48,7 @@ const DEFAULT_FLAVORS: FlavorItem[] = [
   {
     name: "Mint & Menthol",
     color: "#06b6d4",
-    img: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=200&h=200&fit=crop",
+    img: "https://images.unsplash.com/photo-1517849845537-4d257902454a?w=200&h=200&fit=crop",
     query: "Mint",
   },
   {
@@ -78,7 +78,7 @@ const DEFAULT_FLAVORS: FlavorItem[] = [
   {
     name: "Citrus & Lemonade",
     color: "#eab308",
-    img: "https://images.unsplash.com/photo-1590502593747-422e1a3bcbe8?w=200&h=200&fit=crop",
+    img: "https://images.unsplash.com/photo-1534706936160-d5ee67737249?w=200&h=200&fit=crop",
     query: "Citrus",
   },
   {
@@ -90,7 +90,7 @@ const DEFAULT_FLAVORS: FlavorItem[] = [
   {
     name: "Berry Mix & Acai",
     color: "#d946ef",
-    img: "https://images.unsplash.com/photo-1518635017498-87f514b751ba?w=200&h=200&fit=crop",
+    img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=200&h=200&fit=crop",
     query: "Berry",
   },
   {
@@ -116,7 +116,24 @@ export function FlavorsWheel({
   flavors: customFlavors,
   onFlavorSelect 
 }: FlavorsWheelProps) {
-  const flavors = customFlavors && customFlavors.length > 0 ? customFlavors : DEFAULT_FLAVORS;
+  const flavors = React.useMemo(() => {
+    let list = Array.isArray(customFlavors) && customFlavors.length > 0 ? [...customFlavors] : [...DEFAULT_FLAVORS];
+    list = list.map((item, idx) => {
+      const fallback = DEFAULT_FLAVORS[idx % DEFAULT_FLAVORS.length];
+      return {
+        name: item.name || fallback.name,
+        color: item.color || fallback.color,
+        img: item.img && item.img.trim() ? item.img : fallback.img,
+        query: item.query || item.name || fallback.query,
+      };
+    });
+    while (list.length < 10) {
+      const fallback = DEFAULT_FLAVORS[list.length % DEFAULT_FLAVORS.length];
+      list.push(fallback);
+    }
+    return list;
+  }, [customFlavors]);
+
   const [activeFlavor, setActiveFlavor] = useState(flavors[0]);
   const [isPaused, setIsPaused] = useState(false);
   const router = useRouter();
@@ -167,9 +184,9 @@ export function FlavorsWheel({
             </span>
           )}
           {heading && (
-            <h2 className="text-lg sm:text-3xl md:text-5xl lg:text-6xl font-serif font-black text-foreground tracking-tight leading-tight mb-1 sm:mb-2">
+            <h3 className="text-lg sm:text-3xl md:text-5xl lg:text-6xl font-serif font-black text-foreground tracking-tight leading-tight mb-1 sm:mb-2">
               {heading}
-            </h2>
+            </h3>
           )}
           {description && (
             <p className="hidden md:block text-muted-foreground text-xs sm:text-sm mb-3 px-4 leading-relaxed font-medium whitespace-pre-line">
@@ -228,10 +245,13 @@ export function FlavorsWheel({
                         onClick={() => handleFlavorClick(flavor)}
                         onMouseEnter={() => setActiveFlavor(flavor)}
                       >
-                        <div
-                          className="w-full h-full bg-cover bg-center"
-                          style={{ backgroundImage: `url(${flavor.img})` }}
-                          title={flavor.name}
+                        <img
+                          src={flavor.img}
+                          alt={flavor.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1553279768-865429fa0078?w=200&h=200&fit=crop";
+                          }}
                         />
                       </div>
                     </div>

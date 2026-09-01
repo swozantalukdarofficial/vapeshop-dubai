@@ -175,27 +175,30 @@ body {
   }
 }
 
-/* Bebas Neue ships only a 400 weight upstream, so 700 renders as synthetic
-   (browser-faked) bold. Pinned here so titles are uniform. */
-h1, h2, h3, .font-serif, .font-heading {
+/* Default heading font is clean Inter. Bebas Neue is reserved for explicit .font-serif or .font-heading. */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 700;
+}
+
+.font-serif, .font-heading {
   font-family: var(--font-bebas), "Arial Narrow", Impact, sans-serif;
   font-weight: 700;
 }
 
-/* Opt-outs from the display rule above. Both need compound selectors: that rule
-   is unlayered, so Tailwind's `font-sans` / `font-normal` utilities cannot beat
-   it on their own.
-
-   `.font-body`    - set in Inter instead of Bebas. Use where a heading tag is
-                     structural rather than decorative and needs real lowercase
-                     (Bebas is caps-only) or real weights.
-   `.font-regular` - drop to weight 400. */
 h1.font-body,
 h2.font-body,
 h3.font-body,
-.font-serif.font-body,
-.font-heading.font-body {
-  font-family: var(--font-inter), system-ui, sans-serif;
+h4.font-body,
+h5.font-body,
+h6.font-body,
+h1.font-sans,
+h2.font-sans,
+h3.font-sans,
+h4.font-sans,
+h5.font-sans,
+h6.font-sans {
+  font-family: var(--font-inter), system-ui, sans-serif !important;
 }
 
 h1.font-regular,
@@ -226,16 +229,37 @@ h3.tracking-tight,
 ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
 /* ─── Product Description HTML Styling ─── */
-.product-description-content h1,
+.product-description-content h1 {
+  color: var(--foreground) !important;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-size: clamp(1.4rem, 3vw, 1.85rem);
+  line-height: 1.25;
+  margin-top: 1.25rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 2px solid var(--primary);
+  display: block;
+}
+
+.product-description-content h1 * {
+  color: inherit !important;
+  font: inherit !important;
+  border: none !important;
+  display: inline !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
 .product-description-content h2,
 .product-description-content h3,
 .product-description-content h4,
 .product-description-content h5 {
   color: #cf3e1b;
-  font-family: var(--font-bebas), "Arial Narrow", Impact, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: -0.01em;
   font-size: 1.15rem;
   margin-top: 2rem;
   margin-bottom: 0.85rem;
@@ -258,8 +282,8 @@ h3.tracking-tight,
   opacity: 0.9;
 }
 
-.product-description-content strong,
-.product-description-content b {
+.product-description-content p strong,
+.product-description-content p b {
   color: #cf3e1b;
   font-weight: 700;
 }

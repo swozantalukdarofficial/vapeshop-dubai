@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { HelpCircle, ChevronDown, Zap, CheckCircle2 } from "lucide-react";
+import { HelpCircle, ChevronDown, CheckCircle2 } from "lucide-react";
 
 export interface FaqItem {
   question: string;
@@ -70,43 +70,30 @@ export function FAQSection({ settings, productFaqs }: { settings?: FaqSettings; 
       <div className="w-full bg-card border border-primary/20 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md transition-all duration-300">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
         {/* Section Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/40 pb-5 mb-6 relative">
-        {/* Spacer for desktop optical centering */}
-        <div className="hidden sm:block w-48" />
-
-        {/* Centered Title & Badge */}
-        <div className="text-center flex flex-col items-center flex-1">
-          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.18em] px-3.5 py-1 rounded-full mb-3">
-            <HelpCircle className="w-3.5 h-3.5 text-primary" />
-            <span>{badgeText}</span>
-          </div>
-
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-foreground tracking-tight leading-[0.95]">
-            {heading}
-          </h2>
-
-          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mt-3 max-w-xl">
-            {description}
-          </p>
-
-          {/* Premium Centered Line Divider */}
-          <div className="flex items-center justify-center gap-2 mt-2">
-            <div className="h-[1px] w-10 bg-gradient-to-r from-transparent to-primary/65" />
-            <div className="w-1.5 h-1.5 rotate-45 border border-primary/40 bg-primary/10" />
-            <div className="h-[1px] w-10 bg-gradient-to-l from-transparent to-primary/65" />
-          </div>
-        </div>
-
-        {/* Right Delivery Badge */}
-        <div className="flex items-center justify-center sm:justify-end gap-2.5 w-full sm:w-48">
-          {deliveryBadge && (
-            <div className="hidden lg:flex items-center gap-1.5 text-[10px] font-extrabold text-primary uppercase tracking-wider bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-full shrink-0">
-              <Zap className="w-3.5 h-3.5 text-primary" />
-              <span>{deliveryBadge}</span>
+        <div className="flex flex-col items-center text-center border-b border-border/40 pb-5 mb-6 relative">
+          {/* Centered Title & Badge */}
+          <div className="text-center flex flex-col items-center">
+            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.18em] px-3.5 py-1 rounded-full mb-3">
+              <HelpCircle className="w-3.5 h-3.5 text-primary" />
+              <span>{badgeText}</span>
             </div>
-          )}
+
+            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-sans font-body font-extrabold text-foreground tracking-tight leading-snug">
+              {heading}
+            </h3>
+
+            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mt-3 max-w-xl">
+              {description}
+            </p>
+
+            {/* Premium Centered Line Divider */}
+            <div className="flex items-center justify-center gap-2 mt-2">
+              <div className="h-[1px] w-10 bg-gradient-to-r from-transparent to-primary/65" />
+              <div className="w-1.5 h-1.5 rotate-45 border border-primary/40 bg-primary/10" />
+              <div className="h-[1px] w-10 bg-gradient-to-l from-transparent to-primary/65" />
+            </div>
+          </div>
         </div>
-      </div>
 
       {/* Accordion FAQ List */}
       {faqs.length > 0 && (
