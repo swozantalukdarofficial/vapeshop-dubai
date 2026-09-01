@@ -1042,7 +1042,7 @@ export default function ProductPage() {
             ),
             productFinalThoughts: (settings: Record<string, unknown>) => (
               <ProductFinalThoughtsSection
-                productName={product.title || product.name || ""}
+                productName={product.name}
                 settings={settings as never}
                 productFinalThoughts={product.finalThoughts}
                 hideIfEmpty={true}
