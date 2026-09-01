@@ -149,8 +149,6 @@ function buildTemplates(): Record<string, Template> {
         inst("prod-faq", "faq"),
         inst("prod-reviews", "customerReviews"),
         inst("prod-whatsapp", "whatsapp"),
-        inst("prod-juul-feat-1", "juulCollectionFeature1"),
-        inst("prod-juul-feat-2", "juulCollectionFeature2"),
         inst("prod-related", "relatedProducts", { showWhen: "hasRelatedProducts" }),
       ],
     }),
