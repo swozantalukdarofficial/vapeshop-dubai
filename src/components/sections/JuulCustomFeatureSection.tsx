@@ -18,16 +18,59 @@ export interface JuulCustomFeatureSettings {
   reverseLayout?: boolean; // We can use this to alternate layouts if needed
 }
 
+function parseAstToHtml(nodes: any[]): string {
+  if (!Array.isArray(nodes)) return "";
+  return nodes
+    .map((node) => {
+      if (node.type === "text") {
+        let val = node.value || "";
+        if (node.bold) val = `<strong>${val}</strong>`;
+        if (node.italic) val = `<em>${val}</em>`;
+        return val;
+      }
+      if (node.type === "link") {
+        const inner = parseAstToHtml(node.children || []);
+        return `<a href="${node.url || "#"}" target="${node.target || '_self'}" class="text-primary underline font-bold hover:opacity-80 decoration-primary/50 underline-offset-4 transition-all">${inner}</a>`;
+      }
+      if (node.type === "paragraph") {
+        return `<p class="mb-3 last:mb-0 leading-relaxed">${parseAstToHtml(node.children || [])}</p>`;
+      }
+      if (node.type === "list") {
+        const tag = node.listType === "ordered" ? "ol" : "ul";
+        return `<${tag} class="list-disc pl-5 my-2 space-y-1">${parseAstToHtml(node.children || [])}</${tag}>`;
+      }
+      if (node.type === "list-item") {
+        return `<li>${parseAstToHtml(node.children || [])}</li>`;
+      }
+      return parseAstToHtml(node.children || []);
+    })
+    .join("");
+}
+
 function renderFormattedText(text: string) {
   if (!text) return null;
 
-  // 1. Parse Markdown links [Label](url) into HTML links
+  const trimmed = text.trim();
+  // 1. Handle Shopify Rich Text AST JSON
+  if (trimmed.startsWith("{") && trimmed.includes('"type"')) {
+    try {
+      const ast = JSON.parse(trimmed);
+      if (ast.type === "root" && Array.isArray(ast.children)) {
+        const html = parseAstToHtml(ast.children);
+        return <div dangerouslySetInnerHTML={{ __html: html }} />;
+      }
+    } catch (e) {
+      // Fallback to text parsing
+    }
+  }
+
+  // 2. Parse Markdown links [Label](url) into HTML links
   let html = text.replace(
     /\[([^\]]+)\]\(([^)]+)\)/g,
     '<a href="$2" class="text-primary font-bold underline hover:opacity-80 decoration-primary/50 underline-offset-4 transition-all">$1</a>'
   );
 
-  // 2. Add styles to html <a> tags if present
+  // 3. Add styles to html <a> tags if present
   html = html.replace(
     /<a\s+([^>]*href=["'][^"']+["'][^>]*)>/gi,
     (match) => {
