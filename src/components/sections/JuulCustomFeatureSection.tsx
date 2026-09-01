@@ -33,7 +33,7 @@ function parseAstToHtml(nodes: any[]): string {
         return `<a href="${node.url || "#"}" target="${node.target || '_self'}" class="text-primary underline font-bold hover:opacity-80 decoration-primary/50 underline-offset-4 transition-all">${inner}</a>`;
       }
       if (node.type === "paragraph") {
-        return `<p class="mb-3 last:mb-0 leading-relaxed">${parseAstToHtml(node.children || [])}</p>`;
+        return `<p class="mb-3 last:mb-0 leading-relaxed text-justify [text-align-last:left]">${parseAstToHtml(node.children || [])}</p>`;
       }
       if (node.type === "list") {
         const tag = node.listType === "ordered" ? "ol" : "ul";
@@ -114,7 +114,7 @@ export function JuulCustomFeatureSection({
                 {title}
               </h2>
               {description && (
-                <div className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                <div className="text-sm sm:text-base text-muted-foreground leading-relaxed text-justify [text-align-last:left]">
                   {renderFormattedText(description)}
                 </div>
               )}
@@ -127,7 +127,7 @@ export function JuulCustomFeatureSection({
                     <div className="bg-primary/10 p-1.5 rounded-full mt-0.5 shrink-0 border border-primary/20">
                       <Check className="w-3.5 h-3.5 text-primary" />
                     </div>
-                    <span className="text-sm font-medium text-foreground leading-relaxed">
+                    <span className="text-sm font-medium text-foreground leading-relaxed text-justify [text-align-last:left]">
                       {renderFormattedText(point.text)}
                     </span>
                   </li>

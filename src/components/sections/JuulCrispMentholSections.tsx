@@ -80,7 +80,7 @@ export function JuulCrispMentholSections({
               {heading}
             </h2>
             {body && (
-              <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
+              <p className="text-muted-foreground text-sm sm:text-base leading-relaxed text-justify [text-align-last:left]">
                 {body}
               </p>
             )}
@@ -91,7 +91,7 @@ export function JuulCrispMentholSections({
                     <div className="bg-primary/10 p-1 rounded-full mt-0.5 shrink-0 border border-primary/20">
                       <Check className="w-3.5 h-3.5 text-primary" />
                     </div>
-                    <span className="text-sm font-medium text-foreground">
+                    <span className="text-sm font-medium text-foreground leading-relaxed text-justify [text-align-last:left]">
                       {[point.lead, point.text].filter(Boolean).join(" ")}
                     </span>
                   </li>
