@@ -34,14 +34,14 @@ function parseAstToHtml(nodes: any[]): string {
         return `<a href="${node.url || "#"}" class="text-primary underline font-bold hover:opacity-80">${inner}</a>`;
       }
       if (node.type === "paragraph") {
-        return `<p className="mb-4 last:mb-0 leading-relaxed">${parseAstToHtml(node.children || [])}</p>`;
+        return `<p class="mb-4 last:mb-0 leading-relaxed text-justify [text-align-last:left]">${parseAstToHtml(node.children || [])}</p>`;
       }
       if (node.type === "list") {
         const tag = node.listType === "ordered" ? "ol" : "ul";
         return `<${tag} class="list-disc pl-5 my-2">${parseAstToHtml(node.children || [])}</${tag}>`;
       }
       if (node.type === "list-item") {
-        return `<li class="my-1">${parseAstToHtml(node.children || [])}</li>`;
+        return `<li class="my-1 text-justify [text-align-last:left]">${parseAstToHtml(node.children || [])}</li>`;
       }
       return parseAstToHtml(node.children || []);
     })

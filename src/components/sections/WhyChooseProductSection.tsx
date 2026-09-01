@@ -51,7 +51,7 @@ function parseAstToHtml(nodes: any[]): string {
         return `<a href="${node.url || "#"}" class="text-primary underline font-bold hover:opacity-80">${inner}</a>`;
       }
       if (node.type === "paragraph") {
-        return `<p>${parseAstToHtml(node.children || [])}</p>`;
+        return `<p class="mb-3 last:mb-0 leading-relaxed text-justify [text-align-last:left]">${parseAstToHtml(node.children || [])}</p>`;
       }
       if (node.type === "list") {
         const tag = node.listType === "ordered" ? "ol" : "ul";

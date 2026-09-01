@@ -74,7 +74,7 @@ function cleanDescriptionHtml(html: string): string {
         const trimmed = block.trim();
         if (!trimmed) return "";
         if (trimmed.startsWith("<h")) return trimmed;
-        return `<p class="mb-4 text-foreground/90 leading-relaxed">${trimmed}</p>`;
+        return `<p class="mb-4 text-foreground/90 leading-relaxed text-justify [text-align-last:left]">${trimmed}</p>`;
       })
       .join("");
   }
@@ -1227,8 +1227,8 @@ function CollectionPageContent() {
                     [&_h2]:text-base [&_h2]:sm:text-lg [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-foreground [&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:border-l-4 [&_h2]:border-primary [&_h2]:pl-3.5
                     [&_h3]:text-sm [&_h3]:sm:text-base [&_h3]:font-serif [&_h3]:font-bold [&_h3]:text-foreground [&_h3]:mt-5 [&_h3]:mb-2 [&_h3]:border-l-4 [&_h3]:border-primary [&_h3]:pl-3
                     [&_h4]:text-sm [&_h4]:font-bold [&_h4]:text-foreground [&_h4]:mt-4 [&_h4]:mb-1.5
-                    [&_p]:mb-4 [&_p]:text-foreground/95 [&_p]:leading-relaxed
-                    [&_li]:text-foreground/95
+                    [&_p]:mb-4 [&_p]:text-foreground/95 [&_p]:leading-relaxed [&_p]:text-justify [&_p]:[text-align-last:left]
+                    [&_li]:text-foreground/95 [&_li]:text-justify [&_li]:[text-align-last:left]
                     [&_a]:text-primary [&_a]:font-bold [&_a]:underline [&_a]:decoration-primary/60 [&_a]:underline-offset-4 hover:[&_a]:decoration-primary hover:[&_a]:text-primary/80 transition-all
                     [&_strong]:font-bold [&_strong]:text-foreground
                     [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1.5 [&_ul]:mb-4
