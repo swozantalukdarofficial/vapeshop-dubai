@@ -4,6 +4,7 @@ import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight, Layers, ChevronLeft, ChevronRight, Truck } from "lucide-react";
 import { useCollectionImages, getHandleFromUrl } from "@/hooks/useCollectionImages";
+import { SmartImage } from "@/components/ui/smart-image";
 
 interface BrandInfo {
   id: string;
@@ -276,9 +277,13 @@ export function DisposableBrandsShowcase({
           >
             {/* Top Product Image Display Area - Full Cover Banner */}
             <div className="w-full h-40 sm:h-48 rounded-2xl bg-slate-950 border border-border/40 relative mb-3.5 overflow-hidden shrink-0 group-hover:border-primary/40 transition-all duration-300">
-              <img
+              <SmartImage
                 src={collectionImages[brand.handle] || brand.image}
+                fallbackSrc="/hero_vape.png"
                 alt={brand.name}
+                width={330}
+                height={192}
+                sizes="(max-width: 640px) 260px, 330px"
                 draggable={false}
                 className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 pointer-events-none opacity-90 group-hover:opacity-100"
               />

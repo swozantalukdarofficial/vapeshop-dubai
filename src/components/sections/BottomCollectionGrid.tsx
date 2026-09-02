@@ -4,6 +4,7 @@ import React, { useRef } from "react";
 import Link from "next/link";
 import { ArrowRight, Layers, Truck, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCollectionImages, getHandleFromUrl } from "@/hooks/useCollectionImages";
+import { SmartImage } from "@/components/ui/smart-image";
 
 export interface BottomCardItem {
   title: string;
@@ -371,9 +372,13 @@ function SubCollectionSectionSlider({
           >
             {/* Top Product Image Display Area - Clean Premium Studio Showcase */}
             <div className="w-full h-40 sm:h-48 rounded-2xl bg-gradient-to-b from-muted/30 via-muted/15 to-transparent border border-border/60 p-3 sm:p-4 flex items-center justify-center relative mb-3.5 overflow-hidden shrink-0 group-hover:border-primary/40 group-hover:bg-primary/5 transition-all duration-300">
-              <img
+              <SmartImage
                 src={(getHandleFromUrl(card.href) ? collectionImages[getHandleFromUrl(card.href)!] : undefined) || card.image}
+                fallbackSrc="/hero_vape.png"
                 alt={card.title}
+                width={340}
+                height={192}
+                sizes="(max-width: 640px) 270px, 340px"
                 draggable={false}
                 className="max-w-full max-h-full w-auto h-auto object-contain filter drop-shadow-xl group-hover:scale-108 transition-transform duration-500 pointer-events-none"
               />

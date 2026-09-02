@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { SmartImage } from "@/components/ui/smart-image";
 
 interface FlavorItem {
   name: string;
@@ -283,13 +284,14 @@ export function FlavorsWheel({
                         onClick={() => handleFlavorClick(flavor)}
                         onMouseEnter={() => setActiveFlavor(flavor)}
                       >
-                        <img
+                        <SmartImage
                           src={flavor.img}
+                          fallbackSrc="https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Mango_Vape_shop_dubai_result.jpg?v=1788119690"
                           alt={flavor.name}
+                          width={80}
+                          height={80}
+                          sizes="(max-width: 640px) 40px, 80px"
                           className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1553279768-865429fa0078?w=200&h=200&fit=crop";
-                          }}
                         />
                       </div>
                     </div>
