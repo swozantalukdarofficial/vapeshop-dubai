@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
@@ -263,12 +264,14 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
                         <div className="hidden sm:block absolute w-44 sm:w-56 h-44 sm:h-56 rounded-full bg-primary/8 filter blur-[60px] pointer-events-none" />
                         {slide.image && (
                           idx === 0 ? (
-                            <img
+                            <Image
                               src={slide.image}
                               alt={slide.title}
-                              draggable="false"
-                              decoding="sync"
-                              fetchPriority="high"
+                              width={420}
+                              height={420}
+                              priority
+                              draggable={false}
+                              sizes="(max-width: 640px) 200px, (max-width: 1024px) 360px, 420px"
                               className="sm:animate-float relative z-10 max-h-[260px] sm:max-h-[340px] lg:max-h-[390px] w-auto max-w-full object-contain pointer-events-none sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.12)]"
                             />
                           ) : (
