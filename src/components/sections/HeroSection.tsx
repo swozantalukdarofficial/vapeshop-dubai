@@ -262,19 +262,27 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
                       <div className="md:w-[45%] md:order-2 flex items-center justify-center relative min-h-[200px] sm:min-h-[320px] py-2 sm:py-4 select-none pointer-events-none">
                         <div className="hidden sm:block absolute w-44 sm:w-56 h-44 sm:h-56 rounded-full bg-primary/8 filter blur-[60px] pointer-events-none" />
                         {slide.image && (
-                          <SmartImage
-                            src={slide.image}
-                            fallbackSrc={slide.fallbackImage || "/vape_kit.png"}
-                            alt={slide.title}
-                            width={420}
-                            height={420}
-                            draggable={false}
-                            priority={idx === 0}
-                            fetchPriority={idx === 0 ? "high" : "auto"}
-                            unoptimized={idx === 0}
-                            sizes="(max-width: 640px) 200px, (max-width: 1024px) 360px, 420px"
-                            className="sm:animate-float relative z-10 max-h-[260px] sm:max-h-[340px] lg:max-h-[390px] w-auto max-w-full object-contain pointer-events-none sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.12)]"
-                          />
+                          idx === 0 ? (
+                            <img
+                              src={slide.image}
+                              alt={slide.title}
+                              draggable="false"
+                              decoding="sync"
+                              fetchPriority="high"
+                              className="sm:animate-float relative z-10 max-h-[260px] sm:max-h-[340px] lg:max-h-[390px] w-auto max-w-full object-contain pointer-events-none sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.12)]"
+                            />
+                          ) : (
+                            <SmartImage
+                              src={slide.image}
+                              fallbackSrc={slide.fallbackImage || "/vape_kit.png"}
+                              alt={slide.title}
+                              width={420}
+                              height={420}
+                              draggable={false}
+                              sizes="(max-width: 640px) 200px, (max-width: 1024px) 360px, 420px"
+                              className="sm:animate-float relative z-10 max-h-[260px] sm:max-h-[340px] lg:max-h-[390px] w-auto max-w-full object-contain pointer-events-none sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.12)]"
+                            />
+                          )
                         )}
                       </div>
 
