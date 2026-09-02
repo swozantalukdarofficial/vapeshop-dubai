@@ -173,15 +173,15 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
 
   const displayedImage = allImagesList[activeImageIndex] || product.image;
 
-  // Preload all variant images for instant 0ms switching
+  // Preload variant images only when user hovers card
   useEffect(() => {
-    if (typeof window !== "undefined" && allImagesList.length > 0) {
-      allImagesList.forEach((url) => {
+    if (hovered && typeof window !== "undefined" && allImagesList.length > 1) {
+      allImagesList.slice(1).forEach((url) => {
         const img = new globalThis.Image();
         img.src = url;
       });
     }
-  }, [allImagesList]);
+  }, [hovered, allImagesList]);
 
   return (
     <div
