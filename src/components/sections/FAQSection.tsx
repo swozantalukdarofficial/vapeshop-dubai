@@ -127,7 +127,7 @@ export function FAQSection({ settings, productFaqs }: { settings?: FaqSettings; 
                   onClick={() => toggleAccordion(idx)}
                   className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 cursor-pointer"
                 >
-                  <span className="text-base sm:text-lg font-semibold text-foreground leading-snug">
+                  <span className="text-base sm:text-lg font-serif text-foreground leading-snug">
                     {faq.question}
                   </span>
 

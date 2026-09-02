@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Bebas_Neue, Inter } from "next/font/google";
+import { Sora, Inter } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -14,9 +14,9 @@ import {
   SITE_URL,
 } from "@/lib/seo-schemas";
 
-const bebasNeue = Bebas_Neue({
-  variable: "--font-bebas",
-  weight: "400",
+const sora = Sora({
+  variable: "--font-sora",
+  weight: ["400", "600", "700", "800"],
   subsets: ["latin"],
   display: "swap",
 });
@@ -109,7 +109,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${bebasNeue.variable} ${inter.variable} h-full antialiased overflow-x-hidden max-w-full`}
+      className={`${sora.variable} ${inter.variable} h-full antialiased overflow-x-hidden max-w-full`}
       suppressHydrationWarning
     >
       <head>

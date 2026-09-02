@@ -7,18 +7,18 @@
 :root {
   /* ─── Clear Black Text × Pure White Cards × Ember Orange Logo CTA ─── */
   --background: #F4F5F8;
-  --foreground: #0A0A0C;
+  --foreground: #000000;
   --card: #FFFFFF;
-  --card-foreground: #0A0A0C;
+  --card-foreground: #000000;
   --popover: #FFFFFF;
-  --popover-foreground: #0A0A0C;
+  --popover-foreground: #000000;
 
   --primary: #E8521A;
   --primary-foreground: #FFFFFF;
   --primary-subtle: rgba(232, 82, 26, 0.09);
 
   --secondary: #F1F5F9;
-  --secondary-foreground: #0A0A0C;
+  --secondary-foreground: #000000;
   --muted: #F1F5F9;
   --muted-foreground: #334155;
 
@@ -103,10 +103,10 @@
   --color-text-muted: var(--text-muted);
   --color-red: var(--destructive);
   --color-border-custom: var(--border-color);
-  /* Display/title face: Bebas Neue. `font-serif` is kept as the alias so the
+  /* Display/title face: Sora. `font-serif` is kept as the alias so the
      existing title markup across the app keeps working. */
-  --font-serif: var(--font-bebas);
-  --font-heading: var(--font-bebas);
+  --font-serif: var(--font-sora);
+  --font-heading: var(--font-sora);
   --font-sans: var(--font-inter);
   --radius-sm: calc(var(--radius) * 0.5);
   --radius-md: calc(var(--radius) * 0.75);
@@ -175,10 +175,10 @@ body {
   }
 }
 
-/* Bebas Neue ships only a 400 weight upstream, so 700 renders as synthetic
-   (browser-faked) bold. Pinned here so titles are uniform. */
+/* Sora ships a real weight range, so headings get true bold (700) instead of
+   a browser-faked one. */
 h1, h2, h3, .font-serif, .font-heading {
-  font-family: var(--font-bebas), "Arial Narrow", Impact, sans-serif;
+  font-family: var(--font-sora), system-ui, sans-serif;
   font-weight: 700;
 }
 
@@ -186,9 +186,9 @@ h1, h2, h3, .font-serif, .font-heading {
    is unlayered, so Tailwind's `font-sans` / `font-normal` utilities cannot beat
    it on their own.
 
-   `.font-body`    - set in Inter instead of Bebas. Use where a heading tag is
-                     structural rather than decorative and needs real lowercase
-                     (Bebas is caps-only) or real weights.
+   `.font-body`    - set in Inter instead of Sora. Use where a heading tag is
+                     structural rather than decorative and should read as body
+                     copy rather than a display title.
    `.font-regular` - drop to weight 400. */
 h1.font-body,
 h2.font-body,
@@ -207,16 +207,9 @@ h3.font-regular,
 }
 
 /* The title markup carries `tracking-tight` in ~47 places, tuned for Playfair.
-   Bebas is already condensed, so that negative tracking reads cramped. Relax it
-   for display-font titles only - deliberate wide tracking on uppercase
-   treatments (`tracking-wider`, `tracking-[...]`) is left alone. */
-h1.tracking-tight,
-h2.tracking-tight,
-h3.tracking-tight,
-.font-serif.tracking-tight,
-.font-heading.tracking-tight {
-  letter-spacing: 0.02em;
-}
+   Sora is a standard-width geometric sans (not condensed like the previous
+   Bebas/Anton faces), so it reads fine at Tailwind's default tracking-tight -
+   no relaxation needed here. */
 
 ::selection { background-color: rgba(255,79,24,0.15); color: var(--foreground); }
 
@@ -232,7 +225,7 @@ h3.tracking-tight,
 .product-description-content h4,
 .product-description-content h5 {
   color: #cf3e1b;
-  font-family: var(--font-bebas), "Arial Narrow", Impact, sans-serif;
+  font-family: var(--font-sora), system-ui, sans-serif;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
