@@ -75,7 +75,7 @@ const PromoCard: React.FC<{ card: HeroPromoCard }> = ({ card }) => {
       onClick={() => router.push(card.href || "/shop")}
     >
       <div
-        className={`absolute w-44 h-44 rounded-full filter blur-3xl pointer-events-none ${
+        className={`hidden sm:block absolute w-44 h-44 rounded-full filter blur-3xl pointer-events-none ${
           isPrimary
             ? "top-0 right-0 bg-white/10"
             : "bottom-0 right-0 bg-orange-50 dark:bg-primary/5"
@@ -121,7 +121,7 @@ const PromoCard: React.FC<{ card: HeroPromoCard }> = ({ card }) => {
       {/* Right product image */}
       <div className="w-[120px] sm:w-[140px] h-[160px] sm:h-[190px] flex-shrink-0 relative flex items-center justify-center z-10 overflow-hidden">
         <div
-          className={`absolute w-24 h-24 rounded-full filter blur-[30px] pointer-events-none ${
+          className={`hidden sm:block absolute w-24 h-24 rounded-full filter blur-[30px] pointer-events-none ${
             isPrimary ? "bg-white/10" : "bg-primary/5"
           }`}
         />
@@ -229,7 +229,7 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
           {/* ── Left: Main Slide Panel ──────────── col 1-8 */}
           <div className="lg:col-span-8 relative bg-card border border-border/60 rounded-[2.5rem] overflow-hidden card-shadow min-h-[420px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-between">
             {/* BG glow */}
-            <div className="absolute top-[-10%] right-[-5%] w-[450px] h-[450px] rounded-full bg-primary/8 filter blur-[100px] pointer-events-none" />
+            <div className="hidden lg:block absolute top-[-10%] right-[-5%] w-[450px] h-[450px] rounded-full bg-primary/8 filter blur-[100px] pointer-events-none" />
 
             <Carousel
               setApi={setApi}
