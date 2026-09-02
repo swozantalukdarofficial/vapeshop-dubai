@@ -64,8 +64,8 @@ export const metadata: Metadata = {
     canonical: SITE_URL,
   },
   icons: {
-    icon: "/favicon.png",
-    apple: "/favicon.png",
+    icon: "/favicon_v2.png",
+    apple: "/favicon_v2.png",
   },
   openGraph: {
     type: "website",
@@ -123,7 +123,7 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://cdn.shopify.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preload" as="image" href="/vape_kit.png" type="image/png" fetchPriority="high" />
+        <link rel="preload" as="image" href="/vape_kit_v2.png" type="image/png" fetchPriority="high" />
         
         {/* Root Google JSON-LD Schemas */}
         <script
