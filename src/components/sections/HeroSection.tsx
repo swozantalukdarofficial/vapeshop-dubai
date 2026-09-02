@@ -257,7 +257,7 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
                     <div className="flex flex-col md:flex-row md:items-center gap-4 sm:gap-6 flex-grow py-1">
                       {/* Product image (Placed TOP on mobile, RIGHT on desktop) */}
                       <div className="md:w-[45%] md:order-2 flex items-center justify-center relative min-h-[200px] sm:min-h-[320px] py-2 sm:py-4 select-none pointer-events-none">
-                        <div className="absolute w-44 sm:w-56 h-44 sm:h-56 rounded-full bg-primary/8 filter blur-[60px] pointer-events-none" />
+                        <div className="hidden sm:block absolute w-44 sm:w-56 h-44 sm:h-56 rounded-full bg-primary/8 filter blur-[60px] pointer-events-none" />
                         {slide.image && (
                           <SmartImage
                             src={slide.image}
