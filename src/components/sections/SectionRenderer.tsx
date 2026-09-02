@@ -27,6 +27,7 @@ import type { FaqSettings } from "./FAQSection";
 import type { WhatsAppSettings } from "./WhatsAppContactSection";
 import type { WhyShopSettings } from "./WhyShopWithUs";
 import type { BlogSettings } from "./BlogSection";
+import { IdleWrapper } from "@/components/ui/idle-wrapper";
 
 /**
  * Turns a stored section instance into rendered markup.
