@@ -449,3 +449,9 @@ html, body {
     color: var(--foreground) !important;
   }
 }
+
+/* Content-Visibility Optimization for Instant Below-the-Fold Offscreen Skips */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
