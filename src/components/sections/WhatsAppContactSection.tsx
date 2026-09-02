@@ -29,8 +29,8 @@ export const WhatsAppContactSection: React.FC<{
   )}`;
 
   return (
-    <section className="relative overflow-hidden bg-card border border-emerald-500/20 rounded-[2rem] p-5 sm:p-7 lg:p-8 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300">
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500/10 via-emerald-500/40 to-emerald-500/10" />
+    <section className="relative overflow-hidden bg-card border border-primary/20 rounded-[2.5rem] p-6 sm:p-8 lg:p-10 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-all duration-300">
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
       <div className="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
 
         {/* Left Column: Info & Copy */}
@@ -42,7 +42,7 @@ export const WhatsAppContactSection: React.FC<{
             </span>
             {settings.responseNote && (
               <span className="hidden sm:inline-flex items-center gap-1 text-xs text-muted-foreground font-semibold">
-                <Clock className="w-3.5 h-3.5 text-emerald-600" />
+                <Clock className="w-3.5 h-3.5 text-primary" />
                 {settings.responseNote}
               </span>
             )}
@@ -62,7 +62,7 @@ export const WhatsAppContactSection: React.FC<{
               {settings.features.map((feature, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center gap-2 bg-emerald-500/5 border border-emerald-500/15 px-3.5 py-2 rounded-xl"
+                  className="flex items-center gap-2 bg-primary/5 border border-primary/15 px-3.5 py-2 rounded-xl"
                 >
                   <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                   <span>{feature.label}</span>
@@ -73,13 +73,13 @@ export const WhatsAppContactSection: React.FC<{
         </div>
 
         {/* Right Column: Big CTA Card */}
-        <div className="flex-shrink-0 flex flex-col sm:flex-row lg:flex-col items-center gap-4 bg-card border border-emerald-500/20 p-6 sm:p-8 rounded-3xl text-center shadow-sm min-w-[260px]">
+        <div className="flex-shrink-0 flex flex-col sm:flex-row lg:flex-col items-center gap-4 bg-card border border-primary/20 p-6 sm:p-8 rounded-3xl text-center shadow-sm min-w-[260px]">
           <div className="space-y-1 text-center">
-            <span className="text-[10px] font-bold tracking-widest text-emerald-600 uppercase">
+            <span className="text-[10px] font-bold tracking-widest text-primary uppercase">
               {settings.contactLabel}
             </span>
             <div className="text-base font-extrabold text-foreground tracking-wide flex items-center justify-center gap-2">
-              <PhoneCall className="w-4 h-4 text-emerald-600" />
+              <PhoneCall className="w-4 h-4 text-primary" />
               <span>{settings.phoneDisplay}</span>
             </div>
           </div>
