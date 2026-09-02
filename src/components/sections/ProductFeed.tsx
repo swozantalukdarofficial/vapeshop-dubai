@@ -436,12 +436,11 @@ function rowViewAllHref(row: ProductFeedRow): string {
   return "";
 }
 
-function productMatchesRow(product: Product, row: ProductFeedRow): boolean {
+function productMatchesRow(product: Product, row: ProductFeedRow, allProducts: Product[] = []): boolean {
   if (row.productHandles && row.productHandles.length > 0) {
-    const targetHandles = row.productHandles.map((h) => {
-      if (h.includes("/product/")) return h.split("/product/").pop()?.split("?")[0] || h;
-      return h;
-    }).map((h) => h.trim().toLowerCase());
+    const targetHandles = row.productHandles
+      .map((h) => (h.includes("/product/") ? h.split("/product/").pop()?.split("?")[0] || h : h))
+      .map((h) => h.trim().toLowerCase());
 
     const prodHandle = (product.handle || "").toLowerCase();
     const prodId = (product.id || "").toLowerCase();
@@ -451,16 +450,48 @@ function productMatchesRow(product: Product, row: ProductFeedRow): boolean {
   const target = (row.collectionHandle || "").trim();
   if (!target) return false;
 
-  const parsed = parseHandlesFromInput(target);
-  if (parsed.handles.length === 0) return false;
+  const rawParts = target.split(",").map((s) => s.trim()).filter(Boolean);
+  const cleanHandles: string[] = [];
+  let containsProductUrl = false;
 
-  if (parsed.type === "products") {
-    const prodHandle = (product.handle || "").toLowerCase();
-    const prodId = (product.id || "").toLowerCase();
-    return parsed.handles.some((h) => h === prodHandle || h === prodId);
+  for (const part of rawParts) {
+    if (part.includes("/product/")) {
+      containsProductUrl = true;
+      const h = part.split("/product/").pop()?.split("?")[0]?.split("#")[0] || "";
+      if (h) cleanHandles.push(h.toLowerCase());
+    } else if (part.includes("/collections/")) {
+      const h = part.split("/collections/").pop()?.split("?")[0]?.split("#")[0] || "";
+      if (h) cleanHandles.push(h.toLowerCase());
+    } else {
+      cleanHandles.push(part.toLowerCase());
+    }
   }
 
-  const colHandle = parsed.handles[0];
+  if (cleanHandles.length === 0) return false;
+
+  const prodHandle = (product.handle || "").toLowerCase();
+  const prodId = (product.id || "").toLowerCase();
+
+  // 1. Direct product handle match
+  const isProductMatch = cleanHandles.some((h) => h === prodHandle || h === prodId);
+  if (isProductMatch) return true;
+
+  // 2. Multi-product or explicit product URL
+  if (containsProductUrl || rawParts.length > 1) return false;
+
+  // 3. If target handle exists anywhere as a product in catalogue, treat strictly as product filter
+  const existsAsProductInCatalogue = allProducts.some((p) => {
+    const ph = (p.handle || "").toLowerCase();
+    const pid = (p.id || "").toLowerCase();
+    return cleanHandles.some((h) => h === ph || h === pid);
+  });
+
+  if (existsAsProductInCatalogue) {
+    return false;
+  }
+
+  // 4. Fallback to collection handle matching
+  const colHandle = cleanHandles[0];
   return (product.collections ?? []).some((c) => c.toLowerCase() === colHandle);
 }
 
@@ -540,7 +571,7 @@ export const ProductFeed: React.FC<
     return rows
       .map((row) => ({
         row,
-        products: activeProductsList.filter((p) => productMatchesRow(p, row)),
+        products: activeProductsList.filter((p) => productMatchesRow(p, row, activeProductsList)),
       }))
       .filter((entry) => entry.products.length > 0);
   }, [activeProductsList, activeCategory, searchQuery, settings?.rows]);
