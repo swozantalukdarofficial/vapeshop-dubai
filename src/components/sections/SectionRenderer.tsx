@@ -46,13 +46,13 @@ import type { BlogSettings } from "./BlogSection";
 
 /* Below-fold sections are code-split, matching how the homepage loaded them
    before templates existed. */
-const Categories = dynamic(() => import("./Categories").then((m) => ({ default: m.Categories })), { ssr: false });
-const AuthorizedDealers = dynamic(() => import("./AuthorizedDealers").then((m) => ({ default: m.AuthorizedDealers })), { ssr: false });
-const WhyShopWithUs = dynamic(() => import("./WhyShopWithUs").then((m) => ({ default: m.WhyShopWithUs })), { ssr: false });
-const FAQSection = dynamic(() => import("./FAQSection").then((m) => ({ default: m.FAQSection })), { ssr: false });
-const WhatsAppContactSection = dynamic(() => import("./WhatsAppContactSection").then((m) => ({ default: m.WhatsAppContactSection })), { ssr: false });
-const BlogSection = dynamic(() => import("./BlogSection").then((m) => ({ default: m.BlogSection })), { ssr: false });
-const FlavorsWheel = dynamic(() => import("./FlavorsWheel").then((m) => ({ default: m.FlavorsWheel })), { ssr: false });
+const Categories = dynamic(() => import("./Categories").then((m) => ({ default: m.Categories })));
+const AuthorizedDealers = dynamic(() => import("./AuthorizedDealers").then((m) => ({ default: m.AuthorizedDealers })));
+const WhyShopWithUs = dynamic(() => import("./WhyShopWithUs").then((m) => ({ default: m.WhyShopWithUs })));
+const FAQSection = dynamic(() => import("./FAQSection").then((m) => ({ default: m.FAQSection })));
+const WhatsAppContactSection = dynamic(() => import("./WhatsAppContactSection").then((m) => ({ default: m.WhatsAppContactSection })));
+const BlogSection = dynamic(() => import("./BlogSection").then((m) => ({ default: m.BlogSection })));
+const FlavorsWheel = dynamic(() => import("./FlavorsWheel").then((m) => ({ default: m.FlavorsWheel })));
 
 /**
  * Sections the page renders itself, keyed by section type.
