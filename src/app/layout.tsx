@@ -18,6 +18,7 @@ const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
   display: "swap",
+  adjustFontFallback: true,
 });
 
 const bebasNeue = Bebas_Neue({
@@ -25,12 +26,14 @@ const bebasNeue = Bebas_Neue({
   weight: "400",
   subsets: ["latin"],
   display: "swap",
+  adjustFontFallback: true,
 });
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
+  adjustFontFallback: true,
 });
 
 export const viewport: Viewport = {
