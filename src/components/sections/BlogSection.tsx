@@ -27,7 +27,7 @@ export const BlogSection: React.FC<{ settings: BlogSettings }> = ({
   const [posts, setPosts] = useState<BlogPost[]>(BLOG_POSTS.slice(0, postCount));
 
   useEffect(() => {
-    async function fetchLatestPosts() {
+    const timer = setTimeout(async () => {
       try {
         const res = await fetch("/api/articles");
         if (res.ok) {
@@ -49,9 +49,9 @@ export const BlogSection: React.FC<{ settings: BlogSettings }> = ({
       } catch (err) {
         // Fallback to static BLOG_POSTS
       }
-    }
+    }, 2500);
 
-    fetchLatestPosts();
+    return () => clearTimeout(timer);
   }, [postCount]);
 
   return (
