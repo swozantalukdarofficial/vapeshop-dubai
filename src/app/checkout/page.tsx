@@ -12,6 +12,7 @@ import {
   MapPin, 
   Phone, 
   User, 
+  Mail,
   CreditCard, 
   DollarSign, 
   Loader2, 
@@ -25,6 +26,7 @@ export default function CheckoutPage() {
 
   // Form states
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("Dubai");
   const [address, setAddress] = useState("");
@@ -86,6 +88,7 @@ export default function CheckoutPage() {
       const payload = {
         shippingAddress: {
           firstName: name,
+          email: email.trim(),
           phone: cleanPhone,
           address1: address,
           city: city,
@@ -183,6 +186,21 @@ export default function CheckoutPage() {
                   placeholder="e.g. Mohammad Al-Mansoori"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  disabled={loading}
+                  className="w-full bg-background border border-border/60 hover:border-primary/50 focus:border-primary rounded-xl px-4 py-3 text-xs outline-none text-foreground transition-all"
+                />
+              </div>
+
+              {/* Email Address (Optional) */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                  <Mail className="h-3 w-3" /> Email Address <span className="text-[10px] font-normal text-muted-foreground">(Optional)</span>
+                </label>
+                <input
+                  type="email"
+                  placeholder="e.g. name@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   disabled={loading}
                   className="w-full bg-background border border-border/60 hover:border-primary/50 focus:border-primary rounded-xl px-4 py-3 text-xs outline-none text-foreground transition-all"
                 />

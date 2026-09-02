@@ -123,7 +123,7 @@ export function ProductFinalThoughtsSection({
         {/* Header with left vertical accent bar */}
         <div className="flex items-start sm:items-center gap-3 sm:gap-3.5 mb-6 sm:mb-8 pb-4 border-b border-border/40">
           <span className="w-1.5 h-7 sm:h-8 bg-primary rounded-full inline-block shrink-0 shadow-xs mt-0.5 sm:mt-0" />
-          <h3 className="text-xl sm:text-2xl lg:text-3xl font-sans font-body font-extrabold text-foreground tracking-tight flex items-center gap-2.5">
+          <h3 className="text-xl sm:text-2xl lg:text-3xl font-serif text-foreground tracking-tight flex items-center gap-2.5">
             <span>{heading}</span>
             <MessageSquareText className="w-5 h-5 sm:w-6 sm:h-6 text-foreground/80 shrink-0" />
           </h3>

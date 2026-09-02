@@ -30,7 +30,7 @@ export const PageHeaderSection: React.FC<{ settings: PageHeaderSettings }> = ({
         {settings.eyebrow}
       </span>
     )}
-    <h1 className="mt-1.5 text-3xl sm:text-5xl font-sans font-body font-extrabold text-foreground tracking-tight leading-[1.1]">
+    <h1 className="mt-1.5 text-3xl sm:text-5xl font-serif text-foreground tracking-tight leading-[1.1]">
       {settings.heading}
     </h1>
     {settings.subheading && (
@@ -86,7 +86,7 @@ function renderBody(body: string): React.ReactNode[] {
         return (
           <div key={idx} className="flex items-center gap-3 pt-6 pb-2 mt-6 first:mt-0 border-t border-border/40 first:border-t-0">
             <span className="w-2 h-6 rounded-full bg-primary shrink-0" />
-            <h3 className="text-xl sm:text-2xl font-sans font-body font-extrabold text-foreground tracking-tight leading-snug">
+            <h3 className="text-xl sm:text-2xl font-serif text-foreground tracking-tight leading-snug">
               {parseInline(lines[0].slice(4))}
             </h3>
           </div>
@@ -129,7 +129,7 @@ export const RichTextSection: React.FC<{ settings: RichTextSettings }> = ({
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
       {settings.heading && (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/40 pb-5 mb-6">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-sans font-body font-extrabold text-foreground tracking-tight leading-snug">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif text-foreground tracking-tight leading-snug">
             {settings.heading}
           </h2>
         </div>
@@ -186,7 +186,7 @@ export const FeatureGridSection: React.FC<{ settings: FeatureGridSettings }> = (
       {(settings.heading || settings.description) && (
         <div className="mb-6 pb-5 border-b border-border/40 space-y-2">
           {settings.heading && (
-            <h2 className="text-2xl sm:text-3xl font-sans font-body font-extrabold text-foreground tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-serif text-foreground tracking-tight">
               {settings.heading}
             </h2>
           )}
@@ -240,7 +240,7 @@ export const ContactDetailsSection: React.FC<{
   <div className="w-full bg-card border border-border/60 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md">
     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
     {settings.heading && (
-      <h2 className="text-2xl sm:text-3xl font-sans font-body font-extrabold text-foreground tracking-tight mb-6 pb-5 border-b border-border/40">
+      <h2 className="text-2xl sm:text-3xl font-serif text-foreground tracking-tight mb-6 pb-5 border-b border-border/40">
         {settings.heading}
       </h2>
     )}

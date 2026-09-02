@@ -267,7 +267,7 @@ export function CustomerReviewsSection({
             </div>
 
             <div className="space-y-1">
-              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-sans font-body font-extrabold text-foreground tracking-tight">
+              <h3 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-foreground tracking-tight">
                 Customer Reviews
               </h3>
               <p className="text-sm sm:text-base text-muted-foreground font-semibold">
@@ -450,7 +450,7 @@ export function CustomerReviewsSection({
             </button>
 
             <div className="space-y-1">
-              <h3 className="text-lg sm:text-2xl font-sans font-body font-extrabold text-foreground tracking-tight">Write a Verified Review</h3>
+              <h3 className="text-lg sm:text-2xl font-serif text-foreground tracking-tight">Write a Verified Review</h3>
               <p className="text-xs text-muted-foreground font-medium">
                 Share your experience with Vape Shop Dubai products and express delivery.
               </p>

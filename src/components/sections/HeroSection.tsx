@@ -269,7 +269,7 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
                             priority={idx === 0}
                             fetchPriority={idx === 0 ? "high" : "auto"}
                             sizes="(max-width: 640px) 200px, (max-width: 1024px) 360px, 420px"
-                            className="animate-float relative z-10 max-h-[220px] sm:max-h-[340px] lg:max-h-[390px] w-auto max-w-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.12)] pointer-events-none"
+                            className="sm:animate-float relative z-10 max-h-[220px] sm:max-h-[340px] lg:max-h-[390px] w-auto max-w-full object-contain pointer-events-none sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.12)]"
                           />
                         )}
                       </div>

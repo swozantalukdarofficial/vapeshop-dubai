@@ -36,10 +36,7 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="relative mt-8 sm:mt-12 lg:mt-16 bg-card text-foreground font-sans border-t border-border/60 shadow-lg">
-      {/* Top Luxury Accent Bar */}
-      <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary/20 via-primary to-primary/20" />
-
+    <footer className="relative mt-2 sm:mt-3 lg:mt-4 bg-card text-foreground font-sans border-t border-border/50">
       {/* ── 1. Top Trust Features (Symmetrical Grid) ──── */}
       <div className="border-b border-border/60 bg-muted/30 py-6 sm:py-8">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">

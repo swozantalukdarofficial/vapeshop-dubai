@@ -142,7 +142,7 @@ export function ProductKeySpecsSection({
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-7 bg-primary rounded-full shrink-0 shadow-sm" />
             <div>
-              <h3 className="text-xl sm:text-2xl lg:text-3xl font-sans font-body font-extrabold text-foreground tracking-tight flex items-center gap-2">
+              <h3 className="text-xl sm:text-2xl lg:text-3xl font-serif text-foreground tracking-tight flex items-center gap-2">
                 <span>{heading}</span>
                 <Cpu className="w-5 h-5 sm:w-6 sm:h-6 text-primary opacity-80" />
               </h3>

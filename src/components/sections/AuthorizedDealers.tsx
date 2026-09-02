@@ -104,7 +104,7 @@ export const AuthorizedDealers: React.FC<AuthorizedDealersProps> = ({
             <span className="text-[11px] sm:text-xs font-bold tracking-[0.22em] text-primary uppercase mb-2">
               TASTE THE DIFFERENCE
             </span>
-            <h3 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight font-sans">
+            <h3 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-foreground tracking-tight">
               Best Vape Brands in Dubai
             </h3>
             {/* Premium Divider */}

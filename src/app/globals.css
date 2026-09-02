@@ -103,10 +103,10 @@
   --color-text-muted: var(--text-muted);
   --color-red: var(--destructive);
   --color-border-custom: var(--border-color);
-  /* Display/title face: Bebas Neue. `font-serif` is kept as the alias so the
-     existing title markup across the app keeps working. */
-  --font-serif: var(--font-bebas);
-  --font-heading: var(--font-bebas);
+  /* Display/title face: Playfair Display for elegant serif titles across entire site */
+  --font-serif: var(--font-playfair);
+  --font-bebas: var(--font-bebas);
+  --font-heading: var(--font-playfair);
   --font-sans: var(--font-inter);
   --radius-sm: calc(var(--radius) * 0.5);
   --radius-md: calc(var(--radius) * 0.75);
@@ -175,14 +175,9 @@ body {
   }
 }
 
-/* Default heading font is clean Inter. Bebas Neue is reserved for explicit .font-serif or .font-heading. */
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-inter), system-ui, sans-serif;
-  font-weight: 700;
-}
-
-.font-serif, .font-heading {
-  font-family: var(--font-bebas), "Arial Narrow", Impact, sans-serif;
+/* Section headings & titles default to Playfair Display across entire website */
+h1, h2, h3, h4, h5, h6, .font-serif, .font-heading {
+  font-family: var(--font-playfair), Georgia, serif;
   font-weight: 700;
 }
 

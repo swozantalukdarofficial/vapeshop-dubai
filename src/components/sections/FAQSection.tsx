@@ -87,7 +87,7 @@ export function FAQSection({ settings, productFaqs, hideIfEmpty }: { settings?: 
               <span>{badgeText}</span>
             </div>
 
-            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-sans font-body font-extrabold text-foreground tracking-tight leading-snug">
+            <h3 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-foreground tracking-tight leading-snug">
               {heading}
             </h3>
 
