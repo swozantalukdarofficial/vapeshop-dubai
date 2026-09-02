@@ -12,6 +12,7 @@ import {
 } from "@/components/sections/SectionRenderer";
 import { useResolvedTemplate } from "@/context/ThemeSettingsContext";
 import { getFAQSchema, getBreadcrumbSchema } from "@/lib/seo-schemas";
+import { IdleWrapper } from "@/components/ui/idle-wrapper";
 import type { FaqItem } from "@/components/sections/FAQSection";
 
 const ProductFeed = dynamic(
@@ -44,20 +45,37 @@ export function HomeClientShell() {
   const slots = {
     productFeed: (settings: Record<string, unknown>) => (
       <div id="products-section" className={SECTION_CONTAINER}>
-        <ProductFeed
-          searchQuery={searchQuery}
-          activeCategory={activeCategory}
-          onCategorySelect={setActiveCategory}
-          settings={settings as never}
-        />
+        {searchQuery ? (
+          <IdleWrapper>
+            <ProductFeed
+              searchQuery={searchQuery}
+              activeCategory={activeCategory}
+              onCategorySelect={setActiveCategory}
+              settings={settings as never}
+            />
+          </IdleWrapper>
+        ) : (
+          <>
+            <IdleWrapper>
+              <ProductFeed
+                searchQuery={searchQuery}
+                activeCategory={activeCategory}
+                onCategorySelect={setActiveCategory}
+                settings={settings as never}
+              />
+            </IdleWrapper>
+          </>
+        )}
       </div>
     ),
     customerReviews: (settings: Record<string, unknown>) => (
       <div className={SECTION_CONTAINER}>
-        <CustomerReviewsSection
-          collectionName="Vape Products"
-          settings={settings as never}
-        />
+        <IdleWrapper>
+          <CustomerReviewsSection
+            collectionName="Vape Products"
+            settings={settings as never}
+          />
+        </IdleWrapper>
       </div>
     ),
   };

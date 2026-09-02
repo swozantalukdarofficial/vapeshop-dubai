@@ -84,17 +84,17 @@ function renderRegistrySection(
     case "hero":
       return <HeroSection settings={s as unknown as HeroSettings} />;
     case "categories":
-      return <Categories settings={s as unknown as CategoriesSettings} />;
+      return <IdleWrapper><Categories settings={s as unknown as CategoriesSettings} /></IdleWrapper>;
     case "brands":
-      return <AuthorizedDealers settings={s as unknown as BrandsSettings} />;
+      return <IdleWrapper><AuthorizedDealers settings={s as unknown as BrandsSettings} /></IdleWrapper>;
     case "flavorsWheel":
-      return <FlavorsWheel {...(s as any)} />;
+      return <IdleWrapper><FlavorsWheel {...(s as any)} /></IdleWrapper>;
     case "whyShop":
-      return <WhyShopWithUs settings={s as unknown as WhyShopSettings} />;
+      return <IdleWrapper><WhyShopWithUs settings={s as unknown as WhyShopSettings} /></IdleWrapper>;
     case "faq":
       return <FAQSection settings={s as unknown as FaqSettings} />;
     case "whatsapp":
-      return <WhatsAppContactSection settings={s as unknown as WhatsAppSettings} />;
+      return <IdleWrapper><WhatsAppContactSection settings={s as unknown as WhatsAppSettings} /></IdleWrapper>;
     case "blogPosts":
       return <BlogSection settings={s as unknown as BlogSettings} />;
     case "pageHeader":
