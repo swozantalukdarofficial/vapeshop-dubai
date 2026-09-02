@@ -271,8 +271,9 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
                             draggable={false}
                             priority={idx === 0}
                             fetchPriority={idx === 0 ? "high" : "auto"}
+                            unoptimized={idx === 0}
                             sizes="(max-width: 640px) 200px, (max-width: 1024px) 360px, 420px"
-                            className="sm:animate-float relative z-10 max-h-[220px] sm:max-h-[340px] lg:max-h-[390px] w-auto max-w-full object-contain pointer-events-none sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.12)]"
+                            className="sm:animate-float relative z-10 max-h-[260px] sm:max-h-[340px] lg:max-h-[390px] w-auto max-w-full object-contain pointer-events-none sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.12)]"
                           />
                         )}
                       </div>
@@ -285,7 +286,7 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
                           </p>
                           <SlideHeadline title={slide.title} as={idx === 0 ? "h1" : "h2"} />
                         </div>
-                        <p className="text-xs sm:text-base text-muted-foreground leading-relaxed font-normal whitespace-pre-line max-w-xl">
+                        <p className="text-xs sm:text-base text-muted-foreground leading-relaxed font-normal whitespace-pre-line max-w-xl line-clamp-3 sm:line-clamp-none">
                           {slide.description}
                         </p>
 
