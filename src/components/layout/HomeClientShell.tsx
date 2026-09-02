@@ -12,7 +12,7 @@ import {
 } from "@/components/sections/SectionRenderer";
 import { useResolvedTemplate } from "@/context/ThemeSettingsContext";
 import { getFAQSchema, getBreadcrumbSchema } from "@/lib/seo-schemas";
-import { IdleWrapper } from "@/components/ui/idle-wrapper";
+import { useIsIdle } from "@/hooks/use-is-idle";
 import type { FaqItem } from "@/components/sections/FAQSection";
 
 const ProductFeed = dynamic(
@@ -31,6 +31,7 @@ export function HomeClientShell() {
   const [searchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const { instances, isOverride } = useResolvedTemplate("index");
+  const isIdle = useIsIdle();
 
   const faqSchema = useMemo(() => {
     const questions = instances
@@ -45,37 +46,33 @@ export function HomeClientShell() {
   const slots = {
     productFeed: (settings: Record<string, unknown>) => (
       <div id="products-section" className={SECTION_CONTAINER}>
-        {searchQuery ? (
-          <IdleWrapper>
+        {isIdle ? (
+          searchQuery ? (
             <ProductFeed
               searchQuery={searchQuery}
               activeCategory={activeCategory}
               onCategorySelect={setActiveCategory}
               settings={settings as never}
             />
-          </IdleWrapper>
-        ) : (
-          <>
-            <IdleWrapper>
-              <ProductFeed
-                searchQuery={searchQuery}
-                activeCategory={activeCategory}
-                onCategorySelect={setActiveCategory}
-                settings={settings as never}
-              />
-            </IdleWrapper>
-          </>
-        )}
+          ) : (
+            <ProductFeed
+              searchQuery={searchQuery}
+              activeCategory={activeCategory}
+              onCategorySelect={setActiveCategory}
+              settings={settings as never}
+            />
+          )
+        ) : <div style={{ height: "400px" }} />}
       </div>
     ),
     customerReviews: (settings: Record<string, unknown>) => (
       <div className={SECTION_CONTAINER}>
-        <IdleWrapper>
+        {isIdle ? (
           <CustomerReviewsSection
             collectionName="Vape Products"
             settings={settings as never}
           />
-        </IdleWrapper>
+        ) : <div style={{ height: "300px" }} />}
       </div>
     ),
   };

@@ -76,8 +76,55 @@ export const SECTION_CONTAINER =
 /** Sections that lay out their own full-bleed container. */
 const FULL_BLEED = new Set(["hero"]);
 
+export function TemplateSections({
+  instances,
+  isOverride,
+  context,
+  slots = {},
+}: {
+  instances: SectionInstance[];
+  isOverride: boolean;
+  context: SectionContext;
+  slots?: SectionSlots;
+}) {
+  const isIdle = useIsIdle();
+
+  if (!instances.length) return null;
+
+  return (
+    <>
+      {instances.map((instance, index) => {
+        if (!instance.enabled) return null;
+        if (!shouldRenderInstance(instance.showWhen, context, isOverride)) return null;
+
+        const isFullBleed = FULL_BLEED.has(instance.type);
+        const content = slots[instance.type]
+          ? typeof slots[instance.type] === "function"
+            ? (slots[instance.type] as Function)(instance.settings)
+            : slots[instance.type]
+          : renderRegistrySection(instance, isIdle);
+
+        if (content === null) return null;
+
+        if (isFullBleed) return <React.Fragment key={instance.id || index}>{content}</React.Fragment>;
+
+        return (
+          <div
+            key={instance.id || index}
+            data-section-id={instance.id}
+            className={SECTION_CONTAINER}
+          >
+            {content}
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
 function renderRegistrySection(
-  instance: SectionInstance
+  instance: SectionInstance,
+  isIdle: boolean
 ): React.ReactNode {
   const s = instance.settings;
 
@@ -85,17 +132,17 @@ function renderRegistrySection(
     case "hero":
       return <HeroSection settings={s as unknown as HeroSettings} />;
     case "categories":
-      return <IdleWrapper><Categories settings={s as unknown as CategoriesSettings} /></IdleWrapper>;
+      return isIdle ? <Categories settings={s as unknown as CategoriesSettings} /> : <div style={{ height: "300px" }} />;
     case "brands":
-      return <IdleWrapper><AuthorizedDealers settings={s as unknown as BrandsSettings} /></IdleWrapper>;
+      return isIdle ? <AuthorizedDealers settings={s as unknown as BrandsSettings} /> : <div style={{ height: "200px" }} />;
     case "flavorsWheel":
-      return <IdleWrapper><FlavorsWheel {...(s as any)} /></IdleWrapper>;
+      return isIdle ? <FlavorsWheel {...(s as any)} /> : <div style={{ height: "400px" }} />;
     case "whyShop":
-      return <IdleWrapper><WhyShopWithUs settings={s as unknown as WhyShopSettings} /></IdleWrapper>;
+      return isIdle ? <WhyShopWithUs settings={s as unknown as WhyShopSettings} /> : <div style={{ height: "300px" }} />;
     case "faq":
       return <FAQSection settings={s as unknown as FaqSettings} />;
     case "whatsapp":
-      return <IdleWrapper><WhatsAppContactSection settings={s as unknown as WhatsAppSettings} /></IdleWrapper>;
+      return isIdle ? <WhatsAppContactSection settings={s as unknown as WhatsAppSettings} /> : null;
     case "blogPosts":
       return <BlogSection settings={s as unknown as BlogSettings} />;
     case "pageHeader":
