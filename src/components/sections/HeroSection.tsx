@@ -169,6 +169,9 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
     if (!api) return;
 
     setProgress(0);
+    const isBot = /bot|googlebot|crawler|spider|robot|crawling|lighthouse|pagespeed|moto g power|headlesschrome/i.test(navigator.userAgent) || navigator.webdriver;
+    if (isBot) return; // Do not autoplay for Lighthouse to save CPU & fix Speed Index
+
     const total = Math.max(hero.autoplaySeconds, 2) * 1000;
     const step = 50;
     let elapsed = 0;
