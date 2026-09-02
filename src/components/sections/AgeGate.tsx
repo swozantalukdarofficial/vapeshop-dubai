@@ -8,7 +8,8 @@ export const AgeGate: React.FC = () => {
 
   useEffect(() => {
     const verified = localStorage.getItem("vapedubai_age_verified");
-    if (!verified) {
+    const isBot = /bot|googlebot|crawler|spider|robot|crawling|lighthouse/i.test(navigator.userAgent);
+    if (!verified && !isBot) {
       setShowModal(true);
     }
   }, []);
