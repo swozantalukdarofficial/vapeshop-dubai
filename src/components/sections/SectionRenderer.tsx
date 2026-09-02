@@ -27,7 +27,7 @@ import type { FaqSettings } from "./FAQSection";
 import type { WhatsAppSettings } from "./WhatsAppContactSection";
 import type { WhyShopSettings } from "./WhyShopWithUs";
 import type { BlogSettings } from "./BlogSection";
-import { IdleWrapper } from "@/components/ui/idle-wrapper";
+import { useIsIdle } from "@/hooks/use-is-idle";
 
 /**
  * Turns a stored section instance into rendered markup.
@@ -76,51 +76,6 @@ export const SECTION_CONTAINER =
 /** Sections that lay out their own full-bleed container. */
 const FULL_BLEED = new Set(["hero"]);
 
-export function TemplateSections({
-  instances,
-  isOverride,
-  context,
-  slots = {},
-}: {
-  instances: SectionInstance[];
-  isOverride: boolean;
-  context: SectionContext;
-  slots?: SectionSlots;
-}) {
-  const isIdle = useIsIdle();
-
-  if (!instances.length) return null;
-
-  return (
-    <>
-      {instances.map((instance, index) => {
-        if (!instance.enabled) return null;
-        if (!shouldRenderInstance(instance.showWhen, context, isOverride)) return null;
-
-        const isFullBleed = FULL_BLEED.has(instance.type);
-        const content = slots[instance.type]
-          ? typeof slots[instance.type] === "function"
-            ? (slots[instance.type] as Function)(instance.settings)
-            : slots[instance.type]
-          : renderRegistrySection(instance, isIdle);
-
-        if (content === null) return null;
-
-        if (isFullBleed) return <React.Fragment key={instance.id || index}>{content}</React.Fragment>;
-
-        return (
-          <div
-            key={instance.id || index}
-            data-section-id={instance.id}
-            className={SECTION_CONTAINER}
-          >
-            {content}
-          </div>
-        );
-      })}
-    </>
-  );
-}
 
 function renderRegistrySection(
   instance: SectionInstance,
@@ -196,32 +151,35 @@ export const TemplateSections: React.FC<TemplateSectionsProps> = ({
   context,
   slots = {},
   containerClassName = SECTION_CONTAINER,
-}) => (
-  <>
-    {instances.map((instance) => {
-      if (!instance.enabled) return null;
-      if (!shouldRenderInstance(instance.showWhen, context, isOverride)) return null;
+}) => {
+  const isIdle = useIsIdle();
+  return (
+    <>
+      {instances.map((instance) => {
+        if (!instance.enabled) return null;
+        if (!shouldRenderInstance(instance.showWhen, context, isOverride)) return null;
 
-      // A slot wins over the registry: the page knows more about this section
-      // than its stored settings do.
-      const isSlot = instance.type in slots;
-      const slot = slots[instance.type];
-      const node = isSlot
-        ? typeof slot === "function"
-          ? slot(instance.settings)
-          : slot
-        : renderRegistrySection(instance);
+        // A slot wins over the registry: the page knows more about this section
+        // than its stored settings do.
+        const isSlot = instance.type in slots;
+        const slot = slots[instance.type];
+        const node = isSlot
+          ? typeof slot === "function"
+            ? slot(instance.settings)
+            : slot
+          : renderRegistrySection(instance, isIdle);
 
-      if (!node) return null;
+        if (!node) return null;
 
-      const useContainer =
-        containerClassName && !FULL_BLEED.has(instance.type);
+        const useContainer =
+          containerClassName && !FULL_BLEED.has(instance.type);
 
-      return (
-        <div key={instance.id} data-section-id={instance.id} className="scroll-mt-24">
-          {useContainer ? <div className={containerClassName}>{node}</div> : node}
-        </div>
-      );
-    })}
-  </>
-);
+        return (
+          <div key={instance.id} data-section-id={instance.id} className="scroll-mt-24">
+            {useContainer ? <div className={containerClassName}>{node}</div> : node}
+          </div>
+        );
+      })}
+    </>
+  );
+};
