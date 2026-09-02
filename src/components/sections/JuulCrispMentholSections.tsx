@@ -68,7 +68,7 @@ export function JuulCrispMentholSections({
   const diagramPoints = points.slice(0, DIAGRAM_POSITIONS.length);
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16 space-y-12 sm:space-y-16">
+    <div className="w-full space-y-8 sm:space-y-10">
       {/* Section 1: Why Choose */}
       {showWhyChoose && (
         <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-12 shadow-md overflow-hidden">

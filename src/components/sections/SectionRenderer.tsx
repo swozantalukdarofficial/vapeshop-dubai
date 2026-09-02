@@ -70,7 +70,7 @@ export type SectionSlots = Record<string, SectionSlot>;
 
 /** Standard page gutter shared by most sections. */
 export const SECTION_CONTAINER =
-  "max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto";
+  "max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 lg:py-3 cv-auto";
 
 /** Sections that lay out their own full-bleed container. */
 const FULL_BLEED = new Set(["hero"]);
@@ -166,10 +166,8 @@ export const TemplateSections: React.FC<TemplateSectionsProps> = ({
 
       if (!node) return null;
 
-      // Slots arrive with whatever layout their page wants; only
-      // registry-rendered sections get the standard gutter.
       const useContainer =
-        !isSlot && containerClassName && !FULL_BLEED.has(instance.type);
+        containerClassName && !FULL_BLEED.has(instance.type);
 
       return (
         <div key={instance.id} data-section-id={instance.id} className="scroll-mt-24">

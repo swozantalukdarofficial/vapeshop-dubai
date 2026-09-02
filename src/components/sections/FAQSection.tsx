@@ -75,7 +75,7 @@ export function FAQSection({ settings, productFaqs, hideIfEmpty }: { settings?: 
   };
 
   return (
-    <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="w-full">
       <div className="w-full bg-card border border-primary/20 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md transition-all duration-300">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
         {/* Section Header */}

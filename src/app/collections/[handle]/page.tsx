@@ -839,7 +839,7 @@ function CollectionPageContent() {
 
         {/* Catalog Section */}
         {handle === "brand" || handle === "brands" ? (
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-12">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 lg:py-3 space-y-6">
             {/* Brand Directory Showcase */}
             <BrandSphere3D
               settings={{
@@ -849,7 +849,7 @@ function CollectionPageContent() {
             />
           </div>
         ) : (
-          <div id="catalog-top" className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+          <div id="catalog-top" className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 lg:py-3">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
               {/* Filter Sidebar (Desktop) */}
@@ -1198,7 +1198,7 @@ function CollectionPageContent() {
 
         {/* Collection Description (from Shopify) — Beautiful Expandable Guide after products */}
         {collectionInfo.descriptionHtml && (
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 lg:py-3">
             <div className="bg-card border border-border/50 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-sm transition-all duration-300">
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
 
@@ -1256,23 +1256,16 @@ function CollectionPageContent() {
           instances={templateInstances}
           isOverride={templateIsOverride}
           context={{ handle, collectionTitle: collectionInfo.title }}
-          containerClassName="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6"
           slots={{
             collectionMain: null,
             disposableShowcase: (settings: Record<string, unknown>) => (
-              <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
-                <DisposableBrandsShowcase settings={settings as never} />
-              </div>
+              <DisposableBrandsShowcase settings={settings as never} />
             ),
             disposableComparison: (settings: Record<string, unknown>) => (
-              <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
-                <DisposableComparisonSections settings={settings as never} />
-              </div>
+              <DisposableComparisonSections settings={settings as never} />
             ),
             ejuiceShowcase: (settings: Record<string, unknown>) => (
-              <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
-                <EJuiceBrandsShowcase settings={settings as never} />
-              </div>
+              <EJuiceBrandsShowcase settings={settings as never} />
             ),
             juulSignatureFlavors: (settings: Record<string, unknown>) => (
               <JuulSignatureFlavorsSection handle={handle} settings={settings as never} />
@@ -1296,16 +1289,14 @@ function CollectionPageContent() {
               <BottomCollectionGrid handle={handle} settings={settings as never} />
             ),
             flavorsWheel: (settings: Record<string, unknown>) => (
-              <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
-                <FlavorsWheel
-                  eyebrow={typeof settings?.eyebrow === "string" ? settings.eyebrow : undefined}
-                  heading={typeof settings?.heading === "string" ? settings.heading : undefined}
-                  description={typeof settings?.description === "string" ? settings.description : undefined}
-                  buttonText={typeof settings?.buttonText === "string" ? settings.buttonText : undefined}
-                  buttonHref={typeof settings?.buttonHref === "string" ? settings.buttonHref : undefined}
-                  flavors={Array.isArray((collectionInfo as any)?.flavorsWheelJson) ? (collectionInfo as any).flavorsWheelJson : Array.isArray(settings?.flavors) ? (settings.flavors as any) : undefined}
-                />
-              </div>
+              <FlavorsWheel
+                eyebrow={typeof settings?.eyebrow === "string" ? settings.eyebrow : undefined}
+                heading={typeof settings?.heading === "string" ? settings.heading : undefined}
+                description={typeof settings?.description === "string" ? settings.description : undefined}
+                buttonText={typeof settings?.buttonText === "string" ? settings.buttonText : undefined}
+                buttonHref={typeof settings?.buttonHref === "string" ? settings.buttonHref : undefined}
+                flavors={Array.isArray((collectionInfo as any)?.flavorsWheelJson) ? (collectionInfo as any).flavorsWheelJson : Array.isArray(settings?.flavors) ? (settings.flavors as any) : undefined}
+              />
             ),
             faq: (settings: Record<string, unknown>) => (
               <FAQSection

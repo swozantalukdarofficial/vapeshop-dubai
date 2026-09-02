@@ -17,7 +17,7 @@ export function JuulPackagingCompareSection({
   const isNew = activeTab === "new";
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+    <div className="w-full">
       <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-10 lg:p-12 shadow-md relative overflow-hidden transition-all duration-300">
         {/* Dynamic Top Ambient Bar (Primary Brand Color for Old, Green for New) */}
         <div

@@ -78,7 +78,7 @@ export function JuulAppIntegrationSection({
   ];
 
   return (
-    <section className={`max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-20 ${className}`}>
+    <section className={`w-full ${className}`}>
       <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-10 lg:p-14 relative overflow-hidden shadow-md transition-all duration-300">
         {/* Section Header */}
         <div className="max-w-3xl mx-auto text-center space-y-4 mb-10 sm:mb-14">

@@ -108,24 +108,22 @@ export function CustomerReviewsSection({
   settings,
   hideIfEmpty,
 }: CustomerReviewsSectionProps) {
-  const initialList = hideIfEmpty
-    ? (productReviewsList && productReviewsList.length > 0 ? productReviewsList : [])
-    : productReviewsList && productReviewsList.length > 0
-    ? productReviewsList
-    : settings?.reviews?.length
-    ? settings.reviews
-    : INITIAL_REVIEWS;
-
-  const [reviews, setReviews] = useState<Review[]>(initialList);
-
-  React.useEffect(() => {
-    let baseList = hideIfEmpty
-      ? (productReviewsList && productReviewsList.length > 0 ? productReviewsList : [])
-      : productReviewsList && productReviewsList.length > 0
+  const defaultList =
+    productReviewsList && productReviewsList.length > 0
       ? productReviewsList
       : settings?.reviews?.length
       ? settings.reviews
       : INITIAL_REVIEWS;
+
+  const [reviews, setReviews] = useState<Review[]>(defaultList);
+
+  React.useEffect(() => {
+    const baseList =
+      productReviewsList && productReviewsList.length > 0
+        ? productReviewsList
+        : settings?.reviews?.length
+        ? settings.reviews
+        : INITIAL_REVIEWS;
 
     const fetchApproved = async () => {
       try {
@@ -157,45 +155,31 @@ export function CustomerReviewsSection({
     };
 
     fetchApproved();
-  }, [productHandle, productReviewsList, settings?.reviews, collectionName, hideIfEmpty]);
+  }, [productHandle, productReviewsList, settings?.reviews, collectionName]);
 
-  if (hideIfEmpty && (!reviews || reviews.length === 0)) {
-    return null;
-  }
+  const ratingValueText =
+    productRating !== undefined
+      ? productRating.toFixed(1)
+      : settings?.ratingValue || "5.0";
 
-  const ratingValueText = React.useMemo(() => {
-    if (productRating) return productRating.toFixed(1);
-    if (reviews && reviews.length > 0) {
-      const sum = reviews.reduce((acc, r) => acc + (Number(r.rating) || 5), 0);
-      const avg = sum / reviews.length;
-      return avg.toFixed(1);
-    }
-    return settings?.ratingValue || "4.9";
-  }, [productRating, reviews, settings?.ratingValue]);
-
-  const ratingCountText = React.useMemo(() => {
-    if (productReviewsCount) return `${productReviewsCount.toLocaleString()}+ Verified Reviews`;
-    if (reviews && reviews.length > 0) {
-      const cnt = reviews.length;
-      return `${cnt} ${cnt === 1 ? "Verified Review" : "Verified Reviews"}`;
-    }
-    return settings?.ratingCountLabel || "1,420+ Verified Reviews";
-  }, [productReviewsCount, reviews, settings?.ratingCountLabel]);
+  const ratingCountText =
+    productReviewsCount !== undefined
+      ? `${productReviewsCount} Verified Reviews`
+      : settings?.ratingCountLabel || `${reviews.length || 5} Verified Reviews`;
 
   const [filterRating, setFilterRating] = useState<number | "all">("all");
-  const [helpfulLiked, setHelpfulLiked] = useState<Record<string, boolean>>({});
   const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
+  const [helpfulLiked, setHelpfulLiked] = useState<Record<string, boolean>>({});
 
-  // New Review Form State
+  const [newRating, setNewRating] = useState(5);
   const [newAuthor, setNewAuthor] = useState("");
   const [newLocation, setNewLocation] = useState("");
-  const [newRating, setNewRating] = useState(5);
   const [newTitle, setNewTitle] = useState("");
   const [newComment, setNewComment] = useState("");
   const [newProduct, setNewProduct] = useState("");
-  const [formSubmitted, setFormSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submissionMessage, setSubmissionMessage] = useState("");
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   const [visibleCount, setVisibleCount] = useState(4);
 
@@ -265,8 +249,12 @@ export function CustomerReviewsSection({
     }
   };
 
+  if (hideIfEmpty && reviews.length === 0) {
+    return null;
+  }
+
   return (
-    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
+    <div className="w-full">
       <div className="bg-card border border-primary/20 rounded-2xl sm:rounded-[2rem] p-4 sm:p-7 lg:p-8 relative overflow-hidden shadow-md transition-all duration-300">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
         
@@ -404,13 +392,13 @@ export function CustomerReviewsSection({
               </div>
 
               {/* Product Badge Tag */}
-              <div className="text-[11px] font-medium text-muted-foreground bg-muted/30 border border-border/40 px-3 py-1 rounded-lg mb-2.5 inline-block max-w-full truncate">
-                Purchased: <span className="text-primary font-bold">{rev.productName}</span>
+              <div className="text-[11px] font-medium text-muted-foreground bg-muted/30 border border-border/40 px-3 py-1 rounded-lg mb-2.5 inline-flex flex-wrap items-center gap-1 max-w-full break-words">
+                <span>Purchased:</span> <span className="text-primary font-bold">{rev.productName}</span>
               </div>
 
               {/* Title & Comment */}
-              <h5 className="text-sm sm:text-base font-sans font-bold text-foreground tracking-tight mb-1">{rev.title}</h5>
-              <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed font-normal mb-4">{rev.comment}</p>
+              <h5 className="text-sm sm:text-base font-sans font-bold text-foreground tracking-tight mb-1 break-words">{rev.title}</h5>
+              <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed font-normal mb-4 break-words">{rev.comment}</p>
 
               {/* Review Card Footer */}
               <div className="flex items-center justify-between text-xs pt-2.5 border-t border-border/30">

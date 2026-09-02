@@ -190,7 +190,7 @@ export function FlavorsWheel({
   };
 
   return (
-    <div className="py-2 sm:py-6 md:py-10 relative overflow-hidden">
+    <div className="w-full relative overflow-hidden">
       {/* CSS for wheel spin animations */}
       <style
         dangerouslySetInnerHTML={{

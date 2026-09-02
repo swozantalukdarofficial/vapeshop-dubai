@@ -869,7 +869,7 @@ export default function ProductPage() {
 
         {/* Service Feature Cards Grid — merchant-defined */}
         {flag("showServiceCards") && serviceCards.length > 0 && (
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 lg:py-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {serviceCards.map((card, idx) => {
                 const Icon = resolveIcon(card.icon);
@@ -900,7 +900,7 @@ export default function ProductPage() {
 
         {/* Product Tabs — labels, visibility and the shipping/returns copy all
             come from the template's Product Details section. */}
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:mt-14">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 lg:py-3">
           <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-10 lg:p-12 shadow-sm relative overflow-hidden transition-all duration-300">
             {/* Top subtle brand accent bar */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/20 via-primary to-primary/20" />
@@ -998,7 +998,7 @@ export default function ProductPage() {
             productName: product.name,
             hasRelatedProducts: similarProducts.length > 0,
           }}
-          containerClassName="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16"
+          containerClassName="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 lg:py-3"
           slots={{
             productMain: null,
             juulCrispMenthol: (settings: Record<string, unknown>) => {
@@ -1073,7 +1073,7 @@ export default function ProductPage() {
                 productReviewsCount={product.reviews}
                 productReviewsList={product.reviewsList}
                 settings={settings as never}
-                hideIfEmpty={true}
+                hideIfEmpty={false}
               />
             ),
             faq: (settings: Record<string, unknown>) => (
@@ -1081,7 +1081,7 @@ export default function ProductPage() {
             ),
             relatedProducts: (settings: Record<string, unknown>) => (
 
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 lg:py-3">
             <ProductSectionCarousel
               sectionName={String(settings.heading ?? "You May Also Like")}
               products={similarProducts}

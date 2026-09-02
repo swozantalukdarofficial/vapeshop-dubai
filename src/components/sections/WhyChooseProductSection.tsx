@@ -137,7 +137,7 @@ export function WhyChooseProductSection({
       : "";
 
   return (
-    <section className={`max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:mt-14 ${className}`}>
+    <section className={`w-full ${className}`}>
       <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-10 lg:p-12 shadow-sm relative overflow-hidden transition-all duration-300">
 
         {/* Top subtle brand accent line */}

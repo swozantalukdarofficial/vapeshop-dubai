@@ -13,7 +13,7 @@ export function MyleVerificationSection({
   settings,
 }: { settings?: SectionHeadingSettings } = {}) {
   return (
-    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+    <div className="w-full">
       <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-10 lg:p-14 relative overflow-hidden shadow-md transition-all duration-300">
         {/* Glow Ambient Top Line */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />

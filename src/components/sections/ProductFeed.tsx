@@ -368,6 +368,7 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
 export interface ProductFeedRow {
   title: string;
   collectionHandle: string;
+  productHandles?: string[];
   /** Overrides the collection's own URL for "view all". */
   viewAllHref: string;
   limit: number;
@@ -382,20 +383,85 @@ export interface ProductFeedRow {
   hideTimerWhenExpired: boolean;
 }
 
-/** Where a row's "view all" goes: explicit link, else its own collection. */
+function parseHandlesFromInput(input: string): { type: "collection" | "products"; handles: string[] } {
+  if (!input) return { type: "collection", handles: [] };
+
+  const raw = input.trim();
+  const parts = raw.split(",").map((s) => s.trim()).filter(Boolean);
+
+  const cleanHandles: string[] = [];
+  let isProductMode = false;
+
+  for (const part of parts) {
+    if (part.includes("/product/")) {
+      isProductMode = true;
+      const h = part.split("/product/").pop()?.split("?")[0]?.split("#")[0] || "";
+      if (h) cleanHandles.push(h.toLowerCase());
+    } else if (part.includes("/collections/")) {
+      const h = part.split("/collections/").pop()?.split("?")[0]?.split("#")[0] || "";
+      if (h) cleanHandles.push(h.toLowerCase());
+    } else if (part.includes("/brand/")) {
+      const h = part.split("/brand/").pop()?.split("?")[0]?.split("#")[0] || "";
+      if (h) cleanHandles.push(h.toLowerCase());
+    } else {
+      cleanHandles.push(part.toLowerCase());
+    }
+  }
+
+  if (isProductMode || parts.length > 1) {
+    return { type: "products", handles: cleanHandles };
+  }
+
+  return { type: "collection", handles: cleanHandles };
+}
+
+/** Where a row's "view all" goes: explicit link, else its own collection/product. */
 function rowViewAllHref(row: ProductFeedRow): string {
   if (row.viewAllHref) return row.viewAllHref;
-  if (row.collectionHandle) return `/collections/${row.collectionHandle}`;
+  const target = (row.collectionHandle || "").trim();
+  if (!target) return "";
+
+  if (target.startsWith("/") && !target.includes("/product/")) return target;
+
+  const parsed = parseHandlesFromInput(target);
+  if (parsed.type === "products" && parsed.handles.length === 1) {
+    return `/product/${parsed.handles[0]}`;
+  }
+  if (parsed.type === "products" && parsed.handles.length > 1) {
+    return `/collections/all`;
+  }
+  if (parsed.handles.length > 0) {
+    return `/collections/${parsed.handles[0]}`;
+  }
   return "";
 }
 
 function productMatchesRow(product: Product, row: ProductFeedRow): boolean {
-  const handle = (row.collectionHandle || "").trim().toLowerCase();
-  // No collection picked yet — render nothing rather than the whole catalogue.
-  if (!handle) return false;
-  // /api/products already returns each product's collection handles, so this
-  // needs no extra request.
-  return (product.collections ?? []).some((c) => c.toLowerCase() === handle);
+  if (row.productHandles && row.productHandles.length > 0) {
+    const targetHandles = row.productHandles.map((h) => {
+      if (h.includes("/product/")) return h.split("/product/").pop()?.split("?")[0] || h;
+      return h;
+    }).map((h) => h.trim().toLowerCase());
+
+    const prodHandle = (product.handle || "").toLowerCase();
+    const prodId = (product.id || "").toLowerCase();
+    return targetHandles.includes(prodHandle) || targetHandles.includes(prodId);
+  }
+
+  const target = (row.collectionHandle || "").trim();
+  if (!target) return false;
+
+  const parsed = parseHandlesFromInput(target);
+  if (parsed.handles.length === 0) return false;
+
+  if (parsed.type === "products") {
+    const prodHandle = (product.handle || "").toLowerCase();
+    const prodId = (product.id || "").toLowerCase();
+    return parsed.handles.some((h) => h === prodHandle || h === prodId);
+  }
+
+  const colHandle = parsed.handles[0];
+  return (product.collections ?? []).some((c) => c.toLowerCase() === colHandle);
 }
 
 export interface ProductFeedSettings {

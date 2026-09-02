@@ -103,7 +103,7 @@ export function JuulCustomFeatureSection({
   } = settings || {};
 
   return (
-    <section className={`max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 ${className}`}>
+    <section className={`w-full ${className}`}>
       <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-10 lg:p-14 relative overflow-hidden shadow-md">
         <div className={`grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center ${reverseLayout ? "lg:flex-row-reverse" : ""}`}>
           
