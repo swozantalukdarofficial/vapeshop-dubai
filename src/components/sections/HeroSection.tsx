@@ -47,7 +47,7 @@ export interface HeroSettings {
 const SlideHeadline: React.FC<{ title: string; as: "h1" | "h2" }> = ({ title, as }) => {
   const Tag = as;
   const className =
-    "text-4xl sm:text-5xl lg:text-[3.5rem] font-serif text-foreground leading-[0.95] tracking-tight";
+    "text-2xl sm:text-4xl lg:text-[3.5rem] font-serif text-foreground leading-[1.05] tracking-tight";
 
   if (!title.includes("&")) {
     return <Tag className={className}>{title}</Tag>;
