@@ -282,7 +282,7 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
                           </p>
                           <SlideHeadline title={slide.title} as={idx === 0 ? "h1" : "h2"} />
                         </div>
-                        <p className="text-xs sm:text-base text-muted-foreground leading-relaxed font-normal text-justify [text-align-last:left] whitespace-pre-line text-pretty max-w-xl min-h-[40px] sm:min-h-[64px]">
+                        <p className="text-xs sm:text-base text-muted-foreground leading-relaxed font-normal whitespace-pre-line max-w-xl">
                           {slide.description}
                         </p>
 
