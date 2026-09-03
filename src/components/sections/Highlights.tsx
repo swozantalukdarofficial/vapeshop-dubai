@@ -7,45 +7,53 @@ const POINTS = [
   {
     icon: Truck,
     title: "Same-Day Delivery",
-    description: "Express 2-hour delivery across Dubai, and next-day across the UAE.",
+    description: "Express 2-hour delivery across Dubai & UAE.",
+    badge: "EXPRESS",
   },
   {
     icon: ShieldCheck,
     title: "100% Authentic",
-    description: "Directly from official sources with scratch-code verification.",
+    description: "Official scratch-code verified products.",
+    badge: "VERIFIED",
   },
   {
     icon: CreditCard,
     title: "Cash / Card on Delivery",
-    description: "No pre-payment required. Pay at your door with cash or card.",
+    description: "Pay at doorstep with cash or card.",
+    badge: "FLEXIBLE",
   },
   {
     icon: RefreshCw,
     title: "24h Warranty",
-    description: "Device issue? We exchange it at your door within 24 hours.",
+    description: "Instant doorstep exchange guarantee.",
+    badge: "GUARANTEE",
   },
 ];
 
 export const Highlights: React.FC = () => {
   return (
-    <div className="bg-card/45 backdrop-blur-sm border border-border/30 rounded-2xl py-4 px-6 shadow-sm hover:shadow-md transition-all duration-300">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-0 divide-y sm:divide-y-0 lg:divide-x lg:divide-border/20">
+    <div className="w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         {POINTS.map((point, i) => {
           const Icon = point.icon;
           return (
             <div
               key={i}
-              className="flex items-center gap-3.5 py-2 sm:py-3 lg:py-1.5 lg:px-6 first:pl-0 last:pr-0 border-t first:border-t-0 sm:border-t-0"
+              className="group relative flex items-center gap-3.5 p-3.5 rounded-2xl bg-card border border-border/70 hover:border-primary/60 shadow-xs hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 transition-all duration-300 overflow-hidden cursor-default"
             >
-              {/* Icon container */}
-              <div className="w-9 h-9 rounded-lg bg-primary/8 flex items-center justify-center flex-shrink-0">
-                <Icon className="h-4.5 w-4.5 text-primary" />
+              <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-white shadow-2xs">
+                <Icon className="h-5 w-5" />
               </div>
 
-              {/* Content */}
               <div className="min-w-0 flex-1">
-                <h3 className="text-xs font-bold text-foreground tracking-wide leading-tight">{point.title}</h3>
-                <p className="text-[10px] text-muted-foreground leading-snug mt-0.5 line-clamp-1">{point.description}</p>
+                <div className="flex items-center justify-between gap-1 mb-0.5">
+                  <h3 className="text-xs font-black text-foreground tracking-tight leading-tight group-hover:text-primary transition-colors truncate">
+                    {point.title}
+                  </h3>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-snug truncate">
+                  {point.description}
+                </p>
               </div>
             </div>
           );
