@@ -39,15 +39,15 @@ export const Highlights: React.FC = () => {
           return (
             <div
               key={i}
-              className="group relative flex items-center gap-3.5 p-3.5 rounded-2xl bg-card border border-border/70 hover:border-primary/60 shadow-xs hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 transition-all duration-300 overflow-hidden cursor-default"
+              className="group relative flex items-center gap-3.5 p-3.5 rounded-2xl bg-card border border-border/70 hover:border-emerald-500/60 shadow-xs hover:shadow-lg hover:shadow-emerald-500/10 hover:-translate-y-0.5 transition-all duration-300 overflow-hidden cursor-default"
             >
-              <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-white shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-[#009966] dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:bg-[#009966] group-hover:text-white shadow-2xs">
                 <Icon className="h-5 w-5" />
               </div>
 
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-1 mb-0.5">
-                  <h3 className="text-xs font-black text-foreground tracking-tight leading-tight group-hover:text-primary transition-colors truncate">
+                  <h3 className="text-xs font-black text-foreground tracking-tight leading-tight group-hover:text-[#009966] dark:group-hover:text-emerald-400 transition-colors truncate">
                     {point.title}
                   </h3>
                 </div>

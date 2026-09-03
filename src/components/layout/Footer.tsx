@@ -43,26 +43,26 @@ export const Footer: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4.5 sm:gap-5 lg:gap-6">
             {settings.trustItems.map((item, idx) => {
               const badges = [
-                { label: "EXPRESS", color: "bg-orange-500/10 text-orange-600 border-orange-500/20" },
-                { label: "VERIFIED", color: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" },
-                { label: "FLEXIBLE", color: "bg-blue-500/10 text-blue-600 border-blue-500/20" },
-                { label: "24/7 LIVE", color: "bg-purple-500/10 text-purple-600 border-purple-500/20" },
+                { label: "EXPRESS", color: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 dark:text-emerald-400" },
+                { label: "VERIFIED", color: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 dark:text-emerald-400" },
+                { label: "FLEXIBLE", color: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 dark:text-emerald-400" },
+                { label: "24/7 LIVE", color: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 dark:text-emerald-400" },
               ];
               const badge = badges[idx % badges.length];
 
               return (
                 <div
                   key={idx}
-                  className="group relative flex items-center gap-4 p-4.5 sm:p-5 rounded-2xl bg-card border border-border/70 hover:border-primary/60 shadow-xs hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300 cursor-default overflow-hidden"
+                  className="group relative flex items-center gap-4 p-4.5 sm:p-5 rounded-2xl bg-card border border-border/70 hover:border-emerald-500/60 shadow-xs hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1 transition-all duration-300 cursor-default overflow-hidden"
                 >
-                  {/* Subtle Top Metallic Ambient Accent Line */}
-                  <div className="absolute top-0 left-4 right-4 h-[2px] bg-gradient-to-r from-transparent via-primary/30 to-transparent group-hover:via-primary transition-all duration-500" />
+                  {/* Subtle Top Metallic Green Ambient Accent Line */}
+                  <div className="absolute top-0 left-4 right-4 h-[2px] bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent group-hover:via-emerald-500 transition-all duration-500" />
                   
-                  {/* Background Ambient Glow */}
-                  <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-primary/5 rounded-full blur-xl group-hover:bg-primary/10 transition-colors pointer-events-none" />
+                  {/* Background Green Ambient Glow */}
+                  <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/15 transition-colors pointer-events-none" />
 
                   {/* Icon Box */}
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5 text-primary border border-primary/25 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:from-primary group-hover:to-primary/90 group-hover:text-white shadow-xs group-hover:shadow-md group-hover:shadow-primary/20">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-[#009966] dark:text-emerald-400 border border-emerald-500/25 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:bg-[#009966] group-hover:text-white shadow-xs group-hover:shadow-md group-hover:shadow-emerald-500/30">
                     <ThemeIcon name={item.icon} className="h-6 w-6" />
                   </div>
 
@@ -70,14 +70,12 @@ export const Footer: React.FC = () => {
                   <div className="min-w-0 flex-1 relative z-10">
                     <div className="flex items-center justify-between gap-1 mb-1">
                       <span className={`inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${badge.color}`}>
-                        {idx === 3 && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
-                        )}
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                         {badge.label}
                       </span>
                     </div>
 
-                    <h4 className="text-sm font-black text-foreground tracking-tight leading-tight group-hover:text-primary transition-colors truncate">
+                    <h4 className="text-sm font-black text-foreground tracking-tight leading-tight group-hover:text-[#009966] dark:group-hover:text-emerald-400 transition-colors truncate">
                       {item.title}
                     </h4>
 
