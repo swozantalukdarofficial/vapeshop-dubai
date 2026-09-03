@@ -12,6 +12,7 @@ import {
 import type { FieldDef, RepeaterFieldDef } from "@/lib/theme/field-types";
 
 import {
+  ArticleInput,
   CollectionInput,
   DateTimeInput,
   IconInput,
@@ -272,6 +273,17 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
     case "collection":
       return (
         <CollectionInput
+          label={field.label}
+          help={field.help}
+          placeholder={field.placeholder}
+          value={String(raw ?? "")}
+          onChange={(value) => onChange(field.key, value)}
+        />
+      );
+
+    case "articles":
+      return (
+        <ArticleInput
           label={field.label}
           help={field.help}
           placeholder={field.placeholder}

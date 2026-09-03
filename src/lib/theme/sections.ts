@@ -895,20 +895,28 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
       { type: "text", key: "badgeText", label: "Badge text" },
       { type: "text", key: "heading", label: "Heading" },
       { type: "textarea", key: "description", label: "Description", rows: 3 },
+      {
+        type: "articles",
+        key: "selectedPosts",
+        label: "Select Blog Articles (Checkmark Dropdown)",
+        help: "Checkmark specific blog articles to display on the home page. Leave empty to automatically show latest articles.",
+      },
       { type: "text", key: "viewAllLabel", label: "'View all' label" },
       { type: "link", key: "viewAllHref", label: "'View all' link" },
-      { type: "number", key: "postCount", label: "Posts to show", min: 1, max: 9, step: 1 },
+      { type: "number", key: "postCount", label: "Max posts to show", min: 1, max: 9, step: 1 },
     ],
     defaults: {
       badgeText: "Vape Dubai Journal & Guides",
       heading: "Latest Vaping Guides & Insights",
       description:
         "Read simple guides on best disposable vape in UAE, JUUL 2, vape price in Dubai, nicotine salts, and UAE vape rules. Stay updated with product reviews and tips from a trusted vape shop UAE.",
+      selectedPosts: "",
       viewAllLabel: "View All Articles",
       viewAllHref: "/blog",
       postCount: 3,
     },
   },
+
 
   /* ═══════════ Static page building blocks ═══════════ */
 

@@ -17,42 +17,75 @@ export interface BlogSettings {
   viewAllLabel: string;
   viewAllHref: string;
   postCount: number;
+  selectedPosts?: string;
 }
 
 export const BlogSection: React.FC<{ settings: BlogSettings }> = ({
   settings,
 }) => {
-  const postCount = Math.max(1, settings.postCount);
+  const postCount = Math.max(1, settings.postCount || 3);
 
-  const [posts, setPosts] = useState<BlogPost[]>(BLOG_POSTS.slice(0, postCount));
+  // Helper to filter static or fetched posts by selected handles
+  const filterBySelected = (all: BlogPost[]) => {
+    const selectedHandles = (settings.selectedPosts || "")
+      .split(",")
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean);
+
+    if (selectedHandles.length === 0) {
+      return all.slice(0, postCount);
+    }
+
+    const matched = selectedHandles
+      .map((handle) => all.find((p) => p.slug.toLowerCase() === handle))
+      .filter((p): p is BlogPost => Boolean(p));
+
+    return matched.length > 0 ? matched : all.slice(0, postCount);
+  };
+
+  const [posts, setPosts] = useState<BlogPost[]>(() => filterBySelected(BLOG_POSTS));
 
   useEffect(() => {
-    const timer = setTimeout(async () => {
+    let active = true;
+
+    async function loadApiArticles() {
       try {
         const res = await fetch("/api/articles");
         if (res.ok) {
           const data = await res.json();
           if (data.articles && data.articles.length > 0) {
-            const mapped: BlogPost[] = data.articles.slice(0, postCount).map((item: any, idx: number) => ({
-              slug: item.handle || `article-${idx}`,
-              title: item.title,
-              excerpt: item.excerpt || (item.contentHtml ? item.contentHtml.replace(/<[^>]+>/g, "").slice(0, 120) + "..." : ""),
-              category: item.blog?.title || "Vape Guides",
-              author: item.authorV2?.name || item.author?.name || "Vape Shop Dubai Editorial",
-              date: item.publishedAt ? new Date(item.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "August 2026",
-              readTime: "5 min read",
-              image: item.image?.url || BLOG_POSTS[idx % BLOG_POSTS.length]?.image || "/hero_vape.png",
-            }));
-            setPosts(mapped);
+            const mapped: BlogPost[] = data.articles.map((item: any, idx: number) => {
+              const rawImg = typeof item.image === "string" ? item.image : item.image?.url;
+              const image = rawImg && rawImg.trim() !== "" ? rawImg : BLOG_POSTS[idx % BLOG_POSTS.length]?.image || "/hero_vape.png";
+
+              return {
+                slug: item.handle || `article-${idx}`,
+                title: item.title,
+                excerpt: item.excerpt || (item.contentHtml ? item.contentHtml.replace(/<[^>]+>/g, "").slice(0, 120) + "..." : ""),
+                category: item.blog?.title || item.blogTitle || "Vape Guides",
+                author: item.authorV2?.name || item.author?.name || item.author || "Vape Shop Dubai Editorial",
+                date: item.publishedAt ? new Date(item.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "August 2026",
+                readTime: "5 min read",
+                image,
+              };
+            });
+
+            if (active) {
+              setPosts(filterBySelected(mapped));
+            }
           }
         }
       } catch (err) {
-        // Fallback to static BLOG_POSTS
+        // Fallback to static
       }
-    }, 2500);
+    }
 
-    return () => clearTimeout(timer);
-  }, [postCount]);
+    loadApiArticles();
+
+    return () => {
+      active = false;
+    };
+  }, [postCount, settings.selectedPosts]);
 
   return (
     <section className="w-full bg-card border border-primary/20 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-md transition-all duration-300">
@@ -96,26 +129,23 @@ export const BlogSection: React.FC<{ settings: BlogSettings }> = ({
               className="group overflow-hidden bg-background/80 hover:bg-background border border-border/80 hover:border-primary/40 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 flex flex-col gap-0 h-full rounded-[1.75rem]"
             >
               {/* Card Image Header */}
-              <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-gradient-to-br from-background via-muted/40 to-background flex items-center justify-center p-5 sm:p-6 border-b border-border/40">
-                {/* Subtle ambient glow */}
-                <div className="absolute w-28 h-28 rounded-full bg-primary/8 filter blur-xl pointer-events-none" />
-                
+              <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-muted border-b border-border/40">
                 <Image
                   src={post.image}
                   alt={post.title}
-                  width={240}
-                  height={240}
-                  className="relative z-10 max-h-36 sm:max-h-40 w-auto object-contain group-hover:scale-108 transition-transform duration-500 ease-out drop-shadow-md"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 
                 {/* Category Badge */}
                 <div className="absolute top-4 left-4 z-10">
-                  <Badge className="bg-primary text-primary-foreground font-bold tracking-[0.14em] uppercase text-[10px] px-2.5 py-1 border-none shadow-xs">
+                  <Badge className="bg-primary/90 backdrop-blur-md text-primary-foreground font-bold tracking-[0.14em] uppercase text-[10px] px-2.5 py-1 border-none shadow-sm">
                     {post.category}
                   </Badge>
                 </div>
               </div>
+
 
               {/* Card Content & Body */}
               <CardContent className="p-5 sm:p-6 flex flex-col flex-grow">
