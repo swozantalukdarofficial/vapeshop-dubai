@@ -37,55 +37,49 @@ export const Footer: React.FC = () => {
 
   return (
     <footer className="relative mt-2 sm:mt-3 lg:mt-4 bg-card text-foreground font-sans border-t border-border/50">
-      {/* ── 1. Top Trust Features (Realistic Handcrafted Luxury Cards) ──── */}
-      <div className="border-b border-border/60 bg-gradient-to-b from-muted/20 via-muted/40 to-muted/20 py-7 sm:py-9 relative overflow-hidden">
+      {/* ── 1. Top Trust Features (Seamless Luxury Glassmorphic Banner) ──── */}
+      <div className="py-6 sm:py-8 bg-muted/20 border-b border-border/50">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4.5 sm:gap-5 lg:gap-6">
-            {settings.trustItems.map((item, idx) => {
-              const badges = [
-                { label: "EXPRESS", color: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 dark:text-emerald-400" },
-                { label: "VERIFIED", color: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 dark:text-emerald-400" },
-                { label: "FLEXIBLE", color: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 dark:text-emerald-400" },
-                { label: "24/7 LIVE", color: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 dark:text-emerald-400" },
-              ];
-              const badge = badges[idx % badges.length];
+          <div className="relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] bg-gradient-to-r from-card via-card/95 to-card border border-emerald-500/25 shadow-xl shadow-emerald-500/5 p-5 sm:p-7 lg:p-8">
+            {/* Top Green Accent Glow Line */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500/10 via-[#009966] to-emerald-500/10" />
 
-              return (
-                <div
-                  key={idx}
-                  className="group relative flex items-center gap-4 p-4.5 sm:p-5 rounded-2xl bg-card border border-border/70 hover:border-emerald-500/60 shadow-xs hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1 transition-all duration-300 cursor-default overflow-hidden"
-                >
-                  {/* Subtle Top Metallic Green Ambient Accent Line */}
-                  <div className="absolute top-0 left-4 right-4 h-[2px] bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent group-hover:via-emerald-500 transition-all duration-500" />
-                  
-                  {/* Background Green Ambient Glow */}
-                  <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/15 transition-colors pointer-events-none" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-0 divide-y sm:divide-y-0 lg:divide-x divide-border/60">
+              {settings.trustItems.map((item, idx) => {
+                const microBadges = [
+                  "⚡ EXPRESS 2-HR",
+                  "🛡️ 100% GENUINE",
+                  "💳 COD & CARD",
+                  "⏱️ 24/7 DISPATCH",
+                ];
+                const tag = microBadges[idx % microBadges.length];
 
-                  {/* Icon Box */}
-                  <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-[#009966] dark:text-emerald-400 border border-emerald-500/25 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:bg-[#009966] group-hover:text-white shadow-xs group-hover:shadow-md group-hover:shadow-emerald-500/30">
-                    <ThemeIcon name={item.icon} className="h-6 w-6" />
-                  </div>
-
-                  {/* Text Content */}
-                  <div className="min-w-0 flex-1 relative z-10">
-                    <div className="flex items-center justify-between gap-1 mb-1">
-                      <span className={`inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${badge.color}`}>
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        {badge.label}
-                      </span>
+                return (
+                  <div
+                    key={idx}
+                    className="group relative flex items-center gap-4 lg:px-6 py-4 sm:py-2 first:pl-0 last:pr-0 transition-all duration-300"
+                  >
+                    {/* 3D Glowing Emerald Icon Container */}
+                    <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#009966] via-emerald-600 to-emerald-700 text-white shadow-lg shadow-emerald-600/30 border border-emerald-400/40 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:shadow-emerald-500/50">
+                      <ThemeIcon name={item.icon} className="h-6 w-6 sm:h-7 sm:w-7" />
                     </div>
 
-                    <h4 className="text-sm font-black text-foreground tracking-tight leading-tight group-hover:text-[#009966] dark:group-hover:text-emerald-400 transition-colors truncate">
-                      {item.title}
-                    </h4>
-
-                    <p className="text-xs font-medium text-muted-foreground mt-1 truncate">
-                      {item.subtitle}
-                    </p>
+                    {/* Content Details */}
+                    <div className="min-w-0 flex-1">
+                      <div className="inline-flex items-center gap-1 text-[9px] font-black tracking-widest text-[#009966] dark:text-emerald-400 uppercase bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20 mb-1">
+                        <span>{tag}</span>
+                      </div>
+                      <h4 className="text-sm sm:text-base font-black text-foreground tracking-tight leading-snug group-hover:text-[#009966] dark:group-hover:text-emerald-400 transition-colors">
+                        {item.title}
+                      </h4>
+                      <p className="text-xs font-semibold text-muted-foreground mt-0.5 leading-snug">
+                        {item.subtitle}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
