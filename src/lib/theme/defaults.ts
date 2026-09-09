@@ -126,7 +126,6 @@ function buildTemplates(): Record<string, Template> {
           showWhen: "notBrandDirectory",
         }),
         inst("col-juul-app", "juulAppIntegration", { showWhen: "handleIsJuul2" }),
-        inst("col-myle-verify", "myleVerification", { showWhen: "handleIncludesMyle" }),
         inst("col-whyshop", "whyShop"),
         inst("col-faq", "faq"),
         inst("col-reviews", "customerReviews"),

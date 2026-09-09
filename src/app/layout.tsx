@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Sora, Inter } from "next/font/google";
+import { Bebas_Neue, Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -14,17 +14,26 @@ import {
   SITE_URL,
 } from "@/lib/seo-schemas";
 
-const sora = Sora({
-  variable: "--font-sora",
-  weight: ["400", "600", "700", "800"],
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
   display: "swap",
+  adjustFontFallback: true,
+});
+
+const bebasNeue = Bebas_Neue({
+  variable: "--font-bebas",
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+  adjustFontFallback: true,
 });
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
+  adjustFontFallback: true,
 });
 
 export const viewport: Viewport = {
@@ -58,8 +67,8 @@ export const metadata: Metadata = {
     canonical: SITE_URL,
   },
   icons: {
-    icon: "/favicon.png",
-    apple: "/favicon.png",
+    icon: "/favicon_v2.png",
+    apple: "/favicon_v2.png",
   },
   openGraph: {
     type: "website",
@@ -109,12 +118,14 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${sora.variable} ${inter.variable} h-full antialiased overflow-x-hidden max-w-full`}
+      className={`${playfair.variable} ${bebasNeue.variable} ${inter.variable} h-full antialiased overflow-x-hidden max-w-full`}
       suppressHydrationWarning
     >
       <head>
         <link rel="preconnect" href="https://cdn.shopify.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://cdn.shopify.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         
         {/* Root Google JSON-LD Schemas */}
         <script

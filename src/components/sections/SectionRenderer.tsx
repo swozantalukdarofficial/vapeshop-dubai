@@ -27,6 +27,7 @@ import type { FaqSettings } from "./FAQSection";
 import type { WhatsAppSettings } from "./WhatsAppContactSection";
 import type { WhyShopSettings } from "./WhyShopWithUs";
 import type { BlogSettings } from "./BlogSection";
+import { useIsIdle } from "@/hooks/use-is-idle";
 
 /**
  * Turns a stored section instance into rendered markup.
@@ -49,9 +50,10 @@ import type { BlogSettings } from "./BlogSection";
 const Categories = dynamic(() => import("./Categories").then((m) => ({ default: m.Categories })), { ssr: false });
 const AuthorizedDealers = dynamic(() => import("./AuthorizedDealers").then((m) => ({ default: m.AuthorizedDealers })), { ssr: false });
 const WhyShopWithUs = dynamic(() => import("./WhyShopWithUs").then((m) => ({ default: m.WhyShopWithUs })), { ssr: false });
-const FAQSection = dynamic(() => import("./FAQSection").then((m) => ({ default: m.FAQSection })), { ssr: false });
+const FAQSection = dynamic(() => import("./FAQSection").then((m) => ({ default: m.FAQSection })));
 const WhatsAppContactSection = dynamic(() => import("./WhatsAppContactSection").then((m) => ({ default: m.WhatsAppContactSection })), { ssr: false });
-const BlogSection = dynamic(() => import("./BlogSection").then((m) => ({ default: m.BlogSection })), { ssr: false });
+const BlogSection = dynamic(() => import("./BlogSection").then((m) => ({ default: m.BlogSection })));
+const FlavorsWheel = dynamic(() => import("./FlavorsWheel").then((m) => ({ default: m.FlavorsWheel })), { ssr: false });
 
 /**
  * Sections the page renders itself, keyed by section type.
@@ -69,13 +71,15 @@ export type SectionSlots = Record<string, SectionSlot>;
 
 /** Standard page gutter shared by most sections. */
 export const SECTION_CONTAINER =
-  "max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 cv-auto";
+  "max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 lg:py-3 cv-auto";
 
 /** Sections that lay out their own full-bleed container. */
 const FULL_BLEED = new Set(["hero"]);
 
+
 function renderRegistrySection(
-  instance: SectionInstance
+  instance: SectionInstance,
+  isIdle: boolean
 ): React.ReactNode {
   const s = instance.settings;
 
@@ -83,15 +87,17 @@ function renderRegistrySection(
     case "hero":
       return <HeroSection settings={s as unknown as HeroSettings} />;
     case "categories":
-      return <Categories settings={s as unknown as CategoriesSettings} />;
+      return isIdle ? <Categories settings={s as unknown as CategoriesSettings} /> : <div style={{ height: "300px" }} />;
     case "brands":
-      return <AuthorizedDealers settings={s as unknown as BrandsSettings} />;
+      return isIdle ? <AuthorizedDealers settings={s as unknown as BrandsSettings} /> : <div style={{ height: "200px" }} />;
+    case "flavorsWheel":
+      return isIdle ? <FlavorsWheel {...(s as any)} /> : <div style={{ height: "400px" }} />;
     case "whyShop":
-      return <WhyShopWithUs settings={s as unknown as WhyShopSettings} />;
+      return isIdle ? <WhyShopWithUs settings={s as unknown as WhyShopSettings} /> : <div style={{ height: "300px" }} />;
     case "faq":
       return <FAQSection settings={s as unknown as FaqSettings} />;
     case "whatsapp":
-      return <WhatsAppContactSection settings={s as unknown as WhatsAppSettings} />;
+      return isIdle ? <WhatsAppContactSection settings={s as unknown as WhatsAppSettings} /> : null;
     case "blogPosts":
       return <BlogSection settings={s as unknown as BlogSettings} />;
     case "pageHeader":
@@ -145,34 +151,35 @@ export const TemplateSections: React.FC<TemplateSectionsProps> = ({
   context,
   slots = {},
   containerClassName = SECTION_CONTAINER,
-}) => (
-  <>
-    {instances.map((instance) => {
-      if (!instance.enabled) return null;
-      if (!shouldRenderInstance(instance.showWhen, context, isOverride)) return null;
+}) => {
+  const isIdle = useIsIdle();
+  return (
+    <>
+      {instances.map((instance) => {
+        if (!instance.enabled) return null;
+        if (!shouldRenderInstance(instance.showWhen, context, isOverride)) return null;
 
-      // A slot wins over the registry: the page knows more about this section
-      // than its stored settings do.
-      const isSlot = instance.type in slots;
-      const slot = slots[instance.type];
-      const node = isSlot
-        ? typeof slot === "function"
-          ? slot(instance.settings)
-          : slot
-        : renderRegistrySection(instance);
+        // A slot wins over the registry: the page knows more about this section
+        // than its stored settings do.
+        const isSlot = instance.type in slots;
+        const slot = slots[instance.type];
+        const node = isSlot
+          ? typeof slot === "function"
+            ? slot(instance.settings)
+            : slot
+          : renderRegistrySection(instance, isIdle);
 
-      if (!node) return null;
+        if (!node) return null;
 
-      // Slots arrive with whatever layout their page wants; only
-      // registry-rendered sections get the standard gutter.
-      const useContainer =
-        !isSlot && containerClassName && !FULL_BLEED.has(instance.type);
+        const useContainer =
+          containerClassName && !FULL_BLEED.has(instance.type);
 
-      return (
-        <div key={instance.id} data-section-id={instance.id} className="scroll-mt-24">
-          {useContainer ? <div className={containerClassName}>{node}</div> : node}
-        </div>
-      );
-    })}
-  </>
-);
+        return (
+          <div key={instance.id} data-section-id={instance.id} className="scroll-mt-24">
+            {useContainer ? <div className={containerClassName}>{node}</div> : node}
+          </div>
+        );
+      })}
+    </>
+  );
+};

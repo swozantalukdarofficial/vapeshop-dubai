@@ -281,12 +281,13 @@ const NavbarContent: React.FC<NavbarProps> = ({
       )}
 
       {/* ── Main Navbar ───────────────────────────────── */}
-      <div className={`glass-strong border-b border-border transition-all duration-300 ${isScrolled ? "py-2.5" : "py-3"}`}>
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between gap-4">
+      <div suppressHydrationWarning className={`glass-strong border-b border-border transition-all duration-300 ${isScrolled ? "py-2.5" : "py-3"}`}>
+        <div suppressHydrationWarning className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div suppressHydrationWarning className="flex items-center justify-between gap-4">
 
             {/* Logo */}
             <div
+              suppressHydrationWarning
               className="flex-shrink-0 cursor-pointer select-none"
               onClick={() => {
                 if (pathname === "/") {
@@ -315,11 +316,13 @@ const NavbarContent: React.FC<NavbarProps> = ({
                 return (
                   <div 
                     key={link.id} 
+                    suppressHydrationWarning
                     className="relative group"
                     onMouseEnter={() => link.sub && handleMouseEnterNav(link.id)}
                     onMouseLeave={() => link.sub && handleMouseLeaveNav()}
                   >
                     <div
+                      suppressHydrationWarning
                       className={`flex items-center rounded-xl text-xs xl:text-[13px] font-extrabold tracking-wider whitespace-nowrap transition-all duration-200 ${
                         getActiveState(link.id) || openDropdown === link.id
                           ? "text-primary bg-primary/10 font-black shadow-xs"
@@ -389,9 +392,9 @@ const NavbarContent: React.FC<NavbarProps> = ({
             </nav>
 
             {/* Right Actions */}
-            <div className="flex items-center gap-2">
+            <div suppressHydrationWarning className="flex items-center gap-2">
               {/* Search (desktop expandable) */}
-              <div className="hidden md:flex items-center gap-2 relative">
+              <div suppressHydrationWarning className="hidden md:flex items-center gap-2 relative">
                 {isSearchOpen ? (
                   <form 
                     ref={searchRef}

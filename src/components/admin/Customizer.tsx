@@ -18,6 +18,7 @@ import {
   Info,
   Loader2,
   Lock,
+  MessageSquare,
   Monitor,
   PanelsTopLeft,
   RotateCcw,
@@ -26,6 +27,8 @@ import {
   Trash2,
   Undo2,
 } from "lucide-react";
+
+import { ReviewsManagerDialog } from "./ReviewsManagerDialog";
 
 import {
   PREVIEW_MESSAGES,
@@ -100,6 +103,7 @@ export const Customizer: React.FC<{
   const [ruleDialogFor, setRuleDialogFor] = useState<"collection" | "product" | null>(null);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [isReviewsOpen, setIsReviewsOpen] = useState(false);
 
   // Lets the long-lived `message` listener read the newest settings without
   // resubscribing on every keystroke.
@@ -429,6 +433,15 @@ export const Customizer: React.FC<{
 
           <button
             type="button"
+            onClick={() => setIsReviewsOpen(true)}
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-bold text-slate-700 transition-colors hover:bg-slate-50 hover:border-slate-300"
+          >
+            <MessageSquare className="h-3.5 w-3.5 text-amber-500" />
+            Reviews
+          </button>
+
+          <button
+            type="button"
             onClick={() =>
               runAction(
                 "discard",
@@ -721,6 +734,11 @@ export const Customizer: React.FC<{
           }
         />
       )}
+
+      <ReviewsManagerDialog
+        isOpen={isReviewsOpen}
+        onClose={() => setIsReviewsOpen(false)}
+      />
     </div>
   );
 };

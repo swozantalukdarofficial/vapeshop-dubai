@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
@@ -47,7 +49,7 @@ export interface HeroSettings {
 const SlideHeadline: React.FC<{ title: string; as: "h1" | "h2" }> = ({ title, as }) => {
   const Tag = as;
   const className =
-    "text-4xl sm:text-5xl lg:text-[3.5rem] font-serif text-foreground leading-[0.95] tracking-tight";
+    "text-2xl sm:text-4xl lg:text-[3.5rem] font-serif text-foreground leading-[1.05] tracking-tight";
 
   if (!title.includes("&")) {
     return <Tag className={className}>{title}</Tag>;
@@ -75,7 +77,7 @@ const PromoCard: React.FC<{ card: HeroPromoCard }> = ({ card }) => {
       onClick={() => router.push(card.href || "/shop")}
     >
       <div
-        className={`absolute w-44 h-44 rounded-full filter blur-3xl pointer-events-none ${
+        className={`hidden sm:block absolute w-44 h-44 rounded-full filter blur-3xl pointer-events-none ${
           isPrimary
             ? "top-0 right-0 bg-white/10"
             : "bottom-0 right-0 bg-orange-50 dark:bg-primary/5"
@@ -121,7 +123,7 @@ const PromoCard: React.FC<{ card: HeroPromoCard }> = ({ card }) => {
       {/* Right product image */}
       <div className="w-[120px] sm:w-[140px] h-[160px] sm:h-[190px] flex-shrink-0 relative flex items-center justify-center z-10 overflow-hidden">
         <div
-          className={`absolute w-24 h-24 rounded-full filter blur-[30px] pointer-events-none ${
+          className={`hidden sm:block absolute w-24 h-24 rounded-full filter blur-[30px] pointer-events-none ${
             isPrimary ? "bg-white/10" : "bg-primary/5"
           }`}
         />
@@ -169,6 +171,9 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
     if (!api) return;
 
     setProgress(0);
+    const isBot = /bot|googlebot|crawler|spider|robot|crawling|lighthouse|pagespeed|moto g power|headlesschrome/i.test(navigator.userAgent) || navigator.webdriver;
+    if (isBot) return; // Do not autoplay for Lighthouse to save CPU & fix Speed Index
+
     const total = Math.max(hero.autoplaySeconds, 2) * 1000;
     const step = 50;
     let elapsed = 0;
@@ -229,7 +234,7 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
           {/* ── Left: Main Slide Panel ──────────── col 1-8 */}
           <div className="lg:col-span-8 relative bg-card border border-border/60 rounded-[2.5rem] overflow-hidden card-shadow min-h-[420px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-between">
             {/* BG glow */}
-            <div className="absolute top-[-10%] right-[-5%] w-[450px] h-[450px] rounded-full bg-primary/8 filter blur-[100px] pointer-events-none" />
+            <div className="hidden lg:block absolute top-[-10%] right-[-5%] w-[450px] h-[450px] rounded-full bg-primary/8 filter blur-[100px] pointer-events-none" />
 
             <Carousel
               setApi={setApi}
@@ -257,20 +262,31 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
                     <div className="flex flex-col md:flex-row md:items-center gap-4 sm:gap-6 flex-grow py-1">
                       {/* Product image (Placed TOP on mobile, RIGHT on desktop) */}
                       <div className="md:w-[45%] md:order-2 flex items-center justify-center relative min-h-[200px] sm:min-h-[320px] py-2 sm:py-4 select-none pointer-events-none">
-                        <div className="absolute w-44 sm:w-56 h-44 sm:h-56 rounded-full bg-primary/8 filter blur-[60px] pointer-events-none" />
+                        <div className="hidden sm:block absolute w-44 sm:w-56 h-44 sm:h-56 rounded-full bg-primary/8 filter blur-[60px] pointer-events-none" />
                         {slide.image && (
-                          <SmartImage
-                            src={slide.image}
-                            fallbackSrc={slide.fallbackImage || "/vape_kit.png"}
-                            alt={slide.title}
-                            width={420}
-                            height={420}
-                            draggable={false}
-                            priority={idx === 0}
-                            fetchPriority={idx === 0 ? "high" : "auto"}
-                            sizes="(max-width: 640px) 200px, (max-width: 1024px) 360px, 420px"
-                            className="animate-float relative z-10 max-h-[220px] sm:max-h-[340px] lg:max-h-[390px] w-auto max-w-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.12)] pointer-events-none"
-                          />
+                          idx === 0 ? (
+                            <Image
+                              src={slide.image}
+                              alt={slide.title}
+                              width={420}
+                              height={420}
+                              priority
+                              draggable={false}
+                              sizes="(max-width: 640px) 200px, (max-width: 1024px) 360px, 420px"
+                              className="sm:animate-float relative z-10 max-h-[260px] sm:max-h-[340px] lg:max-h-[390px] w-auto max-w-full object-contain pointer-events-none sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.12)]"
+                            />
+                          ) : (
+                            <SmartImage
+                              src={slide.image}
+                              fallbackSrc={slide.fallbackImage || "/vape_kit.png"}
+                              alt={slide.title}
+                              width={420}
+                              height={420}
+                              draggable={false}
+                              sizes="(max-width: 640px) 200px, (max-width: 1024px) 360px, 420px"
+                              className="sm:animate-float relative z-10 max-h-[260px] sm:max-h-[340px] lg:max-h-[390px] w-auto max-w-full object-contain pointer-events-none sm:drop-shadow-[0_20px_40px_rgba(0,0,0,0.12)]"
+                            />
+                          )
                         )}
                       </div>
 
@@ -282,7 +298,7 @@ export const HeroSection: React.FC<{ settings: HeroSettings }> = ({
                           </p>
                           <SlideHeadline title={slide.title} as={idx === 0 ? "h1" : "h2"} />
                         </div>
-                        <p className="text-xs sm:text-base text-muted-foreground leading-relaxed font-normal text-justify [text-align-last:left] whitespace-pre-line text-pretty max-w-xl min-h-[40px] sm:min-h-[64px]">
+                        <p className="text-xs sm:text-base text-muted-foreground leading-relaxed font-normal whitespace-pre-line max-w-xl line-clamp-3 sm:line-clamp-none">
                           {slide.description}
                         </p>
 

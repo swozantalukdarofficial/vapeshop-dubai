@@ -11,6 +11,7 @@ import { Product, ProductCard } from "@/components/sections/ProductFeed";
 import { AuthorizedDealers } from "@/components/sections/AuthorizedDealers";
 import { WhatsAppContactSection } from "@/components/sections/WhatsAppContactSection";
 import { BrandSphere3D } from "@/components/sections/BrandSphere3D";
+import { FlavorsWheel } from "@/components/sections/FlavorsWheel";
 import { BottomCollectionGrid } from "@/components/sections/BottomCollectionGrid";
 import { FAQSection } from "@/components/sections/FAQSection";
 import { WhyShopWithUs } from "@/components/sections/WhyShopWithUs";
@@ -18,6 +19,8 @@ import { CustomerReviewsSection } from "@/components/sections/CustomerReviewsSec
 import { JuulTechSpecsSection } from "@/components/sections/JuulTechSpecsSection";
 import { JuulSignatureFlavorsSection } from "@/components/sections/JuulSignatureFlavorsSection";
 import { JuulPackagingCompareSection } from "@/components/sections/JuulPackagingCompareSection";
+import { JuulCrispMentholSections } from "@/components/sections/JuulCrispMentholSections";
+import { JuulCustomFeatureSection } from "@/components/sections/JuulCustomFeatureSection";
 import { JuulAppIntegrationSection } from "@/components/sections/JuulAppIntegrationSection";
 import { MyleVerificationSection } from "@/components/sections/MyleVerificationSection";
 import { DisposableComparisonSections } from "@/components/sections/DisposableComparisonSections";
@@ -50,6 +53,32 @@ function cleanDescriptionHtml(html: string): string {
   if (!html) return "";
   let cleaned = html;
 
+  // Preserve <style> tags so custom collection designs (.vsd-*, etc.) render with full designed styles
+  // 1. Remove leading/trailing quotes or whitespace
+  cleaned = cleaned.replace(/^\s*["';\s\}]+/g, "");
+  cleaned = cleaned.replace(/["';\s\}]+\s*$/g, "");
+
+  // 2. If text does NOT have paragraph tags (<p>), auto-format plain text into structured paragraphs & headings
+  if (!cleaned.includes("<p>") && !cleaned.includes("<div>")) {
+    cleaned = cleaned
+      .replace(/(JUUL VAPE DUBAI:\s*Introduction to JUUL Vape in Dubai)/gi, '<h2>$1</h2>')
+      .replace(/(JUUL Vape 1\s*[–\-]\s*The Classic Device)/gi, '<h3>$1</h3>')
+      .replace(/(JUUL Vape 2\s*[–\-]\s*The Updated Generation)/gi, '<h3>$1</h3>')
+      .replace(/(Pod Compatibility)/gi, '<h3>$1</h3>')
+      .replace(/(Compatible Pods for JUUL Vape 1)/gi, '<h3>$1</h3>')
+      .replace(/(Why JUUL Fruit Flavors Are Available in the Market\?)/gi, '<h3>$1</h3>');
+
+    const blocks = cleaned.split(/(?=<h[1-6]>|\n\n+)/);
+    cleaned = blocks
+      .map((block) => {
+        const trimmed = block.trim();
+        if (!trimmed) return "";
+        if (trimmed.startsWith("<h")) return trimmed;
+        return `<p class="mb-4 text-foreground/90 leading-relaxed text-justify [text-align-last:left]">${trimmed}</p>`;
+      })
+      .join("");
+  }
+
   // Process tables: promote first <tr> to <thead><th> if table lacks <thead>
   cleaned = cleaned.replace(/<table[\s\S]*?<\/table>/gi, (tableHtml) => {
     let updatedTable = tableHtml;
@@ -64,7 +93,8 @@ function cleanDescriptionHtml(html: string): string {
 
   cleaned = cleaned.replace(/href="https?:\/\/(www\.)?(vapeuae\.shop|vapshopdubai\.ae|vapshop\.ae)\/collections\/([^"]+)"/gi, 'href="/collections/$3"');
   cleaned = cleaned.replace(/href="https?:\/\/(www\.)?(vapeuae\.shop|vapshopdubai\.ae|vapshop\.ae)\/brand\/([^"]+)"/gi, 'href="/collections/$3"');
-  return cleaned;
+
+  return cleaned.trim();
 }
 
 const ALL_BRANDS_COLLECTION = [
@@ -221,6 +251,17 @@ function getSubPillsForHandle(h: string) {
       { label: "Vozol", query: "vozol" },
     ];
   }
+  if (handleLower.includes("freebase")) {
+    return [
+      { label: "All Freebase", query: "all" },
+      { label: "3mg Strength", query: "3mg" },
+      { label: "6mg Strength", query: "6mg" },
+      { label: "VGOD Freebase", query: "vgod" },
+      { label: "Nasty Juice", query: "nasty" },
+      { label: "Dr Vapes", query: "dr vapes" },
+      { label: "High VG 70/30", query: "70/30" },
+    ];
+  }
   if (handleLower.includes("juice") || handleLower.includes("liquid")) {
     return [
       { label: "All E-Liquids", query: "all" },
@@ -311,7 +352,7 @@ function CollectionPageContent() {
     if (!handle) return;
     async function loadCollectionMeta() {
       try {
-        const res = await fetch(`/api/collections/${encodeURIComponent(handle)}`);
+        const res = await fetch(`/api/collections/${encodeURIComponent(handle)}`, { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           setCollectionMeta(data);
@@ -363,7 +404,10 @@ function CollectionPageContent() {
     else if (hLower.includes("e-juice") || hLower.includes("e-liquid") || hLower.includes("salt-nicotine") || hLower.includes("freebase")) categoryKey = "e-liquids";
     else if (hLower.includes("pod-system") || hLower.includes("pod-kit") || hLower.includes("pod-cartridge") || hLower.includes("vape-coils")) categoryKey = "accessories";
 
-    // If Shopify data loaded, use it
+    // Read collectionMain settings from Admin Customizer
+    const mainSettings = instanceSettings(templateInstances, "collectionMain");
+
+    // If Shopify data loaded, use it merged with customizer overrides
     if (collectionMeta && collectionMeta.title) {
       let shortDesc = `Shop authentic ${collectionMeta.title} devices, pods, and e-liquids at Vape Shop Dubai. 2-Hour fast delivery in Dubai.`;
       if (collectionMeta.description) {
@@ -375,21 +419,36 @@ function CollectionPageContent() {
         }
       }
 
+      let rawTitle = (collectionMeta as any).customHeading || (mainSettings.customHeading as string) || collectionMeta.title || defaultTitle;
+      if (rawTitle.includes("{") || rawTitle.includes(":") || rawTitle.length > 120) {
+        rawTitle = defaultTitle;
+      }
+
       return {
-        title: collectionMeta.title,
+        title: rawTitle,
         description: shortDesc,
-        descriptionHtml: collectionMeta.descriptionHtml || "",
+        descriptionHtml: (collectionMeta as any).seoGuideHtml || (mainSettings.seoGuideContent as string) || collectionMeta.descriptionHtml || "",
         image: collectionMeta.image,
+        bannerImage: (collectionMeta as any).bannerImage || collectionMeta.image?.url || null,
+        eyebrowText: (collectionMeta as any).eyebrowText || (mainSettings.customEyebrow as string) || null,
+        flavorsWheelJson: (collectionMeta as any).flavorsWheelJson || (mainSettings.flavorsList ? (mainSettings.flavorsList as string).split(",").map(s => ({ name: s.trim(), query: s.trim() })) : null),
+        faqsJson: (collectionMeta as any).faqsJson || null,
         seo: collectionMeta.seo,
         categoryKey,
       };
     }
 
-    // Fallback: hardcoded defaults
+    // Fallback: hardcoded defaults per collection
+    let fallbackTitle = defaultTitle;
+    let fallbackDesc = `Shop authentic ${defaultTitle} devices, pods, and e-liquids at Vape Shop Dubai. 2-Hour fast delivery in Dubai.`;
+    let fallbackDescHtml = "";
+    let fallbackFaqsJson: Array<{ question: string; answer: string }> | null = null;
+
     return {
-      title: defaultTitle,
-      description: `Shop authentic ${defaultTitle} devices, pods, and e-liquids at Vape Shop Dubai. 2-Hour fast delivery in Dubai.`,
-      descriptionHtml: "",
+      title: fallbackTitle,
+      description: fallbackDesc,
+      descriptionHtml: fallbackDescHtml,
+      faqsJson: (collectionMeta as any)?.faqsJson || fallbackFaqsJson,
       image: null as { url: string; altText: string; width: number; height: number } | null,
       seo: null as { title: string; description: string } | null,
       categoryKey,
@@ -427,128 +486,25 @@ function CollectionPageContent() {
         return cLower === hLower;
       });
 
-      switch (hLower) {
-        // JUUL Collections
-        case "juul-1-series":
-          return (prodBrandLower.includes("juul") || prodNameLower.includes("juul")) &&
-            !prodNameLower.includes("juul 2") && !prodNameLower.includes("juul2") && !prodNameLower.includes(" 2");
-        case "juul-2-series":
-          return (prodBrandLower.includes("juul") || prodNameLower.includes("juul")) &&
-            (prodNameLower.includes("juul 2") || prodNameLower.includes("juul2") || prodNameLower.includes(" 2"));
-        case "juul-pods-offers":
-          return (prodBrandLower.includes("juul") || prodNameLower.includes("juul")) &&
-            (prodNameLower.includes("pod") || prodNameLower.includes("pack") || prodNameLower.includes("flavor") || prodSectionLower.includes("pod"));
-        case "juul-vape-dubai":
-          return prodBrandLower.includes("juul") || prodNameLower.includes("juul") || prodCatLower === "juul";
-
-        // MYLE Collections
-        case "myle-v5-pods":
-          return (prodBrandLower.includes("myle") || prodNameLower.includes("myle")) &&
-            (prodNameLower.includes("v5") || prodNameLower.includes("v.5") || prodNameLower.includes("meta")) &&
-            (prodNameLower.includes("pod") || prodNameLower.includes("cartridge")) &&
-            !prodNameLower.includes("device") && !prodNameLower.includes("kit");
-        case "myle-v5-device":
-          return (prodBrandLower.includes("myle") || prodNameLower.includes("myle")) &&
-            (prodNameLower.includes("v5") || prodNameLower.includes("v.5") || prodNameLower.includes("meta")) &&
-            (prodNameLower.includes("device") || prodNameLower.includes("kit"));
-        case "myle-v5-series":
-          return (prodBrandLower.includes("myle") || prodNameLower.includes("myle")) &&
-            (prodNameLower.includes("v5") || prodNameLower.includes("v.5") || prodNameLower.includes("meta"));
-        case "myle-disposable":
-          return (prodBrandLower.includes("myle") || prodNameLower.includes("myle")) &&
-            (prodNameLower.includes("disposable") || prodNameLower.includes("drip") || prodNameLower.includes("bar") || prodNameLower.includes("box") || prodNameLower.includes("micro") || prodNameLower.includes("mini"));
-        case "myle-vape-dubai":
-          return prodBrandLower.includes("myle") || prodNameLower.includes("myle") || prodCatLower === "myle";
-
-        // Brand Collections
-        case "al-fakher-vape":
-          return prodBrandLower.includes("al fakher") || prodBrandLower.includes("fakher") || prodNameLower.includes("al fakher") || prodNameLower.includes("crown bar");
-        case "elf-bar-vape":
-          return prodBrandLower.includes("elf bar") || prodBrandLower.includes("elfbar") || prodNameLower.includes("elf bar") || prodNameLower.includes("elfbar");
-        case "fummo-vape":
-          return prodBrandLower.includes("fummo") || prodNameLower.includes("fummo");
-        case "geek-bar-disposable":
-          return prodBrandLower.includes("geek bar") || prodBrandLower.includes("geekbar") || prodNameLower.includes("geek bar") || prodNameLower.includes("geekbar");
-        case "geek-vape":
-          return prodBrandLower.includes("geek vape") || prodBrandLower.includes("geekvape") || prodNameLower.includes("geek vape") || prodNameLower.includes("geekvape");
-        case "hqd-vape":
-          return prodBrandLower.includes("hqd") || prodNameLower.includes("hqd");
-        case "lost-mary-disposable":
-          return prodBrandLower.includes("lost mary") || prodBrandLower.includes("lostmary") || prodNameLower.includes("lost mary");
-        case "maskking-vape":
-          return prodBrandLower.includes("maskking") || prodNameLower.includes("maskking");
-        case "nerd-vape":
-          return prodBrandLower.includes("nerd") || prodNameLower.includes("nerd");
-        case "oxva-vape":
-          return prodBrandLower.includes("oxva") || prodNameLower.includes("oxva");
-        case "pod-salt-vape":
-          return prodBrandLower.includes("pod salt") || prodBrandLower.includes("podsalt") || prodNameLower.includes("pod salt");
-        case "relx-vape":
-          return prodBrandLower.includes("relx") || prodNameLower.includes("relx");
-        case "silvaper-vape":
-          return prodBrandLower.includes("silvaper") || prodNameLower.includes("silvaper");
-        case "smok-vape":
-          return prodBrandLower.includes("smok") || prodNameLower.includes("smok");
-        case "tugboat-vape":
-          return prodBrandLower.includes("tugboat") || prodNameLower.includes("tugboat");
-        case "uwell-vape":
-          return prodBrandLower.includes("uwell") || prodNameLower.includes("uwell");
-        case "vapes-bars":
-          return prodBrandLower.includes("vapes bars") || prodBrandLower.includes("vapesbars") || prodNameLower.includes("vapes bars");
-        case "vaporesso-vape":
-          return prodBrandLower.includes("vaporesso") || prodNameLower.includes("vaporesso");
-        case "vgod-stig":
-          return prodBrandLower.includes("vgod") || prodNameLower.includes("vgod") || prodNameLower.includes("stig");
-        case "voopoo-vape":
-          return prodBrandLower.includes("voopoo") || prodNameLower.includes("voopoo");
-        case "vozol-vape":
-          return prodBrandLower.includes("vozol") || prodNameLower.includes("vozol");
-        case "yuoto-vape":
-          return prodBrandLower.includes("yuoto") || prodNameLower.includes("yuoto");
-
-        // Non-Brand / Category Collections
-        case "disposable-vape":
-          return prodCatLower === "disposables" || prodSectionLower.includes("disposable") || prodNameLower.includes("disposable");
-        case "vape-e-juice":
-          return prodCatLower === "e-liquids" || prodSectionLower.includes("liquid") || prodNameLower.includes("juice") || prodNameLower.includes("liquid");
-        case "freebase-e-liquid":
-          return prodCatLower === "e-liquids" && (prodNameLower.includes("freebase") || !prodNameLower.includes("salt"));
-        case "salt-nicotine":
-          return prodCatLower === "e-liquids" && (prodNameLower.includes("salt") || prodNameLower.includes("nicotine"));
-        case "pod-cartridge":
-          return prodNameLower.includes("cartridge") || prodNameLower.includes("pod") || prodSectionLower.includes("pod");
-        case "pod-kit":
-          return prodNameLower.includes("kit") || prodNameLower.includes("device") || prodSectionLower.includes("kit");
-        case "pod-system":
-          return prodCatLower === "accessories" || prodSectionLower.includes("pod") || prodNameLower.includes("pod") || prodNameLower.includes("device");
-        case "vape-coils":
-          return prodNameLower.includes("coil") || prodNameLower.includes("occ") || prodSectionLower.includes("coil");
-        case "best-seller-vape":
-          return p.isPopular || p.reviews > 40;
-        case "brand":
-          return Boolean(p.brand);
-        case "uncategorized":
-          return true;
-
-        default:
-          if (hasDirectCollectionMatch) {
-            return true;
-          }
-          const GENERIC_WORDS = new Set(["vape", "dubai", "disposable", "pods", "pod", "device", "kit", "series", "shop", "online", "uae", "offers", "offer"]);
-          const cleanKeywords = hLower
-            .split("-")
-            .filter((w) => w.length > 2 && !GENERIC_WORDS.has(w));
-
-          if (cleanKeywords.length > 0) {
-            return cleanKeywords.every((kw) =>
-              prodNameLower.includes(kw) ||
-              prodBrandLower.includes(kw) ||
-              prodSectionLower.includes(kw) ||
-              prodCatLower.includes(kw)
-            );
-          }
-          return true;
+      if (hasDirectCollectionMatch) {
+        return true;
       }
+
+      // If no exact match is found, fallback to search by keywords from handle (Generic fallback for dynamically typed URLs)
+      const GENERIC_WORDS = new Set(["vape", "dubai", "disposable", "pods", "pod", "device", "kit", "series", "shop", "online", "uae", "offers", "offer"]);
+      const cleanKeywords = hLower
+        .split("-")
+        .filter((w) => w.length > 2 && !GENERIC_WORDS.has(w));
+
+      if (cleanKeywords.length > 0) {
+        return cleanKeywords.every((kw) =>
+          prodNameLower.includes(kw) ||
+          prodBrandLower.includes(kw) ||
+          prodSectionLower.includes(kw) ||
+          prodCatLower.includes(kw)
+        );
+      }
+      return false;
     });
   }, [products, handle]);
 
@@ -883,7 +839,7 @@ function CollectionPageContent() {
 
         {/* Catalog Section */}
         {handle === "brand" || handle === "brands" ? (
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-12">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 lg:py-3 space-y-6">
             {/* Brand Directory Showcase */}
             <BrandSphere3D
               settings={{
@@ -893,7 +849,7 @@ function CollectionPageContent() {
             />
           </div>
         ) : (
-          <div id="catalog-top" className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+          <div id="catalog-top" className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 lg:py-3">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
               {/* Filter Sidebar (Desktop) */}
@@ -1242,7 +1198,7 @@ function CollectionPageContent() {
 
         {/* Collection Description (from Shopify) — Beautiful Expandable Guide after products */}
         {collectionInfo.descriptionHtml && (
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 lg:py-3">
             <div className="bg-card border border-border/50 rounded-[2rem] p-5 sm:p-7 lg:p-8 relative overflow-hidden shadow-sm transition-all duration-300">
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/10 via-primary/40 to-primary/10" />
 
@@ -1267,14 +1223,14 @@ function CollectionPageContent() {
               <div>
                 <div
                   className="text-sm sm:text-base text-foreground leading-relaxed prose prose-sm sm:prose-base max-w-none 
-                    [&_h1]:text-base [&_h1]:sm:text-lg [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-primary [&_h1]:mt-6 [&_h1]:mb-3 [&_h1]:border-l-4 [&_h1]:border-primary [&_h1]:pl-3.5
-                    [&_h2]:text-base [&_h2]:sm:text-lg [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-primary [&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:border-l-4 [&_h2]:border-primary [&_h2]:pl-3.5
-                    [&_h3]:text-sm [&_h3]:sm:text-base [&_h3]:font-serif [&_h3]:font-bold [&_h3]:text-primary [&_h3]:mt-5 [&_h3]:mb-2 [&_h3]:border-l-4 [&_h3]:border-primary [&_h3]:pl-3
-                    [&_h4]:text-sm [&_h4]:font-bold [&_h4]:text-primary [&_h4]:mt-4 [&_h4]:mb-1.5
-                    [&_p]:mb-4 [&_p]:text-foreground/95 [&_p]:leading-relaxed
-                    [&_li]:text-foreground/95
+                    [&_h1]:text-base [&_h1]:sm:text-lg [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-foreground [&_h1]:mt-6 [&_h1]:mb-3 [&_h1]:border-l-4 [&_h1]:border-primary [&_h1]:pl-3.5
+                    [&_h2]:text-base [&_h2]:sm:text-lg [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-foreground [&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:border-l-4 [&_h2]:border-primary [&_h2]:pl-3.5
+                    [&_h3]:text-sm [&_h3]:sm:text-base [&_h3]:font-serif [&_h3]:font-bold [&_h3]:text-foreground [&_h3]:mt-5 [&_h3]:mb-2 [&_h3]:border-l-4 [&_h3]:border-primary [&_h3]:pl-3
+                    [&_h4]:text-sm [&_h4]:font-bold [&_h4]:text-foreground [&_h4]:mt-4 [&_h4]:mb-1.5
+                    [&_p]:mb-4 [&_p]:text-foreground/95 [&_p]:leading-relaxed [&_p]:text-justify [&_p]:[text-align-last:left]
+                    [&_li]:text-foreground/95 [&_li]:text-justify [&_li]:[text-align-last:left]
                     [&_a]:text-primary [&_a]:font-bold [&_a]:underline [&_a]:decoration-primary/60 [&_a]:underline-offset-4 hover:[&_a]:decoration-primary hover:[&_a]:text-primary/80 transition-all
-                    [&_strong]:font-normal [&_strong]:text-inherit
+                    [&_strong]:font-bold [&_strong]:text-foreground
                     [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1.5 [&_ul]:mb-4
                     [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1.5 [&_ol]:mb-4
                     [&_table]:w-full [&_table]:text-left [&_table]:border-collapse
@@ -1300,23 +1256,16 @@ function CollectionPageContent() {
           instances={templateInstances}
           isOverride={templateIsOverride}
           context={{ handle, collectionTitle: collectionInfo.title }}
-          containerClassName="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6"
           slots={{
             collectionMain: null,
             disposableShowcase: (settings: Record<string, unknown>) => (
-              <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
-                <DisposableBrandsShowcase settings={settings as never} />
-              </div>
+              <DisposableBrandsShowcase settings={settings as never} />
             ),
             disposableComparison: (settings: Record<string, unknown>) => (
-              <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
-                <DisposableComparisonSections settings={settings as never} />
-              </div>
+              <DisposableComparisonSections settings={settings as never} />
             ),
             ejuiceShowcase: (settings: Record<string, unknown>) => (
-              <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
-                <EJuiceBrandsShowcase settings={settings as never} />
-              </div>
+              <EJuiceBrandsShowcase settings={settings as never} />
             ),
             juulSignatureFlavors: (settings: Record<string, unknown>) => (
               <JuulSignatureFlavorsSection handle={handle} settings={settings as never} />
@@ -1327,8 +1276,35 @@ function CollectionPageContent() {
             juulTechSpecs: (settings: Record<string, unknown>) => (
               <JuulTechSpecsSection handle={handle} settings={settings as never} />
             ),
+            juulCrispMenthol: (settings: Record<string, unknown>) => (
+              <JuulCrispMentholSections productName={collectionInfo.title} settings={settings as never} />
+            ),
+            juulCollectionFeature1: (settings: Record<string, unknown>) => (
+              <JuulCustomFeatureSection settings={settings as never} />
+            ),
+            juulCollectionFeature2: (settings: Record<string, unknown>) => (
+              <JuulCustomFeatureSection settings={settings as never} reverseLayout />
+            ),
             bottomCollectionGrid: (settings: Record<string, unknown>) => (
               <BottomCollectionGrid handle={handle} settings={settings as never} />
+            ),
+            flavorsWheel: (settings: Record<string, unknown>) => (
+              <FlavorsWheel
+                eyebrow={typeof settings?.eyebrow === "string" ? settings.eyebrow : undefined}
+                heading={typeof settings?.heading === "string" ? settings.heading : undefined}
+                description={typeof settings?.description === "string" ? settings.description : undefined}
+                buttonText={typeof settings?.buttonText === "string" ? settings.buttonText : undefined}
+                buttonHref={typeof settings?.buttonHref === "string" ? settings.buttonHref : undefined}
+                flavors={Array.isArray((collectionInfo as any)?.flavorsWheelJson) ? (collectionInfo as any).flavorsWheelJson : Array.isArray(settings?.flavors) ? (settings.flavors as any) : undefined}
+              />
+            ),
+            faq: (settings: Record<string, unknown>) => (
+              <FAQSection
+                settings={{
+                  ...settings,
+                  faqs: Array.isArray((collectionInfo as any)?.faqsJson) ? (collectionInfo as any).faqsJson : undefined,
+                } as never}
+              />
             ),
             juulAppIntegration: (settings: Record<string, unknown>) => (
               <JuulAppIntegrationSection settings={settings as never} />

@@ -65,11 +65,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing shipping address details" }, { status: 400 });
     }
 
+    // Properly split full name into firstName and lastName for Shopify
+    const rawName = (shippingAddress.firstName || "Customer").trim();
+    const nameParts = rawName.split(" ");
+    const firstName = nameParts[0] || "Customer";
+    const lastName = nameParts.slice(1).join(" ") || ".";
+
+    const customerEmail = shippingAddress.email ? shippingAddress.email.trim() : undefined;
+    const customerPhone = shippingAddress.phone.trim();
+
     let orderName = `VSD-${Math.floor(100000 + Math.random() * 900000)}`;
     let checkoutUrl = "";
     let shopifyCreated = false;
 
-    // 1. Try Storefront API cartCreate to generate native Shopify checkoutUrl
+    // 1. Try Storefront API cartCreate to generate native Shopify checkoutUrl (if token available)
     if (STOREFRONT_TOKEN) {
       try {
         const storefrontLines = lineItems.map((item: any) => {
@@ -97,6 +106,8 @@ export async function POST(request: Request) {
                 lines: storefrontLines,
                 buyerIdentity: {
                   countryCode: "AE",
+                  email: customerEmail,
+                  phone: customerPhone,
                 },
               },
             },
@@ -116,88 +127,123 @@ export async function POST(request: Request) {
       }
     }
 
-    // 2. Try Admin API Draft Order creation
+    // 2. Admin API Draft Order creation (Creates real, fully-populated order in Shopify)
     if (ADMIN_API_TOKEN) {
       try {
-        const formattedLineItems = lineItems.map((item: any) => {
-          let finalVariantId = item.variantId;
-          if (finalVariantId && !finalVariantId.startsWith("gid://shopify/")) {
-            const cleanId = finalVariantId.replace(/\D/g, "");
-            if (cleanId) finalVariantId = `gid://shopify/ProductVariant/${cleanId}`;
-          }
+        const buildInputPayload = (useVariantIds: boolean) => {
+          const formattedLineItems = lineItems.map((item: any) => {
+            let finalVariantId = item.variantId;
+            if (finalVariantId && !finalVariantId.startsWith("gid://shopify/")) {
+              const cleanId = finalVariantId.replace(/\D/g, "");
+              if (cleanId) finalVariantId = `gid://shopify/ProductVariant/${cleanId}`;
+            }
 
-          if (finalVariantId) {
-            return {
-              variantId: finalVariantId,
-              quantity: parseInt(item.quantity || "1", 10),
-            };
-          } else {
-            return {
-              title: item.name || "Vape Product",
-              originalUnitPrice: parseFloat(item.price || "0"),
-              quantity: parseInt(item.quantity || "1", 10),
-            };
-          }
-        });
+            if (useVariantIds && finalVariantId) {
+              return {
+                variantId: finalVariantId,
+                quantity: parseInt(item.quantity || "1", 10),
+              };
+            } else {
+              return {
+                title: item.name || "Vape Product",
+                originalUnitPrice: parseFloat(item.price || "0"),
+                quantity: parseInt(item.quantity || "1", 10),
+              };
+            }
+          });
 
-        const input = {
-          lineItems: formattedLineItems,
-          shippingAddress: {
-            firstName: shippingAddress.firstName,
-            lastName: shippingAddress.lastName || "",
-            address1: shippingAddress.address1,
-            city: shippingAddress.city,
-            phone: shippingAddress.phone,
-            country: "United Arab Emirates",
-          },
-          note: `Payment Method: ${paymentMethod}`,
-          customAttributes: [
-            { key: "Payment Method", value: paymentMethod },
-            { key: "Checkout Source", value: "Headless Web Store" },
-          ],
+          return {
+            email: customerEmail,
+            phone: customerPhone,
+            lineItems: formattedLineItems,
+            shippingAddress: {
+              firstName: firstName,
+              lastName: lastName,
+              address1: shippingAddress.address1,
+              city: shippingAddress.city,
+              phone: customerPhone,
+              country: "United Arab Emirates",
+            },
+            billingAddress: {
+              firstName: firstName,
+              lastName: lastName,
+              address1: shippingAddress.address1,
+              city: shippingAddress.city,
+              phone: customerPhone,
+              country: "United Arab Emirates",
+            },
+            note: `Customer Name: ${rawName}\nPhone: ${customerPhone}\nDelivery Address: ${shippingAddress.address1}, ${shippingAddress.city}\nPayment Method: ${paymentMethod}`,
+            customAttributes: [
+              { key: "Customer Name", value: rawName },
+              { key: "Customer Phone", value: customerPhone },
+              { key: "Delivery Address", value: `${shippingAddress.address1}, ${shippingAddress.city}` },
+              { key: "Payment Method", value: paymentMethod },
+              { key: "Checkout Source", value: "Headless Web Store" },
+            ],
+            tags: ["Headless Order", paymentMethod === "Cash on Delivery" ? "COD" : "Card on Delivery"],
+          };
         };
 
-        const adminRes = await fetch(`https://${SHOPIFY_STORE}/admin/api/2024-10/graphql.json`, {
-          method: "POST",
-          headers: {
-            "X-Shopify-Access-Token": ADMIN_API_TOKEN,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            query: DRAFT_ORDER_MUTATION,
-            variables: { input },
-          }),
-        });
+        const createAndCompleteDraftOrder = async (inputPayload: any) => {
+          const adminRes = await fetch(`https://${SHOPIFY_STORE}/admin/api/2024-10/graphql.json`, {
+            method: "POST",
+            headers: {
+              "X-Shopify-Access-Token": ADMIN_API_TOKEN,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              query: DRAFT_ORDER_MUTATION,
+              variables: { input: inputPayload },
+            }),
+          });
 
-        if (adminRes.ok) {
-          const adminJson = await adminRes.json();
-          const draftOrder = adminJson.data?.draftOrderCreate?.draftOrder;
-
-          if (draftOrder?.id) {
-            const completeRes = await fetch(`https://${SHOPIFY_STORE}/admin/api/2024-10/graphql.json`, {
-              method: "POST",
-              headers: {
-                "X-Shopify-Access-Token": ADMIN_API_TOKEN,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                query: DRAFT_ORDER_COMPLETE_MUTATION,
-                variables: { id: draftOrder.id, paymentPending: true },
-              }),
-            });
-
-            if (completeRes.ok) {
-              const compJson = await completeRes.json();
-              const completedOrder = compJson.data?.draftOrderComplete?.draftOrder?.order;
-              if (completedOrder?.name) {
-                orderName = completedOrder.name;
-                shopifyCreated = true;
-              }
-            }
+          if (!adminRes.ok) {
+            console.error("Shopify Admin HTTP error:", adminRes.statusText);
+            return null;
           }
+
+          const adminJson = await adminRes.json();
+          const userErrors = adminJson.data?.draftOrderCreate?.userErrors;
+          if (userErrors && userErrors.length > 0) {
+            console.error("Shopify draftOrderCreate userErrors:", JSON.stringify(userErrors));
+            return null;
+          }
+
+          const draftOrder = adminJson.data?.draftOrderCreate?.draftOrder;
+          if (!draftOrder?.id) return null;
+
+          const completeRes = await fetch(`https://${SHOPIFY_STORE}/admin/api/2024-10/graphql.json`, {
+            method: "POST",
+            headers: {
+              "X-Shopify-Access-Token": ADMIN_API_TOKEN,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              query: DRAFT_ORDER_COMPLETE_MUTATION,
+              variables: { id: draftOrder.id, paymentPending: true },
+            }),
+          });
+
+          if (!completeRes.ok) return null;
+          const compJson = await completeRes.json();
+          return compJson.data?.draftOrderComplete?.draftOrder?.order || null;
+        };
+
+        // Attempt 1: Create order with variant IDs
+        let createdOrder = await createAndCompleteDraftOrder(buildInputPayload(true));
+
+        // Attempt 2: If variant IDs failed or rejected by Shopify, fallback to custom line items
+        if (!createdOrder) {
+          console.warn("Retrying draft order creation with custom line items fallback...");
+          createdOrder = await createAndCompleteDraftOrder(buildInputPayload(false));
+        }
+
+        if (createdOrder?.name) {
+          orderName = createdOrder.name;
+          shopifyCreated = true;
         }
       } catch (err) {
-        console.warn("Admin draftOrder error:", err);
+        console.error("Admin draftOrder error:", err);
       }
     }
 

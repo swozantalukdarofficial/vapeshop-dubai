@@ -130,6 +130,60 @@ query getProductByHandle($handle: String!) {
         }
       }
     }
+    juulFeature1Meta: metafield(namespace: "custom", key: "juul_feature_1") {
+      reference {
+        ... on Metaobject {
+          fields {
+            key
+            value
+            reference {
+              ... on MediaImage {
+                image { url }
+              }
+              ... on GenericFile {
+                url
+              }
+            }
+            references(first: 30) {
+              edges {
+                node {
+                  ... on Metaobject {
+                    fields { key value }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    juulFeature2Meta: metafield(namespace: "custom", key: "juul_feature_2") {
+      reference {
+        ... on Metaobject {
+          fields {
+            key
+            value
+            reference {
+              ... on MediaImage {
+                image { url }
+              }
+              ... on GenericFile {
+                url
+              }
+            }
+            references(first: 30) {
+              edges {
+                node {
+                  ... on Metaobject {
+                    fields { key value }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
     whyChooseSectionMeta: metafield(namespace: "custom", key: "why_choose") {
       reference {
         ... on Metaobject {
@@ -592,6 +646,42 @@ export async function GET(
             query: `
               query GetWhyChooseMeta($handle: String!) {
                 productByHandle(handle: $handle) {
+                  juulFeature1Meta: metafield(namespace: "custom", key: "juul_feature_1") {
+                    reference {
+                      ... on Metaobject {
+                        fields {
+                          key
+                          value
+                          reference {
+                            ... on MediaImage {
+                              image { url }
+                            }
+                            ... on GenericFile {
+                              url
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                  juulFeature2Meta: metafield(namespace: "custom", key: "juul_feature_2") {
+                    reference {
+                      ... on Metaobject {
+                        fields {
+                          key
+                          value
+                          reference {
+                            ... on MediaImage {
+                              image { url }
+                            }
+                            ... on GenericFile {
+                              url
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
                   whyChooseSectionMeta: metafield(namespace: "custom", key: "why_choose") {
                     reference {
                       ... on Metaobject {
@@ -620,6 +710,12 @@ export async function GET(
         if (adminRes.ok) {
           const adminJson = await adminRes.json();
           const adminData = adminJson?.data?.productByHandle;
+          if (adminData?.juulFeature1Meta) {
+            node.juulFeature1Meta = adminData.juulFeature1Meta;
+          }
+          if (adminData?.juulFeature2Meta) {
+            node.juulFeature2Meta = adminData.juulFeature2Meta;
+          }
           if (adminData?.whyChooseSectionMeta) {
             node.whyChooseSectionMeta = adminData.whyChooseSectionMeta;
           }
@@ -703,6 +799,68 @@ export async function GET(
       };
     }
 
+    let parsedJuulFeature1: any = null;
+    if (node.juulFeature1Meta?.reference?.fields) {
+      const fields = node.juulFeature1Meta.reference.fields;
+      const getVal = (k: string) => fields.find((f: any) => f.key === k)?.value || "";
+      const imgField = fields.find((f: any) => f.key === "image");
+      const imgUrl = imgField?.reference?.image?.url || imgField?.reference?.url || getVal("image_url") || getVal("image") || "";
+      
+      const bpField = fields.find((f: any) => f.key === "bullet_points");
+      let bulletPoints: any[] = [];
+      if (bpField?.value) {
+        try {
+          const raw = bpField.value.trim();
+          const arr = raw.startsWith("[") ? JSON.parse(raw) : raw.split("\n");
+          if (Array.isArray(arr)) {
+            bulletPoints = arr.map((item: any) => typeof item === "string" ? { text: item.trim() } : item).filter((b: any) => b?.text);
+          }
+        } catch(e) {
+          bulletPoints = String(bpField.value).split("\n").map(text => ({ text: text.trim() })).filter(b => b.text);
+        }
+      }
+
+      parsedJuulFeature1 = {
+        title: getVal("title"),
+        description: getVal("description_rich") || getVal("description"),
+        buttonText: getVal("button_text") || getVal("buttonText"),
+        buttonLink: getVal("button_link") || getVal("buttonLink"),
+        image: imgUrl,
+        bulletPoints
+      };
+    }
+
+    let parsedJuulFeature2: any = null;
+    if (node.juulFeature2Meta?.reference?.fields) {
+      const fields = node.juulFeature2Meta.reference.fields;
+      const getVal = (k: string) => fields.find((f: any) => f.key === k)?.value || "";
+      const imgField = fields.find((f: any) => f.key === "image");
+      const imgUrl = imgField?.reference?.image?.url || imgField?.reference?.url || getVal("image_url") || getVal("image") || "";
+      
+      const bpField = fields.find((f: any) => f.key === "bullet_points");
+      let bulletPoints: any[] = [];
+      if (bpField?.value) {
+        try {
+          const raw = bpField.value.trim();
+          const arr = raw.startsWith("[") ? JSON.parse(raw) : raw.split("\n");
+          if (Array.isArray(arr)) {
+            bulletPoints = arr.map((item: any) => typeof item === "string" ? { text: item.trim() } : item).filter((b: any) => b?.text);
+          }
+        } catch(e) {
+          bulletPoints = String(bpField.value).split("\n").map(text => ({ text: text.trim() })).filter(b => b.text);
+        }
+      }
+
+      parsedJuulFeature2 = {
+        title: getVal("title"),
+        description: getVal("description_rich") || getVal("description"),
+        buttonText: getVal("button_text") || getVal("buttonText"),
+        buttonLink: getVal("button_link") || getVal("buttonLink"),
+        image: imgUrl,
+        bulletPoints
+      };
+    }
+
     const cleanDesc = (node.descriptionHtml || "").replace(/<[^>]*>?/gm, "").trim();
     const seoTitle = node.seo?.title || node.title;
     const seoDescription = node.seo?.description || cleanDesc.slice(0, 160);
@@ -723,6 +881,8 @@ export async function GET(
       flavorNotes: parsedFlavorNotes,
       whyChoose: parsedWhyChoose,
       finalThoughts: parsedFinalThoughts,
+      juulFeature1: parsedJuulFeature1,
+      juulFeature2: parsedJuulFeature2,
       image,
       images,
       tag: node.badge?.value || (isSoldOut ? "Sold Out" : comparePrice > price ? "Sale" : undefined),

@@ -21,6 +21,37 @@ export interface BlogPost {
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    slug: "best-juul-device-shop-in-uae",
+    title: "Best JUUL Device Shop in UAE",
+    excerpt: "Everything you need to know about JUUL 2 devices and pods in UAE. Learn about smart pod technology, flavor profiles, and fast delivery across Dubai.",
+    category: "JUUL & Pods",
+    author: "Vape Shop Dubai Editorial",
+    date: "August 2, 2026",
+    readTime: "5 min read",
+    image: "/juul_device.png",
+    featured: true,
+  },
+  {
+    slug: "top-10-premium-and-authentic-vape-shop-in-uae",
+    title: "Top 10 Premium & Authentic Vape Shop in UAE",
+    excerpt: "Looking for authentic vapes in UAE? We review top vape products and authentic delivery services across Dubai.",
+    category: "Disposables",
+    author: "Vape Specialist Team",
+    date: "July 28, 2026",
+    readTime: "7 min read",
+    image: "/lost_mary.png",
+  },
+  {
+    slug: "best-places-to-buy-juul-1-series",
+    title: "Best Places to Buy JUUL 1 Series",
+    excerpt: "Complete guide on buying original JUUL 1 series pods and kits in Dubai with cash on delivery.",
+    category: "JUUL & Pods",
+    author: "Vape Shop Dubai Editorial",
+    date: "July 20, 2026",
+    readTime: "6 min read",
+    image: "/vape_kit.png",
+  },
+  {
     slug: "juul-2-dubai-complete-guide-2026",
     title: "Complete Guide to JUUL 2 in Dubai: Features, Flavors & 2-Hour Delivery (2026)",
     excerpt: "Everything you need to know about JUUL 2 devices and pods in UAE. Learn about smart pod technology, flavor profiles, battery optimization, and fast delivery across Dubai.",
@@ -29,7 +60,6 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "August 2, 2026",
     readTime: "5 min read",
     image: "/juul_device.png",
-    featured: true,
   },
   {
     slug: "top-10-longest-lasting-disposable-vapes-uae",

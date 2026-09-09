@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useId, useRef, useState } from "react";
+import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import { ImageIcon, Loader2, Upload, X } from "lucide-react";
 
 import { ThemeIcon } from "@/components/ui/theme-icon";
@@ -237,11 +237,16 @@ interface CollectionOption {
   title: string;
 }
 
-/**
- * The store's collections, fetched once and shared by every picker on screen —
- * a repeater with ten rows shouldn't mean ten identical requests.
- */
+interface ProductOption {
+  id: string;
+  name: string;
+  handle: string;
+  price?: string;
+  image?: string;
+}
+
 let collectionsPromise: Promise<CollectionOption[]> | null = null;
+let productsPromise: Promise<ProductOption[]> | null = null;
 
 function loadCollections(): Promise<CollectionOption[]> {
   if (!collectionsPromise) {
@@ -253,6 +258,16 @@ function loadCollections(): Promise<CollectionOption[]> {
   return collectionsPromise;
 }
 
+function loadProducts(): Promise<ProductOption[]> {
+  if (!productsPromise) {
+    productsPromise = fetch("/api/products")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => (Array.isArray(data) ? data : []))
+      .catch(() => []);
+  }
+  return productsPromise;
+}
+
 export const CollectionInput: React.FC<{
   label: string;
   help?: string;
@@ -262,61 +277,482 @@ export const CollectionInput: React.FC<{
 }> = ({ label, help, value, placeholder, onChange }) => {
   const id = useId();
   const [options, setOptions] = useState<CollectionOption[] | null>(null);
+  const [products, setProducts] = useState<ProductOption[] | null>(null);
+  const [mode, setMode] = useState<"collection" | "products">("collection");
+  const [productSearch, setProductSearch] = useState("");
 
   useEffect(() => {
     let cancelled = false;
     loadCollections().then((list) => {
       if (!cancelled) setOptions(list);
     });
+    loadProducts().then((list) => {
+      if (!cancelled) setProducts(list);
+    });
     return () => {
       cancelled = true;
     };
   }, []);
 
-  // A handle saved earlier may not be in the list (renamed, or the store is
-  // unreachable) — keep it selectable so editing never silently drops it.
+  // Parse current value into array of selected handles
+  const selectedHandles = useMemo(() => {
+    if (!value) return [];
+    return value.split(",").map((s) => {
+      const part = s.trim();
+      if (part.includes("/product/")) return part.split("/product/").pop()?.split("?")[0] || part;
+      if (part.includes("/collections/")) return part.split("/collections/").pop()?.split("?")[0] || part;
+      return part;
+    }).filter(Boolean);
+  }, [value]);
+
+  // Determine mode automatically on initial load
+  useEffect(() => {
+    if (value && (value.includes(",") || value.includes("/product/") || (products && products.some((p) => p.handle === value)))) {
+      setMode("products");
+    }
+  }, [value, products]);
+
+  const toggleProductSelection = (handleToToggle: string) => {
+    let updated: string[];
+    const lower = handleToToggle.toLowerCase();
+    if (selectedHandles.some((h: string) => h.toLowerCase() === lower)) {
+      updated = selectedHandles.filter((h: string) => h.toLowerCase() !== lower);
+    } else {
+      updated = [...selectedHandles, handleToToggle];
+    }
+    onChange(updated.join(", "));
+  };
+
+  const filteredProductsList = useMemo(() => {
+    if (!products) return [];
+    if (!productSearch.trim()) return products;
+    const q = productSearch.toLowerCase();
+    return products.filter((p: ProductOption) => p.name.toLowerCase().includes(q) || p.handle.toLowerCase().includes(q));
+  }, [products, productSearch]);
+
   const known = options ?? [];
   const missing = value && !known.some((c) => c.handle === value);
 
   return (
     <FieldShell label={label} help={help} htmlFor={id}>
-      {options === null ? (
-        <div className={`${inputClass} text-slate-400`}>Loading collections…</div>
-      ) : options.length === 0 ? (
-        <input
-          id={id}
-          type="text"
-          className={inputClass}
-          value={value}
-          placeholder={placeholder ?? "collection-handle"}
-          onChange={(e) => onChange(e.target.value)}
-        />
-      ) : (
-        <select
-          id={id}
-          className={`${inputClass} cursor-pointer`}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        >
-          <option value="">Choose a collection…</option>
-          {missing && <option value={value}>{value} (not found)</option>}
-          {options.map((option) => (
-            <option key={option.handle} value={option.handle}>
-              {option.title}
-            </option>
-          ))}
-        </select>
-      )}
-      {options !== null && options.length === 0 && (
-        <p className="text-[11px] text-amber-600">
-          Couldn&apos;t reach Shopify — type the handle manually.
-        </p>
-      )}
+      <div className="space-y-2.5">
+        {/* Mode Selector Tabs */}
+        <div className="flex items-center gap-1 rounded-lg bg-slate-100 p-1 border border-slate-200">
+          <button
+            type="button"
+            onClick={() => setMode("collection")}
+            className={`flex-1 py-1.5 px-2 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+              mode === "collection"
+                ? "bg-white text-orange-600 shadow-xs border border-slate-200"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            📁 Collection
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("products")}
+            className={`flex-1 py-1.5 px-2 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+              mode === "products"
+                ? "bg-white text-orange-600 shadow-xs border border-slate-200"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            ☑️ Checkmark Products ({selectedHandles.length})
+          </button>
+        </div>
+
+        {mode === "collection" ? (
+          <div className="space-y-2">
+            {options === null ? (
+              <div className={`${inputClass} text-slate-400`}>Loading collections…</div>
+            ) : options.length === 0 ? (
+              <input
+                id={id}
+                type="text"
+                className={inputClass}
+                value={value}
+                placeholder={placeholder ?? "collection-handle"}
+                onChange={(e) => onChange(e.target.value)}
+              />
+            ) : (
+              <select
+                id={id}
+                className={`${inputClass} cursor-pointer`}
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+              >
+                <option value="">Choose a collection…</option>
+                {missing && <option value={value}>{value} (custom/not found)</option>}
+                {options.map((option) => (
+                  <option key={option.handle} value={option.handle}>
+                    {option.title}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                Or enter Collection URL / Handle
+              </label>
+              <input
+                type="text"
+                className={inputClass}
+                placeholder="/collections/disposable-vapes"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+              />
+            </div>
+          </div>
+        ) : (
+          /* Checkmark Product Multiselect Mode */
+          <div className="space-y-2 border border-slate-200 rounded-xl p-2.5 bg-slate-50/70">
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <input
+                type="text"
+                placeholder="Search products by name..."
+                value={productSearch}
+                onChange={(e) => setProductSearch(e.target.value)}
+                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-orange-500"
+              />
+              {selectedHandles.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => onChange("")}
+                  className="text-[10px] font-bold text-red-500 hover:underline shrink-0 cursor-pointer"
+                >
+                  Clear ({selectedHandles.length})
+                </button>
+              )}
+            </div>
+
+            {products === null ? (
+              <div className="text-xs text-slate-400 p-3 text-center">Loading catalogue products...</div>
+            ) : filteredProductsList.length === 0 ? (
+              <div className="text-xs text-slate-400 p-3 text-center">No products found</div>
+            ) : (
+              <div className="max-h-48 overflow-y-auto space-y-1 pr-1 divide-y divide-slate-100">
+                {filteredProductsList.map((prod: ProductOption) => {
+                  const isChecked = selectedHandles.some((h: string) => h.toLowerCase() === prod.handle.toLowerCase());
+                  return (
+                    <label
+                      key={prod.id}
+                      className={`flex items-center gap-2.5 p-1.5 rounded-lg text-xs cursor-pointer transition-colors ${
+                        isChecked ? "bg-orange-50/80 font-bold text-orange-900 border border-orange-200/60" : "hover:bg-slate-100 text-slate-700"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => toggleProductSelection(prod.handle)}
+                        className="accent-orange-500 h-4 w-4 rounded border-slate-300 cursor-pointer"
+                      />
+                      {prod.image && (
+                        <img src={prod.image} alt={prod.name} className="w-7 h-7 rounded object-cover border border-slate-200 shrink-0" />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="truncate font-semibold text-slate-800 text-[11px]">{prod.name}</div>
+                        {prod.price && <div className="text-[10px] text-slate-400 font-medium">{prod.price}</div>}
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="pt-2 border-t border-slate-200">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                Selected Product Handles / URLs
+              </label>
+              <input
+                type="text"
+                className={inputClass}
+                placeholder="juul-2-starter-kit-dubai, geek-bar-pulse"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </FieldShell>
+  );
+};
+
+/* ── Article / Blog post picker ───────────────────────────────────── */
+
+interface ArticleOption {
+  id: string;
+  title: string;
+  handle: string;
+  image?: string;
+  publishedAt?: string;
+}
+
+const DEFAULT_ARTICLES: ArticleOption[] = [
+  {
+    id: "art-1",
+    title: "Best JUUL Device Shop in UAE",
+    handle: "best-juul-device-shop-in-uae",
+    image: "/juul_device.png",
+  },
+  {
+    id: "art-2",
+    title: "Top 10 Premium & Authentic Vape Shop in UAE",
+    handle: "top-10-premium-and-authentic-vape-shop-in-uae",
+    image: "/lost_mary.png",
+  },
+  {
+    id: "art-3",
+    title: "Best Places to Buy JUUL 1 Series",
+    handle: "best-places-to-buy-juul-1-series",
+    image: "/vape_kit.png",
+  },
+  {
+    id: "art-4",
+    title: "Complete Guide to JUUL 2 in Dubai: Features, Flavors & 2-Hour Delivery (2026)",
+    handle: "juul-2-dubai-complete-guide-2026",
+    image: "/juul_device.png",
+  },
+  {
+    id: "art-5",
+    title: "Top 10 Longest Lasting Disposable Vapes in UAE (8000+ Puffs Rated)",
+    handle: "top-10-longest-lasting-disposable-vapes-uae",
+    image: "/lost_mary.png",
+  },
+  {
+    id: "art-6",
+    title: "MYLE V5 Meta vs JUUL 2: Which Pod System Should You Buy in Dubai?",
+    handle: "myle-v5-vs-juul-2-which-should-you-buy",
+    image: "/vape_kit.png",
+  },
+  {
+    id: "art-7",
+    title: "How to Verify Authentic Vape Products in UAE & Avoid Counterfeits",
+    handle: "how-to-verify-authentic-vape-products-dubai",
+    image: "/hero_vape.png",
+  },
+  {
+    id: "art-8",
+    title: "Best Salt Nicotine E-Liquid Flavors for Summer 2026 in Dubai",
+    handle: "best-salt-nicotine-e-liquids-dubai-summer-2026",
+    image: "/premium_liquid.png",
+  },
+  {
+    id: "art-9",
+    title: "Vaping Regulations & Delivery Guidelines in Dubai & UAE (2026 Update)",
+    handle: "vaping-regulations-delivery-guidelines-uae-2026",
+    image: "/hero_vape.png",
+  },
+];
+
+function loadArticles(): Promise<ArticleOption[]> {
+  return fetch("/api/articles")
+    .then((res) => (res.ok ? res.json() : { articles: [] }))
+    .then((data) => (Array.isArray(data.articles) && data.articles.length > 0 ? data.articles : DEFAULT_ARTICLES))
+    .catch(() => DEFAULT_ARTICLES);
+}
+
+export const ArticleInput: React.FC<{
+  label: string;
+  help?: string;
+  value: string;
+  placeholder?: string;
+  onChange: (value: string) => void;
+}> = ({ label, help, value, placeholder, onChange }) => {
+  const id = useId();
+  const [articles, setArticles] = useState<ArticleOption[] | null>(null);
+  const [search, setSearch] = useState("");
+  const [mode, setMode] = useState<"checkmark" | "select">("checkmark");
+
+  useEffect(() => {
+    let cancelled = false;
+    loadArticles().then((list) => {
+      if (!cancelled) setArticles(list);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const selectedHandles = useMemo(() => {
+    if (!value) return [];
+    return value
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }, [value]);
+
+  const toggleArticleSelection = (handleToToggle: string) => {
+    let updated: string[];
+    const lower = handleToToggle.toLowerCase();
+    if (selectedHandles.some((h: string) => h.toLowerCase() === lower)) {
+      updated = selectedHandles.filter((h: string) => h.toLowerCase() !== lower);
+    } else {
+      updated = [...selectedHandles, handleToToggle];
+    }
+    onChange(updated.join(", "));
+  };
+
+  const filteredArticles = useMemo(() => {
+    const list = articles || DEFAULT_ARTICLES;
+    if (!search.trim()) return list;
+    const q = search.toLowerCase();
+    return list.filter(
+      (a: ArticleOption) =>
+        a.title.toLowerCase().includes(q) || a.handle.toLowerCase().includes(q)
+    );
+  }, [articles, search]);
+
+  const optionsList = articles || DEFAULT_ARTICLES;
+
+  return (
+    <FieldShell label={label} help={help} htmlFor={id}>
+      <div className="space-y-2 border border-slate-200 rounded-xl p-2.5 bg-slate-50/70">
+        {/* Mode Selector Tabs */}
+        <div className="flex items-center gap-1 rounded-lg bg-slate-100 p-1 border border-slate-200">
+          <button
+            type="button"
+            onClick={() => setMode("checkmark")}
+            className={`flex-1 py-1.5 px-2 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+              mode === "checkmark"
+                ? "bg-white text-orange-600 shadow-xs border border-slate-200"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            ☑️ Checkmark List ({selectedHandles.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("select")}
+            className={`flex-1 py-1.5 px-2 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+              mode === "select"
+                ? "bg-white text-orange-600 shadow-xs border border-slate-200"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            📋 Dropdown Select
+          </button>
+        </div>
+
+        {mode === "select" ? (
+          <div className="space-y-2">
+            <select
+              id={id}
+              className={`${inputClass} cursor-pointer`}
+              value={selectedHandles[0] || ""}
+              onChange={(e) => onChange(e.target.value)}
+            >
+              <option value="">Choose a blog article from database…</option>
+              {optionsList.map((art) => (
+                <option key={art.handle} value={art.handle}>
+                  {art.title} ({art.handle})
+                </option>
+              ))}
+            </select>
+
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                Selected Article Handle / Slug
+              </label>
+              <input
+                type="text"
+                className={inputClass}
+                placeholder="article-slug-1"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <input
+                type="text"
+                placeholder="Search blog articles by title or slug..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-orange-500"
+              />
+              {selectedHandles.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => onChange("")}
+                  className="text-[10px] font-bold text-red-500 hover:underline shrink-0 cursor-pointer"
+                >
+                  Clear ({selectedHandles.length})
+                </button>
+              )}
+            </div>
+
+            {filteredArticles.length === 0 ? (
+              <div className="text-xs text-slate-400 p-3 text-center">
+                No articles found matching search
+              </div>
+            ) : (
+              <div className="max-h-52 overflow-y-auto space-y-1 pr-1 divide-y divide-slate-100">
+                {filteredArticles.map((art: ArticleOption) => {
+                  const isChecked = selectedHandles.some(
+                    (h: string) => h.toLowerCase() === art.handle.toLowerCase()
+                  );
+                  return (
+                    <label
+                      key={art.id || art.handle}
+                      className={`flex items-center gap-2.5 p-1.5 rounded-lg text-xs cursor-pointer transition-colors ${
+                        isChecked
+                          ? "bg-orange-50/80 font-bold text-orange-900 border border-orange-200/60"
+                          : "hover:bg-slate-100 text-slate-700"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => toggleArticleSelection(art.handle)}
+                        className="accent-orange-500 h-4 w-4 rounded border-slate-300 cursor-pointer"
+                      />
+                      {art.image && (
+                        <img
+                          src={art.image}
+                          alt={art.title}
+                          className="w-8 h-8 rounded object-cover border border-slate-200 shrink-0"
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="truncate font-semibold text-slate-800 text-[11px]">
+                          {art.title}
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-mono truncate">
+                          {art.handle}
+                        </div>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="pt-2 border-t border-slate-200">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                Selected Article Slugs / Handles ({selectedHandles.length})
+              </label>
+              <input
+                type="text"
+                className={inputClass}
+                placeholder="article-slug-1, article-slug-2"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+              />
+            </div>
+          </div>
+        )}
+      </div>
     </FieldShell>
   );
 };
 
 /* ── Image field ──────────────────────────────────────────────────── */
+
 
 export const ImageInput: React.FC<{
   label: string;

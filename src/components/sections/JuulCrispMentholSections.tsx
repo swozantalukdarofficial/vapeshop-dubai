@@ -41,9 +41,11 @@ const DIAGRAM_POSITIONS = [
 export function JuulCrispMentholSections({
   productName = "JUUL 2 Pods",
   settings,
+  showWhyChoose = true,
 }: {
   productName?: string;
   settings?: JuulCrispMentholSettings;
+  showWhyChoose?: boolean;
 }) {
   const fill = (template: string) =>
     (template ?? "").split("{product}").join(productName);
@@ -66,9 +68,10 @@ export function JuulCrispMentholSections({
   const diagramPoints = points.slice(0, DIAGRAM_POSITIONS.length);
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16 space-y-12 sm:space-y-16">
+    <div className="w-full space-y-8 sm:space-y-10">
       {/* Section 1: Why Choose */}
-      <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-12 shadow-md overflow-hidden">
+      {showWhyChoose && (
+        <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-12 shadow-md overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
           {/* Left Text */}
@@ -77,7 +80,7 @@ export function JuulCrispMentholSections({
               {heading}
             </h2>
             {body && (
-              <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
+              <p className="text-muted-foreground text-sm sm:text-base leading-relaxed text-justify [text-align-last:left]">
                 {body}
               </p>
             )}
@@ -88,7 +91,7 @@ export function JuulCrispMentholSections({
                     <div className="bg-primary/10 p-1 rounded-full mt-0.5 shrink-0 border border-primary/20">
                       <Check className="w-3.5 h-3.5 text-primary" />
                     </div>
-                    <span className="text-sm font-medium text-foreground">
+                    <span className="text-sm font-medium text-foreground leading-relaxed text-justify [text-align-last:left]">
                       {[point.lead, point.text].filter(Boolean).join(" ")}
                     </span>
                   </li>
@@ -131,6 +134,7 @@ export function JuulCrispMentholSections({
           </div>
         </div>
       </div>
+      )}
 
       {/* Section 2: Ingredients */}
       {showIngredients && (
@@ -168,44 +172,14 @@ export function JuulCrispMentholSections({
               )}
             </div>
 
-            {/* Right Diagram Card */}
-            <div className="bg-white border-2 border-zinc-100 rounded-[2rem] p-6 sm:p-8 shadow-xl relative min-h-[500px] flex flex-col justify-center">
-              <h3 className="text-center text-sm font-black tracking-widest uppercase mb-12 text-zinc-800">
-                {ingredientsHeading}
-              </h3>
-              <div className="relative flex justify-center items-center h-[350px]">
-                {/* Center Image */}
-                <div className="relative z-10 w-32 h-48 sm:w-40 sm:h-56 group">
-                  <img
-                    src={ingredientsImage}
-                    alt={productName}
-                    className="w-full h-full object-contain filter drop-shadow-2xl transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
-
-                {/* The four corners mirror the ingredient list beside them. */}
-                {ingredients.slice(0, 4).map((item, idx) => {
-                  const corner = [
-                    "top-10 left-0",
-                    "bottom-10 left-0",
-                    "top-10 right-0",
-                    "bottom-10 right-0",
-                  ][idx];
-                  const isRight = idx >= 2;
-                  return (
-                    <div
-                      key={idx}
-                      className={`absolute ${corner} bg-white/95 p-3 rounded-xl text-[10px] sm:text-xs w-40 border border-zinc-200 shadow-sm leading-snug z-20 transition-all hover:border-primary/50 ${
-                        isRight ? "text-right" : ""
-                      }`}
-                    >
-                      <strong className="text-primary block mb-1 uppercase">{item.title}</strong>
-                      <span className="text-[9px] sm:text-[10px] text-zinc-600 font-medium">
-                        {item.description}
-                      </span>
-                    </div>
-                  );
-                })}
+            {/* Right Column: Clean Image */}
+            <div className="relative flex justify-center items-center w-full">
+              <div className="relative z-10 w-full max-w-full lg:max-w-[450px] rounded-3xl overflow-hidden group shadow-xl border border-border/40 bg-white/50 backdrop-blur-sm p-4 sm:p-8 flex items-center justify-center">
+                <img
+                  src={ingredientsImage}
+                  alt={ingredientsHeading}
+                  className="max-h-[380px] w-auto object-contain filter drop-shadow-xl transition-transform duration-500 group-hover:scale-105"
+                />
               </div>
             </div>
           </div>

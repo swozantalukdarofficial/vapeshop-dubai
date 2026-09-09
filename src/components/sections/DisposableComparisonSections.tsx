@@ -11,7 +11,7 @@ export function DisposableComparisonSections({
   settings,
 }: { settings?: DisposableComparisonSettings } = {}) {
   return (
-    <div className="space-y-12 my-12">
+    <div className="space-y-8 sm:space-y-10">
       {/* ── SECTION 1: CHOOSING THE RIGHT PUFF COUNT ── */}
       <div className="space-y-4">
         {/* Header with orange vertical line */}

@@ -95,6 +95,11 @@ export interface RepeaterFieldDef extends FieldBase {
   defaultItem: Record<string, unknown>;
 }
 
+export interface ArticleFieldDef extends FieldBase {
+  type: "articles";
+  placeholder?: string;
+}
+
 export type FieldDef =
   | TextFieldDef
   | TextareaFieldDef
@@ -105,6 +110,8 @@ export type FieldDef =
   | SelectFieldDef
   | IconFieldDef
   | CollectionFieldDef
+  | ArticleFieldDef
   | DateTimeFieldDef
   | NumberFieldDef
   | RepeaterFieldDef;
+

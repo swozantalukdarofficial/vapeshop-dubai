@@ -6,50 +6,66 @@ import { Truck, ShieldCheck, CreditCard, RefreshCw } from "lucide-react";
 const POINTS = [
   {
     icon: Truck,
-    title: "Same-Day Delivery",
-    description: "Express 2-hour delivery across Dubai, and next-day across the UAE.",
+    title: "1-2 Hr Express Delivery",
+    description: "Dubai, Sharjah & Ajman express",
+    badge: "⚡ EXPRESS 2-HR",
   },
   {
     icon: ShieldCheck,
-    title: "100% Authentic",
-    description: "Directly from official sources with scratch-code verification.",
+    title: "100% Authentic UAE",
+    description: "Scratch-code verified products",
+    badge: "🛡️ 100% GENUINE",
   },
   {
     icon: CreditCard,
-    title: "Cash / Card on Delivery",
-    description: "No pre-payment required. Pay at your door with cash or card.",
+    title: "Cash & Card on Delivery",
+    description: "Pay at your doorstep easily",
+    badge: "💳 COD & CARD",
   },
   {
     icon: RefreshCw,
-    title: "24h Warranty",
-    description: "Device issue? We exchange it at your door within 24 hours.",
+    title: "24/7 Instant Dispatch",
+    description: "365 days non-stop service",
+    badge: "⏱️ 24/7 DISPATCH",
   },
 ];
 
 export const Highlights: React.FC = () => {
   return (
-    <div className="bg-card/45 backdrop-blur-sm border border-border/30 rounded-2xl py-4 px-6 shadow-sm hover:shadow-md transition-all duration-300">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-0 divide-y sm:divide-y-0 lg:divide-x lg:divide-border/20">
-        {POINTS.map((point, i) => {
-          const Icon = point.icon;
-          return (
-            <div
-              key={i}
-              className="flex items-center gap-3.5 py-2 sm:py-3 lg:py-1.5 lg:px-6 first:pl-0 last:pr-0 border-t first:border-t-0 sm:border-t-0"
-            >
-              {/* Icon container */}
-              <div className="w-9 h-9 rounded-lg bg-primary/8 flex items-center justify-center flex-shrink-0">
-                <Icon className="h-4.5 w-4.5 text-primary" />
-              </div>
+    <div className="w-full">
+      <div className="relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] bg-gradient-to-r from-card via-card/95 to-card border border-emerald-500/25 shadow-xl shadow-emerald-500/5 p-5 sm:p-7 lg:p-8">
+        {/* Top Green Accent Glow Line */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500/10 via-[#009966] to-emerald-500/10" />
 
-              {/* Content */}
-              <div className="min-w-0 flex-1">
-                <h3 className="text-xs font-bold text-foreground tracking-wide leading-tight">{point.title}</h3>
-                <p className="text-[10px] text-muted-foreground leading-snug mt-0.5 line-clamp-1">{point.description}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-0 divide-y sm:divide-y-0 lg:divide-x divide-border/60">
+          {POINTS.map((point, i) => {
+            const Icon = point.icon;
+            return (
+              <div
+                key={i}
+                className="group relative flex items-center gap-4 lg:px-6 py-4 sm:py-2 first:pl-0 last:pr-0 transition-all duration-300"
+              >
+                {/* 3D Glowing Emerald Icon Container */}
+                <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#009966] via-emerald-600 to-emerald-700 text-white shadow-lg shadow-emerald-600/30 border border-emerald-400/40 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:shadow-emerald-500/50">
+                  <Icon className="h-6 w-6 sm:h-7 sm:w-7" />
+                </div>
+
+                {/* Content Details */}
+                <div className="min-w-0 flex-1">
+                  <div className="inline-flex items-center gap-1 text-[9px] font-black tracking-widest text-[#009966] dark:text-emerald-400 uppercase bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20 mb-1">
+                    <span>{point.badge}</span>
+                  </div>
+                  <h3 className="text-sm sm:text-base font-black text-foreground tracking-tight leading-snug group-hover:text-[#009966] dark:group-hover:text-emerald-400 transition-colors">
+                    {point.title}
+                  </h3>
+                  <p className="text-xs font-semibold text-muted-foreground mt-0.5 leading-snug">
+                    {point.description}
+                  </p>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

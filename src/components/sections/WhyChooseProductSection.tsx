@@ -21,6 +21,7 @@ interface WhyChooseProductSectionProps {
   className?: string;
   settings?: WhyChooseProductSettings;
   productWhyChoose?: ProductWhyChooseMeta;
+  hideIfEmpty?: boolean;
 }
 
 export interface WhyChooseProductSettings {
@@ -50,7 +51,7 @@ function parseAstToHtml(nodes: any[]): string {
         return `<a href="${node.url || "#"}" class="text-primary underline font-bold hover:opacity-80">${inner}</a>`;
       }
       if (node.type === "paragraph") {
-        return `<p>${parseAstToHtml(node.children || [])}</p>`;
+        return `<p class="mb-3 last:mb-0 leading-relaxed text-justify [text-align-last:left]">${parseAstToHtml(node.children || [])}</p>`;
       }
       if (node.type === "list") {
         const tag = node.listType === "ordered" ? "ol" : "ul";
@@ -92,7 +93,20 @@ export function WhyChooseProductSection({
   puffs = "",
   className = "",
   productWhyChoose,
+  hideIfEmpty = false,
 }: WhyChooseProductSectionProps) {
+  const hasMetafield =
+    Boolean(productWhyChoose) &&
+    Boolean(
+      productWhyChoose?.heading ||
+      productWhyChoose?.intro ||
+      (productWhyChoose?.points && productWhyChoose.points.length > 0) ||
+      productWhyChoose?.footer
+    );
+
+  if (hideIfEmpty && !hasMetafield) {
+    return null;
+  }
   const puffCount =
     puffs ||
     productName.match(/\d+[\d,]*(?:\s*puffs|\s*puff|\s*k)/i)?.[0] ||
@@ -123,7 +137,7 @@ export function WhyChooseProductSection({
       : "";
 
   return (
-    <section className={`max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:mt-14 ${className}`}>
+    <section className={`w-full ${className}`}>
       <div className="bg-card border border-border/60 rounded-[2.5rem] p-6 sm:p-10 lg:p-12 shadow-sm relative overflow-hidden transition-all duration-300">
 
         {/* Top subtle brand accent line */}
@@ -132,7 +146,7 @@ export function WhyChooseProductSection({
         {/* Section Header with Left Vertical Accent Bar */}
         <div className="flex items-start sm:items-center gap-3 sm:gap-3.5 mb-3.5 sm:mb-4">
           <span className="w-1.5 h-7 sm:h-8 bg-primary rounded-full inline-block shrink-0 shadow-xs mt-0.5 sm:mt-0" />
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-serif font-black text-foreground tracking-tight">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-serif text-foreground tracking-tight">
             {heading}
           </h2>
         </div>
@@ -140,7 +154,7 @@ export function WhyChooseProductSection({
         {/* Subtitle / Intro Paragraph */}
         {intro && (
           <div
-            className="text-xs sm:text-sm md:text-[15px] text-muted-foreground font-medium leading-relaxed w-full mb-6 sm:mb-8 pl-0.5 [&_a]:text-primary [&_a]:underline [&_a]:font-bold hover:[&_a]:opacity-80 [&_p]:mb-3 [&_p:last-child]:mb-0"
+            className="text-sm sm:text-base md:text-lg text-muted-foreground font-medium leading-relaxed w-full mb-6 sm:mb-8 pl-0.5 [&_a]:text-primary [&_a]:underline [&_a]:font-bold hover:[&_a]:opacity-80 [&_p]:mb-3 [&_p:last-child]:mb-0"
             dangerouslySetInnerHTML={{ __html: formatText(intro) }}
           />
         )}

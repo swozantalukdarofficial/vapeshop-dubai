@@ -57,6 +57,16 @@ export const SmartImage: React.FC<SmartImageProps> = ({
 
   if (!src) return null;
 
+  const effectiveSizes =
+    sizes ||
+    (typeof width === "number" && width <= 80
+      ? "(max-width: 640px) 64px, 80px"
+      : typeof width === "number" && width <= 180
+      ? "(max-width: 640px) 140px, 180px"
+      : typeof width === "number" && width <= 360
+      ? "(max-width: 640px) 240px, 360px"
+      : "(max-width: 640px) 360px, 640px");
+
   if (canOptimize(src)) {
     return (
       <Image
@@ -65,12 +75,13 @@ export const SmartImage: React.FC<SmartImageProps> = ({
         width={width}
         height={height}
         className={className}
-        sizes={sizes}
+        sizes={effectiveSizes}
+        quality={75}
         priority={priority}
         fetchPriority={fetchPriority}
         draggable={draggable}
         onError={handleError}
-        style={{ width: 'auto', height: 'auto', ...rest.style }}
+        style={{ width: "auto", height: "auto", ...rest.style }}
         {...rest}
       />
     );

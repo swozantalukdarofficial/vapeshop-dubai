@@ -173,15 +173,15 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
 
   const displayedImage = allImagesList[activeImageIndex] || product.image;
 
-  // Preload all variant images for instant 0ms switching
+  // Preload variant images only when user hovers card
   useEffect(() => {
-    if (typeof window !== "undefined" && allImagesList.length > 0) {
-      allImagesList.forEach((url) => {
+    if (hovered && typeof window !== "undefined" && allImagesList.length > 1) {
+      allImagesList.slice(1).forEach((url) => {
         const img = new globalThis.Image();
         img.src = url;
       });
     }
-  }, [allImagesList]);
+  }, [hovered, allImagesList]);
 
   return (
     <div
@@ -368,6 +368,7 @@ export function ProductCard({ product, onAddToCart, onBuyNow }: { product: Produ
 export interface ProductFeedRow {
   title: string;
   collectionHandle: string;
+  productHandles?: string[];
   /** Overrides the collection's own URL for "view all". */
   viewAllHref: string;
   limit: number;
@@ -382,20 +383,116 @@ export interface ProductFeedRow {
   hideTimerWhenExpired: boolean;
 }
 
-/** Where a row's "view all" goes: explicit link, else its own collection. */
+function parseHandlesFromInput(input: string): { type: "collection" | "products"; handles: string[] } {
+  if (!input) return { type: "collection", handles: [] };
+
+  const raw = input.trim();
+  const parts = raw.split(",").map((s) => s.trim()).filter(Boolean);
+
+  const cleanHandles: string[] = [];
+  let isProductMode = false;
+
+  for (const part of parts) {
+    if (part.includes("/product/")) {
+      isProductMode = true;
+      const h = part.split("/product/").pop()?.split("?")[0]?.split("#")[0] || "";
+      if (h) cleanHandles.push(h.toLowerCase());
+    } else if (part.includes("/collections/")) {
+      const h = part.split("/collections/").pop()?.split("?")[0]?.split("#")[0] || "";
+      if (h) cleanHandles.push(h.toLowerCase());
+    } else if (part.includes("/brand/")) {
+      const h = part.split("/brand/").pop()?.split("?")[0]?.split("#")[0] || "";
+      if (h) cleanHandles.push(h.toLowerCase());
+    } else {
+      cleanHandles.push(part.toLowerCase());
+    }
+  }
+
+  if (isProductMode || parts.length > 1) {
+    return { type: "products", handles: cleanHandles };
+  }
+
+  return { type: "collection", handles: cleanHandles };
+}
+
+/** Where a row's "view all" goes: explicit link, else its own collection/product. */
 function rowViewAllHref(row: ProductFeedRow): string {
   if (row.viewAllHref) return row.viewAllHref;
-  if (row.collectionHandle) return `/collections/${row.collectionHandle}`;
+  const target = (row.collectionHandle || "").trim();
+  if (!target) return "";
+
+  if (target.startsWith("/") && !target.includes("/product/")) return target;
+
+  const parsed = parseHandlesFromInput(target);
+  if (parsed.type === "products" && parsed.handles.length === 1) {
+    return `/product/${parsed.handles[0]}`;
+  }
+  if (parsed.type === "products" && parsed.handles.length > 1) {
+    return `/collections/all`;
+  }
+  if (parsed.handles.length > 0) {
+    return `/collections/${parsed.handles[0]}`;
+  }
   return "";
 }
 
-function productMatchesRow(product: Product, row: ProductFeedRow): boolean {
-  const handle = (row.collectionHandle || "").trim().toLowerCase();
-  // No collection picked yet — render nothing rather than the whole catalogue.
-  if (!handle) return false;
-  // /api/products already returns each product's collection handles, so this
-  // needs no extra request.
-  return (product.collections ?? []).some((c) => c.toLowerCase() === handle);
+function productMatchesRow(product: Product, row: ProductFeedRow, allProducts: Product[] = []): boolean {
+  if (row.productHandles && row.productHandles.length > 0) {
+    const targetHandles = row.productHandles
+      .map((h) => (h.includes("/product/") ? h.split("/product/").pop()?.split("?")[0] || h : h))
+      .map((h) => h.trim().toLowerCase());
+
+    const prodHandle = (product.handle || "").toLowerCase();
+    const prodId = (product.id || "").toLowerCase();
+    return targetHandles.includes(prodHandle) || targetHandles.includes(prodId);
+  }
+
+  const target = (row.collectionHandle || "").trim();
+  if (!target) return false;
+
+  const rawParts = target.split(",").map((s) => s.trim()).filter(Boolean);
+  const cleanHandles: string[] = [];
+  let containsProductUrl = false;
+
+  for (const part of rawParts) {
+    if (part.includes("/product/")) {
+      containsProductUrl = true;
+      const h = part.split("/product/").pop()?.split("?")[0]?.split("#")[0] || "";
+      if (h) cleanHandles.push(h.toLowerCase());
+    } else if (part.includes("/collections/")) {
+      const h = part.split("/collections/").pop()?.split("?")[0]?.split("#")[0] || "";
+      if (h) cleanHandles.push(h.toLowerCase());
+    } else {
+      cleanHandles.push(part.toLowerCase());
+    }
+  }
+
+  if (cleanHandles.length === 0) return false;
+
+  const prodHandle = (product.handle || "").toLowerCase();
+  const prodId = (product.id || "").toLowerCase();
+
+  // 1. Direct product handle match
+  const isProductMatch = cleanHandles.some((h) => h === prodHandle || h === prodId);
+  if (isProductMatch) return true;
+
+  // 2. Multi-product or explicit product URL
+  if (containsProductUrl || rawParts.length > 1) return false;
+
+  // 3. If target handle exists anywhere as a product in catalogue, treat strictly as product filter
+  const existsAsProductInCatalogue = allProducts.some((p) => {
+    const ph = (p.handle || "").toLowerCase();
+    const pid = (p.id || "").toLowerCase();
+    return cleanHandles.some((h) => h === ph || h === pid);
+  });
+
+  if (existsAsProductInCatalogue) {
+    return false;
+  }
+
+  // 4. Fallback to collection handle matching
+  const colHandle = cleanHandles[0];
+  return (product.collections ?? []).some((c) => c.toLowerCase() === colHandle);
 }
 
 export interface ProductFeedSettings {
@@ -474,7 +571,7 @@ export const ProductFeed: React.FC<
     return rows
       .map((row) => ({
         row,
-        products: activeProductsList.filter((p) => productMatchesRow(p, row)),
+        products: activeProductsList.filter((p) => productMatchesRow(p, row, activeProductsList)),
       }))
       .filter((entry) => entry.products.length > 0);
   }, [activeProductsList, activeCategory, searchQuery, settings?.rows]);
@@ -532,9 +629,9 @@ export const ProductFeed: React.FC<
           {settings?.eyebrow || "Live Catalog"}
         </span>
         
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-foreground tracking-tight leading-[0.95]">
+        <h3 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-foreground tracking-tight leading-snug">
           {settings?.heading || "Explore Our Collection"}
-        </h2>
+        </h3>
 
         {/* Premium Divider */}
         <div className="flex items-center justify-center gap-2 mt-2">
