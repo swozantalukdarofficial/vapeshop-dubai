@@ -4,6 +4,7 @@ import React from "react";
 import { Plus, Minus, Trash2, ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import { SmartImage } from "@/components/ui/smart-image";
 import {
   Sheet,
   SheetContent,
@@ -87,13 +88,13 @@ export const CartDrawer: React.FC = () => {
               >
                 {/* Product image */}
                 <div className="h-16 w-16 bg-card rounded flex items-center justify-center overflow-hidden flex-shrink-0 border border-border relative">
-                  <img
+                  <SmartImage
                     src={item.image}
                     alt={item.name}
+                    width={64}
+                    height={64}
+                    fallbackSrc="/hero_vape.png"
                     className="h-full w-full object-cover"
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = "/hero_vape.png";
-                    }}
                   />
                 </div>
 

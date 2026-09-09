@@ -6,6 +6,7 @@ import {
   moderateReview,
 } from "@/lib/reviews/store";
 import { getSession } from "@/lib/auth/session";
+import { rejectCrossOrigin } from "@/lib/security/same-origin";
 
 /** GET /api/reviews?productHandle=xyz&admin=true */
 export async function GET(req: NextRequest) {
@@ -38,6 +39,9 @@ export async function GET(req: NextRequest) {
 
 /** POST /api/reviews -> Submit new review (pending) */
 export async function POST(req: NextRequest) {
+  const blocked = rejectCrossOrigin(req);
+  if (blocked) return blocked;
+
   try {
     const body = await req.json();
     const { productHandle, productName, author, location, rating, title, comment } = body;

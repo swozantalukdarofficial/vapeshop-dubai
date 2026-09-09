@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 
+import { sealImageUrlsDeep } from "../images/proxy";
 import { readPublishedRecord } from "./store";
 import type { ThemeSettings } from "./types";
 
@@ -16,7 +17,10 @@ export const THEME_CACHE_TAG = "theme-settings";
 const getCachedPublishedSettings = unstable_cache(
   async () => {
     const record = await readPublishedRecord();
-    return record.settings;
+    // Merchant-pasted image URLs are sealed to same-origin `/i/<token>` paths here so
+    // the storefront never renders a third-party CDN host. Tokens are deterministic,
+    // so caching the sealed copy is safe.
+    return sealImageUrlsDeep(record.settings);
   },
   ["published-theme-settings"],
   { tags: [THEME_CACHE_TAG] }

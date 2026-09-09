@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { Check, ArrowRight } from "lucide-react";
+import { SmartImage } from "@/components/ui/smart-image";
 
 interface BulletPoint {
   text: string;
@@ -152,9 +153,12 @@ export function JuulCustomFeatureSection({
           <div className={`relative flex justify-center items-center w-full ${reverseLayout ? "lg:order-1" : "lg:order-2"}`}>
             {image ? (
               <div className="relative z-10 w-full max-w-full lg:max-w-[650px] rounded-3xl overflow-hidden group shadow-xl border border-border/40 bg-white/50 backdrop-blur-sm p-2 sm:p-4">
-                <img
+                <SmartImage
                   src={image}
                   alt={title}
+                  width={750}
+                  height={750}
+                  fallbackSrc="/hero_vape.png"
                   className="w-full h-auto object-contain rounded-2xl filter drop-shadow-md transition-transform duration-500 group-hover:scale-[1.02]"
                 />
               </div>

@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 
+import { toProxiedImages } from "@/lib/images/proxy";
+import { rejectExternalRead } from "@/lib/security/same-origin";
+
 const SHOPIFY_STORE = process.env.SHOPIFY_STORE!;
 const ADMIN_API_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN;
 const STOREFRONT_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || process.env.SHOPIFY_API_KEY;
@@ -217,11 +220,21 @@ function cleanProductTitle(title: string): string {
   return cleaned.trim();
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const blocked = rejectExternalRead(request);
+  if (blocked) return blocked;
+
   try {
     const rawProducts = await fetchShopifyProducts();
 
-    const mappedProducts = rawProducts.map((node: any) => {
+    // The Admin fallback query returns draft and archived products too. The Storefront
+    // API only ever returns published ones and omits `status`, so an absent status is
+    // treated as published.
+    const publicProducts = rawProducts.filter(
+      (node: any) => !node?.status || String(node.status).toUpperCase() === "ACTIVE"
+    );
+
+    const mappedProducts = publicProducts.map((node: any) => {
       const firstVariant = node.variants?.edges?.[0]?.node;
       
       const priceVal = typeof firstVariant?.price === 'object' ? firstVariant?.price?.amount : firstVariant?.price;
@@ -260,7 +273,8 @@ export async function GET() {
         section = "Flash Sale";
       }
 
-      const allImages = node.images?.edges?.map((img: any) => img.node?.url).filter(Boolean) || [];
+      // Sealed here so the Shopify CDN path never reaches the browser, not even in JSON.
+      const allImages = toProxiedImages(node.images?.edges?.map((img: any) => img.node?.url) || []);
       const image = allImages[0] || "/hero_vape.png";
       const hoverImage = allImages.length > 1 ? allImages[1] : undefined;
 
@@ -293,6 +307,6 @@ export async function GET() {
     return NextResponse.json(mappedProducts);
   } catch (error: any) {
     console.error("API error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Failed to load products" }, { status: 500 });
   }
 }

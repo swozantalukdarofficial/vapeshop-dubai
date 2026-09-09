@@ -154,7 +154,7 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
           description:
             "If you’re after a simple pod system that feels smooth and reliable, MYLE devices and pods are a solid pick. Shop authentic MYLE V5, V4, and Meta systems from a trusted vape shop Dubai customers turn to for genuine products, strong flavor delivery, and everyday convenience.\nChoose from 5% nicotine strength pods, long-lasting battery life, and compact designs that make MYLE a favorite for adults looking for a premium pod kit vape shop experience in the UAE. Order online from a top-rated vape shop UAE with fast vape delivery Dubai and easy checkout.",
           image:
-            "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/myle_slider.webp?v=1786640992",
+            "/si/slider-myle",
           fallbackImage: "/Slider/myle_slider.webp",
           tag: "🔥 Premium Pod Systems",
           buttonText: "Shop MYLE Collection",
@@ -170,7 +170,7 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
           description:
             "Looking for the best disposable vape in UAE? Shop popular picks like Lost Mary, Al Fakher Crown Bar, Tugboat, BECO, and more at a trusted vape shop Dubai customers use for fast service and genuine products.\nChoose high-puff options with up to 15,000 puffs, starting from just 40 AED. If you want to order disposable vape in UAE with cash on delivery and quick delivery across Dubai, this is the one to check.",
           image:
-            "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/disposable_slider.webp?v=1786640994",
+            "/si/slider-disposable",
           fallbackImage: "/Slider/disposable_slider.webp",
           tag: "💰 From 40 AED Only",
           buttonText: "Shop Disposables",
@@ -186,7 +186,7 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
           description:
             "Are you looking for a best pod kit vape shop, a place that has refillable and pre-filled pod kits Dubai from major brands like Uwell, Geekvape, Vaporesso, OXVA and Voopoo. All these device comes in small portable, easy use body that is designed for immense taste through the usage of proper pods, coils and nicotine salt eliquids.\nBuy Dubai vapers' most-trusted vape kits at a trusted vape shop Dubai for real product delivery every single day and across the UAE.",
           image:
-            "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/pod_kits_slider.webp?v=1786640996",
+            "/si/slider-pod-kits",
           fallbackImage: "/Slider/pod_kits_slider.webp",
           tag: "⚡ High Performance Kits",
           buttonText: "Shop Pod Systems",
@@ -202,7 +202,7 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
           description:
             "Shop premium e-liquids and nicotine salt options from trusted brands like Nasty Juice, Pod Salt, Tokyo, and RufPuf at a reliable vape shop Dubai customers use for quality and choice. Choose from 0mg to 50mg nicotine strength, with over 80 flavors ready for adult vapers who want smooth flavor and solid performance.\nIf you’re looking for a pod salt shop, a best vape pod salt selection, or a trusted online vape store UAE, this is a simple place to buy vape online Dubai with fast delivery across the UAE.",
           image:
-            "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/e_liquid_slider.webp?v=1786640998",
+            "/si/slider-e-liquid",
           fallbackImage: "/Slider/e_liquid_slider.webp",
           tag: "⭐ 80+ Flavors Available",
           buttonText: "Shop E-Liquids",
@@ -221,7 +221,7 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
           buttonText: "Shop JUUL 1",
           href: "/collections/juul-1-series",
           image:
-            "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/juul_1_slider.webp?v=1786641000",
+            "/si/slider-juul-1",
           style: "light",
         },
         {
@@ -231,7 +231,7 @@ export const SECTION_REGISTRY: Record<string, SectionDef> = {
           buttonText: "Shop JUUL 2",
           href: "/collections/juul-2-series",
           image:
-            "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/juul_2_slider.webp?v=1786641001",
+            "/si/slider-juul-2",
           style: "primary",
         },
       ],

@@ -3,6 +3,7 @@
 import React, { useRef } from "react";
 import { ChevronLeft, ChevronRight, Droplet, ShoppingCart, Flame } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { SmartImage } from "@/components/ui/smart-image";
 
 interface JuulSignatureFlavorsSectionProps {
   handle: string;
@@ -235,9 +236,12 @@ export function JuulSignatureFlavorsSection({
                   className="absolute top-3 w-16 h-4 rounded-t-md"
                   style={{ backgroundColor: flavor.color }}
                 />
-                <img
+                <SmartImage
                   src={flavor.image}
                   alt={flavor.name}
+                  width={256}
+                  height={256}
+                  fallbackSrc="/hero_vape.png"
                   className="w-full h-full object-contain relative z-10"
                 />
               </div>

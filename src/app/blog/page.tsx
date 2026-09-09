@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { SmartImage } from "@/components/ui/smart-image";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/layout/CartDrawer";
@@ -262,9 +263,13 @@ export default function BlogPage() {
               
               <div className="lg:col-span-5">
                 <Link href={`/blog/${featuredPost.slug}`} className="block relative bg-gradient-to-br from-background via-muted/30 to-background border border-border/40 rounded-2xl p-6 aspect-video flex items-center justify-center overflow-hidden group shadow-inner">
-                  <img
+                  <SmartImage
                     src={featuredPost.image}
                     alt={featuredPost.title}
+                    width={640}
+                    height={360}
+                    priority
+                    fallbackSrc="/hero_vape.png"
                     className="max-h-52 w-auto object-contain transition-transform duration-500 group-hover:scale-105 filter drop-shadow-xl"
                   />
                 </Link>
@@ -328,9 +333,12 @@ export default function BlogPage() {
                     className="bg-card border border-border/50 rounded-3xl overflow-hidden flex flex-col p-4 shadow-xs hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
                   >
                     <Link href={`/blog/${post.slug}`} className="relative bg-gradient-to-br from-background via-muted/30 to-background rounded-2xl p-6 aspect-video flex items-center justify-center overflow-hidden border border-border/30">
-                      <img
+                      <SmartImage
                         src={post.image}
                         alt={post.title}
+                        width={360}
+                        height={202}
+                        fallbackSrc="/hero_vape.png"
                         className="max-h-36 w-auto object-contain transition-transform duration-300 group-hover:scale-105 filter drop-shadow-md"
                       />
                       <span className="absolute top-3 left-3 bg-background/90 backdrop-blur-md border border-border/40 text-primary text-[10px] font-extrabold tracking-wider uppercase px-3 py-1 rounded-full shadow-xs">

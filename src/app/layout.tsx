@@ -7,6 +7,7 @@ import { ThemeSettingsProvider } from "@/context/ThemeSettingsContext";
 import { getThemeSettings } from "@/lib/theme/get-settings";
 import { WhatsAppFloating } from "@/components/layout/WhatsAppFloating";
 import { CanonicalHead } from "@/components/layout/CanonicalHead";
+import { ImageProtection } from "@/components/layout/ImageProtection";
 import {
   getOrganizationSchema,
   getWebSiteSchema,
@@ -122,8 +123,6 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <link rel="preconnect" href="https://cdn.shopify.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://cdn.shopify.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         
@@ -146,6 +145,7 @@ export default async function RootLayout({
         suppressHydrationWarning
       >
         <CanonicalHead />
+        <ImageProtection />
         <ThemeSettingsProvider initial={themeSettings}>
           <ThemeProvider>
             <CartProvider>

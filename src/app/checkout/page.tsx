@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { SmartImage } from "@/components/ui/smart-image";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/layout/CartDrawer";
@@ -347,11 +348,13 @@ export default function CheckoutPage() {
               {cart.map((item) => (
                 <div key={item.id} className="flex gap-4 py-3.5 first:pt-0 last:pb-0">
                   <div className="h-14 w-14 bg-muted/40 rounded-xl flex items-center justify-center flex-shrink-0 border border-border overflow-hidden p-1">
-                    <img
+                    <SmartImage
                       src={item.image}
                       alt={item.name}
+                      width={64}
+                      height={64}
+                      fallbackSrc="/hero_vape.png"
                       className="h-full w-auto object-contain"
-                      onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/hero_vape.png"; }}
                     />
                   </div>
                   <div className="flex-grow min-w-0">

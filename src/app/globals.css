@@ -448,3 +448,29 @@ html, body {
   content-visibility: auto;
   contain-intrinsic-size: auto 500px;
 }
+/* Image save deterrents.
+ *
+ * Pairs with `src/components/layout/ImageProtection.tsx`, which handles the right-click
+ * menu. These cover what JS can't: `-webkit-touch-callout` is what suppresses the iOS
+ * long-press "Save Image" sheet, and `-webkit-user-drag` stops dragging a picture out to
+ * the desktop.
+ *
+ * This is a deterrent against casual saving only — the file is already in the browser
+ * cache, and the Network tab still hands it over.
+ *
+ * Scoped away from /admin (see `.admin-surface`) so the customizer keeps normal
+ * image interaction.
+ */
+img,
+picture {
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.admin-surface img,
+.admin-surface picture {
+  -webkit-touch-callout: default;
+  -webkit-user-drag: auto;
+  user-select: auto;
+}

@@ -7,6 +7,16 @@ export const SITE_URL = "https://vapshopdubai.ae";
 export const STORE_NAME = "Vape Shop Dubai";
 export const STORE_LOGO = `${SITE_URL}/logo.png`;
 
+/**
+ * Product images are served through the same-origin proxy as `/i/<token>` paths, but
+ * schema.org consumers need absolute URLs — Google will not resolve a relative one.
+ */
+function absoluteImageUrl(src: string): string {
+  if (!src) return STORE_LOGO;
+  if (src.startsWith("http://") || src.startsWith("https://")) return src;
+  return `${SITE_URL}${src.startsWith("/") ? src : `/${src}`}`;
+}
+
 // 1. Organization Schema
 export function getOrganizationSchema() {
   return {
@@ -130,7 +140,9 @@ export function getProductSchema(product: {
     .slice(0, 300)
     .trim();
 
-  const imageList = product.images && product.images.length > 0 ? product.images : [product.image];
+  const imageList = (product.images && product.images.length > 0 ? product.images : [product.image])
+    .filter(Boolean)
+    .map(absoluteImageUrl);
 
   return {
     "@context": "https://schema.org",
@@ -214,7 +226,7 @@ export function getItemListSchema(title: string, products: { name: string; handl
       "position": idx + 1,
       "url": `${SITE_URL}/product/${p.handle}`,
       "name": p.name,
-      "image": p.image,
+      "image": absoluteImageUrl(p.image),
     })),
   };
 }

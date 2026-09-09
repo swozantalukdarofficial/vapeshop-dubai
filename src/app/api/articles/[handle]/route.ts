@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { toProxiedImage } from "@/lib/images/proxy";
 
-const SHOPIFY_STORE = process.env.SHOPIFY_STORE || "vap-shop-dubai.myshopify.com";
+const SHOPIFY_STORE = process.env.SHOPIFY_STORE || "";
 const STOREFRONT_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || "";
 const ADMIN_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN || "";
 
@@ -74,7 +75,7 @@ export async function GET(
               contentHtml: node.contentHtml || "",
               publishedAt: node.publishedAt,
               author: node.authorV2?.name || "Vape Shop Dubai Editorial",
-              image: node.image?.url || "/hero_vape.png",
+              image: toProxiedImage(node.image?.url) || "/hero_vape.png",
               blogHandle: node.blog?.handle || "news",
               blogTitle: node.blog?.title || "News & Vaping Guides",
               seoTitle: node.seo?.title || node.title,

@@ -8,8 +8,19 @@ export const AgeGate: React.FC = () => {
 
   useEffect(() => {
     const verified = localStorage.getItem("vapedubai_age_verified");
-    const isBot = /bot|googlebot|crawler|spider|robot|crawling|lighthouse|pagespeed|moto g power|headlesschrome/i.test(navigator.userAgent) || navigator.webdriver;
-    if (!verified && !isBot) {
+
+    // Search crawlers and page-speed tools skip the gate so they can index the content
+    // and measure the page without a modal in the way.
+    //
+    // Deliberately NOT exempted: `navigator.webdriver` and `headlesschrome`. Those are
+    // automation tells, not crawler tells, and exempting them meant Playwright and
+    // Puppeteer were waved straight through. (The gate is client-side either way, so
+    // this is about not actively helping — it was never a barrier.)
+    const isSearchCrawler = /googlebot|bingbot|slurp|duckduckbot|applebot|yandexbot|baiduspider|lighthouse|pagespeed|chrome-lighthouse/i.test(
+      navigator.userAgent
+    );
+
+    if (!verified && !isSearchCrawler) {
       setShowModal(true);
     }
   }, []);

@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Check } from "lucide-react";
+import { SmartImage } from "@/components/ui/smart-image";
 
 export interface JuulPoint {
   /** Highlighted lead-in, shown in primary colour. */
@@ -108,9 +109,12 @@ export function JuulCrispMentholSections({
             <div className="relative flex justify-center items-center h-[350px]">
               {/* Center Image */}
               <div className="relative z-10 w-48 h-48 sm:w-56 sm:h-56 group">
-                <img
+                <SmartImage
                   src={image}
                   alt={productName}
+                  width={256}
+                  height={256}
+                  fallbackSrc="/hero_vape.png"
                   className="w-full h-full object-contain filter drop-shadow-2xl transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
@@ -175,9 +179,12 @@ export function JuulCrispMentholSections({
             {/* Right Column: Clean Image */}
             <div className="relative flex justify-center items-center w-full">
               <div className="relative z-10 w-full max-w-full lg:max-w-[450px] rounded-3xl overflow-hidden group shadow-xl border border-border/40 bg-white/50 backdrop-blur-sm p-4 sm:p-8 flex items-center justify-center">
-                <img
+                <SmartImage
                   src={ingredientsImage}
                   alt={ingredientsHeading}
+                  width={480}
+                  height={480}
+                  fallbackSrc="/hero_vape.png"
                   className="max-h-[380px] w-auto object-contain filter drop-shadow-xl transition-transform duration-500 group-hover:scale-105"
                 />
               </div>

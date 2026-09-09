@@ -14,5 +14,14 @@ export const metadata: Metadata = {
 export default function AdminLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return <div className="min-h-screen bg-slate-100 text-slate-900" suppressHydrationWarning>{children}</div>;
+  // `admin-surface` opts this subtree out of the storefront's image-save deterrents in
+  // globals.css, so the customizer keeps normal right-click and drag on imagery.
+  return (
+    <div
+      className="admin-surface min-h-screen bg-slate-100 text-slate-900"
+      suppressHydrationWarning
+    >
+      {children}
+    </div>
+  );
 }

@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
 import { fetchLiveWebsiteProducts, LiveProductItem } from "@/lib/getStoreProducts";
+import { SITE_URL } from "@/lib/seo-schemas";
+import { rejectCrossOrigin } from "@/lib/security/same-origin";
+
+/** Caps the prompt size an unauthenticated caller can push into a paid LLM request. */
+const MAX_MESSAGES = 30;
+const MAX_MESSAGE_CHARS = 2000;
 
 function cleanTitleForHuman(title: string): string {
   return title
@@ -29,21 +35,23 @@ function getRelevantProductsForPrompt(userMessage: string, liveProducts: LivePro
 }
 
 export async function POST(req: Request) {
+  // Each call spends LLM credits, so turn away anything not coming from our own pages.
+  const blocked = rejectCrossOrigin(req);
+  if (blocked) return blocked;
+
   try {
-    console.log("KEYS:", { OR: !!process.env.OPENROUTER_API_KEY, GROQ: !!process.env.GROQ_API_KEY, NV: !!process.env.NVIDIA_API_KEY });
     const { messages } = await req.json();
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: "Invalid messages format" }, { status: 400 });
     }
 
-    // DYNAMIC DOMAIN DETECTION
-    const hostHeader = req.headers.get("host") || "";
-    const originHeader = req.headers.get("origin") || "";
-    const protocol = hostHeader.includes("localhost") ? "http" : "https";
-    const siteUrl = originHeader || (hostHeader ? `${protocol}://${hostHeader}` : "https://vapeshopdubai.ae");
+    if (messages.length > MAX_MESSAGES) {
+      return NextResponse.json({ error: "Conversation too long" }, { status: 400 });
+    }
 
-    // INTENTION THINKING PAUSE FOR THOUGHTFUL ANALYSIS
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    // Built from a server-side constant, never from the request's Host/Origin headers —
+    // those are attacker-controlled and end up rendered to the user as links.
+    const siteUrl = SITE_URL;
 
     const BASE_STORE_POLICIES = `You are the official AI Sales Assistant for "Vape Shop Dubai" (${siteUrl}).
 You have deep vape industry knowledge.
@@ -84,26 +92,11 @@ STORE POLICIES:
 - Cash/Card on Delivery available.`;
 
     const lastUserMessageObj = [...messages].reverse().find((m: any) => m.role === "user");
-    const lastUserMessage = lastUserMessageObj?.content || "";
+    const lastUserMessage = String(lastUserMessageObj?.content || "").slice(0, MAX_MESSAGE_CHARS);
 
-    // JINA READER URL SCRAPING
-    let scrapedContext = "";
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const urls = lastUserMessage.match(urlRegex) || [];
-    if (urls.length > 0) {
-      const urlsToScrape = urls.slice(0, 2); // Max 2
-      for (const url of urlsToScrape) {
-        try {
-          const jinaRes = await fetch(`https://r.jina.ai/${url}`, { headers: { "Accept": "text/plain" }});
-          if (jinaRes.ok) {
-            const jinaText = await jinaRes.text();
-            scrapedContext += `\n\n--- SCRAPED CONTENT FROM ${url} ---\n${jinaText.substring(0, 3000)}\n---------------------------\n`;
-          }
-        } catch (e) {
-          console.warn("Jina scrape failed for", url, e);
-        }
-      }
-    }
+    // Note: URLs in the user's message are deliberately NOT fetched. Doing so let any
+    // caller inject arbitrary third-party text into the system prompt below (and pay for
+    // the tokens on our account).
 
     // 1. DYNAMICALLY SCAN ALL REAL PRODUCTS FROM LIVE WEBSITE DATABASE
     const liveProducts = await fetchLiveWebsiteProducts();
@@ -115,18 +108,16 @@ STORE POLICIES:
       ? relevantProducts.map((p) => `Product: "${cleanTitleForHuman(p.name)}" | Handle: ${p.handle} | Brand: ${p.brand} | Price: ${p.price} AED | Status: ${p.isAvailable ? "In Stock" : "Sold Out"}`).join("\n")
       : "No matching products found in database currently.";
 
-    let FULL_SYSTEM_PROMPT = `${BASE_STORE_POLICIES}\n\nRELEVANT STORE PRODUCTS DATABASE:\n${liveProductsPromptText}`;
-    if (scrapedContext) {
-      FULL_SYSTEM_PROMPT += `\n\nUSER PROVIDED LINKS CONTEXT:\nThe user shared a link. Here is its content to help you answer:\n${scrapedContext}`;
-    }
+    const FULL_SYSTEM_PROMPT = `${BASE_STORE_POLICIES}\n\nRELEVANT STORE PRODUCTS DATABASE:\n${liveProductsPromptText}`;
 
     // Filter valid messages format for AI APIs
-    const validMessages = messages.filter((m: any) => m.content && m.content.trim());
+    const validMessages = messages.filter((m: any) => typeof m?.content === "string" && m.content.trim());
     const formattedMessages = [
       { role: "system", content: FULL_SYSTEM_PROMPT },
       ...validMessages.map((m: any) => ({
         role: m.role === "assistant" ? "assistant" : "user",
-        content: m.content
+        // Truncated so a caller can't push an unbounded prompt into a billed request.
+        content: String(m.content).slice(0, MAX_MESSAGE_CHARS)
       }))
     ];
 

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { toProxiedImage } from "@/lib/images/proxy";
+import { rejectExternalRead } from "@/lib/security/same-origin";
 
-const SHOPIFY_STORE = process.env.SHOPIFY_STORE || "vap-shop-dubai.myshopify.com";
+const SHOPIFY_STORE = process.env.SHOPIFY_STORE || "";
 const STOREFRONT_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || "";
 const ADMIN_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN || "";
 
@@ -225,12 +227,16 @@ const BUILTIN_ARTICLES: ShopifyArticle[] = [
   },
 ];
 
-export async function GET() {
+export async function GET(request: Request) {
+  const blocked = rejectExternalRead(request);
+  if (blocked) return blocked;
+
   try {
     let articles: ShopifyArticle[] = [];
 
     // Try Storefront API first
     if (STOREFRONT_TOKEN) {
+
       try {
         const url = `https://${SHOPIFY_STORE}/api/2024-10/graphql.json`;
         const res = await fetch(url, {
@@ -258,7 +264,7 @@ export async function GET() {
                 contentHtml: node.contentHtml || "",
                 publishedAt: node.publishedAt,
                 author: node.authorV2?.name || "Vape Shop Dubai Editorial",
-                image: node.image?.url || "/hero_vape.png",
+                image: toProxiedImage(node.image?.url) || "/hero_vape.png",
                 blogHandle: node.blog?.handle || bNode.handle || "news",
                 blogTitle: node.blog?.title || bNode.title || "News & Vaping Guides",
                 seoTitle: node.seo?.title || node.title,
@@ -299,7 +305,7 @@ export async function GET() {
               contentHtml: node.body || "",
               publishedAt: node.publishedAt,
               author: node.author?.name || "Vape Shop Dubai Editorial",
-              image: node.image?.url || "/hero_vape.png",
+              image: toProxiedImage(node.image?.url) || "/hero_vape.png",
               blogHandle: node.blog?.handle || "news",
               blogTitle: node.blog?.title || "News & Vaping Guides",
               seoTitle: node.title,

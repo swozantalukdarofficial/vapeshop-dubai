@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server";
 
+import { toProxiedImage } from "@/lib/images/proxy";
+import { rejectExternalRead } from "@/lib/security/same-origin";
+
 const STOREFRONT_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || process.env.SHOPIFY_API_KEY;
 const SHOPIFY_STORE = process.env.SHOPIFY_STORE;
 
-export async function GET() {
+export async function GET(request: Request) {
+  const blocked = rejectExternalRead(request);
+  if (blocked) return blocked;
+
   if (!SHOPIFY_STORE || !STOREFRONT_TOKEN) {
     return NextResponse.json({ error: "Missing Shopify credentials" }, { status: 500 });
   }
@@ -38,7 +44,10 @@ export async function GET() {
         "X-Shopify-Storefront-Access-Token": STOREFRONT_TOKEN,
       },
       body: JSON.stringify({ query }),
-      next: { revalidate: 0 } // No cache to allow instant updates
+      // Was `revalidate: 0`, which meant every collection grid render hit the Shopify
+      // Admin API and burned rate limit. Collection artwork changes rarely; a publish
+      // calls `revalidatePath` anyway, so updates still appear promptly.
+      next: { revalidate: 300 }
     });
 
     const json = await res.json();
@@ -52,7 +61,7 @@ export async function GET() {
     const collections = json.data?.collections?.edges || [];
     
     collections.forEach(({ node }: any) => {
-      const imgUrl = node.image?.url || node.products?.nodes?.[0]?.featuredImage?.url;
+      const imgUrl = toProxiedImage(node.image?.url || node.products?.nodes?.[0]?.featuredImage?.url);
       if (node.handle && imgUrl) {
         imageMap[node.handle] = imgUrl;
       }

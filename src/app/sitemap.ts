@@ -86,7 +86,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let productRoutes: MetadataRoute.Sitemap = [];
 
   try {
-    const shopifyDomain = process.env.SHOPIFY_STORE || "vap-shop-dubai.myshopify.com";
+    // No hardcoded fallback: baking the myshopify domain into the source leaks the
+    // store identity. Without it we still emit the static routes below.
+    const shopifyDomain = process.env.SHOPIFY_STORE;
+    if (!shopifyDomain) {
+      throw new Error("SHOPIFY_STORE is not configured; sitemap will omit products");
+    }
     const storefrontToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || "";
 
     const res = await fetch(`https://${shopifyDomain}/api/2024-10/graphql.json`, {

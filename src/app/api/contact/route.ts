@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { rejectCrossOrigin } from "@/lib/security/same-origin";
 
-const SHOPIFY_STORE = process.env.SHOPIFY_STORE || "vap-shop-dubai.myshopify.com";
+const SHOPIFY_STORE = process.env.SHOPIFY_STORE || "";
 const ADMIN_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN || "";
 
 const createCustomerNoteQuery = `
@@ -21,6 +22,9 @@ mutation customerCreate($input: CustomerInput!) {
 `;
 
 export async function POST(request: Request) {
+  const blocked = rejectCrossOrigin(request);
+  if (blocked) return blocked;
+
   try {
     const body = await request.json();
     const { name, phone, orderId, subject, message } = body;

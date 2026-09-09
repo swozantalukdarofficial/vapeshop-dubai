@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { AlertCircle, CheckCircle2, ChevronLeft, ChevronRight, Layers, ShieldCheck, Award } from "lucide-react";
+import { SmartImage } from "@/components/ui/smart-image";
 
 export interface SectionHeadingSettings {
   badgeText: string;
@@ -187,9 +188,11 @@ export function JuulPackagingCompareSection({
 
               {/* JUUL Pod Packaging Product Visual */}
               <div className="relative w-48 sm:w-56 h-64 sm:h-72 my-4 flex flex-col items-center justify-center p-4 bg-muted/20 rounded-2xl border border-border/40 group">
-                <img
+                <SmartImage
                   src="/juul_device.png"
                   alt={isNew ? "JUUL 1 New Packaging" : "JUUL 1 Old Packaging"}
+                  width={256}
+                  height={288}
                   className="w-full h-full object-contain filter drop-shadow-xl transition-all duration-500 transform group-hover:scale-105"
                 />
                 

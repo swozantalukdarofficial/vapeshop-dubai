@@ -14,6 +14,7 @@ import {
   CreditCard,
   Search,
 } from "lucide-react";
+import { SmartImage } from "@/components/ui/smart-image";
 
 export interface BrandData {
   id: number;
@@ -429,7 +430,7 @@ export function BrandSphere3D({
                 {/* Brand Logo & Details */}
                 <div className="relative z-10 flex items-center gap-4 my-2">
                   <div className="w-16 h-16 rounded-2xl bg-background/80 border border-border/40 p-2.5 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-sm">
-                    <img src={b.image} alt={b.name} className="w-full h-full object-contain" />
+                    <SmartImage src={b.image} alt={b.name} width={96} height={96} fallbackSrc="/hero_vape.png" className="w-full h-full object-contain" />
                   </div>
                   <div>
                     <h3 className="text-2xl font-serif font-black text-foreground group-hover:text-primary transition-colors">
@@ -491,13 +492,13 @@ export function BrandSphere3D({
 
                 {/* Brand Logo Container */}
                 <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-muted/20 border border-border/40 p-2.5 mb-3 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-inner">
-                  <img
+                  <SmartImage
                     src={b.image}
                     alt={b.name}
+                    width={96}
+                    height={96}
+                    fallbackSrc="/hero_vape.png"
                     className="w-full h-full object-contain"
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = "/hero_vape.png";
-                    }}
                   />
                 </div>
 

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { toProxiedImage, toProxiedImages } from "@/lib/images/proxy";
+import { rejectExternalRead } from "@/lib/security/same-origin";
+
 const SHOPIFY_STORE = process.env.SHOPIFY_STORE!;
 const ADMIN_API_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN;
 const STOREFRONT_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || process.env.SHOPIFY_API_KEY;
@@ -303,6 +306,9 @@ export async function GET(
   request: NextRequest,
   props: { params: Promise<{ handle: string }> }
 ) {
+  const blocked = rejectExternalRead(request);
+  if (blocked) return blocked;
+
   const { handle } = await props.params;
 
   try {
@@ -358,6 +364,12 @@ export async function GET(
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
+    // The Admin fallback can return draft/archived products. Don't serve them publicly —
+    // 404 rather than 403 so this doesn't confirm the handle exists.
+    if (node.status && String(node.status).toUpperCase() !== "ACTIVE") {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
     let category = "vape";
     const tagsLower = (node.tags || []).map((t: string) => t.toLowerCase());
     if (tagsLower.includes("juul")) {
@@ -400,7 +412,7 @@ export async function GET(
       section = "Flash Sale";
     }
 
-    const images = node.images?.edges?.map((edge: any) => edge.node.url) || [];
+    const images = toProxiedImages(node.images?.edges?.map((edge: any) => edge.node?.url) || []);
     const image = images[0] || "/hero_vape.png";
 
     let specsTable: any = null;
@@ -804,7 +816,7 @@ export async function GET(
       const fields = node.juulFeature1Meta.reference.fields;
       const getVal = (k: string) => fields.find((f: any) => f.key === k)?.value || "";
       const imgField = fields.find((f: any) => f.key === "image");
-      const imgUrl = imgField?.reference?.image?.url || imgField?.reference?.url || getVal("image_url") || getVal("image") || "";
+      const imgUrl = toProxiedImage(imgField?.reference?.image?.url || imgField?.reference?.url || getVal("image_url") || getVal("image") || "");
       
       const bpField = fields.find((f: any) => f.key === "bullet_points");
       let bulletPoints: any[] = [];
@@ -835,7 +847,7 @@ export async function GET(
       const fields = node.juulFeature2Meta.reference.fields;
       const getVal = (k: string) => fields.find((f: any) => f.key === k)?.value || "";
       const imgField = fields.find((f: any) => f.key === "image");
-      const imgUrl = imgField?.reference?.image?.url || imgField?.reference?.url || getVal("image_url") || getVal("image") || "";
+      const imgUrl = toProxiedImage(imgField?.reference?.image?.url || imgField?.reference?.url || getVal("image_url") || getVal("image") || "");
       
       const bpField = fields.find((f: any) => f.key === "bullet_points");
       let bulletPoints: any[] = [];

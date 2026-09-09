@@ -23,8 +23,17 @@ function invalidateStorefront() {
   revalidatePath("/", "layout");
 }
 
+/**
+ * `proxy.ts` guards /api/admin/*, but these handlers read and write theme config, so
+ * each one re-checks the session rather than trusting a matcher in another file.
+ * `getSession()` was previously called only to attribute the edit.
+ */
+const DENIED = () => NextResponse.json({ error: "Not signed in." }, { status: 401 });
+
 /** GET — both records, so the admin can tell whether the draft is ahead. */
 export async function GET() {
+  if (!(await getSession())) return DENIED();
+
   const [draft, published] = await Promise.all([
     readDraftRecord(),
     readPublishedRecord(),
@@ -35,6 +44,7 @@ export async function GET() {
 /** PUT — save the draft without going live. */
 export async function PUT(request: Request) {
   const session = await getSession();
+  if (!session) return DENIED();
 
   let body: { settings?: unknown };
   try {
@@ -65,6 +75,7 @@ export async function PUT(request: Request) {
 /** POST — publish / discard / reset, chosen by the `action` field. */
 export async function POST(request: Request) {
   const session = await getSession();
+  if (!session) return DENIED();
 
   let body: { action?: string; settings?: unknown };
   try {

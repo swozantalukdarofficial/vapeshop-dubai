@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { getSession } from "@/lib/auth/session";
+
 const SHOPIFY_STORE = process.env.SHOPIFY_STORE;
 const ADMIN_API_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN;
 const STOREFRONT_TOKEN =
@@ -44,6 +46,11 @@ function parse(json: unknown): CollectionOption[] {
 }
 
 export async function GET() {
+  // Re-checked here rather than relying only on the `proxy.ts` matcher.
+  if (!(await getSession())) {
+    return NextResponse.json({ error: "Not signed in." }, { status: 401 });
+  }
+
   if (!SHOPIFY_STORE) {
     return NextResponse.json({ collections: [] });
   }

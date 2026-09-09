@@ -13,9 +13,22 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { SmartImage } from "@/components/ui/smart-image";
 import { useHeaderSettings } from "@/context/ThemeSettingsContext";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+/** Shape returned by `/api/search` — display fields only, no purchase identifiers. */
+interface SearchSuggestion {
+  name: string;
+  handle: string;
+  image: string;
+  price: number;
+  originalPrice?: number;
+  brand: string;
+  category: string;
+  isSoldOut: boolean;
+}
 
 interface NavbarProps {
   onSearchChange?: (query: string) => void;
@@ -61,8 +74,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
   };
 
   // Suggestions states & refs
-  const [products, setProducts] = useState<any[]>([]);
-  const [hasFetchedProducts, setHasFetchedProducts] = useState(false);
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef<HTMLFormElement>(null);
   const mobileSearchRef = useRef<HTMLFormElement>(null);
@@ -100,27 +112,44 @@ const NavbarContent: React.FC<NavbarProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const fetchProductsForSuggestions = async () => {
-    if (hasFetchedProducts) return;
-    try {
-      const res = await fetch("/api/products");
-      if (res.ok) {
-        const data = await res.json();
-        setProducts(data || []);
-        setHasFetchedProducts(true);
-      }
-    } catch (err) {
-      console.error("Error fetching products for suggestions:", err);
+  /**
+   * Suggestions come from `/api/search?q=`, which returns at most a handful of matches.
+   *
+   * This used to fetch `/api/products` — the entire ~210-product catalog, ~216 KB, on
+   * every page load — and filter it in the browser. That made the whole priced catalog
+   * (including buyable variant IDs) available from one unauthenticated request, and made
+   * every visitor pay for data they never saw.
+   */
+  useEffect(() => {
+    const query = searchQuery.trim();
+    if (query.length < 2) {
+      setSuggestions([]);
+      return;
     }
-  };
 
-  const suggestions = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-    if (query.length < 2) return [];
-    return products
-      .filter((p: any) => p.name.toLowerCase().includes(query) || (p.brand && p.brand.toLowerCase().includes(query)))
-      .slice(0, 5);
-  }, [products, searchQuery]);
+    // Debounced so typing doesn't fire a request per keystroke.
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`, {
+          signal: controller.signal,
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setSuggestions(Array.isArray(data.results) ? data.results.slice(0, 5) : []);
+        }
+      } catch (err) {
+        if ((err as Error)?.name !== "AbortError") {
+          console.error("Search request failed:", err);
+        }
+      }
+    }, 250);
+
+    return () => {
+      controller.abort();
+      clearTimeout(timer);
+    };
+  }, [searchQuery]);
 
   const handleSearchChange = (val: string) => {
     setSearchQuery(val);
@@ -409,10 +438,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
                         handleSearchChange(e.target.value);
                         setShowSuggestions(true);
                       }}
-                      onFocus={() => {
-                        fetchProductsForSuggestions();
-                        setShowSuggestions(true);
-                      }}
+                      onFocus={() => setShowSuggestions(true)}
                       placeholder="Search products..."
                       className="w-48 bg-muted border border-border rounded-full px-4 py-1.5 text-xs text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary transition-all"
                     />
@@ -441,7 +467,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
                           {suggestions.length > 0 ? (
                             suggestions.map((product) => (
                               <button
-                                key={product.id}
+                                key={product.handle}
                                 type="button"
                                 onClick={() => {
                                   router.push(`/product/${product.handle}`);
@@ -449,11 +475,13 @@ const NavbarContent: React.FC<NavbarProps> = ({
                                 }}
                                 className="w-full flex items-center gap-3 px-4 py-2 hover:bg-muted/60 transition-colors cursor-pointer text-left"
                               >
-                                <img
+                                <SmartImage
                                   src={product.image}
                                   alt={product.name}
+                                  width={48}
+                                  height={48}
+                                  fallbackSrc="/hero_vape.png"
                                   className="w-9 h-9 rounded-lg object-contain bg-white dark:bg-muted p-1 flex-shrink-0"
-                                  onError={(e) => { e.currentTarget.src = "/hero_vape.png"; }}
                                 />
                                 <div className="min-w-0 flex-1">
                                   <p className="text-xs font-bold text-foreground truncate">{product.name}</p>
@@ -544,10 +572,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
                   handleSearchChange(e.target.value);
                   setShowSuggestions(true);
                 }}
-                onFocus={() => {
-                  fetchProductsForSuggestions();
-                  setShowSuggestions(true);
-                }}
+                onFocus={() => setShowSuggestions(true)}
                 placeholder="Search products..."
                 className="w-full bg-muted border border-border rounded-full pl-10 pr-10 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary"
               />
@@ -574,7 +599,7 @@ const NavbarContent: React.FC<NavbarProps> = ({
                     {suggestions.length > 0 ? (
                       suggestions.map((product) => (
                         <button
-                          key={product.id}
+                          key={product.handle}
                           type="button"
                           onClick={() => {
                             router.push(`/product/${product.handle}`);
@@ -583,11 +608,13 @@ const NavbarContent: React.FC<NavbarProps> = ({
                           }}
                           className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted/60 transition-colors cursor-pointer text-left"
                         >
-                          <img
+                          <SmartImage
                             src={product.image}
                             alt={product.name}
+                            width={48}
+                            height={48}
+                            fallbackSrc="/hero_vape.png"
                             className="w-9 h-9 rounded-lg object-contain bg-white dark:bg-muted p-1 flex-shrink-0"
-                            onError={(e) => { e.currentTarget.src = "/hero_vape.png"; }}
                           />
                           <div className="min-w-0 flex-1">
                             <p className="text-xs font-bold text-foreground truncate">{product.name}</p>

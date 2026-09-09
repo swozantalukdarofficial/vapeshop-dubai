@@ -21,107 +21,112 @@ interface FlavorsWheelProps {
   onFlavorSelect?: (flavorLabel: string) => void;
 }
 
+/**
+ * Images are referenced by alias (`/si/<name>`), not by their real CDN URL — this is a
+ * client component, so a literal URL here would ship the Shopify CDN host in the browser
+ * bundle. The aliases resolve server-side via `src/lib/images/static-catalog.ts`.
+ */
 const DEFAULT_FLAVORS: FlavorItem[] = [
   {
     name: "Mango",
     color: "#f59e0b",
-    img: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Mango_Vape_shop_dubai_result.jpg?v=1788119690",
+    img: "/si/mango",
     query: "Mango",
   },
   {
     name: "Strawberry",
     color: "#ef4444",
-    img: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Strawberry_vape_flavor.jpg?v=1788120037",
+    img: "/si/strawberry",
     query: "Strawberry",
   },
   {
     name: "CheeseCake",
     color: "#d4a574",
-    img: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/cheesecake_vape_shop_dubai.jpg?v=1788119897",
+    img: "/si/cheesecake",
     query: "Cheesecake",
   },
   {
     name: "Watermelon",
     color: "#ec4899",
-    img: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Watermelon-_vape_shop_dubai_result.jpg?v=1788120706",
+    img: "/si/watermelon",
     query: "Watermelon",
   },
   {
     name: "Mint & Menthol",
     color: "#06b6d4",
-    img: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/mint_-_vape_shop_dubai_result.jpg?v=1788120314",
+    img: "/si/mint",
     query: "Mint",
   },
   {
     name: "Peach",
     color: "#f97316",
-    img: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Peach_flavour_showcase_image_2K_202608302024_result.jpg?v=1788120619",
+    img: "/si/peach",
     query: "Peach",
   },
   {
     name: "Grape",
     color: "#8b5cf6",
-    img: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Grape_flavor_vape_shop_dubai.jpg?v=1788119965",
+    img: "/si/grape",
     query: "Grape",
   },
   {
     name: "Blue Razz",
     color: "#3b82f6",
-    img: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Blue_Razz__vape_shop_dubai_result.jpg?v=1788120799",
+    img: "/si/blue-razz",
     query: "Blueberry",
   },
   {
     name: "Pineapple",
     color: "#ca8a04",
-    img: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Pineapple_vape_flavor_thumbnail___202608310229_result.jpg?v=1788121829",
+    img: "/si/pineapple",
     query: "Pineapple",
   },
   {
     name: "Lychee",
     color: "#e879a0",
-    img: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/lychee_vape_flavor_2K_202608310233_result.jpg?v=1788122094",
+    img: "/si/lychee",
     query: "Lychee",
   },
   {
     name: "Berry",
     color: "#d946ef",
-    img: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/berry_vape_flavor_image_202608310237.jpg?v=1788122292",
+    img: "/si/berry",
     query: "Berry",
   },
   {
     name: "Vanilla",
     color: "#a78b5c",
-    img: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Vanilla_vape_flavor_thumbnail_sh__202608310241_result.jpg?v=1788122579",
+    img: "/si/vanilla",
     query: "Vanilla",
   },
 ];
 
 const FLAVOR_IMAGE_MAP: Record<string, string> = {
-  mango: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Mango_Vape_shop_dubai_result.jpg?v=1788119690",
-  strawberry: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Strawberry_vape_flavor.jpg?v=1788120037",
-  cheesecake: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/cheesecake_vape_shop_dubai.jpg?v=1788119897",
-  watermelon: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Watermelon-_vape_shop_dubai_result.jpg?v=1788120706",
-  mint: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/mint_-_vape_shop_dubai_result.jpg?v=1788120314",
-  menthol: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/mint_-_vape_shop_dubai_result.jpg?v=1788120314",
-  cool: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/mint_-_vape_shop_dubai_result.jpg?v=1788120314",
-  frost: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/mint_-_vape_shop_dubai_result.jpg?v=1788120314",
-  ice: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/mint_-_vape_shop_dubai_result.jpg?v=1788120314",
-  peach: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Peach_flavour_showcase_image_2K_202608302024_result.jpg?v=1788120619",
-  grape: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Grape_flavor_vape_shop_dubai.jpg?v=1788119965",
-  blue: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Blue_Razz__vape_shop_dubai_result.jpg?v=1788120799",
-  razz: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Blue_Razz__vape_shop_dubai_result.jpg?v=1788120799",
-  pineapple: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Pineapple_vape_flavor_thumbnail___202608310229_result.jpg?v=1788121829",
-  lychee: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/lychee_vape_flavor_2K_202608310233_result.jpg?v=1788122094",
-  berry: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/berry_vape_flavor_image_202608310237.jpg?v=1788122292",
-  vanilla: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Vanilla_vape_flavor_thumbnail_sh__202608310241_result.jpg?v=1788122579",
-  apple: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Mango_Vape_shop_dubai_result.jpg?v=1788119690",
-  cherry: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Strawberry_vape_flavor.jpg?v=1788120037",
-  citrus: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Pineapple_vape_flavor_thumbnail___202608310229_result.jpg?v=1788121829",
-  lemon: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Pineapple_vape_flavor_thumbnail___202608310229_result.jpg?v=1788121829",
-  tobacco: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Vanilla_vape_flavor_thumbnail_sh__202608310241_result.jpg?v=1788122579",
-  virginia: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Vanilla_vape_flavor_thumbnail_sh__202608310241_result.jpg?v=1788122579",
-  candy: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/berry_vape_flavor_image_202608310237.jpg?v=1788122292",
-  soda: "https://cdn.shopify.com/s/files/1/0684/3488/6727/files/berry_vape_flavor_image_202608310237.jpg?v=1788122292",
+  mango: "/si/mango",
+  strawberry: "/si/strawberry",
+  cheesecake: "/si/cheesecake",
+  watermelon: "/si/watermelon",
+  mint: "/si/mint",
+  menthol: "/si/mint",
+  cool: "/si/mint",
+  frost: "/si/mint",
+  ice: "/si/mint",
+  peach: "/si/peach",
+  grape: "/si/grape",
+  blue: "/si/blue-razz",
+  razz: "/si/blue-razz",
+  pineapple: "/si/pineapple",
+  lychee: "/si/lychee",
+  berry: "/si/berry",
+  vanilla: "/si/vanilla",
+  apple: "/si/mango",
+  cherry: "/si/strawberry",
+  citrus: "/si/pineapple",
+  lemon: "/si/pineapple",
+  tobacco: "/si/vanilla",
+  virginia: "/si/vanilla",
+  candy: "/si/berry",
+  soda: "/si/berry",
 };
 
 function resolveFlavorImg(name: string, customImg?: string): string {
@@ -286,7 +291,7 @@ export function FlavorsWheel({
                       >
                         <SmartImage
                           src={flavor.img}
-                          fallbackSrc="https://cdn.shopify.com/s/files/1/0684/3488/6727/files/Mango_Vape_shop_dubai_result.jpg?v=1788119690"
+                          fallbackSrc="/si/mango"
                           alt={flavor.name}
                           width={80}
                           height={80}

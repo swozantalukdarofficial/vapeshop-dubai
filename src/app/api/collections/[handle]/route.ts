@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { toProxiedImage } from "@/lib/images/proxy";
+
 const SHOPIFY_STORE = process.env.SHOPIFY_STORE!;
 const ADMIN_API_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN;
 const STOREFRONT_TOKEN =
@@ -315,7 +317,7 @@ function mapCollection(col: Record<string, unknown>): CollectionMeta {
     descriptionHtml: (col.descriptionHtml as string) || "",
     image: image
       ? {
-          url: (image.url as string) || "",
+          url: toProxiedImage(image.url as string),
           altText: (image.altText as string) || "",
           width: (image.width as number) || 0,
           height: (image.height as number) || 0,

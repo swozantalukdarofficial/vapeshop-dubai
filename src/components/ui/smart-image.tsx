@@ -4,26 +4,23 @@ import Image, { type ImageProps } from "next/image";
 import React from "react";
 
 /**
- * `next/image` throws at render time when given a remote host that isn't in
- * `next.config.ts` → `images.remotePatterns`. Since the theme customizer lets
- * merchants paste arbitrary image URLs, that would take the whole page down.
+ * The single image component for the app. Everything should render through this rather
+ * than a raw `<img>`, because a raw tag bypasses the proxy and leaks the Shopify CDN.
  *
- * This renders the optimised `next/image` for hosts we've configured and falls
- * back to a plain `<img>` for anything else, so a pasted URL degrades to
- * "unoptimised but visible" instead of a crash.
+ * Remote URLs are sealed into `/i/<token>` paths on the server (see
+ * `src/lib/images/proxy.ts`), and the custom loader in `src/lib/images/loader.ts`
+ * appends the width. So by the time a `src` arrives here it is either an already-sealed
+ * `/i/...` path, a local `/public` asset, or a URL we don't proxy.
+ *
+ * The last case is why the `<img>` fallback still exists: the theme customizer accepts
+ * arbitrary pasted URLs, and an unproxyable one should degrade to "visible but
+ * unoptimised" instead of crashing the page.
  */
-
-/** Keep in sync with `images.remotePatterns` in next.config.ts. */
-const OPTIMIZED_HOSTS = ["cdn.shopify.com"];
 
 function canOptimize(src: string): boolean {
   if (!src) return false;
-  if (src.startsWith("/")) return true; // served from /public
-  try {
-    return OPTIMIZED_HOSTS.includes(new URL(src).hostname);
-  } catch {
-    return false;
-  }
+  // Sealed proxy path or a local /public asset — both go through next/image.
+  return src.startsWith("/");
 }
 
 type SmartImageProps = Omit<ImageProps, "src"> & {
@@ -67,6 +64,13 @@ export const SmartImage: React.FC<SmartImageProps> = ({
       ? "(max-width: 640px) 240px, 360px"
       : "(max-width: 640px) 360px, 640px");
 
+  // Right-click save is also blocked document-wide by `ImageProtection`; doing it here
+  // too means images are covered from first paint, before that effect has run.
+  const blockContextMenu = (event: React.MouseEvent<HTMLImageElement>) => {
+    event.preventDefault();
+  };
+  const isDraggable = draggable ?? false;
+
   if (canOptimize(src)) {
     return (
       <Image
@@ -79,7 +83,8 @@ export const SmartImage: React.FC<SmartImageProps> = ({
         quality={75}
         priority={priority}
         fetchPriority={fetchPriority}
-        draggable={draggable}
+        draggable={isDraggable}
+        onContextMenu={blockContextMenu}
         onError={handleError}
         style={{ width: "auto", height: "auto", ...rest.style }}
         {...rest}
@@ -96,7 +101,8 @@ export const SmartImage: React.FC<SmartImageProps> = ({
       width={typeof width === "number" ? width : undefined}
       height={typeof height === "number" ? height : undefined}
       className={className}
-      draggable={draggable}
+      draggable={isDraggable}
+      onContextMenu={blockContextMenu}
       loading={priority ? "eager" : "lazy"}
       fetchPriority={fetchPriority}
       onError={handleError}

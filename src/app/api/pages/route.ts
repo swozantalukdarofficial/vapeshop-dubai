@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const SHOPIFY_STORE = process.env.SHOPIFY_STORE || "vap-shop-dubai.myshopify.com";
+const SHOPIFY_STORE = process.env.SHOPIFY_STORE || "";
 const STOREFRONT_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || "";
 
 const storefrontPagesQuery = `
