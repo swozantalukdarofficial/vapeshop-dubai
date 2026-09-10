@@ -33,6 +33,7 @@ export const CONDITIONS: Record<string, Predicate> = {
 
   handleIsEJuice: (ctx) => {
     const h = handleOf(ctx);
+    if (h.includes("freebase")) return false;
     return (
       h === "e-liquids" ||
       h === "e-juice" ||
@@ -63,6 +64,20 @@ export const CONDITIONS: Record<string, Predicate> = {
     return h !== "brand" && h !== "brands";
   },
 
+  /** Hidden on brand directory listing and on e-juice collections. */
+  notBrandDirectoryAndNotEJuice: (ctx) => {
+    const h = handleOf(ctx);
+    if (h === "brand" || h === "brands") return false;
+    return (
+      h !== "e-liquids" &&
+      h !== "e-juice" &&
+      !h.includes("juice") &&
+      !h.includes("liquid") &&
+      !h.includes("salt") &&
+      !h.includes("freebase")
+    );
+  },
+
   /* ── Product rules (match on handle *or* title) ── */
   productIsJuul: (ctx) => productTextOf(ctx).includes("juul"),
   productIsMyle: (ctx) => productTextOf(ctx).includes("myle"),
@@ -84,6 +99,7 @@ export const CONDITION_LABELS: Record<string, string> = {
   handleIsJuul2: "Only on JUUL 2 collections",
   handleIncludesMyle: "Only on collections whose handle contains “myle”",
   notBrandDirectory: "Hidden on the brand directory page",
+  notBrandDirectoryAndNotEJuice: "Hidden on brand directory and e-juice collection pages",
   productIsJuul: "Only on JUUL products",
   productIsMyle: "Only on MYLE products",
   productIsNotJuul: "Hidden on JUUL products",
@@ -93,15 +109,13 @@ export const CONDITION_LABELS: Record<string, string> = {
 
 /**
  * Should this instance render?
- *
- * `isOverride` short-circuits every condition — see the note at the top.
  */
 export function shouldRenderInstance(
   showWhen: string | undefined,
   ctx: SectionContext,
-  isOverride: boolean
+  _isOverride: boolean
 ): boolean {
-  if (!showWhen || isOverride) return true;
+  if (!showWhen) return true;
   const predicate = CONDITIONS[showWhen];
   // An unknown predicate means stale data; showing the section is the safer
   // failure — a missing section is much harder to notice than an extra one.

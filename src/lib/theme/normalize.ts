@@ -113,18 +113,37 @@ function migrateV1(stored: Record<string, unknown>): ThemeSettings {
 
 /* ── v2 normalisation ─────────────────────────────────────────────── */
 
-function normalizeInstance(raw: unknown, fallbackId: string): SectionInstance | null {
+function normalizeInstance(
+  raw: unknown,
+  fallbackId: string,
+  fallbackInst?: SectionInstance
+): SectionInstance | null {
   if (!isPlainObject(raw)) return null;
 
-  const type = typeof raw.type === "string" ? raw.type : "";
+  const type = typeof raw.type === "string" ? raw.type : (fallbackInst?.type ?? "");
   const def = SECTION_REGISTRY[type];
   if (!def) return null; // section type removed from the codebase
+
+  let showWhen = typeof raw.showWhen === "string" ? raw.showWhen : fallbackInst?.showWhen;
+  if (!showWhen) {
+    if (type === "myleVerification") showWhen = "handleIncludesMyle";
+    else if (type === "juulAppIntegration") showWhen = "handleIsJuul2";
+    else if (type === "juulSignatureFlavors") showWhen = "handleIncludesJuul";
+    else if (type === "juulPackagingCompare") showWhen = "handleIsJuul1";
+    else if (type === "juulTechSpecs") showWhen = "handleIncludesJuul";
+    else if (type === "disposableShowcase" || type === "disposableComparison") showWhen = "handleIncludesDisposable";
+    else if (type === "ejuiceShowcase") showWhen = "handleIsEJuice";
+  }
+
+  if (type === "brands" && (showWhen === "notBrandDirectory" || !showWhen)) {
+    showWhen = "notBrandDirectoryAndNotEJuice";
+  }
 
   return {
     id: typeof raw.id === "string" && raw.id ? raw.id : fallbackId,
     type,
     enabled: raw.enabled !== false,
-    ...(typeof raw.showWhen === "string" ? { showWhen: raw.showWhen } : {}),
+    ...(showWhen ? { showWhen } : {}),
     settings: fillMissing(structuredClone(def.defaults), raw.settings),
   };
 }
@@ -172,7 +191,8 @@ function normalizeTemplate(raw: unknown, fallback: Template | undefined): Templa
   const instances: Record<string, SectionInstance> = {};
 
   for (const [id, value] of Object.entries(rawInstances)) {
-    const instance = normalizeInstance(value, id);
+    const fallbackInst = fallback?.instances[id];
+    const instance = normalizeInstance(value, id, fallbackInst);
     if (instance) instances[instance.id] = instance;
   }
 
