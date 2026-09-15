@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { parseCollectionSections } from "@/lib/theme/collection-sections";
+
 const SHOPIFY_STORE = process.env.SHOPIFY_STORE!;
 const ADMIN_API_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN;
 const STOREFRONT_TOKEN =
@@ -30,6 +32,7 @@ query CollectionByHandle($handle: String!) {
     faqsMeta: metafield(namespace: "custom", key: "faqs") { value }
     seoGuideMeta: metafield(namespace: "custom", key: "seo_guide") { value }
     sectionSettingsMeta: metafield(namespace: "custom", key: "section_settings") { value }
+    pageSectionsMeta: metafield(namespace: "custom", key: "page_sections") { value }
     combinedDetailsMeta: metafield(namespace: "custom", key: "collection_details") { value }
   }
 }
@@ -60,6 +63,7 @@ query CollectionByHandle($handle: String!) {
     faqsMeta: metafield(namespace: "custom", key: "faqs") { value }
     seoGuideMeta: metafield(namespace: "custom", key: "seo_guide") { value }
     sectionSettingsMeta: metafield(namespace: "custom", key: "section_settings") { value }
+    pageSectionsMeta: metafield(namespace: "custom", key: "page_sections") { value }
     combinedDetailsMeta: metafield(namespace: "custom", key: "collection_details") { value }
   }
 }
@@ -78,6 +82,8 @@ interface CollectionMeta {
   faqsJson?: any | null;
   seoGuideHtml?: string | null;
   sectionSettingsJson?: any | null;
+  /** This collection's own section layout, when it has been customised. */
+  pageSections?: unknown | null;
 }
 
 async function fetchCollection(handle: string): Promise<CollectionMeta | null> {
@@ -300,6 +306,7 @@ function mapCollection(col: Record<string, unknown>): CollectionMeta {
   const seoGuideMeta = (col.seoGuideMeta as { value?: string })?.value || null;
   const sectionSettingsMeta = (col.sectionSettingsMeta as { value?: string })?.value || null;
   const combinedDetailsMeta = (col.combinedDetailsMeta as { value?: string })?.value || null;
+  const pageSectionsMeta = (col.pageSectionsMeta as { value?: string })?.value || null;
 
   // Smart combined block parsing for 1-field easy setup
   const combinedParsed = parseCombinedBlock(combinedDetailsMeta || (col.description as string) || "");
@@ -334,6 +341,9 @@ function mapCollection(col: Record<string, unknown>): CollectionMeta {
     faqsJson: parseFaqsSimpleText(faqsMeta) || combinedParsed?.faqs || null,
     seoGuideHtml: seoGuideMeta || combinedParsed?.guideHtml || null,
     sectionSettingsJson: parseJsonSafe(sectionSettingsMeta),
+    // Validated here rather than on the page: an unparseable or stale layout
+    // becomes null, and the page falls back to the theme's collection template.
+    pageSections: parseCollectionSections(pageSectionsMeta),
   };
 }
 
